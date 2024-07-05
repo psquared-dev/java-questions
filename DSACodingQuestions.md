@@ -9,3 +9,7 @@
 1. WAP to find the closest value in BST
 1. WAP to find the branch sum of all nodes in a binary tree
 1. WAP to find the sum of node depths in a binary tree
+1. WAP to convert binary tree to mirror image
+1. WAP to print pre-order traversal
+1. WAP to print post-order traversal
+1. WAP to print in-order traversal
