@@ -13,3 +13,4 @@
 1. WAP to print pre-order traversal
 1. WAP to print post-order traversal
 1. WAP to print in-order traversal
+1. WAP to print BFS traversal of a binary tree
