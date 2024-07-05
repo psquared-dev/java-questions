@@ -14,3 +14,10 @@
 1. WAP to print post-order traversal
 1. WAP to print in-order traversal
 1. WAP to print BFS traversal of a binary tree
+
+
+## Arrays
+
+1. [Peak Element](https://www.geeksforgeeks.org/problems/peak-element/1)
+1. [Min and Max in Array](https://www.geeksforgeeks.org/problems/find-minimum-and-maximum-element-in-an-array4428/1)
+1. 
