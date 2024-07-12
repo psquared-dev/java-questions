@@ -3,3 +3,15 @@
 1. Find the second largest element in an array without sorting
 1. Given two strings `s1` and `s2`, swap them without using a third variable.
 1. Given a string, find the freq of character using streams
+
+### Q-6 What are some Garbage collection algorithms?
+
+
+### Q-7 How to manually trigger the garbage collection process?
+
+Ans: Call `System.gc()`
+
+### Q-8 Find the freq map of vowels in a string
+
+### Q-9 Given an array of strings, find the longest string in it using streams.
+
