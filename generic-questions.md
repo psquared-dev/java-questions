@@ -120,7 +120,7 @@ Ans:
 1. Stretegy
 1. Observer
 1. Decorator
-1. Factory
+1. [Factory](https://www.youtube.com/watch?v=q6xHRXI93sM&t=1s)
 1. Singleton
 1. Proxy
-1. Builder
+1. [Builder](https://www.youtube.com/watch?v=7x8iQUv5lcM)
