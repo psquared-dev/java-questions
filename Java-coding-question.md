@@ -15,3 +15,4 @@ Ans: Call `System.gc()`
 
 ### Q-9 Given an array of strings, find the longest string in it using streams.
 
+### Q-10 Find the reapeating and missing numbers from the array of numbers.

@@ -60,10 +60,38 @@ Ans:
 SOLID PRINCIPLES
 
 1. SRP Single Responsiblity Principle
+
+    THERE SHOULD NEVER BE MORE THAN ONE REASON FOR A CLASS TO CHANGE
+
+    Video 1: https://www.udemy.com/course/design-patterns-in-java-concepts-hands-on-projects/learn/lecture/14671018#reviewsf
+
 1. OCP Open Closed Principle
+
+    SOFTWARE ENTITIES (Classes, Modules, Methods etc.) SHOULD BE OPEN FOR EXTENSION, BUT CLOSED FOR MODIFICATION
+
+    Video: 2: https://www.udemy.com/course/design-patterns-in-java-concepts-hands-on-projects/learn/lecture/14671018#reviewsf
+
 1. LSP Liskov Substitution Principle
+
+    Video: https://www.youtube.com/watch?v=ObHQHszbIcE
+
+    In essence, here is what it means:
+
+    They're trying to show us when we should not use Inheritance and when we shouldn't". In other words, "whatever the parent can do, the descendants should be able to do that [and more]".
+
 1. ISP Interface Segregation Principle
+
+    CLIENTS SHOULD NOT BE FORCED TO DEPEND UPON INTERFACES THAT THEY DO NOT USE
+
+    Video: https://www.udemy.com/course/design-patterns-in-java-concepts-hands-on-projects/learn/lecture/14670992#reviews    
+
 1. DIP Dependency Inversion Principle
+
+    A. HIGH LEVEL MODULES SHOULD NOT DEPEND UPON LOW LEVEL MODULES. BOTH SHOULD DEPEND UPON ABSTRACTIONS
+
+    B. ABSTRACTIONS SHOULD NOT DEPEND UPON DETAILS. DETAILS SHOULD DEPEND UPON ABSTRACTIONS
+
+    Video: https://www.udemy.com/course/design-patterns-in-java-concepts-hands-on-projects/learn/lecture/14670998#reviews
 
 
 Video: https://www.youtube.com/watch?v=yxf2spbpTSw
@@ -71,3 +99,16 @@ Video: https://www.youtube.com/watch?v=yxf2spbpTSw
 
 -----------------------------
 
+### Q-3 Mention common design principles
+
+Ans: 
+
+1. Identify whats vary and separate it from what stays the same.
+1. Program to an interface, rather than implementation
+1. Favor composition over inheritance.
+1. 
+
+
+-----------------------------
+
+### Q-4 Different way to segreagate mircroservices

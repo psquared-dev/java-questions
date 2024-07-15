@@ -74,3 +74,7 @@ comes either from the JDK or from a framework such as Spring.
 ### Q-What is Factory Pattern
 
 Ans: 
+
+### Q-How to configure multiple data sources
+
+Ans:
