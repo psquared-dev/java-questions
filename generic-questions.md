@@ -112,3 +112,15 @@ Ans:
 -----------------------------
 
 ### Q-4 Different way to segreagate mircroservices
+
+-----------------------------
+
+### Q-5 Design Patterns I know
+
+1. Stretegy
+1. Observer
+1. Decorator
+1. Factory
+1. Singleton
+1. Proxy
+1. Builder
