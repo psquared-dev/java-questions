@@ -16,3 +16,10 @@ Ans: Call `System.gc()`
 ### Q-9 Given an array of strings, find the longest string in it using streams.
 
 ### Q-10 Find the reapeating and missing numbers from the array of numbers.
+
+### Q-11 Given an array of numbers. Find the largest product we can obtain from mutiplying two elements in the arrry. For, example:
+
+```text
+Input: [3, 6, 2, 8, 4, 5] Output: 48
+(which is the maximum product of 6 and 8)
+```
