@@ -113,6 +113,9 @@ Ans:
 
 ### Q-4 Different way to segreagate mircroservices
 
+1. Domain driven sizing
+1. Event storming sizing
+
 -----------------------------
 
 ### Q-5 Design Patterns I know

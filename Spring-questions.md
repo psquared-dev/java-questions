@@ -78,3 +78,115 @@ Ans:
 ### Q-How to configure multiple data sources
 
 Ans:
+
+-----------------------------
+
+### Q-Why spring boot?
+
+https://marcelclasses.udemy.com/course/hibernate-jpa-tutorial-for-beginners-in-100-steps/learn/lecture/32399796#questions
+
+-----------------------------
+
+
+### Q-What are different levels of logging (in order of less severe to more severe)?
+
+1. TRACE: The least severe. Provides fine-grained informational events useful for debugging.
+1. DEBUG: Provides detailed information for diagnosing problems.
+1. INFO: Informational messages that highlight the progress of the application at a coarse-grained level.
+1. WARN: Potentially harmful situations that are not necessarily errors but might need attention.
+1. ERROR: Error events that might still allow the application to continue running.
+1. FATAL: Very severe error events that will presumably lead the application to abort.
+
+-----------------------------
+
+### Q-What is AuditAware interface?
+
+https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39943208#overview
+
+
+-----------------------------
+
+
+### Q-What are different ways to read configs in Spring Boot?
+
+https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944446#overview
+
+
+-----------------------------
+
+### Q-What are the various ways to activate spring profile?
+
+```bash
+# this method is called command line arguments
+java -jar app.jar --spring.profiles.active=qa
+```
+
+or
+
+```bash
+# this method is called JVM system variables
+java -Dspring.profiles.active=qa -jar target/userservice-0.0.1-SNAPSHOT.jar
+```
+
+or
+
+```bash
+# this method uses system environment variables
+$ SPRING_PROFILES_ACTIVE=qa java -jar target/userservice-0.0.1-SNAPSHOT.jar
+```
+-----------------------------
+
+### Q-What is the order in which the configs are processed?
+
+1. Spring Boot uses a very particular order that is designed to allow sensible overriding of 
+values. Properties are considered in the following order (with values from lower items overriding earlier ones):
+
+* Properties present inside files like application.properties
+* OS Environmental variables
+* Java System properties (System.getProperties()) (JVM options)
+* JNDI attributes from java:comp/env
+* ServletContext init parameters
+* ServletConfig init parameters
+* Command line arguments
+
+-----------------------------
+
+### Q-How to encrypt values using spring config server?
+
+https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944642#overview
+
+-----------------------------
+
+### Q-Using config server how to get updated value of config without restarting microservice?
+
+https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944644#overview
+
+-----------------------------
+
+### Q-Refreshing configs using message bus
+
+https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944646#overview
+
+
+### Q-Auto refresh config using webhooks
+
+https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944648#overview
+
+
+-----------------------------
+
+### Q-How client side load balancing works?
+
+![client-side-load-balancing](./images/client-side-load-balancing.png)
+
+https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944754#overview
+
+-----------------------------
+
+
+### Q-Eureka Self-preservation mode
+
+https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944828#overview
+
+
+-----------------------------
