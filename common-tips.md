@@ -1,10 +1,10 @@
-1. In error response add a key to the path and timestamp. This makes it easier to find the logs and stacktrace associated with it.
+* In error response add a key to the path and timestamp. This makes it easier to find the logs and stacktrace associated with it.
 
-1. Always return an object from api, that way we can add more keys without breaking the client code.
+* Always return an object from api, that way we can add more keys without breaking the client code.
 
-1. To perform search through multiple tables in the database create a view.
+* To perform search through multiple tables in the database create a view.
 
-1. The value associated with the `message` key should be stored as a constant:
+* The value associated with the `message` key should be stored as a constant:
 
 ```json
 {
@@ -19,19 +19,19 @@
 }
 ```
 
-1. Specify `@AllArgsConstructor` to services and controller to avoid constructor injection.
+* Specify `@AllArgsConstructor` to services and controller to avoid constructor injection.
 
-1. When to use `@Modifying` annotation?
+* When to use `@Modifying` annotation?
 
-1. Suppose you are hitting an external API to fetch some data. If the API is down, your request might fail. A more fail-safe approach would be to push the message to a message queue (MQ) and create a consumer service. The consumer service reads the data from the MQ and attempts to hit the external API. If successful, the message is removed from the MQ; otherwise, the consumer will read the message again and retry hitting the external API.. 
+* Suppose you are hitting an external API to fetch some data. If the API is down, your request might fail. A more fail-safe approach would be to push the message to a message queue (MQ) and create a consumer service. The consumer service reads the data from the MQ and attempts to hit the external API. If successful, the message is removed from the MQ; otherwise, the consumer will read the message again and retry hitting the external API.. 
 
-1. To build the application and run tests use:
+* To build the application and run tests use:
 
 ```bash
 ./mvnw clean install
 ```
 
-1. To run the application execute the following command:
+* To run the application execute the following command:
 
 ```bash
 ./mvnw spring-boot:run
@@ -43,7 +43,7 @@ or we can use `java -jar` command:
 .java -jar app.jar
 ```
 
-1. Docker containerization is done using google jib. Add dependency to `pom.xml` and run the following to create the build:
+* Docker containerization is done using google jib. Add dependency to `pom.xml` and run the following to create the build:
 
 ```bash
 ./mvnw compile jib:dockerBuild
@@ -56,7 +56,7 @@ or use the following to build and push to docker hub:
 ```
 
 
-1. To read environment variables inside spring boot application use `Environment` interface.
+* To read environment variables inside spring boot application use `Environment` interface.
 
 ```java
 import org.springframework.core.env.Environment;
@@ -75,15 +75,15 @@ public UserController(UserService userService, Environment environment) {
     }
 ```
 
-1. Http status code for "no content" is 204.
+* Http status code for "no content" is 204.
 
-1. This command pulls the images and then creates the containers:
+* This command pulls the images and then creates the containers:
 
 ```bash
 docker compose pull && docker compose up
 ```
 
-1. We can validate @Path variable using the @Pattern annotation as follows:
+* We can validate @Path variable using the @Pattern annotation as follows:
 
 ```java
 public Response<CommonResDto> fetchCustomer(@Pathvariable 
@@ -93,6 +93,43 @@ String mobileNumber){
 }
 ```
 
-1. The return type of `HttpHeaders.get(key)` is `List<String>`.
+* The return type of `HttpHeaders.get(key)` is `List<String>`.
 
-1. To access query params in ccontroller methods use `@RequestParam`. Similarly, to access headers in controller methods use `@RequestParam`.
+* To access query params in ccontroller methods use `@RequestParam`. Similarly, to access headers in controller methods use `@RequestParam`.
+
+* Since Java 19, ExecutoService implements AutoClose.
+
+* TTL in DNS specifies the time for which the domain name will be changed by the client. Here is the output of the `dig` command.
+
+```bash
+prateek@WKWEJ772644041:~$ dig overiq.com
+
+; <<>> DiG 9.18.18-0ubuntu0.22.04.1-Ubuntu <<>> overiq.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 43806
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;overiq.com.                    IN      A
+
+;; ANSWER SECTION:
+overiq.com.             55      IN      A       3.7.161.16
+
+;; Query time: 19 msec
+;; SERVER: 10.255.255.254#53(10.255.255.254) (UDP)
+;; WHEN: Mon Aug 26 12:09:30 IST 2024
+;; MSG SIZE  rcvd: 55
+```
+
+TTL can be seen in `ANSWER SECTION:` of the above command output followed by the domain name. If you run the command repeatedly, you will see it it decrementing.
+
+* Durability: It refers to the protection against data loss and data corruption.
+
+* Availbility: It refers to the amount of time data is available to you.
+
+
+
+
