@@ -126,10 +126,6 @@ overiq.com.             55      IN      A       3.7.161.16
 
 TTL can be seen in `ANSWER SECTION:` of the above command output followed by the domain name. If you run the command repeatedly, you will see it it decrementing.
 
-* Durability: It refers to the protection against data loss and data corruption.
-
-* Availbility: It refers to the amount of time data is available to you.
-
-
+* We can use single gmail account to create multiple accounts for aws. For exmaple: if your email is `java@gmail.com`, then `java@gmail+01.com`, `java@gmail+02.com` etc and so on can be used to create new accounts. Note that any email to sent to `java@gmail+01.com` will be forwarded to `java@gmail.com` only.
 
 

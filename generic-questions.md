@@ -127,3 +127,27 @@ Ans:
 1. Singleton
 1. Proxy
 1. [Builder](https://www.youtube.com/watch?v=7x8iQUv5lcM)
+
+-----------------------------
+
+### Q-6 What is Durability and Availbility?
+
+* *Durability*: It refers to the protection against data loss and data corruption.
+* *Availbility* : It refers to the amount of time data is available to you.
+
+-----------------------------
+
+### Q-7 What is the difference between Event Streaming and Pub/Sub Patterns for Event-Driven Architecture?
+
+In event streaming, consumers have access to old events, while in pub/sub, consumers only get notified about new events as they arrive.
+
+-----------------------------
+
+### Q-8 What are the key characteristic of a cloud computing?
+
+* on-demand self-service: provision and terminate using UI/CLI without human intervention
+* broad network acceress: access services over any networks, on nay devices using standard protocols and methods.
+* resource pooling: economies of scale, cheaper service
+* rapid elasticity: scale up and down automatically based on load.
+* measured service: usage is measured, pay what you consume
+
