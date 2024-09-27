@@ -130,10 +130,12 @@ Ans:
 
 -----------------------------
 
-### Q-6 What is Durability and Availbility?
+### Q-6 What is Durability and Availability?
 
-* *Durability*: It refers to the protection against data loss and data corruption.
-* *Availbility* : It refers to the amount of time data is available to you.
+* High Availability:  Refers to the system that are durable and likely to operate continuously without failure for a long time.
+* Fault tolerance: It is the property of the system to continue operating properly in the event of failure of one or more of its components.
+* Durability: It refers to the protection against data loss and data corruption.
+* Availability : It refers to the amount of time data is available to you.
 
 -----------------------------
 
