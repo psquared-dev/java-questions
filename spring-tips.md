@@ -128,4 +128,20 @@ TTL can be seen in `ANSWER SECTION:` of the above command output followed by the
 
 * We can use single gmail account to create multiple accounts for aws. For exmaple: if your email is `java@gmail.com`, then `java@gmail+01.com`, `java@gmail+02.com` etc and so on can be used to create new accounts. Note that any email to sent to `java@gmail+01.com` will be forwarded to `java@gmail.com` only.
 
+* Durability: It refers to the protection against data loss and data corruption.
 
+* Availbility: It refers to the amount of time data is available to you.
+
+
+* Use `org.springframework.core.env.Environment` to access system environment variables.
+
+* Spring connect and response timeout - https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway/http-timeouts-configuration.html#per-route-timeouts.
+
+
+* Idempotent API: It means that the api produces the same result regardless of how many times it executes. Retries should be implemented only for idempotent apis.
+
+* While defining fallback methods for patterns like circuit breaker, retries make the sure the signature of method matches the annotated method and fallback method first argument should be `Throwable`.
+
+* Resilience4j configs - https://resilience4j.readme.io/docs/getting-started-3
+
+* If circuit breaker and retry pattern are added to the same api, and timeout of teh circuit breaker is less than than retry timeout, then circuit breaker fallback will be displayed instead of retrying. To rectify this we need to define custom circuit breaker.
