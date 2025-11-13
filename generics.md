@@ -665,6 +665,210 @@ Note that `Gencons` is not a generic class. So we can't create references as fol
 Gencons<Integer> obj1 = new Gencons(1);
 ```
 
+## Generic Interfaces
+
+Generic interfaces are specified just like generic classes. Here is an example. It creates an interface
+called `MinMax` that declares the methods `min( )` and `max( )`, which are expected to return
+the minimum and maximum value of some set of objects.
+
+```java
+// A generic interface example.
+// A Min/Max interface.
+interface MinMax<T extends Comparable<T>> {
+    T min();
+    T max();
+}
+// Now, implement MinMax
+class MyClass<T extends Comparable<T>> implements MinMax<T> {
+    T[] vals;
+    MyClass(T[] o) { vals = o; }
+    // Return the minimum value in vals.
+    public T min() {
+        T v = vals[0];
+        for(int i=1; i < vals.length; i++)
+            if(vals[i].compareTo(v) < 0) v = vals[i];
+        return v;
+    }
+    // Return the maximum value in vals.
+    public T max() {
+        T v = vals[0];
+        for(int i=1; i < vals.length; i++)
+            if(vals[i].compareTo(v) > 0) v = vals[i];
+        return v;
+    }
+}
+class GenIFDemo {
+    public static void main(String[] args) {
+        Integer[] inums = {3, 6, 2, 8, 6 };
+        Character[] chs = {'b', 'r', 'p', 'w' };
+        MyClass<Integer> iob = new MyClass<Integer>(inums);
+        MyClass<Character> cob = new MyClass<Character>(chs);
+        System.out.println("Max value in inums: " + iob.max());
+        System.out.println("Min value in inums: " + iob.min());
+        System.out.println("Max value in chs: " + cob.max());
+        System.out.println("Min value in chs: " + cob.min());
+    }
+}
+```
+
+Although most aspects of this program should be easy to understand, a couple of key
+points need to be made. First, notice that MinMax is declared like this:
+
+```java
+interface MinMax<T extends Comparable<T>> {
+```
+
+In general, a generic interface is declared in the same way as is a generic class. In this case,
+the type parameter is `T`, and its upper bound is `Comparable`. As explained earlier, `Comparable`
+is an interface defined by `java.lang` that specifies how objects are compared. Its type parameter
+specifies the type of the objects being compared.
+
+Next, `MinMax` is implemented by `MyClass`. Notice the declaration of `MyClass`,
+shown here:
+
+```java
+class MyClass<T extends Comparable<T>> implements MinMax<T> {
+```
+
+Pay special attention to the way that the type parameter `T` is declared by `MyClass` and then
+passed to `MinMax`. Because `MinMax` requires a type that implements `Comparable`, the
+implementing class (`MyClass` in this case) must specify the same bound. Furthermore, once
+this bound has been established, there is no need to specify it again in the `implements` clause.
+In fact, it would be wrong to do so.
+
+```java
+// This is wrong!
+class MyClass<T extends Comparable<T>>
+        implements MinMax<T extends Comparable<T>> {
+```
+
+Once the type parameter has been established, it is simply passed to the interface without
+further modification.
+
+In general, if a class implements a generic interface, then that class must also be generic,
+at least to the extent that it takes a type parameter that is passed to the interface. For example,
+the following attempt to declare `MyClass` is in error:
+
+```java
+class MyClass implements MinMax<T> { // Wrong!
+```
+
+Because `MyClass` does not declare a type parameter, there is no way to pass one to `MinMax`.
+In this case, the identifier T is simply unknown, and the compiler reports an error. Of course,
+if a class implements a specific type of generic interface, such as shown here:
+
+```java
+class MyClass implements MinMax<Integer> { // OK
+```
+
+then the implementing class does not need to be generic.
+
+
+## Raw Types and Legacy Code
+
+Before JDK 5, Java had no generics, so older code used plain classes (like `List`) without type parameters.
+When generics were added, Java needed a way for old and new code to work together.
+
+✅ Solution: Allow using a generic class without type arguments → called a raw type.
+This lets legacy (pre-generics) code still compile and run with newer generic code.
+
+⚠️ Drawback: Using raw types disables type safety — the compiler can’t check for type errors,
+so runtime errors (like `ClassCastException`) can happen.
+
+```java
+// Demonstrate a raw type.
+class Gen<T> {
+    T ob; // declare an object of type T
+
+    // Pass the constructor a reference to
+    // an object of type T.
+    Gen(T o) {
+        ob = o;
+    }
+
+    // Return ob.
+    T getOb() {
+        return ob;
+    }
+}
+
+public class Main01 {
+    public static void main(String[] args) {
+        // Create a Gen object for Integers.
+        Gen<Integer> iOb = new Gen<Integer>(88);
+
+        // Create a Gen object for Strings.
+        Gen<String> strOb = new Gen<String>("Generics Test");
+
+        // Create a raw-type Gen object and give it
+        // a Double value.
+        Gen raw = new Gen(Double.valueOf(98.6));
+
+        // Cast here is necessary because type is unknown.
+        double d = (Double) raw.getOb();
+        System.out.println("value: " + d);
+
+        // The use of a raw type can lead to run-time
+        // exceptions. Here are some examples.
+        // The following cast causes a run-time error!
+        // int i = (Integer) raw.getOb(); // run-time error
+        // This assignment overrides type safety.
+        strOb = raw; // OK, but potentially wrong
+        // String str = strOb.getOb(); // run-time error
+
+        // This assignment also overrides type safety.
+        raw = iOb; // OK, but potentially wrong
+        // d = (Double) raw.getOb(); // run-time error
+    }
+}
+```
+
+This program contains several interesting things. First, a raw type of the generic `Gen` class
+is created by the following declaration:
+
+```java
+Gen raw = new Gen(Double.valueOf(98.6));
+```
+
+Notice that no type arguments are specified. In essence, this creates a Gen object whose type
+`T` is replaced by `Object`.
+
+A raw type is not type safe. Thus, a variable of a raw type can be assigned a reference to
+any type of `Gen` object. The reverse is also allowed; a variable of a specific `Gen` type can be
+assigned a reference to a raw `Gen` object. However, both operations are potentially unsafe
+because the type checking mechanism of generics is circumvented.
+
+Because of the potential for danger inherent in raw types, if you compile with `-Xlint:unchecked`, 
+javac displays unchecked warnings when a raw type is used in a way that might jeopardize type safety.
+
+For the above program, the warnings were produced for the following two lines:
+
+```Bash
+Gen raw = new Gen(Double.valueOf(98.6));
+strOb = raw;
+```
+
+In the first line, it is the call to the `Gen` constructor without a type argument that causes the
+warning.
+
+The second line produces a warning because `raw` could be pointing to any type. 
+Suppose, if `raw` was actually pointing to `Gen<Integer>`, and later on try to do:
+
+```java
+String s = strOb.getOb(); // 💥 ClassCastException
+```
+
+This would cause a `ClassCastException` at runtime.
+
+At first, you might think that this line should also generate an unchecked warning, but it does not:
+
+```java
+raw = iOb; // OK, but potentially wrong
+```
+
+It's allowed without warning because assigning a parameterized type to a raw type drops type information intentionally.
+Warnings only appear when assigning a raw type to a parameterized type, since that’s potentially unsafe.
+
 
 
 
