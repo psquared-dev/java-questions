@@ -544,3 +544,76 @@ What's happening:
 
 This is much faster than raw `FileOutputStream`.
 
+
+## Writing using OutputStreamWriter
+
+Previously, the code explicitly converted the String to UTF-8 bytes using `s.getBytes(StandardCharsets.UTF_8)`. 
+When using `OutputStreamWriter`, this conversion is performed automatically, so you do not need to call
+`getBytes()` yourself.
+
+```java
+public class Example06 {
+    public static void main(String[] args) throws IOException {
+        OutputStreamWriter writer =
+                new OutputStreamWriter(new FileOutputStream("out1.txt"), StandardCharsets.UTF_8);
+        String s = "this is a file with ₹";
+
+        writer.write(s);
+        writer.close();
+    }
+}
+```
+
+Here the `writer`:
+
+* Receives characters
+* Encodes them to UTF-8 bytes
+* Writes the bytes to `FileOutputStream`
+
+
+## Writing using BufferedWriter
+
+Previously, we simplified the way bytes were generated, but this required removing buffering because `OutputStreamWriter`
+isn’t compatible with `BufferedOutputStream`. To add buffering back, we can wrap the `OutputStreamWriter` in 
+a `BufferedWriter`. Here is an example:
+
+```java
+public class Example06 {
+    public static void main(String[] args) throws IOException {
+        BufferedWriter writer =
+                new BufferedWriter(new OutputStreamWriter(new FileOutputStream("out1.txt"), StandardCharsets.UTF_8));
+        String s = "this is a file with ₹";
+
+        writer.write(s);
+        writer.close();
+    }
+}
+```
+
+## Writing using FileWriter
+
+In previous examples, we created `OutputStreamWriter` as follows:
+
+```java
+new OutputStreamWriter(new FileOutputStream("out1.txt"), StandardCharsets.UTF_8);
+```
+
+This can be simplified using the `FileWriter`.
+
+```java
+new FileWriter("out1.txt", StandardCharsets.UTF_8);
+```
+
+Here is an example:
+
+```java
+public class Example06 {
+    public static void main(String[] args) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("out1.txt", StandardCharsets.UTF_8));
+        String s = "this is a file with ₹";
+
+        writer.write(s);
+        writer.close();
+    }
+}
+```
