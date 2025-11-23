@@ -1,4 +1,4 @@
-##
+
 
 Let’s begin at the foundation: the base classes of Java’s byte-stream system.
 
@@ -19,7 +19,7 @@ Key facts (correct):
 * It does not decode characters.
 * It does not provide any performance optimizations.
 
-All buffering, filtering, or conversion is done by specific subclasses, not by InputStream itself.
+All buffering, filtering, or conversion is done by specific subclasses, not by `InputStream` itself.
 
 Core abstract method:
 
@@ -31,7 +31,7 @@ This is the only method subclasses must implement.
 
 ### What InputStream actually provides
 
-InputStream only provides:
+`InputStream` only provides:
 
 1. The contract for reading single or multiple bytes.
 2. Default implementations of:
@@ -72,16 +72,16 @@ All other write methods are conveniences layered on top.
 
 ## Direct Subclasses of InputStream
 
-These extend InputStream directly:
+These extend `InputStream` directly:
 
-1. ByteArrayInputStream - Reads bytes from an in-memory byte array.
-2. FileInputStream - Reads bytes from a file on disk (OS file descriptor).
-3. FilterInputStream - Base class for filter streams (buffered, data, etc.).
-4. ObjectInputStream - Reads Java objects (deserializes).
-5. PipedInputStream - Used for piped inter-thread communication.
-6. SequenceInputStream - Reads sequentially from multiple streams.
-7. StringBufferInputStream (deprecated) - Reads bytes from a String (bad API due to charset issues).
-8. SocketInputStream - The stream used internally by `java.net.Socket` to handle input from a network connection.
+1. `ByteArrayInputStream` - Reads bytes from an in-memory byte array.
+2. `FileInputStream` - Reads bytes from a file on disk (OS file descriptor).
+3. `FilterInputStream` - Base class for filter streams (buffered, data, etc.).
+4. `ObjectInputStream` - Reads Java objects (deserializes).
+5. `PipedInputStream` - Used for piped inter-thread communication.
+6. `SequenceInputStream` - Reads sequentially from multiple streams.
+7. `StringBufferInputStream` (deprecated) - Reads bytes from a String (bad API due to charset issues).
+8. `SocketInputStream` - The stream used internally by `java.net.Socket` to handle input from a network connection.
 
 These are the only direct subclasses.
 
@@ -91,11 +91,11 @@ These extend OutputStream directly:
 
 These extend OutputStream directly:
 
-1. ByteArrayOutputStream - Writes bytes to a resizable in-memory buffer.
-2. FileOutputStream - Writes bytes to a file on disk.
-3. FilterOutputStream - Base class for filter output streams.
-4. ObjectOutputStream - Writes Java objects (serialization).
-5. PipedOutputStream - Pairs with PipedInputStream.
+1. `ByteArrayOutputStream` - Writes bytes to a resizable in-memory buffer.
+2. `FileOutputStream` - Writes bytes to a file on disk.
+3. `FilterOutputStream` - Base class for filter output streams.
+4. `ObjectOutputStream` - Writes Java objects (serialization).
+5. `PipedOutputStream` - Pairs with `PipedInputStream`.
 
 These are the only direct subclasses.
 
@@ -166,9 +166,7 @@ Which is the UTF-8 encoding of:
 * space → `20`
 * `🔥` → `F0 9F 94 A5`
 
-## Examples
-
-### Reading the file using FileInputStream
+## Reading bytes using FileInputStream
 
 Consider the following file.txt:
 
@@ -263,3 +261,112 @@ ab
 #### Summary — in one line
 Yes — `"ab"` is converted to bytes using the system's charset (usually UTF-8) and those bytes are 
 sent to the terminal.
+
+
+### Drawbacks of using FileInputStream
+
+`FileInputStream` works at the byte level, not the character level.
+
+This creates two major limitations when handling text files:
+
+1. It reads one raw byte at a time (not characters)
+
+`FileInputStream.read()` returns an int in the range 0–255.
+
+So when you read text:
+
+* ASCII letters work fine (1 byte each)
+* UTF-8 characters that take 2, 3, or 4 bytes do NOT work correctly
+
+Examples:
+
+* `₹` = `E2 82 B9` 
+* `🔥` = `F0 9F 94 A5`
+
+`FileInputStream` gives you each byte separately:
+
+
+```text
+F0, 9F, 94, A5
+```
+
+If you cast each byte:
+
+```text
+(char)0xF0  (char)0x9F  (char)0x94  (char)0xA5
+```
+
+You get garbage, because you broke the UTF-8 sequence.
+
+2. `FileInputStream` does NOT understand characters or encodings
+
+It has no idea about:
+
+* UTF-8
+* UTF-16
+* ISO-8859-1
+* ASCII
+* surrogate pairs
+* multi-byte sequences
+* line endings
+
+It only returns bytes.
+
+If you want to turn bytes into characters, you need `InputStreamReader`, so that Java can decode UTF-8 properly:
+
+```java
+InputStreamReader reader =
+     new InputStreamReader(new FileInputStream("file.txt"), StandardCharsets.UTF_8);
+```
+
+This solves:
+
+* multi-byte characters
+* surrogate pairs
+* character boundaries
+* emoji
+* accents
+* currency symbols
+
+
+## Reading bytes using BufferedInputStream
+
+```java
+public class Example02 {
+    public static void main(String[] args) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("file.txt"));
+        int ch;
+        while ( (ch = bis.read()) != -1){
+            System.out.print(Integer.toHexString(ch) + " ");
+        }
+
+        bis.close();
+    }
+}
+```
+
+**Output:**
+
+```bash
+74 68 69 73 20 69 73 20 61 20 66 69 6c 65 20 77 69 74 68 20 e2 82 b9 
+```
+
+What `BufferedInputStream` actually changes
+
+`FileInputStream.read()`
+
+* Reads 1 byte from the OS every time
+* Every `read()` call may trigger a **system call** → slow
+
+`BufferedInputStream.read()`
+
+* Reads **a block of bytes at once** from the OS (default buffer = 8192 bytes)
+* Stores them in an internal byte array
+* Future `read()` calls simply take the next byte from that array
+(no system call until the buffer is empty)
+
+
+## Reading characters using InputStreamReader
+
+``````
+
