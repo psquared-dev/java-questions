@@ -478,4 +478,69 @@ this is a file with ₹
 `BufferedReader` gives convenience method like `readLine()` to allow reading line by line.
 
 
+## Writing bytes using FileOutputStream
+
+```java
+public class Example05 {
+    public static void main(String[] args) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream("out1.txt");
+        String s = "this is a file with ₹";
+        byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+
+        for (byte aByte : bytes) {
+            fileOutputStream.write(aByte);
+        }
+
+        fileOutputStream.close();
+    }
+}
+```
+
+This creates a file named `out1.txt` with the following content:
+
+```bash
+(base) $ cat out1.txt 
+this is a file with ₹
+```
+
+`FileOutputStream.write()` calls one OS `write()` syscall per byte.
+
+A syscall is expensive because:
+
+* it switches from user mode → kernel mode
+* data crosses JVM boundary
+* kernel does file-system bookkeeping
+* then it switches back to user mode
+
+If your string has 20 bytes, you make 20 syscalls.
+
+If you write a large file (say 5 MB), you make millions of syscalls → extremely slow.
+
+
+## Writing bytes using BufferedOutputStream
+
+```java
+public class Example06 {
+    public static void main(String[] args) throws IOException {
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("out1.txt"));
+        String s = "this is a file with ₹";
+        byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+
+        for (byte aByte : bytes) {
+            bos.write(aByte);
+        }
+
+        bos.close();
+    }
+}
+```
+
+What's happening:
+
+* Every `write(b)` writes into the **8 KB memory buffer** of `BufferedOutputStream`.
+* No disk I/O happens until the buffer fills or you close/flush.
+* With 20–30 bytes, everything fits in the buffer → **no syscalls in the loop**.
+* At `.close()` → `BufferedOutputStream` flushes contents in one syscall.
+
+This is much faster than raw `FileOutputStream`.
 
