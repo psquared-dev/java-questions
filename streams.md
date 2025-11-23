@@ -672,6 +672,34 @@ It adds following capabilities on top of normal writers:
     ```java
     pw.checkError();
     ```
+   
+
+## Writing using PrintStream
+
+Most Java I/O classes allow writing:
+
+* int (as a byte)
+* byte[]
+* char
+* char[]
+* String (via writers)
+
+`PrintStream` exists mainly as a convenience wrapper that automatically converts any printable data type 
+(text, numbers, booleans, objects) into bytes and writes them to an `OutputStream`.
+
+### 🔥 Think of it this way:
+
+`OutputStream` Understands only bytes.
+
+`PrintStream` Sits on top and gives you easy printing methods:
+
+* `print(String)`
+* `print(int)`
+* `print(double)`
+* `println()`
+* `printf()`
+
+And does the conversions internally.
 
 
 
