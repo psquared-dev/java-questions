@@ -617,3 +617,63 @@ public class Example06 {
     }
 }
 ```
+
+## Writing using PrintWriter
+
+`PrintWriter` is a high-level text-output convenience class that makes it easy to write:
+
+It adds following capabilities on top of normal writers:
+
+1. Convenience methods
+
+    Instead of:
+    
+    ```java
+    writer.write("Hello");
+    writer.write("\n");
+    ```
+    
+    You can do:
+    
+    ```java
+    printWriter.println("Hello");
+    ```
+
+2. Automatic charset conversion
+
+    It wraps any `Writer` or `OutputStream`.
+
+3. Formatting strings - `printf()` / `format()`
+
+    Like C’s `printf`:
+    
+    ```java
+    pw.printf("Total: %d items, cost: ₹%.2f", count, amount);
+    ```
+
+4. Auto-flush on newline (optional)
+
+    ```java
+    PrintWriter pw = new PrintWriter(writer, true);
+    ```
+
+    Now whenever you call:
+    
+    ```java
+    pw.println("Hello");
+    ```
+
+    it flushes automatically.
+
+5. Graceful error handling
+
+    `PrintWriter` never throws `IOException`.  Instead, you can check:
+    
+    ```java
+    pw.checkError();
+    ```
+
+
+
+
+
