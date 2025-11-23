@@ -368,5 +368,114 @@ What `BufferedInputStream` actually changes
 
 ## Reading characters using InputStreamReader
 
-``````
+```java
+public class Example03 {
+    public static void main(String[] args) throws IOException {
+        InputStreamReader inputStreamReader =
+                new InputStreamReader(new BufferedInputStream(new FileInputStream("file.txt")));
+        int ch;
+        while ( (ch = inputStreamReader.read()) != -1){
+            System.out.print((char)ch);
+        }
+
+        inputStreamReader.close();
+    }
+}
+```
+
+**Output:**
+
+```bash
+this is a file with ₹
+```
+
+`InputStreamReader` converts bytes → chars
+
+`InputStreamReader` uses platform default encoding, e.g., UTF-8.
+
+It reads as many bytes as needed to decode exact one Java char.
+
+| Character | UTF-8 bytes   | UTF-16 (Java char values)        |
+|-----------|---------------|----------------------------------|
+| A         | `41`          | `0x0041`                         |
+| space     | `20`          | `0x0020`                         |
+| ₹         | `E2 82 B9`    | `0x20B9`                         |
+| 🔥        | `F0 9F 94 A5` | `0xD83D 0xDD25` (surrogate pair) |
+
+It is important to note that the `InputStreamReader` uses default encoding, this only works correctly if
+**file is encoded using platform’s default charset**
+
+If you want correct parsing 100% of time, specify encoding:
+
+```java
+InputStreamReader inputStreamReader =
+    new InputStreamReader(
+        new BufferedInputStream(new FileInputStream("file.txt")),
+        StandardCharsets.UTF_8
+    );
+```
+
+
+## Reading characters using FileReader
+
+```java
+InputStreamReader inputStreamReader =
+                new InputStreamReader(new FileInputStream("file.txt"), StandardCharsets.UTF_8);
+```
+
+This call can be shortened using `FileReader` as follows: 
+
+```java
+FileReader fileReader = new FileReader("file.txt", StandardCharsets.UTF_8);
+```
+
+```java
+public class Example04 {
+    public static void main(String[] args) throws IOException {
+        FileReader fileReader = new FileReader("file.txt", StandardCharsets.UTF_8);
+
+        int ch;
+        while ((ch = fileReader.read()) != -1) {
+            System.out.print((char) ch);
+        }
+
+        fileReader.close();
+    }
+}
+```
+
+**Output:**
+
+```bash
+this is a file with ₹
+```
+
+## Reading using BufferedReader
+
+The above program can be optimized using `BufferedReader`. Here is an example: 
+
+```java
+public class Example04 {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("file.txt", StandardCharsets.UTF_8));
+
+        int ch;
+        while ((ch = bufferedReader.read()) != -1) {
+            System.out.print((char) ch);
+        }
+
+        bufferedReader.close();
+    }
+}
+```
+
+**Output:**
+
+```bash
+this is a file with ₹
+```
+
+`BufferedReader` gives convenience method like `readLine()` to allow reading line by line.
+
+
 
