@@ -229,13 +229,14 @@ Java stores it internally in UTF-16:
 
 #### Step 2 — PrintStream converts the String to bytes
 
-* `System.out` is a `PrintStream`.
-* Before writing anything, `PrintStream` must:
+`System.out` is a `PrintStream`.
 
-1. Take your Java String
-2. Convert it into bytes, using the console's charset
-  * Usually UTF-8 on Linux/Mac
-  * Often Cp1252 or UTF-8 on Windows
+Before writing anything, `PrintStream` must:
+
+    1. Take your Java String
+    2. Convert it into bytes, using the console's charset
+       * Usually UTF-8 on Linux/Mac
+       * Often Cp1252 or UTF-8 on Windows
 
 For UTF-8 console, `"ab"` becomes:
 
