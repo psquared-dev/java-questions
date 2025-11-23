@@ -233,10 +233,10 @@ Java stores it internally in UTF-16:
 
 Before writing anything, `PrintStream` must:
 
-    1. Take your Java String
-    2. Convert it into bytes, using the console's charset
-       * Usually UTF-8 on Linux/Mac
-       * Often Cp1252 or UTF-8 on Windows
+1. Take your Java String
+2. Convert it into bytes, using the console's charset
+   * Usually UTF-8 on Linux/Mac
+   * Often Cp1252 or UTF-8 on Windows
 
 For UTF-8 console, `"ab"` becomes:
 
