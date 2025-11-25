@@ -1,4 +1,31 @@
-
+<!-- TOC -->
+  * [InputStream — Base Class for Reading Bytes](#inputstream--base-class-for-reading-bytes)
+    * [What InputStream actually provides](#what-inputstream-actually-provides)
+  * [OutputStream — Base Class for Writing Bytes](#outputstream--base-class-for-writing-bytes)
+  * [Direct Subclasses of InputStream](#direct-subclasses-of-inputstream)
+  * [Direct Subclasses of OutputStream](#direct-subclasses-of-outputstream)
+  * [String Representation](#string-representation)
+    * [What actually gets written to the file?](#what-actually-gets-written-to-the-file)
+  * [Reading bytes using FileInputStream](#reading-bytes-using-fileinputstream)
+    * [What happens when you call - System.out.print()](#what-happens-when-you-call---systemoutprint)
+      * [Step 1 — "ab" is a Java String](#step-1--ab-is-a-java-string)
+      * [Step 2 — PrintStream converts the String to bytes](#step-2--printstream-converts-the-string-to-bytes)
+      * [Step 3 — Those bytes are written to the terminal](#step-3--those-bytes-are-written-to-the-terminal)
+      * [Summary — in one line](#summary--in-one-line)
+    * [Drawbacks of using FileInputStream](#drawbacks-of-using-fileinputstream)
+  * [Reading bytes using BufferedInputStream](#reading-bytes-using-bufferedinputstream)
+  * [Reading characters using InputStreamReader](#reading-characters-using-inputstreamreader)
+  * [Reading characters using FileReader](#reading-characters-using-filereader)
+  * [Reading using BufferedReader](#reading-using-bufferedreader)
+  * [Writing bytes using FileOutputStream](#writing-bytes-using-fileoutputstream)
+  * [Writing bytes using BufferedOutputStream](#writing-bytes-using-bufferedoutputstream)
+  * [Writing using OutputStreamWriter](#writing-using-outputstreamwriter)
+  * [Writing using BufferedWriter](#writing-using-bufferedwriter)
+  * [Writing using FileWriter](#writing-using-filewriter)
+  * [Writing using PrintWriter](#writing-using-printwriter)
+  * [Writing using PrintStream](#writing-using-printstream)
+    * [🔥 Think of it this way:](#-think-of-it-this-way)
+<!-- TOC -->
 
 Let’s begin at the foundation: the base classes of Java’s byte-stream system.
 

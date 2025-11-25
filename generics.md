@@ -1,16 +1,32 @@
 ## TOC
 
-- [Generics](#generics)
-- [A Simple Generics Example](#a-simple-generics-example)
-- [Type Erasure](#type-erasure)
-- [Generics Work Only with Reference Types](#generics-work-only-with-reference-types)
-- [Generic Types Differ Based on Their Type Arguments](#generic-types-differ-based-on-their-type-arguments)
-- [How Generics Improve Type Safety](#how-generics-improve-type-safety)
-- [A Generic Class with Two Type Parameters](#a-generic-class-with-two-type-parameters)
-- [Bounded Types](#bounded-types)
-- [Using Wildcard Arguments](#using-wildcard-arguments)
-- [Bounded Wildcards](#bounded-wildcards)
-- [Creating a Generic Method](#creating-a-generic-method)
+<!-- TOC -->
+  * [TOC](#toc)
+  * [Generics](#generics)
+  * [A Simple Generics Example](#a-simple-generics-example)
+  * [Type Erasure](#type-erasure)
+  * [Generics Work Only with Reference Types](#generics-work-only-with-reference-types)
+  * [Generic Types Differ Based on Their Type Arguments](#generic-types-differ-based-on-their-type-arguments)
+  * [How Generics Improve Type Safety](#how-generics-improve-type-safety)
+  * [A Generic Class with Two Type Parameters](#a-generic-class-with-two-type-parameters)
+  * [Bounded Types](#bounded-types)
+  * [Using Wildcard Arguments](#using-wildcard-arguments)
+  * [Bounded Wildcards](#bounded-wildcards)
+  * [Creating a Generic Method](#creating-a-generic-method)
+  * [Generic Constructors](#generic-constructors)
+  * [Generic Interfaces](#generic-interfaces)
+  * [Raw Types and Legacy Code](#raw-types-and-legacy-code)
+  * [Generic class hierarchies](#generic-class-hierarchies)
+  * [A Generic Subclass](#a-generic-subclass)
+  * [Run-Time Type Comparisons Within a Generic Hierarchy](#run-time-type-comparisons-within-a-generic-hierarchy)
+  * [Casting](#casting)
+  * [Overriding Methods in a Generic Class](#overriding-methods-in-a-generic-class)
+  * [Type Inference with Generics](#type-inference-with-generics)
+  * [Erasure](#erasure)
+    * [Source Code (with generics)](#source-code-with-generics)
+    * [What the compiler turns it into (after erasure)](#what-the-compiler-turns-it-into-after-erasure)
+    * [Bridge Methods](#bridge-methods)
+<!-- TOC -->
 
 ## Generics
 
@@ -870,5 +886,532 @@ It's allowed without warning because assigning a parameterized type to a raw typ
 Warnings only appear when assigning a raw type to a parameterized type, since that’s potentially unsafe.
 
 
+## Generic class hierarchies
 
+Generic class can act as a  superclass or be a subclass. The key difference between
+generic and non-generic hierarchies is that in a generic hierarchy, any type arguments
+needed by a generic superclass must be passed up the hierarchy by all subclasses. This is
+similar to the way that constructor arguments must be passed up a hierarchy.
+
+```java
+class Gen<T>{
+    T ob;
+
+    public Gen(T ob) {
+        this.ob = ob;
+    }
+
+    T getOb(){
+        return ob;
+    }
+}
+
+class Gen2<T> extends Gen<T>{
+    public Gen2(T ob) {
+        super(ob);
+    }
+}
+```
+
+Notice how `Gen2` is declared by the following line:
+
+```java
+class Gen2<T> extends Gen<T> {
+```
+
+The type parameter `T` is specified by `Gen2` and is also passed to `Gen` in the `extends` clause.
+This means that whatever type is passed to `Gen2` will also be passed to `Gen`. For example, this
+declaration:
+
+```java
+Gen2<Integer> num = new Gen2<Integer>(100);
+```
+
+passes `Integer` as the type parameter to `Gen`. Thus, the `ob` inside the `Gen` portion of `Gen2`
+will be of type `Integer`.
+
+Notice also that `Gen2` does not use the type parameter `T` except to support the `Gen`
+superclass. Thus, even if a subclass of a generic superclass would otherwise not need to be
+generic, it still must specify the type parameter(s) required by its generic superclass.
+
+Of course, a subclass is free to add its own type parameters, if needed. For example,
+here is a variation on the preceding hierarchy in which `Gen2` adds a type parameter of its own:
+
+```java
+class Gen<T>{
+    T ob;
+
+    public Gen(T ob) {
+        this.ob = ob;
+    }
+
+    T getOb(){
+        return ob;
+    }
+}
+
+class Gen2<T, V> extends Gen<T>{
+    V ob2;
+    public Gen2(T ob, V ob2) {
+        super(ob);
+        this.ob2 = ob2;
+    }
+
+    public V getOb2() {
+        return ob2;
+    }
+}
+
+public class Example08 {
+    public static void main(String[] args) throws IOException {
+        Gen2<String, Integer> aa = new Gen2<>("aa", 1);
+        System.out.println(aa.getOb2());
+    }
+}
+```
+
+Notice the declaration of this version of `Gen2`, which is shown here:
+
+```java
+class Gen2<T, V> extends Gen<T> {
+```
+
+Here, `T` is the type passed to `Gen`, and `V` is the type that is specific to `Gen2`. `V` is used to
+declare an object called `ob2`, and as a return type for the method `getOb2()`. In `main()`, a
+`Gen2` object is created in which type parameter `T` is `String`, and type parameter `V` is `Integer`.
+
+
+## A Generic Subclass
+
+It is perfectly acceptable for a non-generic class to be the superclass of a generic subclass.
+For example, consider this program:
+
+```java
+import java.io.IOException;
+
+class NonGen {
+    int num;
+
+    public NonGen(int num) {
+        this.num = num;
+    }
+
+    public int getNum() {
+        return num;
+    }
+}
+
+class Gen<T> extends NonGen {
+    T ob;
+
+    public Gen(T ob, int num) {
+        super(num);
+        this.ob = ob;
+    }
+
+    T getOb() {
+        return ob;
+    }
+}
+
+public class Example08 {
+    public static void main(String[] args) throws IOException {
+        Gen<String> aa = new Gen<>("aa", 1);
+        System.out.println(aa.getOb());
+    }
+}
+```
+
+In the program, notice how `Gen` inherits `NonGen` in the following declaration:
+
+```java
+class Gen<T> extends NonGen {
+```
+
+Because `NonGen` is not generic, no type argument is specified. Thus, even though `Gen`
+declares the type parameter `T`, it is not needed by (nor can it be used by) `NonGen`. Thus,
+`NonGen` is inherited by `Gen` in the normal way. No special conditions apply.
+
+## Run-Time Type Comparisons Within a Generic Hierarchy
+
+The `instanceof` determines if an object is an instance of a class. It returns `true` if an
+object is of the specified type or can be cast to the specified type. The `instanceof` operator
+can be applied to objects of generic classes. The following class demonstrates some of the
+type compatibility implications of a generic hierarchy
+
+```java
+class Gen<T> {
+    T ob;
+
+    Gen(T o) {
+        ob = o;
+    }
+
+    // Return ob.
+    T getOb() {
+        return ob;
+    }
+}
+
+// A subclass of Gen.
+class Gen2<T> extends Gen<T> {
+    Gen2(T o) {
+        super(o);
+    }
+}
+
+public class Example08 {
+    public static void main(String[] args) throws IOException {
+        Gen<Integer> iOb = new Gen<Integer>(88);
+        Gen2<Integer> iOb2 = new Gen2<Integer>(99);
+        Gen2<String> strOb2 = new Gen2<String>("Generics Test");
+
+        if(iOb instanceof Gen<?>){
+            System.out.println("iOb instanceof Gen<?>");
+        }
+
+        if(iOb instanceof Gen2<?>){
+            System.out.println("iOb instanceof Gen2<?>");
+        }
+
+        ///
+
+        if(iOb2 instanceof Gen<?>){
+            System.out.println("iOb2 instanceof Gen<?>");
+        }
+
+        if(iOb2 instanceof Gen2<?>){
+            System.out.println("iOb2 instanceof Gen2<?>");
+        }
+
+        //
+
+        if(strOb2 instanceof Gen<?>){
+            System.out.println("strOb2 instanceof Gen<?>");
+        }
+
+        if(strOb2 instanceof Gen2<?>){
+            System.out.println("strOb2 instanceof Gen2<?>");
+        }
+    }
+}
+```
+
+* `instanceof Gen<?>` simply checks whether the object is an instance of class `Gen` or its subclass.
+* `instanceof Gen2<?>` checks whether the object is exactly `Gen2` or a subclass of it.
+
+Thus:
+
+* Objects of `Gen` match `Gen`, not `Gen2`.
+* Objects of `Gen2` match both `Gen` and `Gen2`.
+
+
+## Casting
+
+You can cast one instance of a generic class into another only if the two are otherwise
+compatible and their type arguments are the same. For example, assuming the foregoing
+program, this cast is legal:
+
+```java
+(Gen<Integer>) iOb2 // legal
+```
+because `iOb2` includes an instance of `Gen<Integer>`. But, this cast:
+
+```java
+(Gen<Long>) iOb2 // illegal
+```
+
+is not legal because `iOb2` is not an instance of `Gen<Long>`.
+
+Note: **Any subtype can be cast to its parent type as long as the generic type parameters are identical**.
+
+
+## Overriding Methods in a Generic Class
+
+A method in a generic class can be overridden just like any other method. For example,
+consider this program in which the method `getOb()` is overridden.
+
+```java
+
+class Gen<T> {
+    T ob;
+
+    Gen(T o) {
+        ob = o;
+    }
+
+    // Return ob.
+    T getOb() {
+        return ob;
+    }
+}
+
+// A subclass of Gen.
+class Gen2<T> extends Gen<T> {
+    Gen2(T o) {
+        super(o);
+    }
+
+    @Override
+    T getOb() {
+        System.out.print("Gen2's getOb(): ");
+        return ob;
+    }
+}
+
+public class Example08 {
+    public static void main(String[] args) throws IOException {
+        // Create a Gen object for Integers.
+        Gen<Integer> iOb = new Gen<Integer>(88);
+
+        // Create a Gen2 object for Integers.
+        Gen2<Integer> iOb2 = new Gen2<Integer>(99);
+
+        // Create a Gen2 object for Strings.
+        Gen2<String> strOb2 = new Gen2<String>("Generics Test");
+        
+        System.out.println(iOb.getOb());
+        System.out.println(iOb2.getOb());
+        System.out.println(strOb2.getOb());
+    }
+}
+```
+
+**Output:**
+
+```bash
+88
+Gen2's getOb(): 99
+Gen2's getOb(): Generics Test
+```
+
+As the output confirms, the overridden version of `getOb()` is called for objects of type `Gen2`,
+but the superclass version is called for objects of type `Gen`.
+
+
+## Type Inference with Generics
+
+Beginning with JDK 7, it became possible to shorten the syntax used to create an instance of
+a generic type. To begin, consider the following generic class:
+
+```java
+
+class MyClass<T, V>{
+    T ob1;
+    V ob2;
+
+    public MyClass(T ob1, V ob2) {
+        this.ob1 = ob1;
+        this.ob2 = ob2;
+    }
+}
+
+public class Example08 {
+    public static void main(String[] args) throws IOException {
+        MyClass<Integer, String> aa = new MyClass<>(11, "aa");
+    }
+}
+```
+
+Prior to JDK 7, to create an instance of `MyClass`, you would have needed to use a statement
+similar to the following:
+
+```java
+MyClass<Integer, String> mcOb = new MyClass<Integer, String>(98, "A String");
+```
+
+Here, the type arguments (which are Integer and String) are specified twice: first, when
+`mcOb` is declared, and second, when a `MyClass` instance is created via new. Since generics
+were introduced by JDK 5, this is the form required by all versions of Java prior to JDK 7.
+Although there is nothing wrong, per se, with this form, it is a bit more verbose than it needs
+to be. In the new clause, the type of the type arguments can be readily inferred from the type
+of `mcOb`; therefore, there is really no reason that they need to be specified a second time.
+To address this situation, JDK 7 added a syntactic element that lets you avoid the second
+specification.
+
+Today the preceding declaration can be rewritten as shown here:
+
+```java
+MyClass<Integer, String> mcOb = new MyClass<>(98, "A String");
+```
+
+Type inference can also be applied to parameter passing. For example, if the following
+method is added to `MyClass`
+
+```java
+boolean isSame(MyClass<T, V> o) {
+    if(ob1 == o.ob1 && ob2 == o.ob2) return true;
+    else return false;
+}
+```
+
+then the following call is legal:
+
+```java
+if(mcOb.isSame(new MyClass<>(1, "test"))) System.out.println("Same");
+```
+
+In this case, the type arguments for the argument passed to `isSame()` can be inferred 
+from the parameter's type (and parameter type is determined by `mcOb`. 
+
+## Erasure
+
+1. Generics exist only at compile time.
+    The JVM does not know type parameters.
+
+2. During compilation, all generic type parameters are removed (erased).
+
+3. Each type parameter is replaced by:
+   * its bound (e.g., `T extends Number` → `Number`)
+   * or `Object` if no bound is specified.
+
+4. The compiler inserts casts where needed to preserve type safety.
+
+5. As a result, different generic instantiations share the same runtime class.
+(`List<Integer>` and `List<String>` both become `List`.)
+
+Here an example of type erasure in action.
+
+### Source Code (with generics)
+
+```java
+class Box<T> {
+    T value;
+
+    T getValue() {
+        return value;
+    }
+}
+
+Box<Integer> b = new Box<>();
+Integer x = b.getValue();
+```
+
+### What the compiler turns it into (after erasure)
+
+```java
+class Box {
+    Object value;
+
+    Object getValue() {
+        return value;
+    }
+}
+
+Box b = new Box();
+Integer x = (Integer) b.getValue();   // compiler inserts cast
+```
+
+Explanation
+
+* `T` is erased to `Object` (no bound).
+* All generic type information disappears.
+* The compiler adds a cast so the program behaves as if generics exist.
+* At runtime, `Box<Integer>` and `Box<String>` are both just `Box`.
+
+
+### Bridge Methods
+
+Consider the following program:
+
+```java
+class A {
+    Object getVal() { return null; }
+}
+
+class B extends A {
+    String getVal() { return "Hello"; }
+}
+
+public class Example08 {
+    public static void main(String[] args){
+        A ob = new B();
+        System.out.println(ob.getVal());
+    }
+}
+```
+
+Here is what happens behind the scenes.
+
+Imagine you have two construction crews: the **Java Language Crew** and the **JVM (Java Virtual Machine) Crew**.
+
+**Step 1: The Java Language Crew's Rule (Your Code)**
+
+You wrote two methods that look like this:
+
+| Class | Method            | Crew's Opinion                                                                                                                                                 |
+|-------|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `A`   | `Object getVal()` | This is the original, basic method.                                                                                                                            |
+| `B`   | `String getVal()` | This is an override. The Java Language Crew says,<br/> "This is allowed because a `String` is a special type of `Object` (covariant return type). Great job!". |
+
+
+Result: Your source code is perfectly legal according to the high-level Java rules.
+
+**Step 2: The JVM Crew's Rule (The Problem)**
+
+The JVM Crew only works with very strict, low-level contracts called signatures. They don't care about 
+**"covariant return types"** - they just see if the methods are exactly the same.
+
+The JVM's rule for overriding is: The name, the inputs, AND the output MUST match exactly.
+
+| Class | Method Signature (JVM View) |
+|-------|-----------------------------|
+| `A`   | `getVal()` returns `Object` |
+| `B`   | `getVal()` returns `String` |
+
+The JVM Crew looks at these two. They say, "Nope, the outputs are different! These are two separate methods, 
+not an override!"
+
+
+**Step 3: The Broken Contract (The Polymorphism Failure)**
+   Now, look at the code that runs:
+
+   ```java
+   A ob = new B();      // We hold a B object with an A-shaped hand
+   System.out.println(ob.getVal());
+   ```
+
+   1. **The Call:** Since your hand is `A`, the JVM is instructed to call the method it knows `A` has: the one that 
+returns an `Object`.
+
+   2. **The Search (Without Bridge):** The JVM looks inside the `B` object for a method that exactly matches
+   the signature: `getVal()` returns `Object`.
+
+   3. **The Failure:** It finds only the method you wrote: `getVal() returns String`. Since the output type is 
+   wrong for the contract it was asked to fulfill, the JVM would ignore it and move up to class `A`.
+
+   4. **Broken Polymorphism:** It would execute **A.getVal()**, which returns `null`. Polymorphism 
+   (the idea that the subclass's version runs) is broken!
+
+**Step-by-Step: The Bridge Method Fix**
+
+The Java compiler sees this problem coming and acts as the Construction Manager by 
+secretly adding the bridge method to **class B**.
+
+**Step 4: The Compiler Adds the Bridge**
+
+The compiler inserts a hidden, synthetic method into `B`:
+
+```java
+// Inside Class B, added by the compiler
+Object getVal() {          // Signature matches the JVM's requirement!
+    return this.getVal();  // Immediately calls the String getVal() you wrote!
+}
+```
+
+**Step 5: Polymorphism is Restored**
+
+When the code runs again:
+
+1. **The Call:** The JVM is still looking for the contract: `getVal() returns Object`.
+
+2. **The Search (With Bridge):** It looks in **B** and `FINDS` the new, hidden `Object getVal()` method. Success!
+
+3. **The Execution:** The JVM runs this hidden method. The hidden method's only instruction is to 
+call the `String getVal()` method you actually wrote.
+
+4. **The Final Result:** Your String `getVal()` runs and prints `"Hello"`.
+
+The bridge method exists solely to satisfy the strict, low-level signature requirement of the JVM while allowing
+the high-level Java language feature of covariant return types to work correctly.
 
