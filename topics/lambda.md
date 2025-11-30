@@ -20,7 +20,9 @@
     * [Reference to a static method](#reference-to-a-static-method)
     * [Reference to an instance method of a specific object](#reference-to-an-instance-method-of-a-specific-object)
     * [Unbound instance method reference — the object will be provided as the first argument](#unbound-instance-method-reference--the-object-will-be-provided-as-the-first-argument)
-    * [When to use method references?](#when-to-use-method-references)
+      * [When to use method references?](#when-to-use-method-references)
+    * [Reference to a constructor](#reference-to-a-constructor)
+      * [Essence of Constructor Reference](#essence-of-constructor-reference)
 <!-- TOC -->
 
 The key to understanding Java's implementation of lambda expressions are two constructs.
@@ -525,4 +527,48 @@ it rewrites it into a lambda equivalent to:
 
 That's the entire concept.
 
+Example:
 
+```java
+class User{
+    private final String firstName;
+    private final String lastName;
+
+    public User(String firstName) {
+        this.firstName = firstName;
+        this.lastName  = null;
+    }
+
+    public User(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                '}';
+    }
+}
+
+public class Example10 {
+    public static void main(String[] args) {
+        ArrayList<String> list = new ArrayList<>(List.of("aa", "bb", "cc"));
+        List<User> userList1 = list.stream().map((fname) -> new User(fname)).toList();
+        List<User> userList2 = list.stream().map(User::new).toList();
+        System.out.println(userList1);
+    }
+}
+```
+
+Methods references may appear little cleaner, but they kill readability of lot. Use it sparingly.
