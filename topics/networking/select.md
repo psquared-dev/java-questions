@@ -418,3 +418,53 @@ select(...);
 * You must rebuild the set each loop because select() modifies it in place.
 
 So the work per iteration is proportional to the number of watched fds — that's the O(N) problem.
+
+
+## Sample select() server in Java (NIO)
+
+```java
+var serverSocketChannel = ServerSocketChannel.open();
+serverSocketChannel.configureBlocking(false);
+// Creates a non-blocking TCP listening socket (socket() + fcntl(O_NONBLOCK))
+
+var selector = Selector.open();
+// On Linux → epoll_create()
+// On macOS → kqueue()
+// On Windows → IOCP
+
+serverSocketChannel.bind(new InetSocketAddress(portNumber));
+// bind() + listen() under the hood
+
+serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+// epoll_ctl(ADD, server_fd, EPOLLIN)
+
+while (true) {
+
+    if (selector.select() == 0) continue;
+    // selector.select() = epoll_wait()
+    // Blocks until some fd becomes ready
+
+    for (var key : selector.selectedKeys()) {
+
+        if (key.isAcceptable()) {
+            // This means: server_fd got EPOLLIN → accept() won't block
+
+            var clientChannel = serverSocketChannel.accept();
+            // accept() = new client fd
+
+            clientChannel.configureBlocking(false);
+            // fcntl(client_fd, O_NONBLOCK)
+
+            clientChannel.register(selector, SelectionKey.OP_READ);
+            // epoll_ctl(ADD, client_fd, EPOLLIN)
+        }
+
+        else if (key.isReadable()) {
+            // client_fd triggered EPOLLIN → data is available
+
+            var clientChannel = (SocketChannel) key.channel();
+            // read(client_fd, ...)
+        }
+    }
+}
+```
