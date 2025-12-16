@@ -367,7 +367,7 @@ Association (has-a)
    └── Composition (strong has-a)
 ```
 
-Ans: ![association](images/association.png)
+Ans: ![association](../images/association.png)
 
 1. Video: https://www.youtube.com/watch?v=j84w5VM9GT8&t=1267s
 
@@ -829,7 +829,7 @@ This process is also known as Run-Time Polymorphism
 
 # Q-20 What are different thread states?
 
-Ans: ![thread states](images/thead-states.png)
+Ans: ![thread states](../images/thead-states.png)
 
 * when `sleep()` is called it goes to timed waiting
 * when `join()` is called thread goes to waiting state
@@ -1289,7 +1289,7 @@ Java 5
 
 # Q-43 Whats the diff b\w process and threads?
 
-![threads vs process](./images/threads-vs-process.png)
+![threads vs process](../images/threads-vs-process.png)
 
 For more: https://www.scaler.com/topics/course/free-operating-system-course/video/1443/
 
@@ -1360,11 +1360,11 @@ Here:
 
 References != Objects
 
-![alt text](images/obejct-vs-references.png)
+![alt text](../images/obejct-vs-references.png)
 
-![alt text](images/what-is-allocated-where.png)
+![alt text](../images/what-is-allocated-where.png)
 
-![alt text](images/memory-regions-summary.png)
+![alt text](../images/memory-regions-summary.png)
 
 Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199598#notes
 
@@ -1429,7 +1429,7 @@ Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-p
 
 # Q-55 Explain the evolution of concurrency API in Java
 
-![alt text](./images/evolution-of-concurrency-API-java.png)
+![alt text](../images/evolution-of-concurrency-API-java.png)
 
 -----------------------------
 
@@ -1755,13 +1755,13 @@ functionality remains the same.
 
 # Q-69 What is the differnece b/w `isEmpty()` and `isBlank()` method of String object?
 
-![alt text](./images/isempty-vs-isblanck.png)
+![alt text](../images/isempty-vs-isblanck.png)
 
 -----------------------------
 
 # Q-70 Diff b/w `String`, `StringBuilder` and `StringBuffer`
 
-![alt text](./images/types-of-string.png)
+![alt text](../images/types-of-string.png)
 
 -----------------------------
 
@@ -3636,4 +3636,10 @@ If the JVM is killed violently, the hook is skipped.
 Call `System.gc()`
 
 # Q-98 What are some Garbage collection algorithms?
+
+# Q-99 What are sealed classes?
+
+
+
+
 

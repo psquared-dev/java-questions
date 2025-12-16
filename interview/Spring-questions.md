@@ -20,7 +20,7 @@ Ans: No, spring Boot uses a dispatcher servlet to handle HTTP requests and deleg
 
 ### Q-What is Dispatcher servlet?
 
-Ans: ![](images/dispatcherServlet.png)
+Ans: ![](../images/dispatcherServlet.png)
 
 -----------------------------
 
@@ -55,7 +55,7 @@ A data source object can efficiently manage the connections to minimize the numb
 of unnecessary operations. Instead of using the JDBC driver manager directly, we use
 a data source to retrieve and manage the connections.
 
-![data-source](images/data-source.png)
+![data-source](../images/data-source.png)
 
 HikariCP the default data source implementation.
 
@@ -177,7 +177,7 @@ https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-k
 
 ### Q-How client side load balancing works?
 
-![client-side-load-balancing](./images/client-side-load-balancing.png)
+![client-side-load-balancing](../images/client-side-load-balancing.png)
 
 https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944754#overview
 
