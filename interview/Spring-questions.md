@@ -427,6 +427,156 @@ Parrot parrot;
 
 Resolves ambiguity when multiple beans exist.
 
+# Q-9 How to use abstractions with the Spring Context?
+
+This example demonstrates how Spring encourages programming to abstractions (interfaces) 
+rather than concrete implementations.
+
+## Introducing the Abstraction
+
+We start with an interface that defines what the application needs to do, not how.
+
+```java
+public interface FileTransfer {
+    void upload();
+}
+```
+
+This interface represents the capability of uploading a file, without tying the application 
+to any specific cloud provider.
+
+## Concrete Implementations
+
+Now we provide different implementations of the same abstraction.
+
+```java
+@Component
+public class AWSFileTransfer implements FileTransfer {
+    @Override
+    public void upload() {
+        System.out.println("File uploaded to AWS");
+    }
+}
+
+@Component
+public class GCPFileTransfer implements FileTransfer {
+    @Override
+    public void upload() {
+        System.out.println("File uploaded to GCP");
+    }
+}
+```
+
+Spring detects both classes during component scanning and registers two beans of type `FileTransfer`.
+
+## Case 1 – Using a Single Implementation
+
+If there is only one implementation, Spring can inject it directly.
+
+```java
+@Component
+public class Person {
+
+    private final FileTransfer fileTransfer;
+
+    public Person(FileTransfer fileTransfer) {
+        this.fileTransfer = fileTransfer;
+    }
+
+    public void upload() {
+        fileTransfer.upload();
+    }
+}
+```
+
+📌 This works only when exactly one bean of type `FileTransfer` exists.
+
+## Case 2 – Multiple Implementations, One Selected by Spring
+
+When multiple implementations exist, Spring needs help choosing one.
+
+### Using `@Qualifier`
+
+```java
+@Component
+@Qualifier("aws")
+public class AWSFileTransfer implements FileTransfer { }
+```
+
+```java
+@Component
+@Qualifier("gcp")
+public class GCPFileTransfer implements FileTransfer { }
+```
+
+```java
+@Component
+public class Person {
+
+    private final FileTransfer fileTransfer;
+
+    public Person(@Qualifier("gcp") FileTransfer fileTransfer) {
+        this.fileTransfer = fileTransfer;
+    }
+
+    public void upload() {
+        fileTransfer.upload();
+    }
+}
+```
+
+📌 Spring injects only the selected implementation.
+
+## Case 3 – Using Multiple Implementations at the Same Time
+
+Sometimes the application needs all implementations.
+
+```java
+@Component
+public class Person {
+
+    private final List<FileTransfer> fileTransfers;
+
+    public Person(List<FileTransfer> fileTransfers) {
+        this.fileTransfers = fileTransfers;
+    }
+
+    public void uploadAll() {
+        fileTransfers.forEach(FileTransfer::upload);
+    }
+}
+```
+
+📌 Spring automatically injects all beans implementing `FileTransfer`.
+
+## Case 4 – Selecting an Implementation at Runtime
+
+In advanced scenarios, selection may depend on runtime logic.
+
+```java
+@Component
+public class Person {
+
+    private final FileTransfer selected;
+
+    public Person(List<FileTransfer> fileTransfers) {
+        this.selected = fileTransfers.stream()
+                .filter(ft -> ft instanceof GCPFileTransfer)
+                .findFirst()
+                .orElseThrow();
+    }
+
+    public void upload() {
+        selected.upload();
+    }
+}
+```
+
+📌 This allows dynamic selection, but introduces coupling to concrete classes.
+
+
+
+
 # Q-3 What are Spring bean scopes?
 
 # Q-4 What is RestControllerAdvice?
