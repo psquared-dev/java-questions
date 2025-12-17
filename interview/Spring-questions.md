@@ -1,7 +1,4 @@
-# Q-1 What is dependency injection in spring?
-
-
-# Q-2 What are two essentials feature of Spring Core?
+# Q-1 What are two essentials feature of Spring Core?
 
 Essential features of Spring Core:
 
@@ -15,7 +12,7 @@ Other Features in Spring Core
 * Type conversion
 * Spring Expression Language (SpEL)
 
-# Q-3 What is IOC?
+# Q-2 What is IOC?
 
 Spring Core
 
@@ -68,7 +65,7 @@ Inversion of Control (IoC)
     * Transactions
     * Security
 
-# Q-What is context or application context in spring app?
+# Q-4 What is context or application context in spring app?
 
 Spring Context:
 * The **Spring Context** is a core component of the Spring Framework.
@@ -115,13 +112,324 @@ ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.cl
 MyService service = context.getBean(MyService.class);
 ```
 
-# Q-Can we define multiple beans of the same type?
+# Q-5 What are the different ways of adding a bean to the spring context?
 
-# Q-3 What are spring bean scopes?
+There are four main ways to add a bean to the Spring context.
+
+1\. Using Stereotype Annotations (`@Component`, `@Service`, etc.)
+
+Spring automatically detects beans during component scanning.
+
+```java
+@Component
+class Parrot {
+}
+```
+
+📌 Requirement: Class must be in a package scanned by `@ComponentScan`
+
+2\. Using `@Bean` Methods in a `@Configuration` Class
+
+Beans are created explicitly using factory methods.
+
+Example:
+
+```java
+@Configuration
+class ProjectConfig {
+
+    @Bean
+    Parrot parrot() {
+        return new Parrot("Blue");
+    }
+}
+```
+
+📌 Used when:
+* You need full control over object creation
+* You want to configure third-party classes
+* Bean construction is complex
+
+3\. Programmatic Registration (`registerBean()` / `registerSingleton()`)
+
+Beans are **registered manually at runtime** using the Spring container API.
+
+Example:
+
+```java
+AnnotationConfigApplicationContext context =
+        new AnnotationConfigApplicationContext();
+
+context.registerBean(Parrot.class, () -> new Parrot("Green"));
+context.refresh();
+```
+
+📌 Characteristics:
+
+* No annotations required
+* Bean registered programmatically
+* Useful for:
+    * Dynamic beans
+    * Frameworks
+    * Conditional runtime registration
+    * Tests
+
+4\. Using XML Configuration (Legacy Approach)
+
+Beans are defined in XML configuration files.
+
+Example:
+
+```xml
+<bean id="parrot" class="org.example.Parrot"/>
+```
+
+📌 Mostly legacy; rarely used in modern Spring apps.
+
+# Q-6 Can we define multiple beans of the same type?
+
+Spring allows **multiple beans of the same type** to exist in the application context.
+
+Example:
+
+```java
+@Configuration
+class ProjectConfig {
+
+    @Bean
+    Parrot parrot1() {
+        return new Parrot("Blue");
+    }
+
+    @Bean
+    Parrot parrot2() {
+        return new Parrot("Green");
+    }
+}
+```
+
+Here:
+
+* Both beans are of type Parrot
+* They have different bean names
+* Both are registered in the context
+
+## The real issue: Injection ambiguity
+
+When Spring sees:
+
+```java
+@Autowired
+Parrot parrot;
+```
+
+Spring fails with:
+
+```text
+NoUniqueBeanDefinitionException
+```
+
+Because, Spring doesn't know **which Parrot to inject**.
+
+## How to resolve ambiguity
+
+1\. Use `@Qualifier`
+
+```java
+@Autowired
+@Qualifier("parrot1")
+Parrot parrot;
+```
+
+* Most common
+* Explicit and clear
+
+
+2\. Use `@Primary`
+
+```java
+@Bean
+@Primary
+Parrot parrot1() {
+    return new Parrot("Blue");
+}
+```
+
+* Default choice
+* Used when one bean is the "main" one
+
+3\. Inject all beans as a collection
+
+```java
+@Autowired
+List<Parrot> parrots;
+```
+
+Useful when processing all implementations
+
+## Key rules to remember
+
+* Multiple beans of the same type are allowed
+* Each bean must have a unique name
+* Injection by type becomes ambiguous
+* Ambiguity must be resolved explicitly
+
+# Q-7 What is Dependency Injection (DI) in spring?
+
+* **Dependency Injection (DI)** is a technique where the framework provides required dependencies to a class
+instead of the class creating them.
+* In Spring, the framework **injects values or objects** into:
+    * Constructors
+    * Method parameters
+    * Fields
+* DI is a practical application of Inversion of Control (IoC).
+* IoC means the framework controls execution and object wiring, not the application.
+
+## Simple Example (Method Parameter Injection)
+
+```java
+@Configuration
+class ProjectConfig {
+
+    @Bean
+    Parrot parrot() {
+        return new Parrot("Blue");
+    }
+
+    @Bean
+    Person person(Parrot parrot) {
+        return new Person(parrot);
+    }
+}
+```
+
+## What happens here
+
+* Spring creates the `Parrot` bean
+* When calling `person()`, Spring:
+  * Resolves the `Parrot` dependency
+  * Injects it into the method parameter
+* The `Person` object receives its dependency without creating it
+
+# Q-8 What are the different Ways of Using @Autowired annotation
+
+Spring can inject dependencies in three primary ways.
+
+1. Constructor Injection (Recommended)
+2. Field Injection
+3. Setter Injection
+
+## Constructor Injection (Recommended)
+
+Dependencies are injected through the constructor.
+
+```java
+@Component
+class Person {
+
+    private final Parrot parrot;
+
+    @Autowired
+    public Person(Parrot parrot) {
+        this.parrot = parrot;
+    }
+}
+```
+
+* ✔ Best practice
+* ✔ Immutable dependencies
+* ✔ Easy to test
+* ✔ Works well with `final` fields
+
+📌 Note: If there is only one constructor, @Autowired is optional (Spring 4.3+).
+
+## Field Injection
+
+Spring injects dependencies directly into fields.
+
+```java
+@Component
+class Person {
+
+    @Autowired
+    private Parrot parrot;
+}
+```
+
+* ✔ Short and simple
+* ❌ Hard to test
+* ❌ Breaks immutability
+* ❌ Uses reflection
+
+📌 Not recommended for production code
+
+## Setter Injection
+
+Spring injects dependencies through setter methods.
+
+```java
+@Component
+class Person {
+
+    private Parrot parrot;
+
+    @Autowired
+    public void setParrot(Parrot parrot) {
+        this.parrot = parrot;
+    }
+}
+```
+
+* ✔ Useful for optional dependencies
+* ✔ Allows re-injection
+* ❌ Dependency can change after construction
+
+## Special Cases of @Autowired
+
+### Method Parameter Injection
+
+```java
+@Bean
+Person person(@Autowired Parrot parrot) {
+    return new Person(parrot);
+}
+```
+* 📌 Mostly used in `@Configuration` classes
+* 📌 `@Autowired` is optional here
+
+### Collection Injection
+
+Inject all beans of the same type.
+
+```java
+@Autowired
+List<Parrot> parrots;
+```
+
+✔ Useful for strategies / plugins
+
+## Controlling Autowiring Behavior
+
+### Optional Dependency
+
+```java
+@Autowired(required = false)
+private Parrot parrot;
+```
+
+### Using `@Qualifier`
+
+```java
+@Autowired
+@Qualifier("parrot1")
+Parrot parrot;
+```
+
+Resolves ambiguity when multiple beans exist.
+
+# Q-3 What are Spring bean scopes?
 
 # Q-4 What is RestControllerAdvice?
-
-
  
 1. Docker vs Jar
 1. Datasouce vs driver
