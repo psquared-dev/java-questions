@@ -1,3 +1,128 @@
+# Q-1 What is dependency injection in spring?
+
+
+# Q-2 What are two essentials feature of Spring Core?
+
+Essential features of Spring Core:
+
+* IOC
+* AOP
+
+Other Features in Spring Core
+
+* Resource management
+* Internationalization (i18n)
+* Type conversion
+* Spring Expression Language (SpEL)
+
+# Q-3 What is IOC?
+
+Spring Core
+
+* Spring Core is the foundation of the Spring Framework.
+* It is built around the principle of Inversion of Control (IoC).
+
+Inversion of Control (IoC)
+
+* In IoC, the application does not control object creation or execution flow.
+* Instead, the Spring Framework controls the application.
+* The framework:
+    * Creates objects (beans)
+    * Manages their lifecycle
+    * Injects dependencies
+    * Intercepts method calls when required
+
+> Control here means actions like creating instances and invoking methods.
+
+## Without IoC
+
+* The application:
+    * Creates its own dependencies
+    * Controls execution directly
+    * Is tightly coupled to implementations
+
+## With IoC
+
+* The framework:
+    * Creates and manages application objects
+    * Controls execution based on configuration
+    * Decouples components from each other
+
+## IoC Container (Spring Context)
+
+* The IoC container (Spring Context):
+    * Holds and manages application objects (beans)
+    * "Glues" application components to the Spring framework
+    * Uses configuration to decide how objects behave and interact
+
+
+# Q-3 What is Spring AOP?
+
+## Spring AOP (part of Spring Core)
+
+* Spring can intercept method executions of beans managed by the IoC container.
+* This interception is called Aspect-Oriented Programming (AOP).
+* Common use cases:
+    * Logging
+    * Error handling
+    * Transactions
+    * Security
+
+# Q-What is context or application context in spring app?
+
+Spring Context:
+* The **Spring Context** is a core component of the Spring Framework.
+* It is a **container in application memory** where Spring stores and manages objects.
+* These objects are called **beans**.
+* The **Spring context is the IoC container**.
+
+There are actually two types of containers in Spring:
+
+1\. The `BeanFactory` (The Heart)
+
+This is the root interface. It provides the basic configuration mechanism and the core IoC functionality
+(creating beans and injecting dependencies).
+  * Role: It is the "Engine" of the framework.
+  * Use Case: Almost never used directly by developers anymore 
+(mostly used for mobile/embedded systems where memory is extremely limited).
+
+2\. The ApplicationContext (The Complete Car)
+
+This is a sub-interface of `BeanFactory`. It includes everything the `BeanFactory` does, plus enterprise-specific features.
+
+  * Role: It is the "Engine" + "Dashboard" + "AC" + "GPS".
+  * Use Case: This is what you use 99.9% of the time 
+(e.g., `ClassPathXmlApplicationContext`, `AnnotationConfigApplicationContext` - these are the implementation).
+
+## Why use `ApplicationContext` instead of just `BeanFactory`?
+
+Since `ApplicationContext` extends `BeanFactory`, it can do everything the basic container does, plus these "Pro" features:
+
+1. Event Publishing: It allows beans to talk to each other using the Observer pattern (`ApplicationEvents`).
+2. Internationalization (i18n): It can read message bundles for multi-language support.
+3. Environment Abstraction: It understands "Profiles" (Dev, Test, Prod) and properties files.
+4. Automatic BeanPostProcessor Registration: This is crucial. It automatically 
+detects annotations like `@Autowired` and `@Transactional`. If you used plain `BeanFactory`, 
+you would have to manually register the processors that make those annotations work.
+
+Here is how to create an `ApplicationContext`:
+
+```java
+// This object IS the IoC Container
+ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+// You ask the container for a bean
+MyService service = context.getBean(MyService.class);
+```
+
+# Q-Can we define multiple beans of the same type?
+
+# Q-3 What are spring bean scopes?
+
+# Q-4 What is RestControllerAdvice?
+
+
+ 
 1. Docker vs Jar
 1. Datasouce vs driver
 1. Explain application architecture.
