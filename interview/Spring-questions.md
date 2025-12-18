@@ -613,10 +613,292 @@ public class Person {
 
 📌 This allows dynamic selection, but introduces coupling to concrete classes.
 
+# Q-10 How is a singleton in Spring different from a singleton in core Java?
 
+In Spring, a singleton does not mean "only one instance per application" as it does in classic Java.
 
+Instead:
+
+* Singleton in Spring = one instance per bean name, per Spring context
+* Spring can create multiple instances of the same type
+* Each instance is unique by bean name, not by class
+
+So:
+
+* Same class ✅ multiple instances allowed
+* Same bean name ❌ only one instance allowed
+
+That's why Spring singleton ≠ Java singleton.
+
+Example:
+
+```java
+@Bean
+public Parrot parrot1() {
+    return new Parrot("Blue");
+}
+
+@Bean
+public Parrot parrot2() {
+    return new Parrot("Green");
+}
+```
+
+Here:
+
+* Both beans are of type `Parrot`
+* Both are singletons
+* Spring creates two different instances
+* Each is unique per bean name
+
+## Why Spring does this
+
+Because Spring:
+
+* Manages beans, not classes
+* Allows flexibility and configuration
+* Supports multiple implementations and instances cleanly
+
+# Q-11 Why should singleton beans in Spring be immutable?
+
+In Spring, a singleton bean is shared by all threads that access the application context.
+Because of this, **singleton beans should ideally be immutable**.
+
+## Why mutable singleton beans are dangerous
+
+* A singleton bean has only one instance
+* Multiple threads may access it at the same time
+* If the bean has mutable state, then:
+    * One thread can change the state
+    * Another thread may see inconsistent or unexpected data
+    * Race conditions and thread-safety bugs can occur
+
+## Immutable singleton beans are safe
+
+An immutable bean:
+
+* Has no setters
+* State is set only once (usually via constructor)
+* Cannot be modified after creation
+
+This makes singleton beans:
+
+* Thread-safe
+* Predictable
+* Easy to reason about
+
+If you need to make an object bean in the Spring context, it should be singleton
+only if it's immutable. Avoid designing mutable singleton beans.
+
+# Q-12 What are lazy and eager
+
+# Q-13 What are the different bean scopes in Spring?
+
+A bean scope defines how many instances of a bean Spring creates and how long those instances live.
+
+Spring primarily provide two types of scopes:
+
+1. Singleton
+2. Prototype
+
+## Singleton (Default)
+
+Meaning
+
+* One bean instance per Spring `ApplicationContext`
+* Shared across the entire application
+
+Important
+
+* Singleton ≠ one instance per JVM
+* It is one instance per bean name per context
+
+Example:
+
+```java
+@Component
+public class ServiceA { }
+```
+
+Behavior:
+
+```text
+Every injection → same object
+```
+
+When to use
+* Stateless services
+* Immutable configuration objects
+
+Risk
+* Mutable state → thread-safety issues
+
+## Prototype
+
+Meaning
+* New bean instance every time it is requested
+
+Example:
+
+```java
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class Task { }
+```
+
+Behavior:
+
+```text
+Each injection → new object
+```
+
+Important
+
+* Spring creates the object
+* Spring does NOT manage its full lifecycle (no destroy callbacks)
+
+When to use
+
+* Stateful objects
+* Per-request or per-task data holders
+
+## Important Spring Design Nuance (Frequently Asked in Interviews)
+
+Problem Scenario:
+> Singleton bean A depends on prototype bean B
+
+```java
+@Component
+class A {
+
+    @Autowired
+    private B b;
+
+    public void doWork() {
+        b.process();
+    }
+}
+```
+
+What actually happens?
+
+* `A` is created once (singleton).
+* During creation of `A`, Spring injects one instance of `B`.
+* Even though `B` is `@Scope("prototype")`, it is created only once here.
+* Every call to `doWork()` uses the same `B` instance.
+
+⚠️ This defeats the purpose of prototype scope.
+
+**Key Rule**
+> Prototype scope is honored only when the bean is requested from the container.
+
+Injection happens only once for singleton beans.
+
+Correct Design Principle
+
+>If a singleton needs a fresh prototype instance per method call,
+do NOT inject the prototype as a field.
+
+Instead, request it at runtime.
+
+## Correct Solutions
+
+### 1. Use ObjectProvider (Recommended)
+
+```java
+@Component
+class A {
+
+    private final ObjectProvider<B> bProvider;
+
+    public A(ObjectProvider<B> bProvider) {
+        this.bProvider = bProvider;
+    }
+
+    public void doWork() {
+        B b = bProvider.getObject();  // NEW instance every call
+        b.process();
+    }
+}
+````
+
+### 2. Inject `ApplicationContext`
+
+```java
+@Component
+class A {
+
+    @Autowired
+    ApplicationContext context;
+
+    public void doWork() {
+        B b = context.getBean(B.class);
+        b.process();
+    }
+}
+```
 
 # Q-3 What are Spring bean scopes?
+
+Eager and Lazy refer to WHEN Spring creates your beans (objects).
+
+## Eager Loading (The Default)
+
+By default, Spring creates all Singleton beans immediately when the application starts up.
+
+* **Behavior:** "I will build everything right now."
+* **Startup:** Slower (because it's doing all the work upfront).
+* **First Request:** Fast (because the bean is already sitting there waiting).
+* **Error Detection:** Fail-Fast. If you have a typo or a missing dependency, the app crashes immediately at 
+startup (This is good for Production).
+
+
+## Lazy Loading
+
+Spring waits and creates the bean **only when it is requested** for the first time.
+
+* **Behavior:** "I will wait until someone actually asks for it."
+* **Startup:** Faster (skips creating unused beans).
+* **First Request:** Slightly slower (has to create the bean on the fly).
+* **Error Detection:** Risky. If there is a configuration error, you won't know until a user actually clicks 
+that specific button and the app crashes.
+
+Example:
+
+You control this using the `@Lazy` annotation.
+
+**Eager Bean (Default):**
+
+```java
+@Component
+public class PaymentService {
+    public PaymentService() {
+        System.out.println("PaymentService Created! (I am Eager)");
+    }
+}
+```
+
+* Console Output on Startup: `PaymentService` Created!
+
+**Lazy Bean:**
+
+```java
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
+@Component
+@Lazy // <--- The Switch
+public class ReportService {
+    public ReportService() {
+        System.out.println("ReportService Created! (I am Lazy)");
+    }
+}
+```
+
+* Console Output on Startup: (Nothing).
+* Console Output only after you call `context.getBean(ReportService.class)`: `ReportService Created! (I am Lazy)`
+
+
 
 # Q-4 What is RestControllerAdvice?
  
