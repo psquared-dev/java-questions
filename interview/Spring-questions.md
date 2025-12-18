@@ -690,7 +690,66 @@ This makes singleton beans:
 If you need to make an object bean in the Spring context, it should be singleton
 only if it's immutable. Avoid designing mutable singleton beans.
 
-# Q-12 What are lazy and eager
+# Q-12 What are lazy and eager bean initialization?
+
+Eager and Lazy refer to WHEN Spring creates your beans (objects).
+
+## Eager Loading (The Default)
+
+By default, Spring creates all Singleton beans immediately when the application starts up.
+
+* **Behavior:** "I will build everything right now."
+* **Startup:** Slower (because it's doing all the work upfront).
+* **First Request:** Fast (because the bean is already sitting there waiting).
+* **Error Detection:** Fail-Fast. If you have a typo or a missing dependency, the app crashes immediately at
+  startup (This is good for Production).
+
+
+## Lazy Loading
+
+Spring waits and creates the bean **only when it is requested** for the first time.
+
+* **Behavior:** "I will wait until someone actually asks for it."
+* **Startup:** Faster (skips creating unused beans).
+* **First Request:** Slightly slower (has to create the bean on the fly).
+* **Error Detection:** Risky. If there is a configuration error, you won't know until a user actually clicks
+  that specific button and the app crashes.
+
+Example:
+
+You control this using the `@Lazy` annotation.
+
+**Eager Bean (Default):**
+
+```java
+@Component
+public class PaymentService {
+    public PaymentService() {
+        System.out.println("PaymentService Created! (I am Eager)");
+    }
+}
+```
+
+* Console Output on Startup: `PaymentService` Created!
+
+**Lazy Bean:**
+
+```java
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
+@Component
+@Lazy // <--- The Switch
+public class ReportService {
+    public ReportService() {
+        System.out.println("ReportService Created! (I am Lazy)");
+    }
+}
+```
+
+* Console Output on Startup: (Nothing).
+* Console Output only after you call `context.getBean(ReportService.class)`: `ReportService Created! (I am Lazy)`
+
 
 # Q-13 What are the different bean scopes in Spring?
 
@@ -837,67 +896,6 @@ class A {
     }
 }
 ```
-
-# Q-3 What are Spring bean scopes?
-
-Eager and Lazy refer to WHEN Spring creates your beans (objects).
-
-## Eager Loading (The Default)
-
-By default, Spring creates all Singleton beans immediately when the application starts up.
-
-* **Behavior:** "I will build everything right now."
-* **Startup:** Slower (because it's doing all the work upfront).
-* **First Request:** Fast (because the bean is already sitting there waiting).
-* **Error Detection:** Fail-Fast. If you have a typo or a missing dependency, the app crashes immediately at 
-startup (This is good for Production).
-
-
-## Lazy Loading
-
-Spring waits and creates the bean **only when it is requested** for the first time.
-
-* **Behavior:** "I will wait until someone actually asks for it."
-* **Startup:** Faster (skips creating unused beans).
-* **First Request:** Slightly slower (has to create the bean on the fly).
-* **Error Detection:** Risky. If there is a configuration error, you won't know until a user actually clicks 
-that specific button and the app crashes.
-
-Example:
-
-You control this using the `@Lazy` annotation.
-
-**Eager Bean (Default):**
-
-```java
-@Component
-public class PaymentService {
-    public PaymentService() {
-        System.out.println("PaymentService Created! (I am Eager)");
-    }
-}
-```
-
-* Console Output on Startup: `PaymentService` Created!
-
-**Lazy Bean:**
-
-```java
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
-@Component
-@Lazy // <--- The Switch
-public class ReportService {
-    public ReportService() {
-        System.out.println("ReportService Created! (I am Lazy)");
-    }
-}
-```
-
-* Console Output on Startup: (Nothing).
-* Console Output only after you call `context.getBean(ReportService.class)`: `ReportService Created! (I am Lazy)`
-
 
 
 # Q-4 What is RestControllerAdvice?
