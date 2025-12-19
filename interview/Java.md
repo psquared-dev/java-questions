@@ -179,6 +179,25 @@
   * [How to implement it?](#how-to-implement-it)
   * [When does it run?](#when-does-it-run)
   * [When does it NOT run?](#when-does-it-not-run)
+* [Q-92 Why default methods were introduced in interfaces?](#q-92-why-default-methods-were-introduced-in-interfaces)
+* [Q-93 How to create immutable collections in Java?](#q-93-how-to-create-immutable-collections-in-java)
+* [Q-94 Can a class implement two interface with the same default method?](#q-94-can-a-class-implement-two-interface-with-the-same-default-method)
+* [Q-95 What is AutoCloseable interface?](#q-95-what-is-autocloseable-interface)
+* [Q-96 Difference between Optional.of() and Optional.ofNullable()?](#q-96-difference-between-optionalof-and-optionalofnullable)
+* [Q-97 How to manually trigger the garbage collection process?](#q-97-how-to-manually-trigger-the-garbage-collection-process)
+* [Q-98 What are some Garbage collection algorithms?](#q-98-what-are-some-garbage-collection-algorithms)
+* [Q-99 What are sealed classes?](#q-99-what-are-sealed-classes)
+* [Q-100 Why can't we override private and static methods?](#q-100-why-cant-we-override-private-and-static-methods)
+  * [Why you cannot override private methods](#why-you-cannot-override-private-methods)
+  * [Why you cannot override static methods](#why-you-cannot-override-static-methods)
+    * [1. The Binding Difference](#1-the-binding-difference)
+    * [2. They belong to the Class, not the Object](#2-they-belong-to-the-class-not-the-object)
+    * [3. What actually happens? (Method Hiding)](#3-what-actually-happens-method-hiding)
+* [Q-101 Does finally always execute in Java?](#q-101-does-finally-always-execute-in-java)
+* [Q-102 What are methods provided by the Object class?](#q-102-what-are-methods-provided-by-the-object-class)
+* [Q-103 Difference between fail-fast and fail-safe iterators?](#q-103-difference-between-fail-fast-and-fail-safe-iterators)
+* [Q-104 Is Java Pass by Value or Pass by Reference?](#q-104-is-java-pass-by-value-or-pass-by-reference)
+* [Q-105 What if a method in child class is more restricted than a parent class?](#q-105-what-if-a-method-in-child-class-is-more-restricted-than-a-parent-class)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -3639,7 +3658,225 @@ Call `System.gc()`
 
 # Q-99 What are sealed classes?
 
+# Q-100 Why can't we override private and static methods?
+
+## Why you cannot override private methods
+
+Private methods are NOT visible to subclasses. If a subclass cannot see a method, it cannot override it.
+
+## Why you cannot override static methods
+
+Because static methods are bound at Compile Time, while overriding is a Runtime phenomenon.
+
+Here is the detailed breakdown:
+
+### 1. The Binding Difference
+
+* **Instance Methods (Overriding)**: Use **Dynamic Binding**. The JVM waits until the code is 
+actually running to check "What kind of object is this really?" (e.g., is it a Dog or a Cat?) before deciding which method to run.
+
+* **Static Methods (Hiding)**: Use **Static Binding**. The Compiler decides which method to call
+**before the program even runs** based solely on the **Reference Type** (the class name you wrote)
+
+### 2. They belong to the Class, not the Object
+
+Overriding is all about Polymorphism (objects acting differently). 
+Since static methods belong to the class definition itself, they don't care about the object instance.
+
+### 3. What actually happens? (Method Hiding)
+
+If you try to "override" a static method, Java doesn't give you an error, but it does something different 
+called Method Hiding.
+
+* **Overriding:** The child's method replaces the parent's method everywhere.
+* **Hiding:** The child's method only exists if you look at the child directly. 
+If you look at the parent reference, you still see the parent's method.
 
 
+# Q-101 Does finally always execute in Java?
 
+Not in the following cases:
+
+* System.exit()
+* System crash
+
+# Q-102 What are methods provided by the Object class?
+
+# Q-103 Difference between fail-fast and fail-safe iterators?
+
+# Q-104 Is Java Pass by Value or Pass by Reference?
+
+Pass by value
+
+# Q-105 What if a method in child class is more restricted than a parent class?
+
+It causes a **Compile Time Error**.
+
+This rule exists to preserve the Contract of the Parent Class (related to the **Liskov Substitution Principle**).
+
+The Liskov Substitution Principle (LSP) states:
+> Whatever the Parent can do, the Child must also be able to do.
+
+When you override a method, you cannot make the access modifier more restrictive than the parent method.
+
+* ✅ You CAN keep it the same.
+* ✅ You CAN make it less restrictive (more visible).
+* ❌ You CANNOT make it more restrictive (less visible).
+
+# Q-106 What is Covariant return type?
+
+Covariant Return Type is a feature (introduced in Java 5) that allows an overriding method to return 
+a subclass (narrower type) of the return type declared in the parent method.
+
+Example:
+
+```java
+class Burger {
+    // Generic Burger
+}
+
+class CheeseBurger extends Burger {
+    // Specific Burger
+}
+
+class BurgerShop {
+    // Parent promises to return a generic Burger
+    public Burger order() {
+        System.out.println("Here is a standard burger");
+        return new Burger();
+    }
+}
+
+class CheeseBurgerShop extends BurgerShop {
+    // OVERRIDING:
+    // We changed the return type from 'Burger' to 'CheeseBurger'.
+    // This is allowed because CheeseBurger IS-A Burger.
+    @Override
+    public CheeseBurger order() {
+        System.out.println("Here is a cheeseburger");
+        return new CheeseBurger();
+    }
+}
+
+public class Test {
+    public static void main(String[] args) {
+        CheeseBurgerShop shop = new CheeseBurgerShop();
+        
+        // No casting needed! We get the specific type directly.
+        CheeseBurger cb = shop.order(); 
+    }
+}
+```
+
+Why is this useful?
+
+It saves you from doing annoying type-casting.
+
+This relates directly to the Liskov Substitution Principle: 
+> The Child can provide more specific guarantees than the Parent, but never less.
+
+# Q-107 Is default keyword one of the access modifier?
+
+No, the `default` keyword is NOT an access modifier keyword.
+
+Here is the breakdown of the confusion:
+
+1\. The "Default Access Modifier" (The Invisible One)
+
+When people talk about the Default Access Modifier (also called Package-Private), 
+they are talking about the absence of a keyword.
+
+* How you write it: You literally write nothing.
+* Behavior: Visible only within the same package.
+* Keyword used: None.
+
+Example:
+
+```java
+class Student {
+    // No keyword used here! This is "Default Access".
+    void study() { 
+        System.out.println("Studying...");
+    }
+}
+```
+
+2\. The `default` Keyword (The Actual Keyword)
+
+The word `default` does exist as a keyword in Java, but it is used for completely 
+different things, as mentioned in your image:
+
+**Usage A: Interface Methods (Java 8+)** To provide a fallback implementation in an 
+interface so you don't break existing code
+
+```java
+interface Vehicle {
+    // Here, 'default' is NOT about access control. 
+    // It means "Here is the default code body".
+    default void honk() {
+        System.out.println("Beep!");
+    }
+}
+```
+
+**Usage B: Switch Statements** To specify what happens if no other case matches.
+
+```java
+switch(day) {
+    case 1: print("Monday"); break;
+    default: print("Weekend"); // The "Else" case
+}
+```
+
+
+# Q-108 Can you provide default hashcode() implementation in the interface?
+
+No, you cannot provide a default implementation for methods from the 
+`Object` class (like `hashCode()`, `toString()`, or `equals()`) inside an interface.
+
+If you try to do this, the compiler will give you an error.
+
+The "Why" behind this rule
+
+It might seem useful to provide a standard `toString()` for all your objects, 
+but Java forbids it for a very specific architectural reason: "Class Wins."
+
+1\. The Conflict Resolution Rule
+
+In Java, a class can inherit behavior from two places:
+
+* A Superclass (e.g., Object).
+* An Interface (via default methods).
+
+The Rule: If a method exists in both a parent class and an interface, the **parent class's version always wins**.
+
+2\. The Problem
+
+Since every Java class automatically extends Object, every single class 
+you ever create already has a version of `hashCode()` inherited from `Object`.
+
+If Java allowed you to write a default `hashCode()` in an interface:
+
+* You implement the interface.
+* You call `myObject.hashCode()`.
+* Java looks at the rules: "Oh, `Object` class has defined `hashCode()`. Class wins."
+* Result: Your interface's default method would never run. It would be "dead code" that
+you thought was working but wasn't.
+
+
+To prevent this confusion, the Java architects decided to make it a Compile Time Error 
+instead of just silently ignoring your code.
+
+Example:
+
+```java
+interface MyInterface {
+    
+    // ❌ COMPILE ERROR: 
+    // "Default method 'toString' overrides a member of 'java.lang.Object'"
+    default String toString() {
+        return "Standard Interface String";
+    }
+}
+```
 
