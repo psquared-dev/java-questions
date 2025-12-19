@@ -198,6 +198,9 @@
 * [Q-103 Difference between fail-fast and fail-safe iterators?](#q-103-difference-between-fail-fast-and-fail-safe-iterators)
 * [Q-104 Is Java Pass by Value or Pass by Reference?](#q-104-is-java-pass-by-value-or-pass-by-reference)
 * [Q-105 What if a method in child class is more restricted than a parent class?](#q-105-what-if-a-method-in-child-class-is-more-restricted-than-a-parent-class)
+* [Q-106 What is Covariant return type?](#q-106-what-is-covariant-return-type)
+* [Q-107 Is default keyword one of the access modifier?](#q-107-is-default-keyword-one-of-the-access-modifier)
+* [Q-108 Can you provide default hashcode() implementation in the interface?](#q-108-can-you-provide-default-hashcode-implementation-in-the-interface)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
