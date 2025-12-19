@@ -201,6 +201,19 @@
 * [Q-106 What is Covariant return type?](#q-106-what-is-covariant-return-type)
 * [Q-107 Is default keyword one of the access modifier?](#q-107-is-default-keyword-one-of-the-access-modifier)
 * [Q-108 Can you provide default hashcode() implementation in the interface?](#q-108-can-you-provide-default-hashcode-implementation-in-the-interface)
+* [Q-109 How default methods in the interface cope up with the diamond problem?](#q-109-how-default-methods-in-the-interface-cope-up-with-the-diamond-problem)
+  * [The solution](#the-solution)
+* [Q-110 Why static methods inside interface were introduced in Java?](#q-110-why-static-methods-inside-interface-were-introduced-in-java)
+  * [Important Distinction: No Inheritance](#important-distinction-no-inheritance)
+* [Q-111 What is Predicate joining?](#q-111-what-is-predicate-joining)
+  * [How it works](#how-it-works)
+  * [Code Example](#code-example)
+* [Q-112 What is Functional joining?](#q-112-what-is-functional-joining)
+  * [The Methods](#the-methods)
+  * [Code Example](#code-example-1)
+  * [Visualizing andThen vs compose](#visualizing-andthen-vs-compose)
+* [Q-113 What is Consumer chaining?](#q-113-what-is-consumer-chaining)
+* [Q-114 How to use chaining with Supplier?](#q-114-how-to-use-chaining-with-supplier)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -3882,4 +3895,325 @@ interface MyInterface {
     }
 }
 ```
+
+# Q-109 How default methods in the interface cope up with the diamond problem?
+
+The Diamond Problem occurs when a class implements two interfaces that both 
+have a `default` method with the exact same name and signature.
+
+Example:
+
+```java
+interface A {
+    default void show() { 
+        System.out.println("A"); 
+    }
+}
+
+interface B {
+    default void show() { 
+        System.out.println("B"); 
+    }
+}
+
+// ❌ COMPILE ERROR: Duplicate default methods named show
+class MyClass implements A, B {
+    // Java forces you to resolve this manually!
+}
+```
+
+Java compiler gets confused. It asks: "You want me to run `show()`, but both 
+Interface `A` and Interface `B` provided a default version. Which one do I pick?"
+
+Because Java cannot guess your intention, it refuses to compile the code.
+
+## The solution
+To fix this override the method in your class and explicitly telling Java 
+which parent's version to call using `super`.
+
+```java
+class MyClass implements A, B {
+    
+    @Override
+    public void show() {
+        // Option 1: Pick A
+        A.super.show(); 
+        
+        // Option 2: Pick B
+        // B.super.show();
+
+        // Option 3: Write completely new logic
+        // System.out.println("My own logic");
+    }
+}
+```
+
+# Q-110 Why static methods inside interface were introduced in Java?
+
+The primary reason static methods were introduced in Java 8 interfaces was to allow 
+utility methods to live directly inside the interface, eliminating the need for separate helper classes.
+
+Here is the breakdown of why this matters:
+
+**1\. The "Utility Class" Problem (Before Java 8)**
+
+Before Java 8, interfaces could only define contracts (abstract methods). 
+If you wanted to provide helpful tools or common logic related to that interface, 
+you had to create a separate "plural" class.
+
+* Interface: Collection
+* Helper Class: Collections (Full of static methods like sort, reverse, etc.)
+
+This was messy because you had to keep track of two files for one concept.
+
+2\. The Solution (Java 8+)
+
+By allowing static methods in interfaces means you can call 
+methods directly using the interface name without creating an object.
+
+This allows API designers to put the helper tools inside the interface itself, keeping everything in one place.
+
+* Old Way: `Collections.sort(list);` (Uses the helper class)
+* New Way: `Comparator.comparing(...)` (Uses the interface directly)
+
+3\. Why this is efficient:
+
+* Interfaces cannot have constructors or static blocks.
+* Static methods in interfaces are effectively just "global functions" 
+namespaced under the interface name. They do not hold state, making them 
+cheap in terms of memory and performance.
+
+## Important Distinction: No Inheritance
+
+Unlike `default` methods, static methods in interfaces are NOT inherited.
+
+* You cannot call them on an instance variable (`obj.staticMethod()`).
+* You cannot call them on a subclass (`ChildClass.staticMethod()`).
+* You must call them using the specific interface name (`MyInterface.staticMethod()`).
+
+Example:
+
+```java
+// 1. The Interface
+interface UserValidator {
+    
+    // Abstract Method (Contract for the class to implement)
+    boolean hasPermission(String username);
+
+    // Static Utility Method (Helper Tool)
+    // You can call this WITHOUT creating an instance of a class!
+    static boolean isValidEmail(String email) {
+        return email != null && email.contains("@") && email.contains(".");
+    }
+}
+
+// 2. The Implementation Class
+class EmployeeValidator implements UserValidator {
+    
+    @Override
+    public boolean hasPermission(String username) {
+        // Simple logic for demo
+        return "admin".equals(username);
+    }
+}
+
+// 3. The Main Class
+public class Main {
+    public static void main(String[] args) {
+        
+        // --- USAGE 1: Using the Static Method ---
+        // NOTICE: We call it directly on the Interface Name.
+        // We do NOT need to create an object.
+        boolean isEmailValid = UserValidator.isValidEmail("test@example.com");
+        System.out.println("Is Email Valid? " + isEmailValid);
+
+
+        // --- USAGE 2: Using the Abstract Method ---
+        EmployeeValidator emp = new EmployeeValidator();
+        System.out.println("Is Admin? " + emp.hasPermission("admin"));
+
+
+        // --- ❌ COMMON MISTAKE (Will Not Compile) ---
+        // Static methods are NOT inherited by the implementing class.
+        // emp.isValidEmail("test@example.com");  // ERROR
+        // EmployeeValidator.isValidEmail("..."); // ERROR
+    }
+}
+```
+
+# Q-111 What is Predicate joining?
+
+Predicate Joining (often called Predicate Chaining) is a technique in Java 8 used 
+to combine multiple Predicate conditions into a single, complex logical test.
+
+It allows you to take small, simple logic units and "glue" them together using 
+logical operators like `AND`, `OR`, and `NOT`.
+
+## How it works
+
+The Predicate interface contains default methods that let you join them:
+
+* `p1.and(p2)` - Returns a predicate that is true only if both are true.
+* `p1.or(p2)` - Returns a predicate that is true if either is true.
+* `p1.negate()` - Returns the opposite (inverse) of the predicate.
+
+## Code Example
+
+Imagine you want to filter a list of names. You have two rules:
+
+* Name must be longer than 3 characters.
+* Name must start with "A".
+
+Instead of writing one giant if statement, you can define them separately and join them.
+
+Example:
+
+```java
+import java.util.function.Predicate;
+
+public class PredicateJoinExample {
+    public static void main(String[] args) {
+        
+        // 1. Define Simple Predicates
+        Predicate<String> isLongEnough = s -> s.length() > 3;
+        Predicate<String> startsWithA  = s -> s.startsWith("A");
+
+        // 2. JOIN them using .and()
+        // Logic: (length > 3) && (startsWith "A")
+        Predicate<String> validName = isLongEnough.and(startsWithA);
+
+        // 3. JOIN them using .or()
+        // Logic: (length > 3) || (startsWith "A")
+        Predicate<String> looseRule = isLongEnough.or(startsWithA);
+
+        // 4. Test it
+        System.out.println(validName.test("Anna")); // True (Matches both)
+        System.out.println(validName.test("Bob"));  // False (Too short, no 'A')
+        
+        // 5. Negate (Reverse)
+        // Logic: !(length > 3)
+        Predicate<String> isShort = isLongEnough.negate();
+        System.out.println(isShort.test("Bob"));    // True
+    }
+}
+```
+
+# Q-112 What is Functional joining?
+
+Functional Joining (or Function Chaining) is a feature of the `Function<T, R>` interface
+in Java 8. It allows you to combine multiple functions into a single processing pipeline.
+
+This is widely used to create complex data transformations from small, reusable steps.
+
+## The Methods
+
+There are two default methods used for chaining:
+
+* `andThen(after)`: Runs the current function first, and then uses its result as input for the next function.
+* `compose(before)`: Runs the other function first, and then uses its result as input for the current function.
+
+## Code Example
+
+Imagine a data pipeline: Input → Multiply by 2 → Add 10 → Result.
+
+Example:
+
+```java
+import java.util.function.Function;
+
+public class FunctionJoinExample {
+    public static void main(String[] args) {
+
+        // 1. Define separate, simple functions
+        Function<Integer, Integer> multiplyBy2 = i -> i * 2;
+        Function<Integer, Integer> addTen      = i -> i + 10;
+
+        // 2. JOIN using .andThen() (Standard Chaining)
+        // Order: multiplyBy2 runs FIRST -> addTen runs SECOND
+        // Input 5: (5 * 2 = 10) -> (10 + 10 = 20)
+        Function<Integer, Integer> pipeline = multiplyBy2.andThen(addTen);
+        
+        System.out.println("andThen Result: " + pipeline.apply(5)); // Output: 20
+
+
+        // 3. JOIN using .compose() (Reverse Chaining)
+        // Order: addTen runs FIRST -> multiplyBy2 runs SECOND
+        // Input 5: (5 + 10 = 15) -> (15 * 2 = 30)
+        Function<Integer, Integer> reversePipeline = multiplyBy2.compose(addTen);
+        
+        System.out.println("compose Result: " + reversePipeline.apply(5)); // Output: 30
+    }
+}
+```
+
+## Visualizing andThen vs compose
+
+| Method  | 	Syntax         | 	Execution Order | 	Math Equivalent |
+|---------|-----------------|------------------|------------------|
+| andThen | 	f1.andThen(f2) | 	f1 → f2         | 	f2(f1(x))       |
+| compose | 	f1.compose(f2) | 	f2 → f1         | 	f1(f2(x))       |
+
+
+# Q-113 What is Consumer chaining?
+
+Consumer Chaining is the ability to combine multiple Consumer operations 
+so they run one after another on the same input.
+
+Since a `Consumer` returns `void`, you cannot pass a result from one to the 
+next (like you do with `Function`). Instead, you use chaining to perform a 
+**sequence of independent side effects** (actions) on the same object.
+
+The Method: `andThen()`
+
+The `Consumer` interface has a default method called `andThen`.
+
+* **Syntax:** `firstConsumer.andThen(secondConsumer)`
+* **Behavior:** It runs the first consumer, then immediately runs the second consumer using the same input.
+
+Example:
+
+```java
+import java.util.function.Consumer;
+
+class Product {
+    String name = "Phone";
+    
+    @Override
+    public String toString() { return name; }
+}
+
+public class ConsumerChainExample {
+    public static void main(String[] args) {
+        
+        // 1. Define the separate actions (Consumers)
+        Consumer<Product> paintProduct = p -> {
+            System.out.println("1. Painting " + p.name + " Black");
+            p.name = "Black " + p.name; // Modifying the object
+        };
+
+        Consumer<Product> packageProduct = p -> {
+            System.out.println("2. Packaging " + p.name + " into box");
+        };
+
+        Consumer<Product> shipProduct = p -> {
+            System.out.println("3. Shipping " + p.name);
+        };
+
+        // 2. CHAIN them together
+        // Order: Paint -> Package -> Ship
+        Consumer<Product> assemblyLine = paintProduct
+                                            .andThen(packageProduct)
+                                            .andThen(shipProduct);
+
+        // 3. Run the chain
+        assemblyLine.accept(new Product());
+    }
+}
+```
+
+# Q-114 How to use chaining with Supplier?
+
+Supplier can't be  chained as it takes no input.
+
+
 
