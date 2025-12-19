@@ -1210,11 +1210,58 @@ Ans:
 Rules to make object Immutable
 
 1. Declare the class as final so it can't be extended.
-1. Make all the fields private so that direct access is not allowed.
-1. Don't provide setter methods for variables.
-1. Make all mutable fields final so that a field's value can be assigned only once.
-1. Initialize all fields using a constructor method performing deep copy.
-1. Perform deep copy in getter of mutable fields
+2. Make all the fields private so that direct access is not allowed.
+3. Don't provide setter methods for variables.
+4. Make all mutable fields final so that a field's value can be assigned only once.
+5. Initialize all fields using a constructor method performing deep copy.
+6. Perform deep copy in getter of mutable fields
+
+Here is an example of Immutable class:
+
+Pay close attention to how we handle the `Date` object (which is mutable), 
+versus the `String` (which is already immutable).
+
+```java
+import java.util.Date;
+
+// Rule 1: Class is final (Cannot be extended)
+public final class Student {
+
+    // Rule 2 & 4: Fields are private and final
+    private final int id;
+    private final String name;
+    private final Date dateOfBirth; // Mutable object! Danger!
+
+    // Rule 5: Constructor performs Deep Copy for mutable fields
+    public Student(int id, String name, Date dateOfBirth) {
+        this.id = id;
+        this.name = name;
+
+        // DEEP COPY: We create a NEW Date object.
+        // If we just did "this.dateOfBirth = dateOfBirth", the caller 
+        // could change the date later and break our immutability.
+        this.dateOfBirth = new Date(dateOfBirth.getTime());
+    }
+
+    // Rule 3: No Setters provided.
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    // Rule 6: Getter performs Deep Copy (Cloning)
+    public Date getDateOfBirth() {
+        // DEEP COPY: Return a clone, not the original reference.
+        // If we returned "this.dateOfBirth", the caller could use 
+        // student.getDateOfBirth().setTime(...) to change the internal state.
+        return new Date(dateOfBirth.getTime());
+    }
+}
+```
 
 Video: https://www.youtube.com/watch?v=PYJrFi4Hzsg
 
