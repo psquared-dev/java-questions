@@ -402,8 +402,6 @@ Association (has-a)
    └── Composition (strong has-a)
 ```
 
-Ans: ![association](../images/association.png)
-
 1. Video: https://www.youtube.com/watch?v=j84w5VM9GT8&t=1267s
 
 
@@ -540,7 +538,17 @@ Wrapper classes are responsible for converting them into
 objects (Reference types). It was introduced so primitive types can play 
 nicely with the collections framework.
 
-All wrapper classes are immutable
+Every primitive has a corresponding Wrapper class.
+
+| Primitive Type | Wrapper Class |
+|----------------|---------------|
+| `int`          | `Integer`     |
+| `char`         | `Character`   |
+| `double`       | `Double`      |
+| `boolean`      | `Boolean`     |
+| `byte`         | `Byte`        |
+
+**All wrapper classes are immutable**
 
 -----------------------------
 
