@@ -3816,6 +3816,68 @@ class MyButtonHandler implements MouseListener {
 
 # Q-94 Can a class implement two interface with the same default method?
 
+Yes, a class can implement two interfaces with the same default method.
+
+HOWEVER, this creates a conflict known as the **Diamond Problem**. 
+The compiler will fail with an error because it doesn't know which version of the method to use.
+
+You must resolve this conflict manually by overriding the method in your class.
+
+## The Conflict Visualization
+
+The compiler sees two valid paths for `show()` and gets confused.
+
+## The Code Solution
+
+To fix the compilation error, you have to override the method and tell Java explicitly what to do. You can:
+
+* Call Interface A's version.
+* Call Interface B's version.
+* Write completely new logic.
+
+Example:
+
+```java
+interface Alpha {
+    default void show() { 
+        System.out.println("Alpha's Show"); 
+    }
+}
+
+interface Beta {
+    default void show() { 
+        System.out.println("Beta's Show"); 
+    }
+}
+
+// ❌ COMPILER ERROR: "Duplicate default methods named show..."
+// class MyClass implements Alpha, Beta { }
+
+// ✅ CORRECT FIX: Override to resolve ambiguity
+class MyClass implements Alpha, Beta {
+    
+    @Override
+    public void show() {
+        // Option 1: Pick Alpha
+        Alpha.super.show();
+        
+        // Option 2: Pick Beta
+        // Beta.super.show();
+        
+        // Option 3: Do something else entirely
+        // System.out.println("My Own Logic");
+    }
+}
+```
+
+## Important Rule: "Class Wins"
+
+There is one exception to this conflict. If your class extends a **Parent Class** that
+has the same method name, the **Parent Class method always wins**. The interface default methods are 
+ignored, and there is no ambiguity error.
+
+> ParentClass > InterfaceDefaultMethod
+
 # Q-95 What is AutoCloseable interface?
 
 # Q-96 Difference between Optional.of() and Optional.ofNullable()?
