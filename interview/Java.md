@@ -180,6 +180,12 @@
   * [When does it run?](#when-does-it-run)
   * [When does it NOT run?](#when-does-it-not-run)
 * [Q-92 Why default methods were introduced in interfaces?](#q-92-why-default-methods-were-introduced-in-interfaces)
+  * [The Problem (Before Java 8)](#the-problem-before-java-8)
+  * [The Real-World Scenario](#the-real-world-scenario)
+  * [Secondary Benefit: "Optional" Methods](#secondary-benefit-optional-methods)
+    * [The Classic "Mouse Listener" Problem](#the-classic-mouse-listener-problem)
+    * [1. The "Old Way" (Painful)](#1-the-old-way-painful)
+    * [2\. The "New Way" (With Default Methods)](#2-the-new-way-with-default-methods)
 * [Q-93 How to create immutable collections in Java?](#q-93-how-to-create-immutable-collections-in-java)
 * [Q-94 Can a class implement two interface with the same default method?](#q-94-can-a-class-implement-two-interface-with-the-same-default-method)
 * [Q-95 What is AutoCloseable interface?](#q-95-what-is-autocloseable-interface)
@@ -214,6 +220,7 @@
   * [Visualizing andThen vs compose](#visualizing-andthen-vs-compose)
 * [Q-113 What is Consumer chaining?](#q-113-what-is-consumer-chaining)
 * [Q-114 How to use chaining with Supplier?](#q-114-how-to-use-chaining-with-supplier)
+* [Q-115 Is runtime polymorphism is applicable for fields also?](#q-115-is-runtime-polymorphism-is-applicable-for-fields-also)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -3712,6 +3719,98 @@ If the JVM is killed violently, the hook is skipped.
 
 # Q-92 Why default methods were introduced in interfaces?
 
+The primary reason default methods were introduced in Java 8 was Backward Compatibility.
+
+## The Problem (Before Java 8)
+
+In previous versions of Java, if you modified an interface (e.g., added a new method), 
+you broke **every single class** that implemented that interface. All those classes would fail to 
+compile until they implemented the new method.
+
+## The Real-World Scenario
+
+When Java 8 introduced Streams (`.stream()`), the architects wanted to add
+the `stream()` method to the standard Collection interface so that every
+`ArrayList`, `HashSet`, etc., could use it.
+
+* Without Default Methods: Every custom Collection library (like Apache Commons, Guava, or your own `MyCustomList`) 
+would have broken instantly upon upgrading to Java 8.
+* With Default Methods: The `Collection` interface could provide a default implementation 
+of `stream()`, so existing classes continued to work without any changes.
+
+## Secondary Benefit: "Optional" Methods
+
+Before Java 8, interfaces were strict: if an interface had 10 methods, you had to write code for 
+all 10, even if you only needed one.
+
+### The Classic "Mouse Listener" Problem
+
+Imagine you are writing a UI app and want to detect a mouse click. You use the `MouseListener` interface.
+
+**The Interface (Standard Java):**
+
+```java
+interface MouseListener {
+    void mouseClicked(MouseEvent e);  // You want this
+    void mousePressed(MouseEvent e);  // You don't care
+    void mouseReleased(MouseEvent e); // You don't care
+    void mouseEntered(MouseEvent e);  // You don't care
+    void mouseExited(MouseEvent e);   // You don't care
+}
+```
+
+### 1. The "Old Way" (Painful)
+
+Because the interface rules were strict, your class became filled with "dummy" empty methods 
+just to satisfy the compiler.
+
+```java
+// Java 7: I just want 'clicked', but I forced to write 4 empty methods!
+class MyButtonHandler implements MouseListener {
+    public void mouseClicked(MouseEvent e) {
+        System.out.println("Button Clicked!");
+    }
+
+    // --- Useless Boilerplate Below ---
+    public void mousePressed(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {}
+}
+```
+
+### 2\. The "New Way" (With Default Methods)
+
+With Java 8, the interface creator can mark those less-common methods as default with an empty body `{}`. 
+This tells the compiler: "If the class doesn't implement this, just do nothing. Don't throw an error."
+
+**The Modern Interface:**
+
+```java
+interface MouseListener {
+    void mouseClicked(MouseEvent e); // Abstract: You MUST implement this
+
+    // Default: You CAN implement these, but you don't have to.
+    default void mousePressed(MouseEvent e) {} 
+    default void mouseReleased(MouseEvent e) {}
+    default void mouseEntered(MouseEvent e) {}
+    default void mouseExited(MouseEvent e) {}
+}
+```
+
+**Your Clean Code:**
+
+```java
+// Java 8+: Look how clean this is!
+class MyButtonHandler implements MouseListener {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        System.out.println("Button Clicked!");
+    }
+    // No other methods required. The defaults (empty bodies) are used automatically.
+}
+```
+
 # Q-93 How to create immutable collections in Java?
     Collections.toUnmodifieableList()
 
@@ -3720,6 +3819,62 @@ If the JVM is killed violently, the hook is skipped.
 # Q-95 What is AutoCloseable interface?
 
 # Q-96 Difference between Optional.of() and Optional.ofNullable()?
+
+The difference lies in how they handle `null` values.
+
+The Short Answer:
+
+* `Optional.of(value)`: Use this when you are 100% sure the value is NOT null. If it is null, 
+it crashes immediately (NPE).
+* `Optional.ofNullable(value)`: Use this when the value might be null. If it is null, it returns 
+an empty Optional instead of crashing.
+
+It feels redundant because `ofNullable()` handles everything, right?
+
+But `Optional.of()` has a very specific purpose: Defensive Programming.
+
+It is used to say: **"If this value is null, it is a BUG, not a valid state."**
+
+1\. The "Silent Failure" Problem
+
+If you always use `ofNullable()`, you might accidentally hide serious bugs.
+
+**Imagine this scenario:** You are building a checkout system. You load a tax rate configuration from a file. 
+This configuration must exist for the app to work.
+
+Using `ofNullable()` (Bad Logic):
+
+```java
+// Logic: Load tax rate. If config is missing (null), wrap it safely.
+Optional<Double> taxRate = Optional.ofNullable(getTaxConfig()); 
+
+// Later in code...
+double totalTax = price * taxRate.orElse(0.0); 
+
+// RESULT: The customer pays $0 tax. No error is thrown. 
+// You lose money, and you don't know why.
+```
+
+2\. The `Optional.of()` Solution (Fail Fast)
+
+If you use `Optional.of()`, you force the program to crash immediately at the source of the error, 
+rather than letting a `null` flow through your system as an "Empty Optional" and causing weird logic errors later.
+
+Using `Optional.of()` (Good Logic):
+
+```java
+// Logic: This MUST exist. If it's null, crash NOW so I can fix the config.
+Optional<Double> taxRate = Optional.of(getTaxConfig()); 
+
+// RESULT: Immediate NullPointerException. 
+// You see the log, realize the config file is missing, and fix it.
+```
+
+Summary: When to use what?
+
+* `Optional.ofNullable()`: "I don't know if the user entered a middle name. If not, that's fine." (Valid business logic).
+* `Optional.of()`: "I just created this object 2 lines ago. It SHOULD be there. If it's null, something is terrifyingly wrong." (Logic assertion).
+
 
 # Q-97 How to manually trigger the garbage collection process?
 
@@ -4269,6 +4424,73 @@ public class ConsumerChainExample {
 # Q-114 How to use chaining with Supplier?
 
 Supplier can't be  chained as it takes no input.
+
+
+# Q-115 Is runtime polymorphism is applicable for fields also?
+
+No, Runtime Polymorphism does NOT apply to fields (variables). It only applies to methods.
+
+In Java, fields are accessed based on the Reference Type (the class name on the left side), 
+whereas methods are accessed based on the Actual Object (the new class on the right side).
+
+**The Rule**
+
+* Methods (Overriding): Resolved at Runtime (Dynamic Binding). Java looks at the actual object in memory.
+* Fields (Hiding): Resolved at Compile Time (Static Binding). Java looks at the reference type you are holding.
+
+Example:
+
+```java
+class Parent {
+    String value = "Parent Field";
+
+    void show() {
+        System.out.println("Parent Method");
+    }
+}
+
+class Child extends Parent {
+    String value = "Child Field"; // Hides Parent's 'value'
+
+    @Override
+    void show() {
+        System.out.println("Child Method");
+    }
+}
+
+public class FieldTest {
+    public static void main(String[] args) {
+        System.out.println("--- Case 1: Parent Reference, Child Object ---");
+        Parent p = new Child();
+
+        // 1. Field Access -> STATIC BINDING (Looks at 'Parent' type)
+        System.out.println("p.value:    " + p.value);
+        // Output: "Parent Field" 
+
+        // 2. Method Call -> DYNAMIC BINDING (Looks at actual 'Child' object)
+        p.show();
+        // Output: "Child Method"
+
+
+        System.out.println("\n--- Case 2: Child Reference, Child Object ---");
+        Child c = (Child) p; // Downcasting the same object to Child reference
+
+        // 1. Field Access -> STATIC BINDING (Looks at 'Child' type)
+        System.out.println("c.value:    " + c.value);
+        // Output: "Child Field"
+
+        // 2. Method Call -> DYNAMIC BINDING (Still looks at actual 'Child' object)
+        c.show();
+        // Output: "Child Method"
+
+
+        System.out.println("\n--- Case 3: The 'Magic' of Casting ---");
+        // You can access the HIDDEN parent field by casting the reference temporarily
+        System.out.println("((Parent) c).value: " + ((Parent) c).value);
+        // Output: "Parent Field"
+    }
+}
+```
 
 
 
