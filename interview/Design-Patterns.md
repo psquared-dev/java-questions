@@ -28,6 +28,9 @@
     * [3. The DI Configuration Class](#3-the-di-configuration-class)
     * [4. The Client Code (Your Service)](#4-the-client-code-your-service)
     * [Summary of Execution](#summary-of-execution)
+* [Q-5 What is Prototype pattern?](#q-5-what-is-prototype-pattern)
+  * [Implementation Requirement](#implementation-requirement)
+* [Q-6 What is Builder pattern](#q-6-what-is-builder-pattern)
 <!-- TOC -->
 
 # Q-1 What are different categories of design patterns?
@@ -491,6 +494,173 @@ public class BackendService {
 * **Injection Phase:** Spring finds `BackendService`. It sees the constructor needs `CloudFactory`. 
 It plugs in the AwsFactory object it just created.
 * **Runtime:** BackendService runs on AWS infrastructure.
+
+# Q-5 What is Prototype pattern?
+
+The Prototype Pattern allows you to create new objects by **copying an existing object** rather 
+than creating a new one from scratch.
+
+This is useful when object creation is **expensive** (e.g., database calls, complex calculations) or
+repetitive (setting many default values).
+
+## Implementation Requirement
+
+To implement this pattern, you must **set up the `clone()` method correctly**.
+
+This is the most critical step. You cannot just use the default Java cloning if your object contains other 
+objects (like a list or a custom class). You must manually implement a **Deep Copy** inside `clone()` to ensure the 
+new object is truly independent of the original.
+
+Here is the implementation using the User class. Notice how the `clone()` method manually creates a
+new `Address` to prevent the "shared reference" bug.
+
+```java
+// 1. The Mutable Dependency
+class Address {
+    String city;
+    String street;
+
+    public Address(String city, String street) {
+        this.city = city;
+        this.street = street;
+    }
+
+    @Override
+    public String toString() { return city + ", " + street; }
+}
+
+// 2. The Prototype Class
+class User implements Cloneable {
+    String name;       // Simple (String is safe)
+    Address address;   // Mutable Object (Requires DEEP COPY)
+
+    public User(String name, String city, String street) {
+        // Imagine this constructor is 'expensive' (e.g., DB calls)
+        this.name = name;
+        this.address = new Address(city, street);
+    }
+
+    // 3. The Clone Logic (The Core of the Pattern)
+    @Override
+    public User clone() {
+        try {
+            // Step A: Shallow Copy
+            // (Copies the 'name' and the POINTER to 'address')
+            User clonedUser = (User) super.clone();
+
+            // Step B: DEEP COPY (The Critical Fix)
+            // We must manually create a NEW Address object for the clone.
+            // If we skip this, both users will share the same address object.
+            clonedUser.address = new Address(this.address.city, this.address.street);
+
+            return clonedUser;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "User{name='" + name + "', address=" + address + "}";
+    }
+}
+
+// 4. Usage
+public class Main {
+    public static void main(String[] args) {
+        // Step 1: Create the Prototype (Expensive setup happens here ONCE)
+        User master = new User("John", "New York", "5th Avenue");
+
+        // Step 2: Clone it (Instant memory copy)
+        User clone = master.clone();
+
+        // Step 3: Modify the Clone
+        clone.name = "Steve";           
+        clone.address.city = "London";  // This modification is safe due to Deep Copy logic
+
+        // Verify that Master is untouched
+        System.out.println("Master: " + master); 
+        System.out.println("Clone:  " + clone);
+    }
+}
+```
+
+**Output:**
+
+```text
+Master: User{name='John', address=New York, 5th Avenue}
+Clone:  User{name='Steve', address=London, 5th Avenue}
+```
+
+# Q-6 What is Builder pattern
+
+A creational design pattern that lets you construct complex objects step-by-step. 
+It allows you to produce different types and representations of an object using the same construction code.
+
+Example:
+
+```java
+public class User {
+    private String name;
+    private String email;
+
+    private User(){
+    }
+
+    public static class Builder {
+        private final User user;
+
+        public Builder() {
+            this.user = new User();
+        }
+
+        public Builder withName(String name) {
+            this.user.setName(name);
+            return this;
+        }
+
+        public Builder withEmail(String email) {
+            this.user.setEmail(email);
+            return this;
+        }
+
+        public User build() {
+            return this.user;
+        }
+    }
+
+    private void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    private void setEmail(String email) {
+        this.email = email;
+    }
+
+    public static void main(String[] args) {
+        User user = new User.Builder()
+                .withName("John")
+                .withEmail("a@mail.com")
+                .build();
+
+        System.out.println(user.getEmail());
+        System.out.println(user.getName());
+    }
+
+}
+```
+
+
+
+
 
 
 
