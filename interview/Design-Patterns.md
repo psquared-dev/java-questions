@@ -31,6 +31,29 @@
 * [Q-5 What is Prototype pattern?](#q-5-what-is-prototype-pattern)
   * [Implementation Requirement](#implementation-requirement)
 * [Q-6 What is Builder pattern](#q-6-what-is-builder-pattern)
+* [Q-7 How to implement Singleton pattern?](#q-7-how-to-implement-singleton-pattern)
+* [Q-8 What is Decorator pattern?](#q-8-what-is-decorator-pattern)
+  * [Why is it required? (The Problem with Inheritance)](#why-is-it-required-the-problem-with-inheritance)
+  * [The Solution: The Decorator Pattern](#the-solution-the-decorator-pattern)
+    * [How it works (The "Coffee" Analogy):](#how-it-works-the-coffee-analogy)
+    * [Key Benefits](#key-benefits)
+  * [Real World Example of Decorator pattern in Java](#real-world-example-of-decorator-pattern-in-java)
+  * [Implementation of Decorator Pattern](#implementation-of-decorator-pattern)
+    * [Why your CoffeeDecorator (Abstract Class) is important](#why-your-coffeedecorator-abstract-class-is-important)
+* [Q-9 What is Adapter pattern?](#q-9-what-is-adapter-pattern)
+  * [The Best Analogy: The Power Plug](#the-best-analogy-the-power-plug)
+  * [Why is it needed in code?](#why-is-it-needed-in-code)
+  * [The Implementation Structure](#the-implementation-structure)
+  * [Adapter Pattern in Java](#adapter-pattern-in-java)
+    * [1. Arrays.asList() (Array to List Adapter)](#1-arraysaslist-array-to-list-adapter)
+    * [2. InputStreamReader (Bytes to Characters Adapter)](#2-inputstreamreader-bytes-to-characters-adapter)
+  * [Implementation of Adapter pattern](#implementation-of-adapter-pattern)
+    * [The Scenario](#the-scenario-1)
+    * [1. The Target Interface (Your App's Standard)](#1-the-target-interface-your-apps-standard)
+    * [2. The Adaptee (The 3rd Party Library)](#2-the-adaptee-the-3rd-party-library)
+    * [3. The Adapter (The Bridge)](#3-the-adapter-the-bridge)
+    * [4. Client Code (The Application)](#4-client-code-the-application)
+    * [Why this is realistic?](#why-this-is-realistic)
 <!-- TOC -->
 
 # Q-1 What are different categories of design patterns?
@@ -657,6 +680,404 @@ public class User {
 
 }
 ```
+
+# Q-7 How to implement Singleton pattern?
+
+# Q-8 What is Decorator pattern?
+
+The Decorator Pattern is a structural design pattern that allows you to add new functionality to an 
+existing object without altering its structure.
+
+Think of it as "Wrapping". You take a basic object and wrap it in layers, like an onion or a set of 
+Russian nesting dolls. Each layer adds a new behavior.
+
+* Official Definition: It attaches additional responsibilities to an object dynamically. 
+Decorators provide a flexible alternative to subclassing for extending functionality.
+
+## Why is it required? (The Problem with Inheritance)
+
+The main reason we need the Decorator pattern is to avoid "Class Explosion" (also known as "Inheritance Hell").
+
+Imagine you are building a software system for a **Coffee Shop**.
+
+**Attempt 1:** Using Inheritance (The Bad Way) You start with a Coffee class. 
+You need to support every combination of condiments.
+
+1. Espresso
+2. EspressoWithMilk
+3. EspressoWithSugar
+4. EspressoWithMilkAndSugar
+5. EspressoWithDoubleMochaAndWhip...
+
+If you have 4 types of coffee and 5 types of toppings, you would need dozens of different classes to 
+cover every possible combination. If you add a new topping (e.g., "Soy Milk"), you have to create 
+a whole new set of classes (EspressoWithSoy, DecafWithSoy, etc.). This is unmaintainable.
+
+## The Solution: The Decorator Pattern
+
+Instead of creating a new class for every combination, you create one class for the base coffee and 
+separate classes for the "toppings" (Decorators).
+
+You then combine them at runtime.
+
+### How it works (The "Coffee" Analogy):
+
+1. Base Object: You create a simple Espresso object.
+    * Cost: $2.00
+
+2. Decorator 1: You wrap it in a Milk decorator.
+    * Cost: $2.00 + $0.50
+
+3. Decorator 2: You wrap that in a Sugar decorator.
+    * Cost: ($2.00 + $0.50) + $0.20
+
+
+You end up with a **Sugar(Milk(Espresso))** object.
+
+### Key Benefits
+
+* **Flexibility:** You can mix and match behaviors at runtime. You don't need to decide the 
+exact combination at compile time.
+* **Single Responsibility Principle:** You divide a monolithic class (that does everything) into 
+small classes that each do one specific thing (one handles "Milk", one handles "Sugar").
+* **Open/Closed Principle:** You can add a new decorator (e.g., CaramelSyrup) without touching the
+existing Espresso or Milk code.
+
+## Real World Example of Decorator pattern in Java
+
+The Java I/O library is the most famous example of this pattern.
+
+* `FileInputStream` (The Base: reads bytes from a file).
+* `BufferedInputStream` (Decorator 1: adds memory buffering for speed).
+* `GZipInputStream` (Decorator 2: adds decompression).
+
+You combine them like this:
+
+```java
+// A GZipped, Buffered File Reader
+// We are wrapping the file stream in layers
+InputStream stream = new GZipInputStream(
+                        new BufferedInputStream(
+                            new FileInputStream("data.txt.gz")
+                        )
+                     );
+```
+
+## Implementation of Decorator Pattern
+
+Here is a clean implementation of the Decorator pattern using the **Coffee Shop** example.
+
+**1. The Common Interface**
+
+This defines the blueprint for both the "Base Object" and the "Decorators". They must look the same to the outside world.
+
+```java
+public interface Coffee {
+    String getDescription();
+    double getCost();
+}
+```
+
+**2. The Concrete Component (The Base Object)**
+
+This is the object we start with (e.g., a plain, black coffee).
+
+```java
+public class SimpleCoffee implements Coffee {
+    @Override
+    public String getDescription() {
+        return "Simple Coffee";
+    }
+
+    @Override
+    public double getCost() {
+        return 5.00; // Base price
+    }
+}
+```
+
+**3. The Abstract Decorator**
+
+This is the "Wrapper". It implements the `Coffee` interface (so it is a Coffee) but also 
+holds a reference to another `Coffee` object (composition).
+
+```java
+public abstract class CoffeeDecorator implements Coffee {
+    protected Coffee decoratedCoffee; // The object we are wrapping
+
+    public CoffeeDecorator(Coffee coffee) {
+        this.decoratedCoffee = coffee;
+    }
+
+    // Default behavior: just forward the call to the wrapped object
+    public String getDescription() {
+        return decoratedCoffee.getDescription();
+    }
+
+    public double getCost() {
+        return decoratedCoffee.getCost();
+    }
+}
+```
+
+**4. The Concrete Decorators (The Toppings)**
+
+These extend the abstract decorator and add their own special behavior (cost/description).
+
+```java
+// Decorator 1: Milk
+class Milk extends CoffeeDecorator {
+    public Milk(Coffee coffee) {
+        super(coffee);
+    }
+
+    @Override
+    public String getDescription() {
+        return super.getDescription() + ", Milk";
+    }
+
+    @Override
+    public double getCost() {
+        return super.getCost() + 1.50; // Adds cost
+    }
+}
+
+// Decorator 2: Sugar
+class Sugar extends CoffeeDecorator {
+    public Sugar(Coffee coffee) {
+        super(coffee);
+    }
+
+    @Override
+    public String getDescription() {
+        return super.getDescription() + ", Sugar";
+    }
+
+    @Override
+    public double getCost() {
+        return super.getCost() + 0.50; // Adds cost
+    }
+}
+```
+
+**5. Client Code (Putting it together)**
+
+Notice how we wrap the objects inside each other.
+
+```java
+public class CoffeeShop {
+    public static void main(String[] args) {
+        // 1. Order a plain coffee
+        Coffee myCoffee = new SimpleCoffee();
+        System.out.println(myCoffee.getDescription() + " $" + myCoffee.getCost());
+
+        // 2. Add Milk (Wrap the coffee in Milk)
+        myCoffee = new Milk(myCoffee);
+        System.out.println(myCoffee.getDescription() + " $" + myCoffee.getCost());
+
+        // 3. Add Sugar (Wrap the Milk-Coffee in Sugar)
+        myCoffee = new Sugar(myCoffee);
+        System.out.println(myCoffee.getDescription() + " $" + myCoffee.getCost());
+    }
+}
+```
+
+**Output:**
+
+```text
+Simple Coffee $5.0
+Simple Coffee, Milk $6.5
+Simple Coffee, Milk, Sugar $7.0
+```
+
+### Why your CoffeeDecorator (Abstract Class) is important
+
+You might wonder: "Why do I need this abstract class? Can't Milk just implement Coffee directly?"
+
+You could do that, but the abstract class saves you from code duplication.
+
+* **Without it:** Both `Milk` and `Cream` would have to manually write the code to store the `coffee` object 
+and manually write the constructor to set it.
+* **With it:** The abstract class handles the "boilerplate" (storage and delegation), so your 
+concrete decorators (Milk, Cream) only focus on the new behavior (adding cost/text).
+
+This is a very clean implementation!
+
+# Q-9 What is Adapter pattern?
+
+The Adapter Pattern allows objects with incompatible interfaces to collaborate. 
+It acts as a bridge between two objects that otherwise couldn't work together.
+
+## The Best Analogy: The Power Plug
+
+* **The Problem:** You have a laptop with a **US Plug** (The Client).
+* **The Obstacle:** You are in a hotel in London, and the wall has a **UK Socket** (The Incompatible Service).
+* **The Solution:** You use a **Travel Adapter**. It takes the US plug on one side and fits into the UK socket on the other.
+
+## Why is it needed in code?
+
+1. **Legacy Code Integration:** You have an old system that expects data in `XML` format, but your new
+modern library returns `JSON`. You write an adapter to convert JSON to XML on the fly.
+
+2. **3rd Party Libraries:** You want to use a fancy charting library, but its methods (`drawGraph(x, y)`) don't match
+the interface your app uses (`render(Coordinate c)`). You wrap the library in an adapter.
+
+## The Implementation Structure
+
+There are 3 main players:
+
+* **Target (Client Interface):** What your code expects to see.
+* **Adaptee (Incompatible Class):** The useful class you want to use, but can't directly.
+* **Adapter:** The wrapper class that translates calls.
+
+## Adapter Pattern in Java
+
+Here are the two most famous examples of the Adapter Pattern inside the Java Standard Library (JDK). 
+You have likely used them without realizing they were adapters.
+
+
+### 1. Arrays.asList() (Array to List Adapter)
+
+* **The Problem:** You have a legacy Array (`String[]`), but your API requires a `List<String>`. 
+Arrays and Lists have completely different interfaces (e.g., arrays use `.length`, lists use `.size()`).
+* **The Adapter:** `Arrays.asList()` acts as the bridge. It wraps the array and makes it look and behave like a List.
+
+
+```java
+String[] namesArray = {"John", "Steve", "Mike"}; // Legacy Array
+
+// ❌ You can't pass an array to a method expecting a List
+// printList(namesArray); // Compile Error
+
+// ✅ The Adapter: Wraps the array inside a List interface
+List<String> namesList = Arrays.asList(namesArray);
+
+// Now it works!
+System.out.println(namesList.get(0)); // Output: John
+```
+
+**Note:** This is a special adapter where changes to the List actually modify the original Array (passed by reference).
+
+
+### 2. InputStreamReader (Bytes to Characters Adapter)
+
+* **The Problem:** The `System.in` stream (keyboard input) provides Bytes. But Java's `BufferedReader` 
+(which reads lines of text) expects Characters. Bytes and Characters are incompatible types.
+* The Adapter: `InputStreamReader`. It sits in the middle, translating byte streams into character streams.
+
+```java
+// 1. The Source (Bytes)
+InputStream input = System.in; 
+
+// 2. The Adapter (Bytes -> Characters)
+// "Adapt this byte stream into a character reader"
+InputStreamReader adapter = new InputStreamReader(input);
+
+// 3. The Client (Expects Characters)
+BufferedReader reader = new BufferedReader(adapter);
+```
+
+## Implementation of Adapter pattern
+
+Here is a highly realistic example that happens in almost every enterprise application: **Payment Gateway Integration**.
+
+### The Scenario
+
+Your e-commerce application is built to accept payments. 
+You have a standard interface `PaymentProcessor` that your checkout page uses.
+
+* **The Problem:** You want to add PayPal support.
+* **The Constraint:** The PayPal SDK is a 3rd-party library (jar file). **You cannot change their code**. 
+Their method names and parameters are completely different from your interface.
+    * Your App expects: pay(amount)
+    * PayPal requires: sendPayment(amount, currency, apiKey)
+
+This is the perfect use case for an **Adapter**.
+
+### 1. The Target Interface (Your App's Standard)
+
+This is the interface your `CheckoutService` talks to. It doesn't know about PayPal or Stripe specifically.
+
+```java
+public interface PaymentProcessor {
+    void pay(double dollars);
+}
+```
+
+### 2. The Adaptee (The 3rd Party Library)
+
+Imagine this class comes from a library you downloaded (`paypal-sdk.jar`). You cannot edit this file. 
+Notice the incompatible method signature (different name, different units/currency).
+
+```java
+// "Adaptee" - We can't change this code!
+public class PayPalApi {
+    public void sendPayment(double amount, String currency) {
+        System.out.println("PayPal: Processing payment of " + amount + " " + currency);
+    }
+}
+```
+
+
+### 3. The Adapter (The Bridge)
+
+This class implements your interface, but internally translates the call to the PayPal way of doing things.
+
+```java
+public class PayPalAdapter implements PaymentProcessor {
+    // 1. Hold a reference to the incompatible object
+    private final PayPalApi payPalApi;
+
+    public PayPalAdapter(PayPalApi payPalApi) {
+        this.payPalApi = payPalApi;
+    }
+
+    @Override
+    public void pay(double dollars) {
+        // 2. Translate the call!
+        // Your app sends dollars, but PayPal API needs a currency code too.
+        // We handle that translation logic here.
+        payPalApi.sendPayment(dollars, "USD");
+    }
+}
+```
+
+### 4. Client Code (The Application)
+
+Your main application logic (`CheckoutService`) stays clean. It keeps calling `.pay()`, blissfully unaware 
+that it's actually talking to PayPal.
+
+```java
+public class ECommerceApp {
+    public static void main(String[] args) {
+        // 1. The legacy/incompatible object
+        PayPalApi payPal = new PayPalApi();
+
+        // 2. The Adapter makes it look like a "PaymentProcessor"
+        PaymentProcessor paymentProcessor = new PayPalAdapter(payPal);
+
+        // 3. The app calls the standard method
+        // It doesn't care that internally it's converting to "USD"
+        paymentProcessor.pay(50.00); 
+    }
+}
+```
+
+### Why this is realistic?
+
+* **Vendor Lock-in Prevention:** If next year you want to switch from PayPal to Stripe, you just write a `StripeAdapter`. 
+You don't have to find-and-replace code in 500 places in your app.
+* Data Transformation: Often adapters do more than just forward calls; they convert data.
+    * Example: Your app tracks temperature in Celsius, but the US-Weather-Service API returns Fahrenheit. 
+    The Adapter would perform the math `(F - 32) * 5/9` inside the method.
+
+
+
+
+
+
+
+
 
 
 
