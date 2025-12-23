@@ -74,6 +74,12 @@
   * [What Happens When proxyService.pay() Is Called](#what-happens-when-proxyservicepay-is-called)
   * [Object Creation Summary](#object-creation-summary)
   * [Interview One-Liners](#interview-one-liners)
+* [Q-11 What is Strategy pattern?](#q-11-what-is-strategy-pattern)
+  * [Implementation of Strategy pattern](#implementation-of-strategy-pattern)
+    * [1. The Strategy Interface](#1-the-strategy-interface)
+    * [2. The Concrete Strategies](#2-the-concrete-strategies)
+    * [3. The Context (The Shopping Cart)](#3-the-context-the-shopping-cart)
+    * [4. Usage (Swapping behavior at runtime)](#4-usage-swapping-behavior-at-runtime)
 <!-- TOC -->
 
 # Q-1 What are different categories of design patterns?
@@ -1466,3 +1472,97 @@ Who handles method calls on a proxy?
 > The InvocationHandler.
 
 
+# Q-11 What is Strategy pattern?
+
+Strategy Pattern defines a family of algorithms, encapsulates each one, and makes them interchangeable 
+at runtime without changing the client code.
+
+## Implementation of Strategy pattern
+
+You want to charge a customer, but they might pay with a Credit Card, PayPal, or Crypto.
+
+### 1. The Strategy Interface
+
+This defines the contract. All strategies must obey this.
+
+```java
+public interface PaymentStrategy {
+    void pay(int amount);
+}
+```
+
+### 2. The Concrete Strategies
+
+These are the different ways to perform the action.
+
+```java
+public class CreditCardStrategy implements PaymentStrategy {
+    private String cardNumber;
+
+    public CreditCardStrategy(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    @Override
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using Credit Card: " + cardNumber);
+    }
+}
+
+public class PayPalStrategy implements PaymentStrategy {
+    private String email;
+
+    public PayPalStrategy(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using PayPal: " + email);
+    }
+}
+```
+
+### 3. The Context (The Shopping Cart)
+
+This is the main class. It doesn't know how payment happens, it just knows that it happens. 
+It relies on the interface.
+
+```java
+public class ShoppingCart {
+    // The Context holds a reference to the interface
+    private PaymentStrategy paymentStrategy;
+
+    // You can set the strategy at runtime!
+    public void setPaymentStrategy(PaymentStrategy paymentStrategy) {
+        this.paymentStrategy = paymentStrategy;
+    }
+
+    public void checkout(int amount) {
+        if (paymentStrategy == null) {
+            System.out.println("Please select a payment method!");
+        } else {
+            paymentStrategy.pay(amount); // Polymorphism in action
+        }
+    }
+}
+```
+
+### 4. Usage (Swapping behavior at runtime)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        ShoppingCart cart = new ShoppingCart();
+
+        // User chooses Credit Card
+        cart.setPaymentStrategy(new CreditCardStrategy("1234-5678"));
+        cart.checkout(100);
+
+        // User changes mind to PayPal
+        // Note: We changed behavior without changing the ShoppingCart code!
+        cart.setPaymentStrategy(new PayPalStrategy("jdev.prateek@gmail.com"));
+        cart.checkout(200);
+    }
+}
+```
