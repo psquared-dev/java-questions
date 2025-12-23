@@ -54,6 +54,26 @@
     * [3. The Adapter (The Bridge)](#3-the-adapter-the-bridge)
     * [4. Client Code (The Application)](#4-client-code-the-application)
     * [Why this is realistic?](#why-this-is-realistic)
+* [Q-10 What is Proxy pattern?](#q-10-what-is-proxy-pattern)
+  * [Why is it required?](#why-is-it-required)
+  * [Real-world Java proxies you already use](#real-world-java-proxies-you-already-use)
+    * [Spring AOP (Most Common)](#spring-aop-most-common)
+  * [Implementation of Proxy pattern](#implementation-of-proxy-pattern)
+    * [The Goal](#the-goal)
+    * [Step 1: Create the Annotation](#step-1-create-the-annotation)
+    * [Step 2: The Business Logic (Target)](#step-2-the-business-logic-target)
+    * [Step 3: The Proxy Handler (The "Magic")](#step-3-the-proxy-handler-the-magic)
+    * [Step 4: The Factory (Wiring it up)](#step-4-the-factory-wiring-it-up)
+    * [Step 5: Putting it all together (Demo)](#step-5-putting-it-all-together-demo)
+  * [Key Components in the program](#key-components-in-the-program)
+    * [1. Target (Real Object)](#1-target-real-object)
+    * [2. Proxy Object](#2-proxy-object)
+    * [3. InvocationHandler](#3-invocationhandler)
+  * [Proxy.newProxyInstance(...) — Core API](#proxynewproxyinstance--core-api)
+    * [Parameter-by-Parameter Breakdown](#parameter-by-parameter-breakdown)
+  * [What Happens When proxyService.pay() Is Called](#what-happens-when-proxyservicepay-is-called)
+  * [Object Creation Summary](#object-creation-summary)
+  * [Interview One-Liners](#interview-one-liners)
 <!-- TOC -->
 
 # Q-1 What are different categories of design patterns?
@@ -1072,17 +1092,377 @@ You don't have to find-and-replace code in 500 places in your app.
     The Adapter would perform the math `(F - 32) * 5/9` inside the method.
 
 
+# Q-10 What is Proxy pattern?
+
+The **Proxy Pattern** is a structural design pattern where you provide a substitute or placeholder for another object. 
+A proxy controls access to the original object, allowing you to perform something either before or after the request 
+gets to the original object.
+
+## Why is it required?
+
+The main purpose of a Proxy is Control. You generally use it when you want to add 
+functionality (like security, logging, or lazy loading) without changing the actual object's code.
+
+## Real-world Java proxies you already use
+
+### Spring AOP (Most Common)
+
+When you use:
+
+* @Transactional
+* @Async
+* @Cacheable
+* @Lazy
+* @Secured
+
+👉 Spring creates a proxy behind the scenes
+
+Example:
+
+```java
+@Service
+public class OrderService {
+
+    @Transactional
+    public void placeOrder() {
+        // business logic
+    }
+}
+```
+
+What actually happens at runtime:
+
+```text
+Controller → Proxy → Transaction logic → Real OrderService → Commit/Rollback
+```
+
+You are **not calling OrderService directly**. You are calling a **proxy object**.
 
 
+## Implementation of Proxy pattern
+
+We will implement a custom `@Transactional` annotation that automatically starts and commits transactions 
+without touching your business logic. This uses JDK Dynamic Proxies, the exact same mechanism Spring uses for interfaces.
+
+### The Goal
+
+We want to write code like this:
+
+```java
+// The Developer writes this:
+@MyTransactional
+public void pay() {
+    System.out.println("Processing Payment...");
+}
+
+// But at runtime, it automatically does this:
+// -> "Starting Transaction..."
+// -> "Processing Payment..."
+// -> "Committing Transaction..."
+```
+
+### Step 1: Create the Annotation
+
+First, we need a marker to tell our framework which methods need a transaction.
+
+```text
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME) // Keep this around at runtime!
+public @interface MyTransactional {
+}
+```
+
+### Step 2: The Business Logic (Target)
+
+For JDK Dynamic Proxies to work, your **class must implement an interface**.
+
+```text
+// 1. The Interface
+interface PaymentService {
+    void pay();
+}
+
+// 2. The Real Implementation (No transaction code here!)
+class PaymentServiceImpl implements PaymentService {
+    @Override
+    @MyTransactional
+    public void pay() {
+        System.out.println(">> Business Logic: Sending money to Merchant...");
+    }
+}
+```
+
+### Step 3: The Proxy Handler (The "Magic")
+
+This is where the AOP logic lives. This class intercepts every method call.
+
+```java
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+
+public class TransactionHandler implements InvocationHandler {
+    private final Object target; // The Real Object
+
+    public TransactionHandler(Object target) {
+        this.target = target;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // 1. Check if the method has our annotation
+        // We must check the implementation class, not the interface method
+        Method realMethod = target.getClass().getMethod(method.getName(), method.getParameterTypes());
+        
+        if (realMethod.isAnnotationPresent(MyTransactional.class)) {
+            // --- AROUND ADVICE START ---
+            System.out.println("[Tx] BEGIN Transaction (Connect to DB)");
+            
+            try {
+                // 2. Call the Real Method
+                Object result = method.invoke(target, args);
+                
+                // 3. Success? Commit!
+                System.out.println("[Tx] COMMIT Transaction");
+                return result;
+                
+            } catch (Exception e) {
+                // 4. Error? Rollback!
+                System.out.println("[Tx] ROLLBACK (Something went wrong)");
+                throw e;
+            }
+            // --- AROUND ADVICE END ---
+        } else {
+            // If no annotation, just run the method normally
+            return method.invoke(target, args);
+        }
+    }
+}
+```
+
+### Step 4: The Factory (Wiring it up)
+
+You need a helper to generate the proxy object. In Spring, the `ApplicationContext` does this for you.
+
+```java
+import java.lang.reflect.Proxy;
+
+public class ProxyFactory {
+    public static <T> T createProxy(T target, Class<T> interfaceType) {
+        return (T) Proxy.newProxyInstance(
+            interfaceType.getClassLoader(),
+            new Class<?>[] { interfaceType },
+            new TransactionHandler(target) // Use our handler
+        );
+    }
+}
+```
+
+### Step 5: Putting it all together (Demo)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // 1. Create the Real Object
+        PaymentServiceImpl realService = new PaymentServiceImpl();
+
+        // 2. Create the Proxy (This is what Spring does @Autowired)
+        // We cast it to the Interface, NOT the class
+        PaymentService proxyService = ProxyFactory.createProxy(realService, PaymentService.class);
+
+        // 3. Call the method
+        // Notice we are calling the PROXY, not the real service
+        System.out.println("--- Client calling pay() ---");
+        proxyService.pay();
+    }
+}
+```
+
+**Output**
+
+When you run this, you will see the interception happening:
+
+```text
+--- Client calling pay() ---
+[Tx] BEGIN Transaction (Connect to DB)
+>> Business Logic: Sending money to Merchant...
+[Tx] COMMIT Transaction
+```
 
 
+## Key Components in the program
 
+### 1. Target (Real Object)
 
+```java
+PaymentServiceImpl realService = new PaymentServiceImpl();
+```
 
+* Contains business logic
+* Always created explicitly
+* Exists independently of the proxy
 
+### 2. Proxy Object
 
+Created using:
 
+```java
+Proxy.newProxyInstance(...)
+```
 
+* A separate JVM object
+* Generated at runtime
+* Implements the same interface as the target
+* Delegates calls via an `InvocationHandler`
 
+### 3. InvocationHandler
+
+```java
+class TransactionHandler implements InvocationHandler
+```
+
+* Intercepts every method call on the proxy
+* JVM forwards calls here instead of calling the real method directly
+* Responsible for:
+    * Pre-processing
+    * Calling the real method
+    * Post-processing
+    * Exception handling
+
+## Proxy.newProxyInstance(...) — Core API
+
+```java
+Object Proxy.newProxyInstance(
+    ClassLoader loader,
+    Class<?>[] interfaces,
+    InvocationHandler handler
+)
+```
+
+This method:
+
+* Generates a new proxy class at runtime
+* Loads it using the given ClassLoader
+* Creates an instance of that class
+* Returns the proxy object
+
+### Parameter-by-Parameter Breakdown
+
+**1. ClassLoader loader**
+
+```java
+interfaceType.getClassLoader()
+```
+
+Purpose:
+
+* Specifies **which ClassLoader loads the generated proxy class**
+
+Key points:
+
+* Every class/interface in Java is loaded by a ClassLoader
+* Interfaces are JVM types just like classes
+* The `Class<?>` object stores a reference to its loader
+
+> Bootstrap loader appears as null (e.g., String.class.getClassLoader())
+
+**2. Class<?>[] interfaces**
+
+```java
+new Class<?>[] { PaymentService.class }
+```
+
+Purpose:
+* Defines **what the proxy pretends to be**
+
+Rules:
+* Only interfaces are allowed (JDK dynamic proxies)
+* Can implement multiple interfaces
+* Proxy will NOT extend the implementation class
+
+Conceptually generated code:
+
+```java
+class $Proxy0 implements PaymentService {
+    InvocationHandler handler;
+
+    public void pay() {
+        handler.invoke(this, payMethod, null);
+    }
+}
+```
+
+**3. InvocationHandler handler**
+
+```java
+new TransactionHandler(target)
+```
+
+Purpose:
+
+* Central interception point
+* JVM routes all proxy method calls to invoke()
+
+When this runs:
+
+```java
+proxyService.pay();
+```
+
+JVM internally does:
+
+```java
+handler.invoke(proxy, method, args);
+```
+
+**Important:**
+
+* Handler is created once
+* Reused for every method call
+* Not created per invocation
+
+## What Happens When proxyService.pay() Is Called
+
+Execution flow:
+
+```text
+Client
+  ↓
+proxyService.pay()
+  ↓
+Generated Proxy ($Proxy0)
+  ↓
+InvocationHandler.invoke()
+  ↓
+PaymentServiceImpl.pay()
+```
+
+* JVM never calls the real method directly
+* All calls pass through `invoke()`
+
+## Object Creation Summary
+
+```text
+1 real object        → PaymentServiceImpl
+1 proxy object       → $Proxy0
+1 handler object     → TransactionHandler
+```
+
+* Proxy is created once
+* Handler is created once
+* Method calls are intercepted repeatedly
+
+## Interview One-Liners
+
+What does `Proxy.newProxyInstance` do?
+> It dynamically generates a class that implements the given interfaces, loads it using the 
+> specified classloader, and delegates method calls to an `InvocationHandler`.
+
+Does Java create a new proxy per call?
+> No. The proxy is created once and reused. Only invoke() runs per call.
+
+Who handles method calls on a proxy?
+> The InvocationHandler.
 
 
