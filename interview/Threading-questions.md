@@ -603,16 +603,16 @@ synchronized void update() {
 }
 ```
 
-The Scenario: The Invisible Theft
+**The Scenario: The Invisible Theft**
 
 1. Thread A acquires the lock on the object.
-2. Thread A executes balance -= amount. The money is deducted.
+2. Thread A executes `balance -= amount`. The money is deducted.
 3. `Thread.stop()` hits Thread A.
     * Thread A immediately dies.
     * CRITICAL: The JVM releases the synchronized lock instantly.
     * Thread A never executes line 2 (`auditLog.add`).
 
-The Aftermath (Why it is a disaster)
+**The Aftermath (Why it is a disaster**)
 
 The lock is now open. Thread B comes in and looks at the data.
 
@@ -660,7 +660,7 @@ public class CorrectStopDemo {
 
 Think of the Interrupt as a simple internal `boolean` flag (`interrupt` status) inside the `Thread` object.
 
-* Calling worker.interrupt() sets this flag to TRUE.
+* Calling `worker.interrupt()` sets this flag to `true`.
 * It does not kill the thread. It just flips a switch.
 * If the thread never checks this switch, it will run forever.
 
