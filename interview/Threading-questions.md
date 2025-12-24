@@ -1082,7 +1082,7 @@ Use:
 * ❌ When correctness > flexibility
 
 
-# Q-19 What is a race Condition?
+# Q-19 What is a race condition?
 
 A race condition occurs when multiple threads access shared mutable data concurrently and the result depends 
 on execution order, often leading to incorrect outcomes.
