@@ -60,8 +60,8 @@
   * [Why ReentrantLock is NOT a replacement for synchronized](#why-reentrantlock-is-not-a-replacement-for-synchronized)
   * [When SHOULD you use ReentrantLock?](#when-should-you-use-reentrantlock)
   * [When should you NOT use it?](#when-should-you-not-use-it)
-* [Q-20 What is a race Condition?](#q-20-what-is-a-race-condition)
-* [Q-21 What is atomicity, and how is it different from visibility?](#q-21-what-is-atomicity-and-how-is-it-different-from-visibility)
+* [Q-19 What is a race Condition?](#q-19-what-is-a-race-condition)
+* [Q-20 What is atomicity, and how is it different from visibility?](#q-20-what-is-atomicity-and-how-is-it-different-from-visibility)
   * [Atomicity](#atomicity)
   * [Visibility](#visibility)
 <!-- TOC -->
