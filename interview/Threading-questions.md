@@ -1101,7 +1101,48 @@ Visibility ensures that when one thread updates a variable, other threads see th
 instead of a stale cached value.
 
 
+# Q-21 Why was ExecutorService introduced? What problem does it solve compared to creating threads manually?
 
 
+Before `ExecutorService`, developers created threads manually using the `Thread` class. 
+This approach worked for small programs but caused serious problems in real-world applications.
 
+## Problems with creating threads manually
+
+### 1 - Thread creation is expensive
+
+* Creating a new thread allocates stack memory and OS resources
+* Frequent thread creation leads to performance overhead
+
+```java
+new Thread(task).start();  // expensive if done repeatedly
+```
+
+### 2 - No control over number of threads
+
+* Unbounded thread creation can:
+    * Exhaust CPU
+    * Exhaust memory
+    * Crash the application
+
+Example:
+
+```java
+for (int i = 0; i < 10000; i++) {
+    new Thread(task).start(); // dangerous
+}
+```
+
+### 3 - No lifecycle management
+
+* No standard way to:
+    * Reuse threads
+    * Shut them down gracefully
+    * Wait for all tasks to finish
+
+
+### 4 - No result handling
+
+* Threads cannot return values
+* Handling results required shared mutable state
 
