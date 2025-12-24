@@ -1066,17 +1066,17 @@ Use:
 
 ## When SHOULD you use ReentrantLock?
 
-✔️ You need tryLock()
-✔️ You need interruptible locking
-✔️ You need fairness
-✔️ You need multiple condition queues
-✔️ You’re building concurrency primitives or frameworks
+* ✔️ You need tryLock()
+* ✔️ You need interruptible locking
+* ✔️ You need fairness
+* ✔️ You need multiple condition queues
+* ✔️ You’re building concurrency primitives or frameworks
 
 ## When should you NOT use it?
 
-❌ Simple synchronization
-❌ Low contention
-❌ When correctness > flexibility
+* ❌ Simple synchronization
+* ❌ Low contention
+* ❌ When correctness > flexibility
 
 
 # Q-20 What is the difference between synchronized and ReentrantLock?
