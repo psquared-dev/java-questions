@@ -60,10 +60,16 @@
   * [Why ReentrantLock is NOT a replacement for synchronized](#why-reentrantlock-is-not-a-replacement-for-synchronized)
   * [When SHOULD you use ReentrantLock?](#when-should-you-use-reentrantlock)
   * [When should you NOT use it?](#when-should-you-not-use-it)
-* [Q-19 What is a race Condition?](#q-19-what-is-a-race-condition)
+* [Q-19 What is a race condition?](#q-19-what-is-a-race-condition)
 * [Q-20 What is atomicity, and how is it different from visibility?](#q-20-what-is-atomicity-and-how-is-it-different-from-visibility)
   * [Atomicity](#atomicity)
   * [Visibility](#visibility)
+* [Q-21 Why was ExecutorService introduced? What problem does it solve compared to creating threads manually?](#q-21-why-was-executorservice-introduced-what-problem-does-it-solve-compared-to-creating-threads-manually)
+  * [Problems with creating threads manually](#problems-with-creating-threads-manually)
+    * [1 - Thread creation is expensive](#1---thread-creation-is-expensive)
+    * [2 - No control over number of threads](#2---no-control-over-number-of-threads)
+    * [3 - No lifecycle management](#3---no-lifecycle-management)
+    * [4 - No result handling](#4---no-result-handling)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
