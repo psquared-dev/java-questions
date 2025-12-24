@@ -34,6 +34,9 @@
     * [Example of Deadlock](#example-of-deadlock)
     * [Mapping the Code to the 4 Conditions](#mapping-the-code-to-the-4-conditions)
     * [How to prevent the deadlock?](#how-to-prevent-the-deadlock)
+* [Q-11 Why Thread.stop() is not recommended to stop the thread?](#q-11-why-threadstop-is-not-recommended-to-stop-the-thread)
+    * [Example](#example)
+* [Q-12 What is the difference between synchronized and ReentrantLock?](#q-12-what-is-the-difference-between-synchronized-and-reentrantlock)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -563,6 +566,65 @@ synchronized (lockAlice) {
     }
 }
 ```
+
+
+# Q-11 Why Thread.stop() is not recommended to stop the thread?
+
+The single most important reason `Thread.stop()` is deprecated is Data Corruption.
+
+It forces a thread to unlock its locks immediately, even if it was in the middle of a critical operation.
+
+Here is exactly how `Thread.stop()` breaks your specific code example.
+
+### Example
+
+You have a critical section that does two things. They must happen together (Atomicity).
+
+```java
+synchronized void update() {
+    // STEP 1: Move the money
+    balance -= amount;
+
+    // <--- CRITICAL MOMENT: stop() is called HERE
+
+    // STEP 2: Record the transaction
+    auditLog.add(entry);
+}
+```
+
+The Scenario: The Invisible Theft
+
+1. Thread A acquires the lock on the object.
+2. Thread A executes balance -= amount. The money is deducted.
+3. `Thread.stop()` hits Thread A.
+    * Thread A immediately dies.
+    * CRITICAL: The JVM releases the synchronized lock instantly.
+    * Thread A never executes line 2 (`auditLog.add`).
+
+The Aftermath (Why it is a disaster)
+
+The lock is now open. Thread B comes in and looks at the data.
+
+* Balance: Reduced. (Money is gone).
+* Audit Log: Empty. (No record of where it went).
+
+Your system is now in a corrupted state. You have missing money and no logs. 
+Because the lock was released, Thread B assumes everything is fine and proceeds to process more transactions 
+on top of this broken data, making the problem impossible to trace.
+
+
+# Q-12 What is the difference between synchronized and ReentrantLock?
+
+Cover these points in your answer:
+
+1. Lock acquisition and release
+2. Fairness
+3. Interruptibility
+4. Try-lock capability
+5. Condition variables
+6. When you would prefer one over the other
+
+
 
 
 
