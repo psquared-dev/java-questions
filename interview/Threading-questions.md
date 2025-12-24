@@ -36,6 +36,17 @@
     * [How to prevent the deadlock?](#how-to-prevent-the-deadlock)
 * [Q-11 Why Thread.stop() is not recommended to stop the thread?](#q-11-why-threadstop-is-not-recommended-to-stop-the-thread)
     * [Example](#example)
+* [Q-12: What is the correct way to stop a thread in Java?](#q-12-what-is-the-correct-way-to-stop-a-thread-in-java)
+    * [The Code Example:](#the-code-example)
+* [Q-13 How does the `Thread.interrupt()` mechanism work conceptually?](#q-13-how-does-the-threadinterrupt-mechanism-work-conceptually)
+* [Q-14 How do you handle interruption if the thread is actively working (Awake)?](#q-14-how-do-you-handle-interruption-if-the-thread-is-actively-working-awake)
+    * [The Code Example:](#the-code-example-1)
+* [Q-15 How do you handle interruption if the thread is Sleeping or Waiting?](#q-15-how-do-you-handle-interruption-if-the-thread-is-sleeping-or-waiting)
+    * [The Code Example:](#the-code-example-2)
+* [Q-16 What is the "Flag Clearing" trap when InterruptedException is thrown?](#q-16-what-is-the-flag-clearing-trap-when-interruptedexception-is-thrown)
+    * [The Code Example (The "Zombie" Thread Bug):](#the-code-example-the-zombie-thread-bug)
+* [Q-17 Does interrupt() wake up a thread waiting for a Lock (BLOCKED)?](#q-17-does-interrupt-wake-up-a-thread-waiting-for-a-lock-blocked)
+    * [The Code Example:](#the-code-example-3)
 * [Q-12 What is the difference between synchronized and ReentrantLock?](#q-12-what-is-the-difference-between-synchronized-and-reentrantlock)
 <!-- TOC -->
 
@@ -611,6 +622,220 @@ The lock is now open. Thread B comes in and looks at the data.
 Your system is now in a corrupted state. You have missing money and no logs. 
 Because the lock was released, Thread B assumes everything is fine and proceeds to process more transactions 
 on top of this broken data, making the problem impossible to trace.
+
+
+# Q-12: What is the correct way to stop a thread in Java?
+
+You should never force a thread to stop (e.g., `stop()`) because it can leave shared data in a broken state. 
+Instead, you "ask" the thread to stop using `interrupt()`, and the thread must voluntarily agree to shut down.
+
+### The Code Example:
+
+```java
+public class CorrectStopDemo {
+    public static void main(String[] args) throws InterruptedException {
+        Thread worker = new Thread(() -> {
+            System.out.println("Worker: I am running...");
+            
+            // COOPERATIVE CHECK:
+            // "If no one asked me to stop, I keep going."
+            while (!Thread.currentThread().isInterrupted()) {
+                // Do work...
+                Math.sin(0.5); 
+            }
+            
+            System.out.println("Worker: I received the signal. Stopping gracefully.");
+        });
+
+        worker.start();
+        Thread.sleep(100);
+        
+        System.out.println("Main: Asking worker to stop...");
+        worker.interrupt(); // The polite signal
+    }
+}
+```
+
+# Q-13 How does the `Thread.interrupt()` mechanism work conceptually?
+
+Think of the Interrupt as a simple internal `boolean` flag (`interrupt` status) inside the `Thread` object.
+
+* Calling worker.interrupt() sets this flag to TRUE.
+* It does not kill the thread. It just flips a switch.
+* If the thread never checks this switch, it will run forever.
+
+The Code Example (The Ignorant Thread): This example proves that `interrupt()` does nothing if the worker ignores it.
+
+```java
+public class IgnorantThread {
+    public static void main(String[] args) throws InterruptedException {
+        Thread worker = new Thread(() -> {
+            // BUG: We are using 'true' instead of checking isInterrupted()
+            while (true) {
+                // I am ignoring the flag completely!
+                Math.random(); 
+            }
+        });
+
+        worker.start();
+        Thread.sleep(100);
+        
+        worker.interrupt(); 
+        System.out.println("Main: I called interrupt, but the worker is still running forever!");
+        // The program will never terminate.
+    }
+}
+```
+
+# Q-14 How do you handle interruption if the thread is actively working (Awake)?
+
+If the thread is CPU-busy (calculating, processing), it acts as a "Gatekeeper". It must explicitly check 
+the flag using `isInterrupted()` before starting the next chunk of work.
+
+### The Code Example:
+
+```java
+public class AwakeInterruption {
+    public static void main(String[] args) throws InterruptedException {
+        Thread worker = new Thread(() -> {
+            long count = 0;
+            
+            // GATEKEEPER: Check the flag before every iteration
+            while (!Thread.currentThread().isInterrupted()) {
+                count++; // The "Meat" (Work)
+            }
+            
+            System.out.println("Worker: Stopped after counting to " + count);
+        });
+
+        worker.start();
+        Thread.sleep(10); // Let it run for 10ms
+        
+        worker.interrupt(); // Set the flag
+    }
+}
+```
+
+# Q-15 How do you handle interruption if the thread is Sleeping or Waiting?
+
+If the thread is paused (sleeping), it cannot check the while loop. The JVM handles this by waking 
+the thread up and throwing an `InterruptedException`. This is the "Emergency Alarm."
+
+### The Code Example:
+
+```java
+public class SleepInterruption {
+    public static void main(String[] args) throws InterruptedException {
+        Thread worker = new Thread(() -> {
+            try {
+                System.out.println("Worker: Going to sleep for 10 years...");
+                
+                // BLOCKED STATE
+                Thread.sleep(1000 * 60 * 60 * 24 * 365 * 10); 
+                
+            } catch (InterruptedException e) {
+                // The JVM wakes us up here!
+                System.out.println("Worker: Ouch! I was woken up explicitly!");
+            }
+        });
+
+        worker.start();
+        Thread.sleep(1000);
+        
+        System.out.println("Main: Waking up the worker...");
+        worker.interrupt(); // Triggers the Exception
+    }
+}
+```
+
+# Q-16 What is the "Flag Clearing" trap when InterruptedException is thrown?
+
+When `InterruptedException` is thrown, the JVM clears the `interrupt` flag (resets it to `false`).
+
+* **The Trap:** If you catch the exception and don't fix the flag, your while loop will think everything is fine
+and keep running.
+* **The Fix:** Call `Thread.currentThread().interrupt()` inside the catch block to put the flag back to `true`.
+
+### The Code Example (The "Zombie" Thread Bug):
+
+```java
+public class FlagClearingTrap {
+    public static void main(String[] args) throws InterruptedException {
+        Thread worker = new Thread(() -> {
+            // 1. The loop checks the flag
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    System.out.println("Worker: Working...");
+                    Thread.sleep(1000); 
+                } catch (InterruptedException e) {
+                    System.out.println("Worker: Exception caught! (Flag is now CLEARED by JVM)");
+                    
+                    // BUG: We swallowed the exception and didn't restore the flag.
+                    // The loop condition !isInterrupted() is now TRUE again!
+                    // The thread will NOT stop. It acts like a Zombie.
+                }
+            }
+        });
+
+        worker.start();
+        Thread.sleep(2500);
+        
+        System.out.println("Main: FIRE INTERRUPT!");
+        worker.interrupt();
+    }
+}
+```
+
+**The Correct Fix:** Inside the `catch` block, add this line:
+
+
+```java
+} catch (InterruptedException e) {
+    System.out.println("Worker: Interrupted!");
+    // RESTORE THE FLAG
+    Thread.currentThread().interrupt(); 
+}
+```
+
+# Q-17 Does interrupt() wake up a thread waiting for a Lock (BLOCKED)?
+
+No. A thread waiting for a synchronized lock is BLOCKED, not WAITING. `interrupt()` has no effect on it. 
+It will sit there frozen until it gets the lock.
+
+### The Code Example:
+
+```java
+public class BlockedInterruption {
+    public static void main(String[] args) throws InterruptedException {
+        Object lock = new Object();
+
+        // Thread-1: Grabs the lock and holds it forever
+        Thread greedyThread = new Thread(() -> {
+            synchronized (lock) {
+                try { Thread.sleep(999999); } catch (InterruptedException e) { }
+            }
+        });
+        greedyThread.start();
+        Thread.sleep(100); // Ensure greedyThread has the lock
+
+        // Thread-2: Tries to enter the lock (Will get BLOCKED)
+        Thread blockedThread = new Thread(() -> {
+            System.out.println("BlockedThread: Trying to get lock...");
+            synchronized (lock) {
+                System.out.println("BlockedThread: I got the lock! (Unreachable)");
+            }
+        });
+        blockedThread.start();
+        Thread.sleep(1000);
+
+        System.out.println("Main: Interrupting the BlockedThread...");
+        blockedThread.interrupt(); 
+        
+        System.out.println("Main: Interrupt sent. Observe that BlockedThread DOES NOT wake up.");
+        // The program hangs here. blockedThread ignores the interrupt.
+    }
+}
+```
 
 
 # Q-12 What is the difference between synchronized and ReentrantLock?
