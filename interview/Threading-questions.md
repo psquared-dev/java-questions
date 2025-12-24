@@ -47,6 +47,19 @@
     * [The Code Example (The "Zombie" Thread Bug):](#the-code-example-the-zombie-thread-bug)
 * [Q-17 Does interrupt() wake up a thread waiting for a Lock (BLOCKED)?](#q-17-does-interrupt-wake-up-a-thread-waiting-for-a-lock-blocked)
     * [The Code Example:](#the-code-example-3)
+* [Q-18 What is ReentrantLock?](#q-18-what-is-reentrantlock)
+  * [Why does it exist when we already have synchronized?](#why-does-it-exist-when-we-already-have-synchronized)
+  * [First: What does "Reentrant" mean?](#first-what-does-reentrant-mean)
+  * [Basic usage of ReentrantLock](#basic-usage-of-reentrantlock)
+  * [Key capabilities of ReentrantLock (with examples)](#key-capabilities-of-reentrantlock-with-examples)
+    * [Explicit lock control (manual)](#explicit-lock-control-manual)
+    * [Try acquiring a lock (non-blocking)](#try-acquiring-a-lock-non-blocking)
+    * [Interruptible lock acquisition](#interruptible-lock-acquisition)
+    * [Fairness (very important interview point)](#fairness-very-important-interview-point)
+    * [Condition variables (replacement for wait/notify)](#condition-variables-replacement-for-waitnotify)
+  * [Why ReentrantLock is NOT a replacement for synchronized](#why-reentrantlock-is-not-a-replacement-for-synchronized)
+  * [When SHOULD you use ReentrantLock?](#when-should-you-use-reentrantlock)
+  * [When should you NOT use it?](#when-should-you-not-use-it)
 * [Q-12 What is the difference between synchronized and ReentrantLock?](#q-12-what-is-the-difference-between-synchronized-and-reentrantlock)
 <!-- TOC -->
 
@@ -838,7 +851,235 @@ public class BlockedInterruption {
 ```
 
 
-# Q-12 What is the difference between synchronized and ReentrantLock?
+# Q-18 What is ReentrantLock?
+
+`ReentrantLock` is a lock implementation provided by Java in `java.util.concurrent.locks`.
+
+It is an **explicit locking mechanism**, meaning:
+
+* You **manually acquire** the lock
+* You **manually release** the lock
+* You get **more control** than `synchronized`
+
+## Why does it exist when we already have synchronized?
+
+`synchronized` is:
+
+* Simple
+* Safe
+* Easy to use
+
+But it is also:
+
+* Rigid
+* Limited
+* Hard to control in advanced concurrency scenarios
+
+`ReentrantLock` was introduced to solve **real-world concurrency limitations** of `synchronized`.
+
+## First: What does "Reentrant" mean?
+
+Reentrant = same thread can acquire the same lock multiple times
+
+This applies to both:
+
+* `synchronized`
+* `ReentrantLock`
+
+Example (important):
+
+```java
+class A {
+    synchronized void m1() {
+        m2();   // same thread enters again
+    }
+
+    synchronized void m2() {
+        System.out.println("Inside m2");
+    }
+}
+```
+
+This works because Java locks are **reentrant**.
+
+If locks were not reentrant → this would deadlock.
+
+So the name `ReentrantLock` emphasizes this behavior explicitly.
+
+## Basic usage of ReentrantLock
+
+**Simple example**
+
+```java
+ReentrantLock lock = new ReentrantLock();
+
+lock.lock();      // acquire lock
+try {
+    // critical section
+    System.out.println("Inside critical section");
+} finally {
+    lock.unlock();   // MUST be called
+}
+```
+
+⚠️ If you forget `unlock()` → **deadlock risk**
+
+This is why `synchronized` is safer for simple cases.
+
+## Key capabilities of ReentrantLock (with examples)
+
+Now let’s build intuition feature by feature.
+
+### Explicit lock control (manual)
+
+**synchronized**
+
+```java
+synchronized (lock) {
+        // lock acquired automatically
+        }
+// lock released automatically
+```
+
+**ReentrantLock**
+
+```java
+lock.lock();
+try {
+    // work
+} finally {
+    lock.unlock();
+}
+```
+
+👉 More control, but more responsibility.
+
+### Try acquiring a lock (non-blocking)
+
+❌ Not possible with synchronized
+
+With synchronized, if lock is taken:
+* Thread blocks forever
+
+✅ Possible with ReentrantLock
+
+```java
+if (lock.tryLock()) {
+    try {
+        // got the lock
+    } finally {
+        lock.unlock();
+    }
+} else {
+    // lock not available — do something else
+}
+```
+
+Use case:
+
+* Avoid blocking UI thread
+* Skip optional work if resource is busy
+
+### Interruptible lock acquisition
+
+❌ synchronized
+
+If a thread is blocked waiting for a monitor lock:
+* interrupt() does NOTHING
+* Thread stays blocked
+
+✅ ReentrantLock
+
+```java
+lock.lockInterruptibly();
+```
+
+Now:
+* Thread can be interrupted
+* Useful during shutdown or cancellation
+
+### Fairness (very important interview point)
+
+**synchronized**
+
+* No fairness guarantee
+* JVM chooses next thread arbitrarily
+
+**ReentrantLock**
+
+```java
+ReentrantLock lock = new ReentrantLock(true); // fair lock
+```
+
+Fair lock:
+* Longest-waiting thread gets lock first
+
+Tradeoff:
+
+* Fair → lower throughput
+* Unfair (default) → faster
+
+### Condition variables (replacement for wait/notify)
+
+With `synchronized`:
+
+* Only one wait set per lock
+* Uses `wait()`, `notify()`, `notifyAll()`
+
+With `ReentrantLock`:
+
+* Multiple conditions per lock
+* Much cleaner and safer
+
+Example:
+
+```java
+ReentrantLock lock = new ReentrantLock();
+Condition notEmpty = lock.newCondition();
+Condition notFull = lock.newCondition();
+```
+
+```java
+lock.lock();
+try {
+    while (empty) {
+        notEmpty.await();
+    }
+    // consume
+    notFull.signal();
+} finally {
+    lock.unlock();
+}
+```
+
+This solves many classic `notify()` bugs.
+
+## Why ReentrantLock is NOT a replacement for synchronized
+
+Important interview nuance:
+> `ReentrantLock` is not better, it is more powerful.
+
+Use:
+
+* `synchronized` → simple, safe, low-risk
+* `ReentrantLock` → complex, performance-sensitive, advanced control
+
+## When SHOULD you use ReentrantLock?
+
+✔️ You need tryLock()
+✔️ You need interruptible locking
+✔️ You need fairness
+✔️ You need multiple condition queues
+✔️ You’re building concurrency primitives or frameworks
+
+## When should you NOT use it?
+
+❌ Simple synchronization
+❌ Low contention
+❌ When correctness > flexibility
+
+
+# Q-20 What is the difference between synchronized and ReentrantLock?
 
 Cover these points in your answer:
 
