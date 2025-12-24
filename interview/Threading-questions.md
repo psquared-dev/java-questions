@@ -60,7 +60,10 @@
   * [Why ReentrantLock is NOT a replacement for synchronized](#why-reentrantlock-is-not-a-replacement-for-synchronized)
   * [When SHOULD you use ReentrantLock?](#when-should-you-use-reentrantlock)
   * [When should you NOT use it?](#when-should-you-not-use-it)
-* [Q-12 What is the difference between synchronized and ReentrantLock?](#q-12-what-is-the-difference-between-synchronized-and-reentrantlock)
+* [Q-20 What is a race Condition?](#q-20-what-is-a-race-condition)
+* [Q-21 What is atomicity, and how is it different from visibility?](#q-21-what-is-atomicity-and-how-is-it-different-from-visibility)
+  * [Atomicity](#atomicity)
+  * [Visibility](#visibility)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -1079,16 +1082,24 @@ Use:
 * ❌ When correctness > flexibility
 
 
-# Q-20 What is the difference between synchronized and ReentrantLock?
+# Q-19 What is a race Condition?
 
-Cover these points in your answer:
+A race condition occurs when multiple threads access shared mutable data concurrently and the result depends 
+on execution order, often leading to incorrect outcomes.
 
-1. Lock acquisition and release
-2. Fairness
-3. Interruptibility
-4. Try-lock capability
-5. Condition variables
-6. When you would prefer one over the other
+
+# Q-20 What is atomicity, and how is it different from visibility?
+
+## Atomicity
+
+Atomicity means an operation is indivisible — it either happens completely or not at all, 
+and no other thread can observe it in an intermediate state.
+
+## Visibility
+
+Visibility ensures that when one thread updates a variable, other threads see the updated value 
+instead of a stale cached value.
+
 
 
 
