@@ -1804,9 +1804,9 @@ public class WorkStealingDemo {
   
 **Method semantics**
 
-* fork() → pushes task to BOTTOM of current worker deque
-* compute() → normal method call, runs immediately
-* join() → wait point
+* `fork()` → pushes task to BOTTOM of current worker deque
+* `compute()` → normal method call, runs immediately
+* `join()` → wait point
     * if result ready → return
     * if not → worker waits (may steal)
 
