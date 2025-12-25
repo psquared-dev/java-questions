@@ -70,6 +70,24 @@
     * [2 - No control over number of threads](#2---no-control-over-number-of-threads)
     * [3 - No lifecycle management](#3---no-lifecycle-management)
     * [4 - No result handling](#4---no-result-handling)
+* [Q-22 What is an Executor interface?](#q-22-what-is-an-executor-interface)
+  * [1. Why the Executor interface exists](#1-why-the-executor-interface-exists)
+  * [2. What exactly is Executor?](#2-what-exactly-is-executor)
+    * [3. Conceptual model](#3-conceptual-model)
+    * [4. Where real power comes from (Executor implementations)](#4-where-real-power-comes-from-executor-implementations)
+    * [Error handling behavior](#error-handling-behavior)
+  * [One-line summary](#one-line-summary)
+* [Q-23 What is ExecutorService interface?](#q-23-what-is-executorservice-interface)
+  * [Step 1 — Where ExecutorService sits in the story](#step-1--where-executorservice-sits-in-the-story)
+  * [Step 2 — What ExecutorService actually is](#step-2--what-executorservice-actually-is)
+  * [Step 3 — The core responsibility of ExecutorService](#step-3--the-core-responsibility-of-executorservice)
+  * [Step 4 — Submitting work (execute vs submit)](#step-4--submitting-work-execute-vs-submit)
+  * [Step 5 — Why submit() exists at all](#step-5--why-submit-exists-at-all)
+  * [Step 6 — Understanding Future](#step-6--understanding-future)
+  * [Step 7 — Callable vs Runnable (why both exist)](#step-7--callable-vs-runnable-why-both-exist)
+  * [Step 8 — Managing executor lifecycle (very important)](#step-8--managing-executor-lifecycle-very-important)
+  * [Step 9 — Waiting for termination](#step-9--waiting-for-termination)
+  * [Step 10 — What ExecutorService deliberately does NOT decide](#step-10--what-executorservice-deliberately-does-not-decide)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -1151,4 +1169,328 @@ for (int i = 0; i < 10000; i++) {
 
 * Threads cannot return values
 * Handling results required shared mutable state
+
+# Q-22 What is an Executor interface?
+
+## 1. Why the Executor interface exists
+
+Before Java 5, concurrency typically looked like this:
+
+```java
+new Thread(() -> doWork()).start();
+```
+
+This approach has structural problems:
+
+1. You cannot control how many threads are created.
+    * You cannot control how many threads are created.
+2. No reuse
+    * Threads are expensive; creating them repeatedly is wasteful.
+3. No lifecycle management
+    * No standard way to shut down, monitor, or throttle execution.
+4. Business logic tightly coupled with threading logic
+    * Your application logic decides how execution happens.
+
+Java introduced `Executor` to separate concerns:
+> What to execute vs How to execute
+
+
+## 2. What exactly is Executor?
+
+```java
+public interface Executor {
+    void execute(Runnable command);
+}
+```
+
+That is the entire interface.
+
+**Key observations**
+
+* Executor:
+    * Does not create threads
+    * Does not define scheduling
+    * Does not return results
+* It is a **task execution abstraction**, nothing more.
+
+### 3. Conceptual model
+
+Think of Executor as a **task sink**.
+
+You submit work; something else decides:
+
+* Which thread runs it
+* When it runs
+* Whether it runs immediately, later, or never
+
+### 4. Where real power comes from (Executor implementations)
+
+Executor is a **foundation interface**.
+
+More powerful abstractions build on it:
+
+```text
+Executor
+   |
+   +-- ExecutorService
+           |
+           +-- ThreadPoolExecutor
+           +-- ScheduledThreadPoolExecutor
+```
+
+Executor alone:
+* Fire-and-forget
+* No result
+* No cancellation
+* No lifecycle control
+
+### Error handling behavior
+
+If a `Runnable` throws an exception:
+
+```java
+executor.execute(() -> {
+    throw new RuntimeException("Boom");
+});
+```
+
+* Exception is thrown **inside worker thread**
+* Caller never sees it
+* Thread may die or be replaced (implementation-dependent)
+
+This is a major reason why higher-level interfaces exist.
+
+## One-line summary
+
+The `Executor` interface is used to submit tasks, but it is the concrete 
+implementation (like `ThreadPoolExecutor` or `ForkJoinPool`) that decides how to execute them.
+
+# Q-23 What is ExecutorService interface?
+
+## Step 1 — Where ExecutorService sits in the story
+
+Before `ExecutorService`, we already have:
+
+* A task → `Runnable` or `Callable`
+* Someone who can run tasks → `Executor`
+
+But `Executor` only says:
+> "I can execute a task."
+>
+
+It does not say:
+
+* when it will finish
+* how many tasks it can handle
+* how to stop it
+* how to observe results
+
+Real systems cannot live with that uncertainty.
+
+This is why `ExecutorService` exists.
+
+## Step 2 — What ExecutorService actually is
+
+Formally:
+
+```java
+public interface ExecutorService extends Executor
+```
+
+This tells us two things:
+
+1. Every `ExecutorService` is an `Executor`
+2. It adds management and control
+
+Think of it as:
+> Executor + lifecycle + results + control
+
+
+## Step 3 — The core responsibility of ExecutorService
+
+`ExecutorService` answers five critical questions that `Executor` cannot:
+
+1. How do I submit work?
+2. How do I get results?
+3. How do I wait for completion?
+4. How do I cancel work?
+5. How do I shut down cleanly?
+
+Everything in `ExecutorService` exists to answer one of these.
+
+## Step 4 — Submitting work (execute vs submit)
+
+**execute(Runnable)** 
+
+Inherited from `Executor`.
+
+```java
+executorService.execute(() -> doWork());
+```
+
+Characteristics:
+
+* Fire-and-forget
+* No result
+* No visibility
+* Exceptions go to thread’s uncaught handler
+
+Use case:
+
+* Logging
+* Metrics
+* Side effects
+
+
+**submit(...)**
+
+This is new in `ExecutorService`.
+
+```java
+Future<Integer> future =
+        executorService.submit(() -> 42);
+```
+
+Key difference:
+* You get a `Future`
+
+This is extremely important.
+
+## Step 5 — Why submit() exists at all
+
+Real applications often need:
+
+* Results
+* Error handling
+* Coordination between tasks
+
+`submit()` solves this by returning a handle to the task.
+
+That handle is `Future`.
+
+## Step 6 — Understanding Future
+
+A `Future` represents the lifecycle of a task.
+
+Think of it as a box that may be:
+
+* empty (task running)
+* filled (task completed)
+* broken (task failed)
+* cancelled
+
+Key methods:
+
+```java
+future.get();        // blocks until done
+future.isDone();     // non-blocking check
+future.cancel(true); // attempt cancellation
+```
+
+Why this matters:
+
+* Without `Future`, async code becomes guesswork
+* With `Future`, async code becomes controllable
+
+This is a major reason `ExecutorService` exists.
+
+## Step 7 — Callable vs Runnable (why both exist)
+
+**Runnable**
+
+```java
+Runnable r = () -> doWork();
+```
+
+* No return value
+* No checked exception
+
+**Callable**
+
+```java
+Callable<Integer> c = () -> 42;
+```
+
+* Returns a value
+* Can throw checked exceptions
+
+
+`ExecutorService` supports both because:
+
+* Some tasks only do
+* Some tasks compute
+
+This is another layer of realism added by `ExecutorService`.
+
+## Step 8 — Managing executor lifecycle (very important)
+
+Threads are resources. Resources must be released.
+
+So `ExecutorService` introduces lifecycle methods.
+
+**shutdown()**
+
+```java
+executorService.shutdown();
+```
+
+What it means:
+
+* Stop accepting new tasks
+* Let existing tasks finish
+
+This is a **graceful shutdown**.
+
+**shutdownNow()**
+
+```java
+executorService.shutdownNow();
+```
+
+What it means:
+
+* Attempt to interrupt running tasks
+* Return tasks that never started
+
+This is best-effort, not guaranteed.
+
+
+## Step 9 — Waiting for termination
+
+Sometimes you need to wait:
+
+```java
+executorService.awaitTermination(10, TimeUnit.SECONDS);
+```
+
+Why this exists:
+
+* Coordinated shutdown
+* Service stop hooks
+* Application exits
+
+This is essential for:
+
+* Servers
+* Batch jobs
+* Graceful redeployments
+
+## Step 10 — What ExecutorService deliberately does NOT decide
+
+Notice what `ExecutorService` does not specify:
+
+* How many threads
+* Which queue
+* Thread reuse strategy
+* Scheduling policy
+
+That is intentional.
+
+Those decisions belong to implementations like:
+
+* ThreadPoolExecutor
+* ForkJoinPool
+
+`ExecutorService` focuses on control, not mechanics.
+
 
