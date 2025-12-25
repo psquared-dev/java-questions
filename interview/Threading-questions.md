@@ -116,6 +116,8 @@
   * [STEP 9 — Final join at root](#step-9--final-join-at-root)
   * [FINAL GLOBAL VIEW — Everything together](#final-global-view--everything-together)
 * [Q-27 How ForkJoinPool() is different from Executors.newWorkStealingPool()](#q-27-how-forkjoinpool-is-different-from-executorsnewworkstealingpool)
+  * [1. The Return Type (API vs Implementation)](#1-the-return-type-api-vs-implementation)
+  * [2. The Hidden Difference: "Async Mode"](#2-the-hidden-difference-async-mode)
 * [Q-28 What is CompletableFuture?](#q-28-what-is-completablefuture)
 * [Q-29 Explain the difference between Future and CompletableFuture](#q-29-explain-the-difference-between-future-and-completablefuture)
 <!-- TOC -->
@@ -2040,6 +2042,31 @@ Final result:
 ```
 
 # Q-27 How ForkJoinPool() is different from Executors.newWorkStealingPool()
+
+There are two key differences: one is about **Type** (what you get), and one is about **Algorithm** (how it works).
+
+## 1. The Return Type (API vs Implementation)
+
+* `new ForkJoinPool()` returns the concrete `ForkJoinPool` class.
+    * You get full access to specific methods like `.invoke()`, `.fork()`, `.join()`, and `.getStealCount()`.
+
+* `Executors.newWorkStealingPool()` returns the `ExecutorService` interface.
+    * It hides the implementation. You only get standard methods like `.submit()` and `.shutdown()`. 
+  You cannot call specific ForkJoin methods without casting.
+
+## 2. The Hidden Difference: "Async Mode"
+
+This is the critical performance difference.
+
+* `new ForkJoinPool()` defaults to **Async Mode = false** (LIFO / Stack).
+    *  **Behavior:** When a thread adds a task, it processes the **most recently added** task next.
+    * **Why:** This optimizes for **CPU Cache** (Locality). The data for the newest sub-task is likely still hot in the CPU cache.
+    * **Best For: Recursive Tasks** (Divide and conquer, sorting, matrix math).
+
+* `Executors.newWorkStealingPool()` sets **Async Mode = true** (FIFO / Queue).
+    * **Behavior:** When a thread adds a task, it processes the oldest task next.
+    * **Why:** This optimizes for **Fairness**. It processes tasks in the order they arrived.
+    * **Best For: Event Handling / Message Processing** (Processing independent requests).
 
 # Q-28 What is CompletableFuture?
 
