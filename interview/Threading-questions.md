@@ -1573,7 +1573,7 @@ causing cache misses.
 * The tasks are unrelated (Task A doesn't care if Task B finishes).
 * You need strict control over priority or timing (e.g., `ScheduledThreadPoolExecutor`).
 
-2\. Use ForkJoinPool when:
+2\. Use `ForkJoinPool` when:
 
 * You have computational heavy tasks (Number crunching, Image processing).
 * The tasks can be broken down recursively (The "Divide and Conquer" pattern).
