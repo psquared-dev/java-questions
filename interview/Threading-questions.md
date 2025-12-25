@@ -94,6 +94,14 @@
   * [Key Differences](#key-differences)
   * [Deep Dive: Why LIFO in ForkJoinPool?](#deep-dive-why-lifo-in-forkjoinpool)
   * [When to use which?](#when-to-use-which)
+* [Q-25 Explain some types of ExecutorService?](#q-25-explain-some-types-of-executorservice)
+  * [SingleThreadExecutor](#singlethreadexecutor)
+  * [FixedThreadPool](#fixedthreadpool)
+  * [CachedThreadPool](#cachedthreadpool)
+  * [ScheduledThreadPoolExecutor](#scheduledthreadpoolexecutor)
+  * [WorkStealingPool (ForkJoinPool)](#workstealingpool-forkjoinpool)
+* [Q-26 Explain ForkJoinPool with an example](#q-26-explain-forkjoinpool-with-an-example)
+* [Q-27 How ForkJoinPool() is different from Executors.newWorkStealingPool()](#q-27-how-forkjoinpool-is-different-from-executorsnewworkstealingpool)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -1579,6 +1587,145 @@ causing cache misses.
 * The tasks can be broken down recursively (The "Divide and Conquer" pattern).
 * You are using Java Streams (`.parallelStream()`), which uses the common FJP under the hood.
 
+
+# Q-25 Explain some types of ExecutorService?
+
+1. SingleThreadExecutor
+2. FixedThreadPool
+3. CachedThreadPool
+4. ScheduledThreadPoolExecutor
+5. WorkStealingPool (ForkJoinPool)
+
+## SingleThreadExecutor
+
+```java
+ExecutorService executor = Executors.newSingleThreadExecutor();
+```
+
+**Behavior**
+
+* Uses exactly one thread
+* Tasks execute sequentially
+* Tasks are queued if the thread is busy
+* Thread is reused
+
+**Realistic use case**
+
+* Audit logging
+* Event processing
+* Writing to a file (order matters)
+
+**Why it exists**
+
+* Removes need for `synchronized`
+* Guarantees order
+* Simplifies single-threaded background work
+
+## FixedThreadPool
+
+```java
+ExecutorService executor = Executors.newFixedThreadPool(4);
+```
+
+**Behavior**
+
+* Fixed number of threads
+* At most N tasks run concurrently
+* Remaining tasks wait in a queue
+
+**Realistic use case**
+
+* Handling HTTP requests
+* Processing jobs from a queue
+* CPU-bound tasks
+
+**Why it exists**
+
+* Prevents thread explosion
+* Gives predictable resource usage
+
+
+## CachedThreadPool
+
+```java
+ExecutorService executor = Executors.newCachedThreadPool();
+```
+
+**Behavior**
+
+* Creates threads as needed
+* Reuses idle threads
+* No upper limit on threads
+
+**Realistic use case**
+
+* Short-lived I/O tasks
+* Async callbacks
+* Network operations
+
+**Why it exists**
+
+* Fast response under burst load
+* Avoids queuing delay
+
+⚠️ Danger: can create too many threads if tasks block
+
+
+## ScheduledThreadPoolExecutor
+
+```java
+ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+```
+
+**Behavior**
+
+* Executes tasks:
+    * After a delay
+    * Periodically
+* Supports fixed-rate and fixed-delay scheduling
+
+**Realistic use case**
+
+* Cron jobs
+* Heartbeats
+* Cleanup tasks
+* Monitoring
+
+**Why it exists**
+
+* Safe replacement for Timer
+* Handles exceptions properly
+
+
+## WorkStealingPool (ForkJoinPool)
+
+```java
+ExecutorService executor = Executors.newWorkStealingPool();
+```
+
+**Behavior**
+
+* Uses ForkJoinPool
+* Threads steal work from each other
+* Optimized for CPU-bound tasks
+
+**Realistic use case**
+
+* Parallel data processing
+* Recursive algorithms
+* Parallel streams
+
+**Why it exists**
+
+* Maximizes CPU utilization
+* Reduces idle threads
+
+⚠️ Not suitable for blocking I/O
+
+# Q-26 Explain ForkJoinPool with an example
+
+
+# Q-27 How ForkJoinPool() is different from Executors.newWorkStealingPool()
 
 
 
