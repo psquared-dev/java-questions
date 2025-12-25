@@ -101,7 +101,23 @@
   * [ScheduledThreadPoolExecutor](#scheduledthreadpoolexecutor)
   * [WorkStealingPool (ForkJoinPool)](#workstealingpool-forkjoinpool)
 * [Q-26 Explain ForkJoinPool with an example](#q-26-explain-forkjoinpool-with-an-example)
+  * [Rules of engagement](#rules-of-engagement)
+  * [Problem](#problem)
+  * [GLOBAL VIEW 1 — Task tree (structure only)](#global-view-1--task-tree-structure-only)
+  * [GLOBAL VIEW 2 — Initial state](#global-view-2--initial-state)
+  * [STEP 1 — Root starts on W1](#step-1--root-starts-on-w1)
+  * [STEP 2 — Stealing happens](#step-2--stealing-happens)
+  * [STEP 3 — W1 splits (5..8)](#step-3--w1-splits-58)
+  * [STEP 4 — W2 splits (1..4)](#step-4--w2-splits-14)
+  * [STEP 5 — More stealing (4 workers active)](#step-5--more-stealing-4-workers-active)
+  * [STEP 6 — Leaf computations (base case)](#step-6--leaf-computations-base-case)
+  * [STEP 7 — join() points (waiting is visible)](#step-7--join-points-waiting-is-visible)
+  * [STEP 8 — Result build-up (bottom → top)](#step-8--result-build-up-bottom--top)
+  * [STEP 9 — Final join at root](#step-9--final-join-at-root)
+  * [FINAL GLOBAL VIEW — Everything together](#final-global-view--everything-together)
 * [Q-27 How ForkJoinPool() is different from Executors.newWorkStealingPool()](#q-27-how-forkjoinpool-is-different-from-executorsnewworkstealingpool)
+* [Q-28 What is CompletableFuture?](#q-28-what-is-completablefuture)
+* [Q-29 Explain the difference between Future and CompletableFuture](#q-29-explain-the-difference-between-future-and-completablefuture)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -1724,8 +1740,312 @@ ExecutorService executor = Executors.newWorkStealingPool();
 
 # Q-26 Explain ForkJoinPool with an example
 
+```java
+public class WorkStealingDemo {
+    static class SumTask extends RecursiveTask<Integer> {
+        private final int from;
+        private final int to;
+
+        SumTask(int from, int to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        protected Integer compute() {
+            if (to - from <= 1) {
+                int sum = 0;
+
+                for (int i = from; i <= to; i++) {
+                    sum += i;
+                }
+
+                System.out.println(
+                        Thread.currentThread().getName() +
+                                " computing Sum(" + from + ".." + to + ") = " + sum
+                );
+
+                return sum;
+            }
+
+            int mid = (from + to) / 2;
+
+            SumTask leftTask = new   SumTask(from, mid);
+            SumTask rightTask = new SumTask(mid + 1, to);
+
+            leftTask.fork();
+            int rightResult = rightTask.compute();
+            int leftResult = leftTask.join();
+
+            return leftResult + rightResult;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        ForkJoinPool pool = new ForkJoinPool(4);
+        SumTask sumTask = new SumTask(1, 8);
+        int result = pool.invoke(sumTask);
+        System.out.println("Result: " + result);
+        pool.shutdown();
+    }
+}
+```
+
+## Rules of engagement
+
+**Deque orientation (horizontal)**
+
+```text
+[ FRONT | ........ | BOTTOM ]
+```
+
+* BOTTOM → owner pushes & pops
+* FRONT → thieves steal
+  
+**Method semantics**
+
+* fork() → pushes task to BOTTOM of current worker deque
+* compute() → normal method call, runs immediately
+* join() → wait point
+    * if result ready → return
+    * if not → worker waits (may steal)
+
+
+## Problem
+
+Compute:
+
+```text
+Sum(1..8)
+```
+
+Using 4 workers: `W1, W2, W3, W4`
+
+## GLOBAL VIEW 1 — Task tree (structure only)
+
+This is the entire logical tree that will exist by the end.
+
+```text
+                        (1..8)
+                       /      \
+                 (1..4)        (5..8)
+                /      \       /      \
+           (1..2)   (3..4) (5..6)   (7..8)
+```
+
+Nothing here talks about **workers yet**.
+
+Now we will **attach workers + deques + waiting states**.
+
+## GLOBAL VIEW 2 — Initial state
+
+```text
+Workers:
+W1, W2, W3, W4
+
+Deques:
+W1: [ FRONT |  | BOTTOM ]
+W2: [ FRONT |  | BOTTOM ]
+W3: [ FRONT |  | BOTTOM ]
+W4: [ FRONT |  | BOTTOM ]
+```
+
+## STEP 1 — Root starts on W1
+
+```text
+W1 executes compute(1..8)
+```
+
+Split happens:
+
+```text
+left.fork();      // (1..4)
+right.compute();  // (5..8)
+```
+
+**State now**
+
+```text
+TREE:
+                        (1..8) [W1 running]
+                       /      \
+                (1..4) [enqueued]   (5..8) [W1 running]
+
+DEQUES:
+W1: [ FRONT |  | (1..4) | BOTTOM ]
+W2: [ FRONT |  | BOTTOM ]
+W3: [ FRONT |  | BOTTOM ]
+W4: [ FRONT |  | BOTTOM ]
+```
+
+## STEP 2 — Stealing happens
+
+W2 is idle → steals from **FRONT of W1**.
+
+```text
+W2 steals (1..4)
+```
+
+**State**
+
+```text
+TREE:
+                        (1..8) [W1 running]
+                       /      \
+              (1..4) [W2 running]   (5..8) [W1 running]
+
+DEQUES:
+W1: [ FRONT |  | BOTTOM ]
+W2: [ FRONT |  | BOTTOM ]
+W3: [ FRONT |  | BOTTOM ]
+W4: [ FRONT |  | BOTTOM ]
+```
+
+## STEP 3 — W1 splits (5..8)
+
+```java
+left.fork();      // (5..6)
+right.compute();  // (7..8)
+```
+
+```text
+TREE:
+                        (1..8) [W1 running]
+                       /      \
+              (1..4) [W2]        (5..8) [W1 running]
+                                   /      \
+                        (5..6) [enq]   (7..8) [W1 running]
+
+DEQUES:
+W1: [ FRONT |  | (5..6) | BOTTOM ]
+W2: [ FRONT |  | BOTTOM ]
+W3: [ FRONT |  | BOTTOM ]
+W4: [ FRONT |  | BOTTOM ]
+```
+
+## STEP 4 — W2 splits (1..4)
+
+```java
+left.fork();      // (1..2)
+right.compute();  // (3..4)
+```
+
+```text
+TREE:
+                        (1..8) [W1]
+                       /      \
+              (1..4) [W2 running]     (5..8) [W1]
+               /      \                  /      \
+      (1..2) [enq]  (3..4) [W2 running] (5..6) [enq] (7..8) [W1]
+
+DEQUES:
+W1: [ FRONT |  | (5..6) | BOTTOM ]
+W2: [ FRONT |  | (1..2) | BOTTOM ]
+W3: [ FRONT |  | BOTTOM ]
+W4: [ FRONT |  | BOTTOM ]
+```
+
+## STEP 5 — More stealing (4 workers active)
+
+* W3 steals from W1 → (5..6)
+* W4 steals from W2 → (1..2)
+
+```text
+TREE:
+                        (1..8) [W1]
+                       /      \
+              (1..4) [W2]            (5..8) [W1]
+               /      \                /      \
+      (1..2) [W4 run] (3..4) [W2 run] (5..6) [W3 run] (7..8) [W1 run]
+
+DEQUES:
+W1: [ FRONT |  | BOTTOM ]
+W2: [ FRONT |  | BOTTOM ]
+W3: [ FRONT |  | BOTTOM ]
+W4: [ FRONT |  | BOTTOM ]
+```
+
+## STEP 6 — Leaf computations (base case)
+
+All workers now compute actual values:
+
+```text
+W1: (7..8) = 15
+W2: (3..4) = 7
+W3: (5..6) = 11
+W4: (1..2) = 3
+```
+
+## STEP 7 — join() points (waiting is visible)
+
+**W1 reaches:**
+
+```java
+left.join(); // waiting for (5..6)
+```
+
+But `(5..6)` already completed by W3.
+
+→ No waiting, immediate return.
+
+**W2 reaches:**
+
+```java
+left.join(); // waiting for (1..2)
+```
+
+But `(1..2)` already completed by W4.
+
+→ No waiting, immediate return.
+
+(This is important: join() is special, but does not always block.)
+
+## STEP 8 — Result build-up (bottom → top)
+
+Now results combine **upward in the tree**.
+
+```text
+W3 returns: (5..6) = 11
+W1 computes: (5..8) = 11 + 15 = 26
+
+W4 returns: (1..2) = 3
+W2 computes: (1..4) = 3 + 7 = 10
+```
+
+## STEP 9 — Final join at root
+
+W1 now does:
+
+```java
+join(1..4)
+```
+
+* `(1..4)` already completed by W2
+* Immediate return
+
+Final result:
+
+```text
+(1..8) = 26 + 10 = 36    
+```
+
+## FINAL GLOBAL VIEW — Everything together
+
+```text
+                        (1..8) = 36 [W1]
+                       /                  \
+          (1..4) = 10 [W2]              (5..8) = 26 [W1]
+             /        \                    /          \
+   (1..2)=3 [W4]  (3..4)=7 [W2]   (5..6)=11 [W3]  (7..8)=15 [W1]
+```
 
 # Q-27 How ForkJoinPool() is different from Executors.newWorkStealingPool()
+
+# Q-28 What is CompletableFuture?
+
+# Q-29 Explain the difference between Future and CompletableFuture
+
+
 
 
 
