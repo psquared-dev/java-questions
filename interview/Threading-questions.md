@@ -131,7 +131,12 @@
   * [Step 10 — Manual completion (why it’s called Completable)](#step-10--manual-completion-why-its-called-completable)
   * [Step 11 — Blocking is still possible (but optional)](#step-11--blocking-is-still-possible-but-optional)
   * [Step 12 — Execution model (important)](#step-12--execution-model-important)
-* [Q-29 Explain the difference between Future and CompletableFuture](#q-29-explain-the-difference-between-future-and-completablefuture)
+* [Q-30 What is Virtual Thread?](#q-30-what-is-virtual-thread)
+  * [The Analogy](#the-analogy)
+    * [The Old Way: Platform Threads (The "Personal Butler" Model)](#the-old-way-platform-threads-the-personal-butler-model)
+    * [The New Way: Virtual Threads (The "Order Pad" Model)](#the-new-way-virtual-threads-the-order-pad-model)
+    * [The Technical Translation](#the-technical-translation)
+    * [Why is this huge?](#why-is-this-huge)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -2295,10 +2300,50 @@ Blocking is **allowed**, but not the design goal.
     * common pool
     * custom executor
 
+# Q-30 What is Virtual Thread?
 
+## The Analogy
 
+Here is the simplest explanation using a Restaurant Analogy.
 
+### The Old Way: Platform Threads (The "Personal Butler" Model)
 
+Imagine a restaurant (Your Server) with 100 tables (Tasks). In the old version of Java (Platform Threads), you hired 
+**one Butler for every table**.
 
+1. A Customer sits down.
+2. A Butler runs over.
+3. The Customer says: "Let me think about what I want to order..." (This is like a database call or waiting for a file).
+4. **The Problem:** The Butler just **stands there waiting**. He cannot help anyone else. He is blocked.
+5. **The Limit:** You can only hire 1,000 Butlers because they are expensive (RAM). If 1,001 customers come, the new guy waits outside.
 
+### The New Way: Virtual Threads (The "Order Pad" Model)
 
+In Java 21+ (Virtual Threads), we change the rules.
+
+1. A Customer sits down.
+2. A Waiter runs over.
+3. The Customer says: "Let me think..."
+4. **The Magic:** The Waiter **leaves immediately**. He writes "Table 5 is thinking" on a sticky note (The Virtual Thread) 
+and sticks it on the table.
+5. The Waiter runs to help Table 6.
+6. When Table 5 is ready, **any available Waiter** sees the sticky note, runs over, and continues the service.
+
+**Result:** You only need **5 Waiters** (Carrier Threads) to serve **1,000,000 Tables** (Virtual Threads).
+
+### The Technical Translation
+
+1. The Waiter (Carrier Thread): This is the expensive OS Thread (Platform Thread).
+We only have a few of these (usually equal to your CPU cores).
+2. The Sticky Note (Virtual Thread): This is the Virtual Thread. It is just a tiny piece of memory in Java. 
+It is not "real" to the Operating System.
+3. "Let me think" (Blocking I/O): When your code pauses (waiting for a Database or API), 
+Java unmounts the Virtual Thread (puts the sticky note down) and frees up the Carrier Thread to do other work.
+
+### Why is this huge?
+
+* Before: You could handle ~5,000 simultaneous users.
+* Now: You can handle ~1,000,000 simultaneous users on the same hardware.
+
+You don't need to change your coding style. You write code that looks like it blocks (wait for DB), 
+but under the hood, it's non-blocking and superfast.
