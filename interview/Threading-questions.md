@@ -119,6 +119,18 @@
   * [1. The Return Type (API vs Implementation)](#1-the-return-type-api-vs-implementation)
   * [2. The Hidden Difference: "Async Mode"](#2-the-hidden-difference-async-mode)
 * [Q-28 What is CompletableFuture?](#q-28-what-is-completablefuture)
+  * [Step 1 — Why CompletableFuture was needed](#step-1--why-completablefuture-was-needed)
+  * [Step 2 — What CompletableFuture actually represents](#step-2--what-completablefuture-actually-represents)
+  * [Step 3 — How CompletableFuture is different from Future](#step-3--how-completablefuture-is-different-from-future)
+  * [Step 4 — Creating a CompletableFuture](#step-4--creating-a-completablefuture)
+  * [Step 5 — Non-blocking result handling (core idea)](#step-5--non-blocking-result-handling-core-idea)
+  * [Step 6 — Chaining (this is the superpower)](#step-6--chaining-this-is-the-superpower)
+  * [Step 7 — Async vs non-async stages](#step-7--async-vs-non-async-stages)
+  * [Step 8 — Combining multiple futures](#step-8--combining-multiple-futures)
+  * [Step 9 — Error handling (major improvement over Future)](#step-9--error-handling-major-improvement-over-future)
+  * [Step 10 — Manual completion (why it’s called Completable)](#step-10--manual-completion-why-its-called-completable)
+  * [Step 11 — Blocking is still possible (but optional)](#step-11--blocking-is-still-possible-but-optional)
+  * [Step 12 — Execution model (important)](#step-12--execution-model-important)
 * [Q-29 Explain the difference between Future and CompletableFuture](#q-29-explain-the-difference-between-future-and-completablefuture)
 <!-- TOC -->
 
@@ -2070,7 +2082,220 @@ This is the critical performance difference.
 
 # Q-28 What is CompletableFuture?
 
-# Q-29 Explain the difference between Future and CompletableFuture
+One-line definition (memorize this)
+> `CompletableFuture` is a Java class that represents an asynchronous computation which can be explicitly completed 
+> and allows non-blocking, functional composition of dependent tasks.
+
+
+## Step 1 — Why CompletableFuture was needed
+
+Before `CompletableFuture`, Java had `Future`.
+
+**Problem with Future**
+
+```java
+Future<Integer> f = executor.submit(task);
+Integer result = f.get();   // BLOCKS
+```
+
+Issues:
+
+* `get()` blocks the thread
+* No way to chain tasks
+* No clean way to handle errors
+* Hard to express async pipelines
+
+So Java needed:
+
+* Non-blocking async
+* Chaining
+* Error handling
+* Composition
+
+This led to `CompletableFuture` (Java 8).
+
+## Step 2 — What CompletableFuture actually represents
+
+A `CompletableFuture<T>` represents:
+> "A value of type T that will be available in the future, and on which more work can be attached."
+
+It is both:
+* a promise (someone completes it)
+* a pipeline (actions run when it completes)
+
+## Step 3 — How CompletableFuture is different from Future
+
+| Feature                | Future | CompletableFuture |
+|------------------------|--------|-------------------|
+| Blocking get           | Yes    | Optional          |
+| Chaining               | No     | Yes               |
+| Non-blocking callbacks | No     | Yes               |
+| Manual completion      | No     | Yes               |
+| Error handling         | Poor   | Rich              |
+| Functional style       | No     | Yes               |
+
+## Step 4 — Creating a CompletableFuture
+
+**Asynchronous computation**
+
+```java
+CompletableFuture<Integer> cf =
+    CompletableFuture.supplyAsync(() -> 10);
+```
+
+Meaning:
+* Task runs asynchronously
+* Result will be available later
+
+**Void task**
+
+```java
+CompletableFuture<Void> cf =
+    CompletableFuture.runAsync(() -> doWork());
+```
+
+
+## Step 5 — Non-blocking result handling (core idea)
+
+Instead of blocking:
+
+```java
+Integer result = cf.get();  // blocking
+```
+
+You attach **callbacks**:
+
+```java
+cf.thenAccept(result -> {
+    System.out.println(result);
+});
+```
+
+Key idea:
+> Threads do not wait — work happens when the result arrives
+
+
+## Step 6 — Chaining (this is the superpower)
+
+```java
+CompletableFuture<Integer> cf =
+    CompletableFuture.supplyAsync(() -> 10)
+        .thenApply(x -> x * 2)
+        .thenApply(x -> x + 5);
+```
+
+Execution flow:
+
+Each step:
+
+* Runs after the previous completes
+* Does not block
+
+## Step 7 — Async vs non-async stages
+
+```java
+thenApply(...)        // may run in same thread
+thenApplyAsync(...)   // always runs asynchronously
+```
+
+Rule:
+
+* Async variants may use a different thread
+* You can also supply your own executor
+
+```java
+thenApplyAsync(fn, executor)
+```
+
+## Step 8 — Combining multiple futures
+
+**Combine two independent tasks**
+
+```java
+CompletableFuture<Integer> f1 = ...
+CompletableFuture<Integer> f2 = ...
+
+CompletableFuture<Integer> result =
+    f1.thenCombine(f2, (a, b) -> a + b);
+```
+
+Meaning:
+
+* Wait for both
+* Combine results
+
+**Wait for all**
+
+```java
+CompletableFuture.allOf(f1, f2, f3);
+```
+
+**First one wins**
+
+```java
+CompletableFuture.anyOf(f1, f2);
+```
+
+## Step 9 — Error handling (major improvement over Future)
+
+**Handle errors**
+
+```java
+cf.exceptionally(ex -> {
+    return -1;
+});
+```
+
+**Handle success + failure**
+
+```java
+cf.handle((result, ex) -> {
+    if (ex != null) return -1;
+    return result;
+});
+```
+
+Errors are treated as **data**, not crashes.
+
+## Step 10 — Manual completion (why it’s called Completable)
+
+```java
+CompletableFuture<Integer> cf = new CompletableFuture<>();
+
+// later
+cf.complete(42);
+```
+
+Or on failure:
+
+```java
+cf.completeExceptionally(new RuntimeException());
+```
+
+This enables:
+
+* Bridging callbacks → futures
+* Adapting legacy async APIs
+
+## Step 11 — Blocking is still possible (but optional)
+
+```java
+cf.join();  // unchecked exception
+cf.get();   // checked exception
+```
+
+Blocking is **allowed**, but not the design goal.
+
+## Step 12 — Execution model (important)
+
+* If no executor is provided:
+    * Uses ForkJoinPool.commonPool
+* Async stages may execute on:
+    * same thread
+    * common pool
+    * custom executor
+
+
 
 
 
