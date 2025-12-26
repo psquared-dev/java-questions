@@ -137,6 +137,7 @@
     * [The New Way: Virtual Threads (The "Order Pad" Model)](#the-new-way-virtual-threads-the-order-pad-model)
     * [The Technical Translation](#the-technical-translation)
     * [Why is this huge?](#why-is-this-huge)
+  * [Example of Virtual Thread](#example-of-virtual-thread)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -2347,3 +2348,40 @@ Java unmounts the Virtual Thread (puts the sticky note down) and frees up the Ca
 
 You don't need to change your coding style. You write code that looks like it blocks (wait for DB), 
 but under the hood, it's non-blocking and superfast.
+
+
+## Example of Virtual Thread
+
+Here is an example of Virtual Thread:
+
+```java
+import java.time.Duration;
+
+public class VirtualThreadExample {
+
+    public static void main(String[] args) throws Exception {
+
+        Runnable task = () -> {
+            String name = Thread.currentThread().toString();
+            System.out.println("Started " + name);
+
+            try {
+                // Simulate a blocking API / DB / network call
+                Thread.sleep(Duration.ofSeconds(2));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("Finished " + name);
+        };
+
+        // Create MANY virtual threads
+        for (int i = 0; i < 10_000; i++) {
+            Thread.startVirtualThread(task);
+        }
+
+        Thread.sleep(5000);
+        System.out.println("Main done");
+    }
+}
+```
