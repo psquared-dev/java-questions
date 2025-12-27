@@ -138,6 +138,15 @@
     * [The Technical Translation](#the-technical-translation)
     * [Why is this huge?](#why-is-this-huge)
   * [Example of Virtual Thread](#example-of-virtual-thread)
+* [Q-31 What is Thread Local?](#q-31-what-is-thread-local)
+  * [The Purpose](#the-purpose)
+  * [Code Example: The "Context Holder" Pattern](#code-example-the-context-holder-pattern)
+  * [The Danger: Memory Leaks (The "Dirty Thread" Problem)](#the-danger-memory-leaks-the-dirty-thread-problem)
+* [Q-32 What is CountDownLatch vs CyclicBarrier?](#q-32-what-is-countdownlatch-vs-cyclicbarrier)
+* [Q-33 What is Semaphore?](#q-33-what-is-semaphore)
+* [Q-34 BlockingQueue (why introduced)](#q-34-blockingqueue-why-introduced)
+* [Q-35 ConcurrentHashMap (how it avoids full locking)](#q-35-concurrenthashmap-how-it-avoids-full-locking)
+* [Q-35 ConcurrentHashMap (how it avoids full locking)](#q-35-concurrenthashmap-how-it-avoids-full-locking-1)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -149,7 +158,7 @@
 * Thread stays waiting until `notify()` / `notifyAll()` is called
 * After notify:
     * Thread moves to `BLOCKED` (to re-acquire the lock)
-    * Then to RUNNABLE
+    * Then to `RUNNABLE`
 
 * Belongs to: `Object` class
 * Used for: inter-thread communication
@@ -239,7 +248,7 @@ This checks the condition only once. If the condition changes again before the t
 * Wakes one arbitrary thread waiting on the same object's monitor
 * JVM chooses which thread
 * That thread:
-    * Moves from WAITING → BLOCKED
+    * Moves from `WAITING` → `BLOCKED`
     * Competes to re-acquire the lock
 
 
@@ -247,7 +256,7 @@ This checks the condition only once. If the condition changes again before the t
 
 * Wakes all threads waiting on the same object's monitor
 * All woken threads:
-    * Move to BLOCKED
+    * Move to `BLOCKED`
     * Compete for the lock
     * Re-check the condition in a while loop
 
@@ -283,24 +292,24 @@ This avoids:
 
 # Q5-Why does a thread wake up from wait() and still not run immediately? What happens after it is notified?
 
-A notified thread does not run immediately. It first moves to the BLOCKED state and must re-acquire 
+A notified thread does not run immediately. It first moves to the `BLOCKED` state and must re-acquire 
 the monitor lock before continuing execution.
 
 ### Full lifecycle (clean mental model)
 
 When a thread is notified:
 
-1. WAITING
+1. `WAITING`
     * Thread was sleeping via `wait()`
 
 2. `notify()` / `notifyAll()` called
-    * Thread is moved to BLOCKED
+    * Thread is moved to `BLOCKED`
     * It does not run yet
 
-3. BLOCKED
+3. `BLOCKED`
     * Waiting to re-acquire the same monitor lock
 
-4. RUNNABLE
+4. `RUNNABLE`
 
     * Once it gets the lock
     * Execution resumes after `wait()`
@@ -314,16 +323,16 @@ This is why:
 
 ### WAITING state
 
-A thread is in WAITING when:
+A thread is in `WAITING` when:
 
 * It has **explicitly decided to pause**
 * It is waiting for a **signal**, not a lock
 
 Caused by:
 
-* wait()
-* join()
-* park()
+* `wait()`
+* `join()`
+* `park()`
 
 How it exits:
 
@@ -332,9 +341,9 @@ How it exits:
 
 ### BLOCKED state
 
-A thread is in BLOCKED when:
+A thread is in `BLOCKED` when:
 
-* It wants to enter a synchronized block
+* It wants to enter a `synchronized` block
 * But another thread already holds the lock
 
 Caused by:
@@ -2385,3 +2394,119 @@ public class VirtualThreadExample {
     }
 }
 ```
+
+# Q-31 What is Thread Local?
+
+`ThreadLocal` is a Java class that lets you create variables that can only be read and written by the same thread.
+
+Think of it as a **"Global Map"** where the **Key** is the **Thread itself**. Even though you define the `ThreadLocal` variable 
+as `static` (global), when Thread A reads it, it gets Thread A's value. When Thread B reads it, it gets Thread B's value. 
+They never interfere with each other.
+
+## The Purpose
+
+1. **Carrying Context (The "Invisible Backpack"):**
+    * Instead of passing parameters (like `UserContext`, `TransactionID`, or `DatabaseConnection`) through every 
+   single method in your call stack (`Controller` -> `Service` -> `Repository` -> `Helper`), you put it in a `ThreadLocal` at 
+   the start.
+    * Any method downstream can reach into the "backpack" and grab it.
+    * Real-world use: Spring Security (`SecurityContextHolder`), Log4j MDC (Mapped Diagnostic Context), 
+   Database Transaction Managers.
+
+2. **Thread Safety for "Unsafe" Objects:**
+    * Some older classes (like `SimpleDateFormat`) are **not** thread-safe. If you share one instance across 
+    threads, it crashes or gives wrong dates.
+    * Instead of using `synchronized` (which is slow), you give each thread its own private instance using `ThreadLocal`.
+
+
+## Code Example: The "Context Holder" Pattern
+
+This is the most common pattern you will see in Enterprise Java (Spring, Hibernate, etc.).
+
+**Scenario:** We want to trace a transactionId across multiple service calls without passing it as an argument.
+
+```java
+public class ThreadLocalDemo {
+
+    // 1. Create the ThreadLocal
+    // usage: "static final" is best practice for the key itself
+    public static final ThreadLocal<String> transactionIdHolder = new ThreadLocal<>();
+
+    public static void main(String[] args) {
+        
+        // Thread 1: Sets its own ID
+        Thread t1 = new Thread(() -> {
+            transactionIdHolder.set("TX-123"); // Put value in backpack
+            processRequest();
+            // IMPORTANT: Cleanup is crucial (explained below)
+            transactionIdHolder.remove(); 
+        }, "Thread-1");
+
+        // Thread 2: Sets a DIFFERENT ID
+        Thread t2 = new Thread(() -> {
+            transactionIdHolder.set("TX-456"); // Different value!
+            processRequest();
+            transactionIdHolder.remove();
+        }, "Thread-2");
+
+        t1.start();
+        t2.start();
+    }
+
+    // A method deep in the code that needs the ID
+    public static void processRequest() {
+        // It magically grabs the correct value for THIS thread
+        String id = transactionIdHolder.get();
+        System.out.println(Thread.currentThread().getName() + " is processing " + id);
+    }
+}
+```
+
+**Output:**
+
+```text
+Thread-1 is processing TX-123
+Thread-2 is processing TX-456
+```
+
+Thread 1 never sees "TX-456", and Thread 2 never sees "TX-123".
+
+## The Danger: Memory Leaks (The "Dirty Thread" Problem)
+
+This is a favorite interview topic for Senior Engineers.
+
+**The Setup:** You are using a **Thread Pool** (like Tomcat or `ExecutorService`).
+
+**The Problem:**
+
+1. Request 1 comes in. Borrow **Thread-1** from the pool.
+2. You set `ThreadLocal.set("User: Alice")`.
+3. The request finishes, **BUT you forget to call** `.remove()`.
+4. `Thread-1` goes back to the pool. It is not destroyed; it just sleeps. The "Alice" data is **still inside it**.
+5. **Request 2** comes in. It borrows `Thread-1` (reuse).
+6. The code calls `ThreadLocal.get()`.
+7. Bug: It finds "User: Alice" from the previous request! Now Request 2 thinks it is Alice. 
+This is a massive security risk and memory leak.
+
+**The Fix:** Always use a `try-finally` block to ensure cleanup.
+
+```java
+try {
+    userContext.set(currentUser);
+    chain.doFilter(request, response);
+} finally {
+    // MUST DO THIS to prevent memory leaks and data bleeding
+    userContext.remove();
+}
+```
+
+# Q-32 What is CountDownLatch vs CyclicBarrier?
+
+# Q-33 What is Semaphore?
+
+# Q-34 BlockingQueue (why introduced)
+
+# Q-35 ConcurrentHashMap (how it avoids full locking)
+
+# Q-35 ConcurrentHashMap (how it avoids full locking)
+
