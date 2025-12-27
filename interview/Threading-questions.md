@@ -159,7 +159,6 @@
 * After notify:
     * Thread moves to `BLOCKED` (to re-acquire the lock)
     * Then to `RUNNABLE`
-
 * Belongs to: `Object` class
 * Used for: inter-thread communication
 
