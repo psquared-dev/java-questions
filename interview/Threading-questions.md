@@ -146,7 +146,11 @@
 * [Q-33 What is Semaphore?](#q-33-what-is-semaphore)
 * [Q-34 BlockingQueue (why introduced)](#q-34-blockingqueue-why-introduced)
 * [Q-35 ConcurrentHashMap (how it avoids full locking)](#q-35-concurrenthashmap-how-it-avoids-full-locking)
-* [Q-35 ConcurrentHashMap (how it avoids full locking)](#q-35-concurrenthashmap-how-it-avoids-full-locking-1)
+* [Q-36 What is ReentrantReadWriteLock?](#q-36-what-is-reentrantreadwritelock)
+  * [The Purpose: Performance](#the-purpose-performance)
+  * [Code Example: A Thread-Safe Cache](#code-example-a-thread-safe-cache)
+    * [Visualizing the difference](#visualizing-the-difference)
+  * [Critical "Senior Dev" Warning](#critical-senior-dev-warning)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -2507,5 +2511,93 @@ try {
 
 # Q-35 ConcurrentHashMap (how it avoids full locking)
 
-# Q-35 ConcurrentHashMap (how it avoids full locking)
+# Q-36 What is ReentrantReadWriteLock?
 
+A `ReentrantReadWriteLock` is a more advanced lock that separates access into two different modes: **Read** and **Write**.
+
+Unlike a standard `ReentrantLock` (or `synchronized`) which is **Exclusive** (only one thread enters, period),
+a `ReadWriteLock` **allows multiple threads** to read data simultaneously, as long as no one is writing.
+
+## The Purpose: Performance
+
+The main purpose is to boost concurrency in scenarios where you have many readers 
+but few writers (e.g., a Cache, a Configuration map, or a Product Catalog).
+
+* **Standard Lock:** If 10 threads want to read a value, they must form a single-file line. 
+Thread 1 reads, then Thread 2, etc. (Slow).
+* **ReadWriteLock:** All 10 threads can grab the "Read Lock" and read at the exact same time. 
+The "Write Lock" is only needed when data changes.
+
+| Current Holder | Thread Wants READ  | Thread Wants WRITE                              |
+|:---------------|:-------------------|:------------------------------------------------|
+| **None**       | ✅ Allowed          | ✅ Allowed                                       |
+| **Reader(s)**  | ✅ Allowed (Shared) | ❌ Blocked (Must wait for all readers to finish) |
+| **Writer**     | ❌ Blocked          | ❌ Blocked                                       |
+
+
+## Code Example: A Thread-Safe Cache
+
+Here is a cache where `get()` is fast and parallel, but `put()` is exclusive and safe.
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+
+public class ReadWriteCache<K, V> {
+    
+    private final Map<K, V> map = new HashMap<>();
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    
+    // Extract the two separate locks
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
+
+    // WRITER: Exclusive access
+    public void put(K key, V value) {
+        writeLock.lock(); // Only ONE thread can be here
+        try {
+            System.out.println(Thread.currentThread().getName() + " is writing " + key);
+            Thread.sleep(1000); // Simulate slow write
+            map.put(key, value);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    // READER: Shared access
+    public V get(K key) {
+        readLock.lock(); // MANY threads can be here at once
+        try {
+            System.out.println(Thread.currentThread().getName() + " is reading " + key);
+            return map.get(key);
+        } finally {
+            readLock.unlock();
+        }
+    }
+}
+```
+
+### Visualizing the difference
+
+If you run get() from 5 threads:
+* With ReentrantLock:
+    * Thread 1 enters... exits.
+    * Thread 2 enters... exits.
+    * (Serial execution)
+* With ReentrantReadWriteLock:
+    * Thread 1, 2, 3, 4, 5 enter simultaneously.
+    * (Parallel execution)
+
+## Critical "Senior Dev" Warning
+
+Don't blindly use this everywhere. `ReentrantReadWriteLock` has overhead.
+
+* It is more complex to manage than a standard lock.
+* If you have **mostly writes** (or equal reads/writes), it is actually **slower** than a standard `ReentrantLock` 
+because of the extra logic to track readers.
+* Modern Alternative: Java 8 introduced `StampedLock`, which is faster and supports "Optimistic Reads," often 
+replacing `ReentrantReadWriteLock` in high-performance code.
