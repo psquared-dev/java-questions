@@ -881,6 +881,30 @@ This process is also known as Run-Time Polymorphism
 
 Ans: ![thread states](../images/thead-states.png)
 
+```text
+                 ┌───────────┐
+                 │   NEW     │
+                 └─────┬─────┘
+                       │ start()
+                       ▼
+                ┌────────────────┐ ◀──────────────────────────────┐
+                │    RUNNABLE    │  ← running OR ready            │
+                └─────┬──────────┘                                │
+          ┌───────────┼───────────────┬──────────────────┐        │
+          │           │               │                  │        │
+          ▼           ▼               ▼                  ▼        │
+     ┌────────┐  ┌────────┐    ┌──────────────┐   ┌────────────┐  │
+     │BLOCKED │  │WAITING │    │TIMED_WAITING │   │TERMINATED  │  │
+     └────┬───┘  └────┬───┘    └──────┬───────┘   └────────────┘  │
+          │           │               │                           │
+          │           │ notify /      │ timeout /                 │
+          │           │ unpark /      │ interrupt                 │
+          │           │ interrupt     │                           │
+          ▼           ▼               ▼                           ▲
+          │           │               │                           │
+          └───────────┴───────────────┴───────────────▶───────────┘                                                   
+```
+
 * when `sleep()` is called it goes to timed waiting
 * when `join()` is called thread goes to waiting state
 * when thread is waiting for lock it goes to blocked state
