@@ -16,7 +16,9 @@
 ## Data Structures
 
 1. [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
-2. [Detect Cycle in a Linked List]()
+2. [Detect Cycle in a Linked List](https://leetcode.com/problems/linked-list-cycle/description/)
+3. [Container With Most Water](https://leetcode.com/problems/container-with-most-water/) [[Sol](https://www.youtube.com/watch?v=ZHQg07n_tbg)]
+4. 
 
 ## Non-Linear Data Structures
 
