@@ -18,7 +18,10 @@
 1. [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
 2. [Detect Cycle in a Linked List](https://leetcode.com/problems/linked-list-cycle/description/)
 3. [Container With Most Water](https://leetcode.com/problems/container-with-most-water/) [[Sol](https://www.youtube.com/watch?v=ZHQg07n_tbg)]
-4. 
+4. [Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/description/)
+5. [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/) [[Sol](https://www.youtube.com/watch?v=gqXU1UyA8pk)]
+6. [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
+7. [Number of Islands](https://leetcode.com/problems/number-of-islands/description/)
 
 ## Non-Linear Data Structures
 
