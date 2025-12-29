@@ -879,31 +879,7 @@ This process is also known as Run-Time Polymorphism
 
 # Q-20 What are different thread states?
 
-Ans: ![thread states](../images/thead-states.png)
-
-```text
-                 ┌───────────┐
-                 │   NEW     │
-                 └─────┬─────┘
-                       │ start()
-                       ▼
-                ┌────────────────┐ ◀──────────────────────────────┐
-                │    RUNNABLE    │  ← running OR ready            │
-                └─────┬──────────┘                                │
-          ┌───────────┼───────────────┬──────────────────┐        │
-          │           │               │                  │        │
-          ▼           ▼               ▼                  ▼        │
-     ┌────────┐  ┌────────┐    ┌──────────────┐   ┌────────────┐  │
-     │BLOCKED │  │WAITING │    │TIMED_WAITING │   │TERMINATED  │  │
-     └────┬───┘  └────┬───┘    └──────┬───────┘   └────────────┘  │
-          │           │               │                           │
-          │           │ notify /      │ timeout /                 │
-          │           │ unpark /      │ interrupt                 │
-          │           │ interrupt     │                           │
-          ▼           ▼               ▼                           ▲
-          │           │               │                           │
-          └───────────┴───────────────┴───────────────▶───────────┘                                                   
-```
+Ans: ![thread states](../images/thread-lifecycle.png)
 
 * when `sleep()` is called it goes to timed waiting
 * when `join()` is called thread goes to waiting state
