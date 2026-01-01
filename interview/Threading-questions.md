@@ -151,6 +151,23 @@
   * [Code Example: A Thread-Safe Cache](#code-example-a-thread-safe-cache)
     * [Visualizing the difference](#visualizing-the-difference)
   * [Critical "Senior Dev" Warning](#critical-senior-dev-warning)
+* [Q-37 What is Monitor object?](#q-37-what-is-monitor-object)
+  * [The Mental Model: "The Secure Room"](#the-mental-model-the-secure-room)
+  * [How it maps to Code](#how-it-maps-to-code)
+    * [Example 1: The Simplest Example (Mutual Exclusion)](#example-1-the-simplest-example-mutual-exclusion)
+    * [Example 2: The Classic "Wait/Notify" Example (Coordination)](#example-2-the-classic-waitnotify-example-coordination)
+    * [Example 3: The "Modern" Explicit Monitor (ReentrantLock)](#example-3-the-modern-explicit-monitor-reentrantlock)
+* [Q-38 Which object shouldn't be used as a Monitor object?](#q-38-which-object-shouldnt-be-used-as-a-monitor-object)
+  * [What SHOULD be used instead](#what-should-be-used-instead)
+* [Q-39 Can we synchronize the lambda?](#q-39-can-we-synchronize-the-lambda)
+* [Q-40 Does thread release the lock after OS preemption?](#q-40-does-thread-release-the-lock-after-os-preemption)
+* [Q-41 Is it possible for JVM to re-order statements inside synchronized block?](#q-41-is-it-possible-for-jvm-to-re-order-statements-inside-synchronized-block)
+* [Q-42 What is AtomicReference?](#q-42-what-is-atomicreference)
+* [Q-43 When would you use AtomicReference instead of synchronized?](#q-43-when-would-you-use-atomicreference-instead-of-synchronized)
+* [Q-44 What is Cache-Coherence?](#q-44-what-is-cache-coherence)
+* [Q-45 What is False Sharing?](#q-45-what-is-false-sharing)
+* [Q-46 What is Cache Affinity?](#q-46-what-is-cache-affinity)
+* [Q-47 Why False Sharing is more likely happen with ExecutorService?](#q-47-why-false-sharing-is-more-likely-happen-with-executorservice)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -404,7 +421,7 @@ In Java, threads may:
 
 This can cause **visibility bugs** and **out-of-order execution** across threads.
 
-The `volatile` keyword establishes a happens-before relationship.
+The `volatile` keyword establishes a **happens-before** relationship.
 
 Meaning:
 > If Thread A writes to a `volatile` variable, and Thread B later reads that same variable,
@@ -2601,3 +2618,259 @@ Don't blindly use this everywhere. `ReentrantReadWriteLock` has overhead.
 because of the extra logic to track readers.
 * Modern Alternative: Java 8 introduced `StampedLock`, which is faster and supports "Optimistic Reads," often 
 replacing `ReentrantReadWriteLock` in high-performance code.
+
+
+# Q-37 What is Monitor object?
+
+In Java, a Monitor is the internal synchronization mechanism used to handle concurrency. 
+It is the theoretical concept behind the `synchronized` keyword and `wait()`/`notify()`.
+
+Every object in Java is associated with a Monitor. You don't see it explicitly in code, but the JVM creates 
+it when you use synchronization.
+
+## The Mental Model: "The Secure Room"
+
+Imagine the Monitor as a special building with three distinct areas:
+
+1\. **The Entry Set (The Hallway):** Where threads wait before they can enter the synchronized block. 
+They are fighting to get in.
+
+2\. **The Owner (The Room):** The critical section. **Only one thread** can be here at a time. It holds the "Key" (Lock).
+
+3\. **The Wait Set (The Waiting Room):** A separate room where threads go if they voluntarily give up the key
+(`via wait()`) because they are waiting for a condition to change.
+
+
+## How it maps to Code
+
+1\. Entering (`synchronized`):
+
+* Thread tries to enter **The Owner** area.
+* If occupied, it goes to the **Entry Set** and becomes `BLOCKED`.
+* Senior Detail: The JVM decides who gets in next (usually not FIFO/Fair).
+
+2\. Working (Inside the block):
+
+* The thread is the **Owner**. It holds the monitor lock. No one else can enter.
+
+3\. Pausing (`wait()`):
+
+* The thread realizes it can't proceed (e.g., the queue is empty).
+* It releases the lock **immediately** and moves to the **Wait Set**.
+* State changes from `RUNNABLE` → `WAITING`.
+
+4\. Resuming (`notify()`):
+
+* Another thread (current Owner) calls `notify()`.
+* It picks a thread from the **Wait Set** and moves it to the **Entry Set**.
+* Crucial Detail: The woken thread does not run immediately. It must wait in the Entry Set until the current Owner
+releases the lock, then it fights to acquire the lock again.
+
+Here are some examples of monitor object.
+
+### Example 1: The Simplest Example (Mutual Exclusion)
+
+This uses the Monitor solely for its Mutex (Locking) capability. 
+This is the most common use case: **protecting shared state**.
+
+```java
+public class SharedCounter {
+    // Every instance of SharedCounter is a Monitor Object
+    private int count = 0;
+
+    // The 'synchronized' keyword acquires the Monitor Lock of 'this' instance
+    public synchronized void increment() {
+        count++;
+    }
+
+    public synchronized int getCount() {
+        return count;
+    }
+}
+```
+
+* **The Monitor:** The `SharedCounter` instance itself.
+* **The Action:** Threads fight for the lock in the "Entry Set." No coordination (`wait`/`notify`) is needed here, 
+just exclusion.
+
+### Example 2: The Classic "Wait/Notify" Example (Coordination)
+
+This utilizes the full power of the Monitor: **Mutex + Wait Set**. 
+This is the textbook definition of a Monitor (handling condition variables).
+
+**Scenario:** A specialized "Blocking Queue" where producers must wait if full, and consumers must wait if empty.
+
+```java
+public class SimpleBlockingQueue<T> {
+    private final Queue<T> queue = new LinkedList<>();
+    private final int limit;
+    
+    // We use a dedicated object as the Monitor (Best Practice)
+    // instead of 'this' to avoid external code locking on our instance.
+    private final Object monitor = new Object();
+
+    public SimpleBlockingQueue(int limit) {
+        this.limit = limit;
+    }
+
+    public void put(T item) throws InterruptedException {
+        synchronized (monitor) {
+            // 1. Guard Condition: While full, go to Wait Set
+            while (queue.size() == limit) {
+                monitor.wait(); // Releases lock, thread sleeps in Wait Set
+            }
+            
+            // 2. Critical Section: Modify State
+            queue.add(item);
+            
+            // 3. Notification: Wake up waiting threads (Consumers)
+            monitor.notifyAll(); // Moves threads from Wait Set -> Entry Set
+        }
+    }
+
+    public T take() throws InterruptedException {
+        synchronized (monitor) {
+            // 1. Guard Condition: While empty, go to Wait Set
+            while (queue.isEmpty()) {
+                monitor.wait();
+            }
+            
+            // 2. Critical Section
+            T item = queue.remove();
+            
+            // 3. Notification: Wake up waiting threads (Producers)
+            monitor.notifyAll();
+            return item;
+        }
+    }
+}
+```
+
+### Example 3: The "Modern" Explicit Monitor (ReentrantLock)
+
+In modern Java (JDK 5+), we often implement the Monitor pattern explicitly using `ReentrantLock` and `Condition`. 
+This is functionally identical but offers more control (e.g., multiple wait sets).
+
+```java
+public class ExplicitMonitor {
+    private final Lock lock = new ReentrantLock();
+    // A specific 'Wait Set' for a specific condition
+    private final Condition notEmpty = lock.newCondition(); 
+
+    public void doWork() throws InterruptedException {  
+        lock.lock(); // Enter the Monitor
+        try {
+            while (isEmpty()) {
+                notEmpty.await(); // Go to 'Wait Set' (Releases lock)
+            }
+            consume();
+        } finally {
+            lock.unlock(); // Exit the Monitor
+        }
+    }
+}
+```
+
+Note that with `ReentrantLock`, **entry set** is still linked to lock, but **wait set** is part of `Condition`.
+
+# Q-38 Which object shouldn't be used as a Monitor object?
+
+Objects that are publicly accessible, mutable, or shared unintentionally should not be used as monitor objects.
+
+1\. String objects
+
+* Strings are **interned and shared**
+* Different code may unknowingly synchronize on the same `String`
+* Can cause accidental deadlocks
+
+❌ Bad:
+```java
+synchronized ("LOCK") { }
+```
+
+2\. Wrapper objects (Integer, Long, etc.)
+
+* Immutable but cached and reused
+* Auto-boxing may return the same instance
+
+❌ Bad:
+```java
+Integer lock = 1;
+synchronized (lock) { }
+```
+
+3\. Class objects (SomeClass.class)
+
+* Globally accessible
+* Any code can synchronize on it
+* Creates global contention
+
+❌ Bad:
+```java
+synchronized (MyService.class) { }
+```
+
+4\. this (in public classes)
+
+* Exposes your lock to external callers
+* External code can block your internals
+
+❌ Risky:
+
+```java
+synchronized (this) { }
+```
+
+5\. Mutable objects used for other purposes
+
+* If the reference changes, locking breaks
+* Monitor identity must be stable
+
+❌ Bad:
+```java
+lock = new Object(); // breaks synchronization
+```
+
+## What SHOULD be used instead
+
+✔ A private, final lock object
+
+```java
+private final Object lock = new Object();
+
+synchronized (lock) {
+    // safe
+}
+```
+
+Final rule (lock this in):
+
+Monitor object must be:
+* ✔ private
+* ✔ final
+* ✔ dedicated only for locking
+
+
+# Q-39 Can we synchronize the lambda?
+
+# Q-40 Does thread release the lock after OS preemption?
+
+# Q-41 Is it possible for JVM to re-order statements inside synchronized block?
+AtomicReference
+
+# Q-42 What is AtomicReference?
+
+# Q-43 When would you use AtomicReference instead of synchronized?
+
+Atomic references are ideal for atomic replacement of immutable objects, while synchronized blocks remain
+the right choice for protecting multi-step operations and invariants.
+
+# Q-44 What is Cache-Coherence?
+
+# Q-45 What is False Sharing?
+
+# Q-46 What is Cache Affinity?
+
+# Q-47 Why False Sharing is more likely happen with ExecutorService?
+
+
