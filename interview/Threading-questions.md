@@ -159,7 +159,10 @@
     * [Example 3: The "Modern" Explicit Monitor (ReentrantLock)](#example-3-the-modern-explicit-monitor-reentrantlock)
 * [Q-38 Which object shouldn't be used as a Monitor object?](#q-38-which-object-shouldnt-be-used-as-a-monitor-object)
   * [What SHOULD be used instead](#what-should-be-used-instead)
-* [Q-39 Can we synchronize the lambda?](#q-39-can-we-synchronize-the-lambda)
+* [Q-39 Is it valid to use a synchronized block inside a Lambda expression?](#q-39-is-it-valid-to-use-a-synchronized-block-inside-a-lambda-expression)
+  * [The Code Example](#the-code-example-4)
+  * [The "Gotcha" (Scope of this)](#the-gotcha-scope-of-this)
+  * [Example](#example-1)
 * [Q-40 Does thread release the lock after OS preemption?](#q-40-does-thread-release-the-lock-after-os-preemption)
 * [Q-41 Is it possible for JVM to re-order statements inside synchronized block?](#q-41-is-it-possible-for-jvm-to-re-order-statements-inside-synchronized-block)
 * [Q-42 What is AtomicReference?](#q-42-what-is-atomicreference)
@@ -2851,7 +2854,91 @@ Monitor object must be:
 * ✔ dedicated only for locking
 
 
-# Q-39 Can we synchronize the lambda?
+# Q-39 Is it valid to use a synchronized block inside a Lambda expression?
+
+Yes, absolutely. A lambda expression is just a shorthand for an implementation of a functional interface. 
+You can write any valid Java code inside the curly braces `{ ... }`, including a synchronized block.
+
+However, there is a **critical scope rule** you must know.
+
+## The Code Example
+
+```java
+public class LambdaSync {
+    private final Object lock = new Object();
+    private int count = 0;
+
+    public void startTask() {
+        Runnable task = () -> {
+            // YES: This is valid
+            synchronized (lock) {
+                count++;
+                System.out.println(Thread.currentThread().getName() + ": " + count);
+            }
+        };
+
+        new Thread(task).start();
+    }
+}
+```
+
+## The "Gotcha" (Scope of this)
+
+If you write `synchronized(this)` inside an anonymous inner class vs. a lambda, the meaning of `this` changes.
+
+* **In an Anonymous Inner Class:** this refers to the inner class instance (the Runnable itself).
+* **In a Lambda:** `this` refers to the enclosing class instance (e.g., `LambdaSync`). Lambdas do not introduce 
+a new scope for `this`.
+
+```java
+public void demonstration() {
+    // ANONYMOUS CLASS
+    Runnable r1 = new Runnable() {
+        @Override
+        public void run() {
+            synchronized(this) { 
+                // Locks on the 'r1' object itself!
+            }
+        }
+    };
+
+    // LAMBDA
+    Runnable r2 = () -> {
+        synchronized(this) { 
+            // Locks on the 'LambdaSync' (enclosing) instance!
+        }
+    };
+}
+```
+
+## Example
+
+```java
+public void demonstration() {
+    // ANONYMOUS CLASS
+    Runnable r1 = new Runnable() {
+        @Override
+        public void run() {
+            synchronized(this) { 
+                // Locks on the 'r1' object itself!
+            }
+        }
+    };
+
+    // LAMBDA
+    Runnable r2 = () -> {
+        synchronized(this) { 
+            // Locks on the 'LambdaSync' (enclosing) instance!
+        }
+    };
+}
+```
+
+You can synchronize inside a lambda.
+
+* **Best Practice:** Lock on a specific, private final object (like `lock` in the first example) rather than `this` to 
+avoid confusion about lexical scoping.
+* **Constraint:** Any local variable you lock on (captured from outside) must be **effectively final**.
 
 # Q-40 Does thread release the lock after OS preemption?
 
