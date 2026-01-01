@@ -22,6 +22,10 @@
 5. [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/) [[Sol](https://www.youtube.com/watch?v=gqXU1UyA8pk)]
 6. [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 7. [Number of Islands](https://leetcode.com/problems/number-of-islands/description/)
+8. [Remove Nth Node From End Of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/) [[Sol](https://www.youtube.com/watch?v=XVuQxVej6y8)]
+9. [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/description/)
+10. [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/) [[Sol](https://www.youtube.com/watch?v=s-VkcjHqkGI)]
+11. [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/)
 
 ## Non-Linear Data Structures
 
