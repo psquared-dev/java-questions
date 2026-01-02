@@ -207,6 +207,9 @@
     * [2. Hard Affinity (Pinned)](#2-hard-affinity-pinned)
   * [Hard Affinity in Java](#hard-affinity-in-java)
 * [Q-47 Why False Sharing is more likely happen with ExecutorService?](#q-47-why-false-sharing-is-more-likely-happen-with-executorservice)
+  * [Case 1: NO ExecutorService (single-threaded)](#case-1-no-executorservice-single-threaded)
+  * [Case 2: ExecutorService (THIS is the difference)](#case-2-executorservice-this-is-the-difference)
+  * [Why ExecutorService keeps coming up](#why-executorservice-keeps-coming-up)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -3562,5 +3565,107 @@ Standard Java (java.lang.Thread) does not have an API for Hard Affinity. Java is
 be "Write Once, Run Anywhere," and CPU topology is too hardware-specific.
 
 # Q-47 Why False Sharing is more likely happen with ExecutorService?
+
+Consider the following code:
+
+```java
+class Data {
+    volatile long a;
+    volatile long b;
+}
+```
+
+Assume (this is realistic):
+
+```text
+a and b are on the SAME cache line
+```
+
+## Case 1: NO ExecutorService (single-threaded)
+
+```java
+public static void main(String[] args) {
+    Data d = new Data();
+
+    // Task A
+    for (int i = 0; i < 1_000_000; i++) {
+        d.a++;
+    }
+
+    // Task B
+    for (int i = 0; i < 1_000_000; i++) {
+        d.b++;
+    }
+}
+```
+
+What happens in time
+
+```text
+Time →
+Core 0: AAAAAAAA BBBBBBBB
+Core 1: -------- --------
+```
+
+* Only one core writes
+* Even though a and b share a cache line
+* The cache line never "bounces"
+
+👉 False sharing is impossible here
+
+
+## Case 2: ExecutorService (THIS is the difference)
+
+```java
+ExecutorService pool = Executors.newFixedThreadPool(2);
+Data d = new Data();
+
+pool.submit(() -> {
+    for (int i = 0; i < 1_000_000; i++) {
+        d.a++;
+    }
+});
+
+pool.submit(() -> {
+    for (int i = 0; i < 1_000_000; i++) {
+        d.b++;
+    }
+});
+
+pool.shutdown();
+```
+
+What happens in time
+
+```text
+Time →
+Core 0: AAAAAAAA AAAAAAAA
+Core 1: BBBBBBBB BBBBBBBB
+```
+
+* Both cores write at the same time
+* Both touch the same cache line
+* Cache line keeps moving between cores
+👉 False sharing happens
+
+## Why ExecutorService keeps coming up
+
+Because `ExecutorService`:
+
+* forces parallel execution
+* guarantees “same time” writes
+* exposes cache-line issues that sequential code hides
+
+It does NOT:
+
+* create sharing
+* move objects
+* break correctness
+
+`ExecutorService` increases false sharing exposure because it makes independent writes occur concurrently on 
+different cores, which is required for cache-line ping-pong to happen.
+
+✅ Note: Assuming `a` and `b` belong to different cache lines, then False-sharing is impossible
+
 
 
