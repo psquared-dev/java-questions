@@ -185,8 +185,27 @@
   * [The Trade-off](#the-trade-off-)
 * [Q-43 When would you use AtomicReference instead of synchronized?](#q-43-when-would-you-use-atomicreference-instead-of-synchronized)
 * [Q-44 What is Cache-Coherence?](#q-44-what-is-cache-coherence)
+  * [Step 1: Start with a simple machine (no problem yet)](#step-1-start-with-a-simple-machine-no-problem-yet)
+  * [Step 2: Now add a second CPU core](#step-2-now-add-a-second-cpu-core)
+  * [Step 3: Core 1 reads `x`](#step-3-core-1-reads-x)
+  * [Step 4: Core 2 also reads `x`](#step-4-core-2-also-reads-x)
+  * [Step 5: Core 1 updates `x`](#step-5-core-1-updates-x)
+  * [Step 6: What cache coherence does](#step-6-what-cache-coherence-does)
+  * [Step 7: What this guarantees (important)](#step-7-what-this-guarantees-important)
+  * [Step 8: Why this alone is not enough (Java example)](#step-8-why-this-alone-is-not-enough-java-example)
 * [Q-45 What is False Sharing?](#q-45-what-is-false-sharing)
+  * [What is a Cache Line?](#what-is-a-cache-line)
+  * [The Visualization: The "Ping-Pong" Problem (False Sharing)](#the-visualization-the-ping-pong-problem-false-sharing)
+  * [1. Initial State (Shared)](#1-initial-state-shared)
+  * [2. Core 1 Modifies ValueA](#2-core-1-modifies-valuea)
+  * [3. Core 2 Tries to Modify ValueB](#3-core-2-tries-to-modify-valueb)
+  * [The Result: "Thrashing the L3"](#the-result-thrashing-the-l3)
 * [Q-46 What is Cache Affinity?](#q-46-what-is-cache-affinity)
+  * [The "Why": Warm vs. Cold Cache](#the-why-warm-vs-cold-cache)
+  * [Types of Affinity](#types-of-affinity)
+    * [1. Soft Affinity (Natural)](#1-soft-affinity-natural)
+    * [2. Hard Affinity (Pinned)](#2-hard-affinity-pinned)
+  * [Hard Affinity in Java](#hard-affinity-in-java)
 * [Q-47 Why False Sharing is more likely happen with ExecutorService?](#q-47-why-false-sharing-is-more-likely-happen-with-executorservice)
 <!-- TOC -->
 
@@ -3257,12 +3276,290 @@ Summary:
 Atomic references are ideal for atomic replacement of immutable objects, while synchronized blocks remain
 the right choice for protecting multi-step operations and invariants.
 
-
 # Q-44 What is Cache-Coherence?
+
+## Step 1: Start with a simple machine (no problem yet)
+
+Imagine one CPU core.
+
+```java
+int x = 0;
+x = 1;
+System.out.println(x);
+```
+
+* One core
+* One cache
+* One memory
+
+Everything is simple. The core writes `1`, reads `1`.
+
+No confusion. No cache coherence problem.
+
+## Step 2: Now add a second CPU core
+
+Now imagine two CPU cores:
+
+* Core 1
+* Core 2
+
+Each core has its **own cache**.
+
+Memory is shared.
+
+```text
+Main Memory: x = 0
+
+Core 1 Cache: empty
+Core 2 Cache: empty
+```
+
+## Step 3: Core 1 reads `x`
+
+Core 1 executes:
+
+```java
+int a = x;
+```
+
+What happens:
+* `x` is loaded from memory into **Core 1's cache**
+
+```text
+Main Memory: x = 0
+Core 1 Cache: x = 0
+Core 2 Cache: empty
+```
+
+## Step 4: Core 2 also reads `x`
+
+Core 2 executes:
+
+```java
+int b = x;
+```
+
+Now:
+
+```text
+Main Memory: x = 0
+Core 1 Cache: x = 0
+Core 2 Cache: x = 0
+```
+
+Both cores now have **their own copy** of `x`. So far, still fine.
+
+## Step 5: Core 1 updates `x`
+
+Core 1 executes:
+
+```java
+x = 1;
+```
+
+Now ask yourself:
+> What happens to Core 2’s cached copy?
+>
+
+If nothing happens, we get:
+
+```text
+Main Memory: x = 1
+Core 1 Cache: x = 1
+Core 2 Cache: x = 0  ❌ stale
+```
+
+Now the system is **broken**:
+
+* Core 1 sees `1`
+* Core 2 sees `0`
+
+This is the **cache coherence problem**.
+
+## Step 6: What cache coherence does
+
+Cache coherence is the rule system that says:
+
+> "This situation is NOT allowed."
+
+So when Core 1 writes `x = 1`:
+
+* Core 2's cached copy of x must be:
+    * **invalidated**, or
+    * **updated**
+
+After coherence kicks in:
+
+```text
+Main Memory: x = 1
+Core 1 Cache: x = 1
+Core 2 Cache: x = invalid
+```
+
+Now if Core 2 reads `x` again:
+
+* It must reload from memory
+* It will see `1`
+
+## Step 7: What this guarantees (important)
+
+Cache coherence guarantees:
+> All cores will eventually agree on the value of x.
+>
+
+It does not guarantee:
+
+* when Core 2 will read again
+* in what order multiple writes happen
+* correctness of multithreaded logic
+
+Just value agreement.
+
+## Step 8: Why this alone is not enough (Java example)
+
+```java
+// Thread 1 (Core 1)
+x = 1;
+y = 1;
+
+// Thread 2 (Core 2)
+if (y == 1) {
+    System.out.println(x);
+}
+```
+
+Even with cache coherence:
+
+* Core 2 may see `y = 1`
+* but still see `x = 0`
+
+Why?
+
+* Writes can be reordered
+* Visibility timing is not guaranteed
+
+This is why Java needs:
+
+* `volatile`
+* `synchronized`
+* memory barriers
+
+Cache coherence only keeps **values consistent**, not **logic correct**.
+
+Everything we just saw is called **Cache Coherence**.
+
+Formal definition:
+
+> Cache coherence ensures that when multiple CPU cores cache the same memory location, updates made by one 
+core are made visible to the others in a consistent way.
 
 # Q-45 What is False Sharing?
 
+## What is a Cache Line?
+
+Processors do not read memory one byte at a time; that would be too slow. Instead, they fetch memory in 
+chunks called **Cache Lines**.
+
+* **The Size:** A typical cache line is 64 bytes.
+* **The Concept:** If you ask the CPU for a single long (8 bytes), it doesn't just grab that variable. 
+It grabs the entire 64-byte block surrounding it from **L3 (Shared Cache)** or RAM and loads it into 
+its **L1 (Private Cache)**.
+* **The Logic:** The CPU assumes that if you need one variable, you will likely need its 
+neighbors soon (**Spatial Locality**).
+
+## The Visualization: The "Ping-Pong" Problem (False Sharing)
+
+Imagine two threads running on two different CPU cores. They are working on an array of `long` values.
+
+```java
+// Contiguous memory locations
+long[] data = new long[] { ValueA, ValueB };
+```
+
+Since `ValueA` and `ValueB` are right next to each other in memory, they fit inside the **same 64-byte Cache Line**.
+
+The Scenario
+
+* **Core 1** wants to update `ValueA`.
+* **Core 2** wants to update `ValueB`.
+
+Here is what happens inside the hardware hierarchy:
+
+## 1. Initial State (Shared)
+
+Both cores read the data.
+
+* The 64-byte Cache Line is loaded into Core 1's L1 Cache.
+* The same 64-byte Cache Line is loaded into Core 2's L1 Cache.
+* Status: The line is marked as Shared in both L1 caches
+
+## 2. Core 1 Modifies ValueA
+
+Thread 1 updates `ValueA`.
+
+* **Core 1:** Updates the line in its **L1 Cache**. The line is now marked `Modified`.
+* **The Coherence Protocol (MESI):** To maintain consistency, the hardware must invalidate any other copies of this line.
+* **Core 2:** Its copy of the line in **L1 Cache** is instantly marked `Invalid` (effectively deleted).
+
+## 3. Core 2 Tries to Modify ValueB
+
+Thread 2 tries to update `ValueB`.
+
+* **L1 Miss:** Core 2 checks its L1 Cache and sees the line is `Invalid`. It cannot write to it.
+* **The Flush:** Core 1 is forced to flush its dirty cache line down to the **L3 Cache** (or send it directly to Core 2 via interconnect).
+* **The Reload:** Core 2 re-fetches the updated line from **L3** into its **L1 Cache**.
+* **The Write:** Now Core 2 finally updates `ValueB` and marks the line `Modified`.
+* **The Cost:** This operation invalidates the line in **Core 1**, restarting the cycle.
+
+## The Result: "Thrashing the L3"
+
+Even though the threads are touching different variables, the CPU cores are fighting over the **same Cache Line**. 
+Instead of working purely in their fast **L1 Caches** (1-2 ns latency), they are constantly pausing to push/pull data 
+through the slower **L3 Cache** (10-20 ns latency) or main RAM. 
+
+**This is False Sharing**. The system is slow not because of logic, but because the layout of data in memory 
+causes physical contention in the cache hierarchy.
+
 # Q-46 What is Cache Affinity?
+
+Cache Affinity (also known as CPU Affinity) is essentially **"Thread Loyalty" to a specific CPU core**.
+
+It is the strategy used by the Operating System scheduler to keep a specific thread running on the **same CPU core** 
+as long as possible, rather than moving it around to different cores.
+
+## The "Why": Warm vs. Cold Cache
+
+This concept is directly related to the **Cache Lines** we just discussed.
+
+1\. **Warm Cache (Good):** When a thread runs on **Core 1**, it pulls data from RAM into Core 1's L1 and L2 caches. 
+If the OS pauses the thread and resumes it later on the **same Core 1**, that data is likely still there. 
+The thread resumes immediately at top speed.
+
+2\. **Cold Cache (Bad):** If the OS moves the thread to **Core 2**, that new core has none of the thread's data.
+
+* The thread must wait while data is fetched from L3 or Main RAM.
+* It also effectively "pollutes" Core 2's cache, potentially evicting useful data needed by whatever 
+was running there before.
+
+## Types of Affinity
+
+### 1. Soft Affinity (Natural)
+
+* **What it is:** The OS scheduler tries to keep a thread on the same core, but it doesn't promise anything. 
+If the original core is busy and another is free, the OS will migrate the thread to keep the system load balanced.
+* **Java context:** This is the default behavior for all standard Java threads. The Linux scheduler (CFS) is 
+generally good at this naturally.
+
+### 2. Hard Affinity (Pinned)
+
+* **What it is:** You explicitly command the OS: _"This thread MUST run on Core 3 and NOWHERE else."_
+* **Pros:** Guaranteed cache locality; zero context switch overhead from migration.
+* **Cons:** If Core 3 is busy, the thread waits, even if Core 4 is completely idle.
+
+## Hard Affinity in Java
+
+Standard Java (java.lang.Thread) does not have an API for Hard Affinity. Java is designed to 
+be "Write Once, Run Anywhere," and CPU topology is too hardware-specific.
 
 # Q-47 Why False Sharing is more likely happen with ExecutorService?
 
