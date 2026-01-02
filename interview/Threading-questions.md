@@ -3653,7 +3653,7 @@ Core 1: BBBBBBBB BBBBBBBB
 Because `ExecutorService`:
 
 * forces parallel execution
-* guarantees “same time” writes
+* guarantees "same time" writes
 * exposes cache-line issues that sequential code hides
 
 It does NOT:
