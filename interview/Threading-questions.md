@@ -1214,7 +1214,7 @@ Use:
 
 ## When SHOULD you use ReentrantLock?
 
-* ✔️ You need tryLock()
+* ✔️ You need `tryLock()`
 * ✔️ You need interruptible locking
 * ✔️ You need fairness
 * ✔️ You need multiple condition queues
