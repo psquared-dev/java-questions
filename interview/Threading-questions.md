@@ -1132,8 +1132,8 @@ Use case:
 
 ❌ synchronized
 
-If a thread is blocked waiting for a monitor lock:
-* interrupt() does NOTHING
+If a thread is in `BLOCKED` state waiting for a monitor lock:
+* `interrupt()` does NOTHING
 * Thread stays blocked
 
 ✅ ReentrantLock
