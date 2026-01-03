@@ -960,7 +960,7 @@ public class FlagClearingTrap {
 
 # Q-17 Does interrupt() wake up a thread waiting for a Lock (BLOCKED)?
 
-No. A thread waiting for a synchronized lock is BLOCKED, not WAITING. `interrupt()` has no effect on it. 
+No. A thread waiting for a lock is `BLOCKED`, not `WAITING`. `interrupt()` has no effect on it. 
 It will sit there frozen until it gets the lock.
 
 ### The Code Example:
