@@ -1303,7 +1303,7 @@ new Thread(() -> doWork()).start();
 
 This approach has structural problems:
 
-1. You cannot control how many threads are created.
+1. Task submission = thread creation.
     * You cannot control how many threads are created.
 2. No reuse
     * Threads are expensive; creating them repeatedly is wasteful.
