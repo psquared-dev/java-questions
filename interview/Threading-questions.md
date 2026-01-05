@@ -3020,7 +3020,7 @@ to the **"As-If-Serial"** semantics.
 
 Here is the detailed breakdown for your interview answer.
 
-1\. The "As-If-Serial" Rule
+## 1. The "As-If-Serial" Rule
 
 This rule basically tells the compiler: "You can change the order of execution however you want to optimize 
 performance (e.g., for CPU pipelining), provided that the final result remains exactly the same for the thread 
@@ -3041,7 +3041,7 @@ synchronized (this) {
 To the thread executing this code, it makes no difference whether `a` or `b` is assigned first. 
 The result is the same. Therefore, the "As-If-Serial" rule allows this swap.
 
-2\. Why doesn't this break the program?
+## 2. Why doesn't this break the program?
 
 You might ask: "If the JVM swaps `a` and `b`, won't another thread see `b=2` while a is still `0`?"
 
