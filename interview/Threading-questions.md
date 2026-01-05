@@ -2950,29 +2950,6 @@ public void demonstration() {
 }
 ```
 
-## Example
-
-```java
-public void demonstration() {
-    // ANONYMOUS CLASS
-    Runnable r1 = new Runnable() {
-        @Override
-        public void run() {
-            synchronized(this) { 
-                // Locks on the 'r1' object itself!
-            }
-        }
-    };
-
-    // LAMBDA
-    Runnable r2 = () -> {
-        synchronized(this) { 
-            // Locks on the 'LambdaSync' (enclosing) instance!
-        }
-    };
-}
-```
-
 You can synchronize inside a lambda.
 
 * **Best Practice:** Lock on a specific, private final object (like `lock` in the first example) rather than `this` to 
@@ -2989,10 +2966,10 @@ waiting for a time slice from the Operating System.
 
 # Q-41 What is the as-if-serial rule in Java, and what does it allow the JVM to do?
 
-The as-if-serial rule allows the JVM to reorder, optimize, or eliminate statements as long as these 
+The **as-if-serial** rule allows the JVM to reorder, optimize, or eliminate statements as long as these 
 changes do not alter the observable behavior of a single-threaded program.
 
-## What "do not alter the observable behavior" reall means
+## What "do not alter the observable behavior" really means
 
 It means you cannot observe any difference in:
 
