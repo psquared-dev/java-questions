@@ -3538,7 +3538,7 @@ generally good at this naturally.
 
 ## Hard Affinity in Java
 
-Standard Java (java.lang.Thread) does not have an API for Hard Affinity. Java is designed to 
+Standard Java (`java.lang.Thread`) does not have an API for Hard Affinity. Java is designed to 
 be "Write Once, Run Anywhere," and CPU topology is too hardware-specific.
 
 # Q-47 Why False Sharing is more likely happen with ExecutorService?
