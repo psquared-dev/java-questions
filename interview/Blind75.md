@@ -25,7 +25,11 @@
 8. [Remove Nth Node From End Of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/) [[Sol](https://www.youtube.com/watch?v=XVuQxVej6y8)]
 9. [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/description/)
 10. [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/) [[Sol](https://www.youtube.com/watch?v=s-VkcjHqkGI)]
-11. [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/)
+11. [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/) [[Sol](https://www.youtube.com/watch?v=e1HlptlipB0)]
 
 ## Non-Linear Data Structures
 
+1. [Invert/Flip Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
+2. [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/description/) [[Sol](https://www.youtube.com/watch?v=s6ATEkipzow)]
+3. [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/description/)
+4. 
