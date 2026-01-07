@@ -3177,7 +3177,7 @@ The following is a realistic example of `AtomicReference`
 
 ## Example: Lock Free Stack
 
-The following code implements a thread-safe Stack (LIFO) without using synchronized. Using a lock would be a 
+The following code implements a thread-safe Stack (LIFO) without using `synchronized`. Using a lock would be a 
 bottleneck if 10 threads are pushing/popping simultaneously.
 
 Instead, we use `AtomicReference` to hold the "Head" node.
