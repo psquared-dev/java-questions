@@ -162,15 +162,16 @@
 * [Q-39 Is it valid to use a synchronized block inside a Lambda expression?](#q-39-is-it-valid-to-use-a-synchronized-block-inside-a-lambda-expression)
   * [The Code Example](#the-code-example-4)
   * [The "Gotcha" (Scope of this)](#the-gotcha-scope-of-this)
-  * [Example](#example-1)
 * [Q-40 Does thread release the lock after OS preemption?](#q-40-does-thread-release-the-lock-after-os-preemption)
 * [Q-41 What is the as-if-serial rule in Java, and what does it allow the JVM to do?](#q-41-what-is-the-as-if-serial-rule-in-java-and-what-does-it-allow-the-jvm-to-do)
-  * [What "do not alter the observable behavior" reall means](#what-do-not-alter-the-observable-behavior-reall-means)
+  * [What "do not alter the observable behavior" really means](#what-do-not-alter-the-observable-behavior-really-means)
   * [Example 1:](#example-1)
     * [Allowed reordering (no observable effect)](#allowed-reordering-no-observable-effect)
     * [Not allowed (observable difference)](#not-allowed-observable-difference)
   * [Important clarification (very important)](#important-clarification-very-important)
 * [Q-41 Is it possible for JVM to re-order statements inside a synchronized block?](#q-41-is-it-possible-for-jvm-to-re-order-statements-inside-a-synchronized-block)
+  * [1. The "As-If-Serial" Rule](#1-the-as-if-serial-rule)
+  * [2. Why doesn't this break the program?](#2-why-doesnt-this-break-the-program)
 * [Q-42 What is AtomicReference?](#q-42-what-is-atomicreference)
   * [Traditional solution: synchronized](#traditional-solution-synchronized)
   * [What AtomicReference changes](#what-atomicreference-changes)
@@ -210,6 +211,17 @@
   * [Case 1: NO ExecutorService (single-threaded)](#case-1-no-executorservice-single-threaded)
   * [Case 2: ExecutorService (THIS is the difference)](#case-2-executorservice-this-is-the-difference)
   * [Why ExecutorService keeps coming up](#why-executorservice-keeps-coming-up)
+* [Q-48 How to provide initial value when using ThreadLocal?](#q-48-how-to-provide-initial-value-when-using-threadlocal)
+  * [1. Override initialValue() (Legacy / Pre-Java 8 style)](#1-override-initialvalue-legacy--pre-java-8-style)
+    * [Behavior](#behavior)
+    * [When to mention this](#when-to-mention-this)
+  * [2. Use ThreadLocal.withInitial() (Recommended, Java 8+)](#2-use-threadlocalwithinitial-recommended-java-8)
+    * [Behavior](#behavior-1)
+    * [Advantages](#advantages)
+  * [Key Rules (Very Important for Interviews)](#key-rules-very-important-for-interviews)
+  * [Lifecycle Summary](#lifecycle-summary)
+  * [Common Interview Trap Question](#common-interview-trap-question)
+* [Q-49 What is InheritableThreadLocal?](#q-49-what-is-inheritablethreadlocal)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -3645,4 +3657,85 @@ different cores, which is required for cache-line ping-pong to happen.
 ✅ Note: Assuming `a` and `b` belong to different cache lines, then False-sharing is impossible
 
 
+# Q-48 How to provide initial value when using ThreadLocal?
+
+In Java, there are two correct and interview-relevant ways to provide an initial value for a `ThreadLocal` variable.
+
+## 1. Override initialValue() (Legacy / Pre-Java 8 style)
+
+You can create an anonymous subclass of `ThreadLocal` and override the `initialValue()` method.
+
+**Example:**
+
+```java
+ThreadLocal<Integer> counter = new ThreadLocal<>() {
+    @Override
+    protected Integer initialValue() {
+        return 0;
+    }
+};
+```
+
+### Behavior
+
+* `initialValue()` is invoked once per thread
+* It is called lazily, i.e., the first time `get()` is invoked in that thread
+* Each thread gets its own independent copy
+
+### When to mention this
+
+* Important for interviews involving older Java versions
+* Demonstrates understanding of `ThreadLocal` internals
+
+
+## 2. Use ThreadLocal.withInitial() (Recommended, Java 8+)
+
+Java 8 introduced a factory method that accepts a `Supplier`.
+
+**Example:**
+
+```java
+ThreadLocal<Integer> counter = ThreadLocal.withInitial(() -> 0);
+```
+
+### Behavior
+
+* Functionally identical to `initialValue()`
+* Cleaner, functional style
+* Still lazy and per-thread
+
+### Advantages
+
+* More readable
+* Encourages immutable or well-scoped initialization
+* Standard approach in modern codebases
+
+## Key Rules (Very Important for Interviews)
+
+❌ Constructor does NOT set per-thread value
+
+```java
+new ThreadLocal<>(0); // ❌ INVALID — no such constructor
+```
+
+`ThreadLocal` does not store a value itself. It stores values inside each Thread's   `ThreadLocalMap`.
+
+## Lifecycle Summary
+
+| Event                  | What Happens                     |
+|------------------------|----------------------------------|
+| Thread created         | No value created                 |
+| `threadLocal.get()`    | Initial value created if absent  |
+| `threadLocal.set(x)`   | Overrides current thread’s value |
+| `threadLocal.remove()` | Deletes value for current thread |
+
+
+## Common Interview Trap Question
+
+Q: When is `initialValue()` executed?
+
+A: Only when `get()` is called for the first time by a thread, and only for that thread.
+
+
+# Q-49 What is InheritableThreadLocal?
 
