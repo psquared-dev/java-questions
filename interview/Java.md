@@ -702,7 +702,7 @@ Result → true
 `T1` proceeds toward the synchronized block.
 
 
-2\. T2 checks first `if (instance == null)` (1st check)
+2\. `T2` checks first `if (instance == null)` (1st check)
 
 Result → true
 
@@ -732,7 +732,7 @@ synchronized (Config.class){
     if (null == instance) {         // 2nd check
 ```
 
-Since `instance` is now not `null`, `T2` skips instance creation and returns the same instance created by T1.
+Since `instance` is now not `null`, `T2` skips instance creation and returns the same instance created by `T1`.
 
 Had there been no second check, `T2` would have created another instance overwriting the one `T1` created.
 
@@ -757,7 +757,7 @@ If the order becomes **1 -> 3 -> 2**:
 * **Thread B** tries to use the object and crashes (or sees invalid null values for internal fields)
 because Step 2 (Constructor) hasn't happened yet.
 
-With volatile: It creates a Memory Barrier (specifically a "Happens-Before" relationship). 
+With `volatile`: It creates a Memory Barrier (specifically a "Happens-Before" relationship). 
 It prevents the write to instance from being reordered with the initialization of the object. 
 It ensures the write to memory is visible to all other threads only after the constructor has finished.
 
@@ -4554,5 +4554,5 @@ public class FieldTest {
 }
 ```
 
-
+# Q-116 Do we have access to `this` the lambda?
 
