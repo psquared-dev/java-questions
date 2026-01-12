@@ -756,7 +756,7 @@ synchronized (lockAlice) {
 
 The single most important reason `Thread.stop()` is deprecated is Data Corruption.
 
-It forces a thread to unlock its locks immediately, even if it was in the middle of a critical operation.
+It forces a thread to release its locks immediately, even if it was in the middle of a critical operation.
 
 Here is exactly how `Thread.stop()` breaks your specific code example.
 
@@ -3718,7 +3718,7 @@ ThreadLocal<Integer> counter = ThreadLocal.withInitial(() -> 0);
 new ThreadLocal<>(0); // ❌ INVALID — no such constructor
 ```
 
-`ThreadLocal` does not store a value itself. It stores values inside each Thread's   `ThreadLocalMap`.
+`ThreadLocal` does not store a value itself. It stores values inside each Thread's `ThreadLocalMap`.
 
 ## Lifecycle Summary
 
@@ -3738,4 +3738,8 @@ A: Only when `get()` is called for the first time by a thread, and only for that
 
 
 # Q-49 What is InheritableThreadLocal?
+
+
+
+# Q-50 What is ThreadLocalMap?
 
