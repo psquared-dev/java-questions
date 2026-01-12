@@ -137,6 +137,12 @@
     * [The New Way: Virtual Threads (The "Order Pad" Model)](#the-new-way-virtual-threads-the-order-pad-model)
     * [The Technical Translation](#the-technical-translation)
     * [Why is this huge?](#why-is-this-huge)
+  * [Virtual Threads (VTs)](#virtual-threads-vts)
+    * [What problem do they solve?](#what-problem-do-they-solve)
+    * [What happens when a VT blocks?](#what-happens-when-a-vt-blocks)
+  * [What are Cooperative Threads](#what-are-cooperative-threads)
+  * [How Virtual Threads DIFFER from Cooperative Threads](#how-virtual-threads-differ-from-cooperative-threads)
+  * [Why people mistakenly call VTs “cooperative”](#why-people-mistakenly-call-vts-cooperative)
   * [Example of Virtual Thread](#example-of-virtual-thread)
 * [Q-31 What is Thread Local?](#q-31-what-is-thread-local)
   * [The Purpose](#the-purpose)
@@ -222,6 +228,7 @@
   * [Lifecycle Summary](#lifecycle-summary)
   * [Common Interview Trap Question](#common-interview-trap-question)
 * [Q-49 What is InheritableThreadLocal?](#q-49-what-is-inheritablethreadlocal)
+* [Q-50 What is ThreadLocalMap?](#q-50-what-is-threadlocalmap)
 <!-- TOC -->
 
 # Q-1 What is the difference between wait() and sleep() in Java?
@@ -2422,7 +2429,7 @@ We only have a few of these (usually equal to your CPU cores).
 2. The Sticky Note (Virtual Thread): This is the Virtual Thread. It is just a tiny piece of memory in Java. 
 It is not "real" to the Operating System.
 3. "Let me think" (Blocking I/O): When your code pauses (waiting for a Database or API), 
-Java unmounts the Virtual Thread (puts the sticky note down) and frees up the Carrier Thread to do other work.
+JVM unmounts the Virtual Thread (puts the sticky note down) and frees up the Carrier Thread to do other work.
 
 ### Why is this huge?
 
@@ -2432,6 +2439,131 @@ Java unmounts the Virtual Thread (puts the sticky note down) and frees up the Ca
 You don't need to change your coding style. You write code that looks like it blocks (wait for DB), 
 but under the hood, it's non-blocking and superfast.
 
+## Virtual Threads (VTs)
+
+Virtual threads are very lightweight Java threads managed by the JVM, not the OS.
+
+Key ideas:
+
+* They are real `Thread` objects
+* You write **normal blocking code**
+* Millions of them are cheap
+* They run on a small pool of real OS threads (called carrier threads)
+
+**Simple picture**
+
+```text
+Virtual Threads (100,000)
+        ↓
+Carrier Threads (8 OS threads)
+        ↓
+CPU
+```
+
+### What problem do they solve?
+
+Before VTs:
+
+* Each blocked request = one OS thread wasted
+
+With VTs:
+
+* Blocked requests are **paused**
+* OS threads are reused
+
+
+### What happens when a VT blocks?
+
+Example:
+
+```text
+socket.read(); // waiting for network
+```
+
+The JVM:
+
+1. Pauses the virtual thread
+2. Saves its stack
+3. Removes it from the OS thread
+4. Runs another virtual thread
+5. 
+👉 Blocking is cheap
+
+## What are Cooperative Threads
+
+Cooperative threads are threads that must voluntarily give up control.
+
+Classic rules:
+
+* A running thread keeps the CPU
+* Scheduler cannot stop it
+* Thread must call `yield()` or block
+* A bad thread can freeze everything
+
+**Example (cooperative)**
+
+```java
+while    (true) {
+    // if no yield(), nobody else runs
+}
+```
+
+This is how **old green threads** worked.
+
+
+## How Virtual Threads DIFFER from Cooperative Threads
+
+This is the most important part.
+
+**Difference #1 — Who decides when to stop running?**
+
+|              | Cooperative Threads | Virtual Threads     |
+|--------------|---------------------|---------------------|
+| Who yields?  | The thread itself   | The JVM             |
+| Forced stop? | ❌ No                | ✔ Yes (on blocking) |
+
+
+VTs **do not decide** when to pause.  The JVM does.
+
+---
+
+**Difference #2 — CPU-bound behavior**
+
+```java
+while (true) {
+    // computation only
+}
+```
+
+|                             | Cooperative | Virtual Threads |
+|-----------------------------|-------------|-----------------|
+| Will it stop automatically? | ❌ No        | ❌ No            |
+| Can it starve others?       | ✔ Yes       | ✔ Yes           |
+
+This already tells you VTs are not cooperative in the classic sense.
+
+-----
+
+**Difference #3 — Blocking behavior**
+
+|                           | Cooperative | Virtual Threads |
+|---------------------------|-------------|-----------------|
+| Blocking releases worker? | ❌ No        | ✔ Yes           |
+| Requires `yield()`?       | ✔ Yes       | ❌ No            |
+
+
+VTs pause automatically, not voluntarily.
+
+
+## Why people mistakenly call VTs "cooperative"
+
+Because:
+
+* VTs pause at **well-defined blocking points**
+* Blocking does not waste OS threads
+* Looks polite and cooperative
+
+But that politeness is **enforced by the JVM**, not by the thread.
 
 ## Example of Virtual Thread
 
