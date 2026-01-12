@@ -790,7 +790,7 @@ creating a new object for every single `"Hello"` or `"Error"` string in an appli
 a massive amount of RAM.
 
 To fully understand the nuance, it helps to visualize the difference between creating a String with 
-a literal versus the new keyword, as they behave differently regarding the pool.
+a literal versus the `new` keyword, as they behave differently regarding the pool.
 
 ## 1. String Literal (The Efficient Way)
 
@@ -849,7 +849,7 @@ JVM with understanding the scope of a variable, method, and
 a class. We have four access specifiers.
 
 1\. Private
- * Keyword: private
+ * Keyword: `private`
  * Scope: Only within the same class.
 
 2\. Default (Package-Private)
@@ -857,11 +857,11 @@ a class. We have four access specifiers.
  * Scope: Only within the same package.
 
 3\. Protected
- * Keyword: protected
+ * Keyword: `protected`
  * Scope: Same package + Subclasses (even in different packages).
 
 4\. Public
- * Keyword: public
+ * Keyword: `public`
  * Scope: Everywhere.
 
 -----------------------------
@@ -1089,13 +1089,13 @@ Functional Interfaces are the foundation of lambda expressions and method refere
 
 ## Examples of Functional Interfaces in Java
 
-1. Runnable
-2. Callable
+1. Runnable - `run()`
+2. Callable - `call()`
 3. Comparator
-4. Function
-5. Supplier
-6. Predicate
-7. Consumer
+4. Function - `apply()`
+5. Supplier - `get()`
+6. Predicate - `test()`
+7. Consumer - `accept()`
 
 
 -----------------------------
