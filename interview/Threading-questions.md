@@ -2486,7 +2486,7 @@ The JVM:
 2. Saves its stack
 3. Removes it from the OS thread
 4. Runs another virtual thread
-5. 
+
 👉 Blocking is cheap
 
 ## What are Cooperative Threads
