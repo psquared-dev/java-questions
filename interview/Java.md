@@ -1579,7 +1579,7 @@ Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-p
 
 Whenever a modification operation is performed on the Array list, the existing array is copied internally, 
 the modification operation is performed on the new copy and then the new array is returned. 
-The old array will be discarded. Hence the name, Copy on write.
+The old array will be discarded. Hence, the name, Copy on write.
 
 Modification operations include add, addAll, remove, removeAll, addIf, removeIf, subList etc.
 
@@ -1596,7 +1596,7 @@ List<String> syncList = Collections.synchronizedList(new ArrayList<>());
 
 Here is the breakdown of what this is, how it works, and the dangerous trap hidden inside it.
 
-1\. How it Works (The Wrapper)
+**1\. How it Works (The Wrapper)**
 
 It acts as a Guardian or a wrapper around your regular, non-thread-safe `ArrayList`.
 
@@ -1606,7 +1606,7 @@ using the list object itself as the lock (mutex).
 * **Behavior**: Only one thread can access the list at a time. If Thread A is calling `get(0)`, 
 Thread B must wait until A is finished before it can call `add("New")`.
 
-2\. The "Trap": Iteration is NOT Synchronized
+**2\. The "Trap": Iteration is NOT Synchronized**
 
 This is the most common interview question about this topic.
 
@@ -1749,7 +1749,7 @@ public class Main19 {
 
 What is happening?
 
-* You declared `int i = 10` in the main method.
+* You declared `int i = 10` in the `main` method.
 * Inside the for loop, you declared another `int i`.
 * The inner `i` shadows the outer `i`.
 
@@ -1765,7 +1765,7 @@ So inside the loop:
 
 -----------------------------
 
-# Q-62 var is used for Local Variable Type Inference (LVTI). Can  we use it to declare variables?
+# Q-62 var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?
 
 Since Java 10, you can use `var` to let the compiler infer the type:
 
