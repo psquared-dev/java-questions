@@ -247,10 +247,25 @@
     * [1.1 Eden Space (Birthplace)](#11-eden-space-birthplace)
     * [1.2 Survivor Space S0 (First Survival Test)](#12-survivor-space-s0-first-survival-test)
     * [1.3 Survivor Space S1 (Second Survival Test)](#13-survivor-space-s1-second-survival-test)
-  * [2 Promotion to Old Generation](#2-promotion-to-old-generation)
-  * [3 Old Generation (Tenured)](#3-old-generation-tenured)
-  * [4 Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
-  * [5 End-to-End Example Flow](#5-end-to-end-example-flow)
+  * [2. Promotion to Old Generation](#2-promotion-to-old-generation)
+  * [3. Old Generation (Tenured)](#3-old-generation-tenured)
+  * [4. Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
+  * [5. End-to-End Example Flow](#5-end-to-end-example-flow)
+* [Q-119 Explain Minor GC vs Major GC vs Full GC](#q-119-explain-minor-gc-vs-major-gc-vs-full-gc)
+  * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
+    * [When does Minor GC happen?](#when-does-minor-gc-happen)
+    * [What does Minor GC actually do?](#what-does-minor-gc-actually-do)
+    * [Why Minor GC is fast](#why-minor-gc-is-fast)
+    * [Interview line (memorize)](#interview-line-memorize)
+  * [2. Major GC — "Clean the storage room"](#2-major-gc--clean-the-storage-room)
+    * [When does Major GC happen?](#when-does-major-gc-happen)
+    * [Why Major GC is slower](#why-major-gc-is-slower)
+  * [Important interview clarification](#important-interview-clarification)
+  * [3. Full GC — "Clean the entire house"](#3-full-gc--clean-the-entire-house)
+    * [When does Full GC happen?](#when-does-full-gc-happen)
+    * [Why Full GC is dangerous](#why-full-gc-is-dangerous)
+    * [Interview killer line](#interview-killer-line)
+  * [Side-by-side comparison (ELI5)](#side-by-side-comparison-eli5)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -5052,4 +5067,192 @@ public void process() {
 4. Next GC → `Order` moves to S1, age++
 5. After many GCs → `Order` promoted to **Old Gen**
 6. If reference removed → collected in Major GC
+
+
+# Q-119 Explain Minor GC vs Major GC vs Full GC
+
+First: one mental picture (lock this in). Think of the Heap as a house:
+
+```text
+House (Heap)
+ ├── Kids Room (Young Generation)
+ └── Storage Room (Old Generation)
+```
+
+Garbage Collection is **cleaning**.
+
+## 1. Minor GC — "Clean the kids' room"
+
+**What it is (ELI5)**
+
+> Minor GC cleans only the Young Generation.
+
+That means:
+
+* Eden
+* Survivor spaces (S0, S1)
+
+It **does NOT touch Old Generation**.
+
+### When does Minor GC happen?
+
+When Eden gets full.
+
+**Code example**
+
+```java
+public static void main(String[] args) {
+    while (true) {
+        new Object(); // lots of short-lived objects
+    }
+}
+```
+
+What happens?
+
+* Objects keep filling Eden
+* Eden fills up
+* JVM says: "Time to clean kids' room"
+
+👉 Minor GC happens
+
+### What does Minor GC actually do?
+
+Step by step:
+
+1. Stop-the-world (very short)
+2. JVM starts from GC roots
+3. Live objects copied:
+    * Eden → Survivor
+4. Dead objects are ignored
+5. Eden is cleared
+
+
+### Why Minor GC is fast
+
+* Young Gen is small
+* Most objects are dead
+* Copying few live objects is cheap
+
+### Interview line (memorize)
+
+> Minor GC collects only the Young Generation and is fast because most objects die young.
+> 
+> 
+
+## 2. Major GC — "Clean the storage room"
+
+**What it is (ELI5)**
+
+> Major GC cleans the Old Generation.
+
+This means:
+
+* Long-lived objects
+* Caches
+* Large objects
+
+### When does Major GC happen?
+
+When:
+
+* Old Gen fills up
+* Promotion from Young → Old fails
+
+**Code example**
+
+```java
+static List<byte[]> cache = new ArrayList<>();
+
+public static void main(String[] args) {
+    while (true) {
+        cache.add(new byte[1_000_000]); // long-lived objects
+    }
+}
+```
+
+**What happens?**
+
+* Objects go to Old Gen
+* Old Gen fills up
+* JVM says: "Need to clean storage room"
+
+👉 Major GC happens
+
+
+### Why Major GC is slower
+
+* Old Gen is large
+* Objects live longer
+* More references to traverse
+
+
+## Important interview clarification
+
+⚠️ Major GC ≠ Full GC (always)
+
+
+## 3. Full GC — "Clean the entire house"
+
+**What it is (ELI5)**
+
+> Full GC cleans EVERYTHING.
+
+It includes:
+
+* Young Generation
+* Old Generation
+* Metaspace (class metadata)
+
+
+### When does Full GC happen?
+
+Common causes:
+
+* Promotion failure
+* Allocation failure
+* Metaspace full
+* Explicit `System.gc()` (sometimes)
+
+**Code example**
+
+```java
+static List<byte[]> cache = new ArrayList<>();
+
+public static void main(String[] args) {
+    while (true) {
+        cache.add(new byte[1_000_000]); // long-lived objects
+    }
+}
+```
+
+**What happens?**
+
+* Young fills → Minor GC
+* Promotion fails
+* Old fills
+* JVM panics: “Clean EVERYTHING”
+
+👉 Full GC
+
+### Why Full GC is dangerous
+
+* Long Stop-the-World
+* Application freezes
+* SLA violations
+
+
+### Interview killer line
+
+> Full GC pauses the entire application and should be avoided in latency-sensitive systems.
+>
+
+## Side-by-side comparison (ELI5)
+
+| GC Type  | Cleans      | Speed     | STW    | Risk   |
+|----------|-------------|-----------|--------|--------|
+| Minor GC | Young Gen   | Fast      | Short  | Low    |
+| Major GC | Old Gen     | Slow      | Longer | Medium |
+| Full GC  | Entire Heap | Very Slow | Long   | High   |
+
 
