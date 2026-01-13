@@ -266,6 +266,12 @@
     * [Why Full GC is dangerous](#why-full-gc-is-dangerous)
     * [Interview killer line](#interview-killer-line)
   * [Side-by-side comparison (ELI5)](#side-by-side-comparison-eli5)
+* [Q-120 What is Stop-The-World(STW) problem?](#q-120-what-is-stop-the-worldstw-problem)
+  * [Why does JVM need STW at all?](#why-does-jvm-need-stw-at-all)
+  * [What exactly is stopped?](#what-exactly-is-stopped)
+  * [Tiny code example](#tiny-code-example)
+  * [ELI5 analogy](#eli5-analogy)
+  * [Important truth (interview gold)](#important-truth-interview-gold)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -5254,5 +5260,78 @@ public static void main(String[] args) {
 | Minor GC | Young Gen   | Fast      | Short  | Low    |
 | Major GC | Old Gen     | Slow      | Longer | Medium |
 | Full GC  | Entire Heap | Very Slow | Long   | High   |
+
+
+# Q-120 What is Stop-The-World(STW) problem?
+
+**What STW really means (no jargon)**
+> STW means: the JVM temporarily pauses ALL your application code so it can safely check memory.
+>
+
+That's it.
+
+## Why does JVM need STW at all?
+
+Because **your program is changing memory constantly**.
+
+Imagine GC running while this happens:
+
+```text
+obj1.ref = obj2;
+obj1.ref = null;
+```
+
+GC would get **wrong answers** if memory keeps changing.
+
+So JVM says:
+> "Everyone stop touching memory for a moment."
+>
+
+## What exactly is stopped?
+
+* Your main() logic
+* Your web requests
+* Your background threads
+* Everything except GC threads
+
+
+## Tiny code example
+
+```java
+public static void main(String[] args) {
+    while (true) {
+        new Object();
+    }
+}
+```
+
+
+
+When Eden fills:
+
+* JVM pauses this loop
+* Runs GC
+* Resumes loop
+
+That pause is **STW**.
+
+
+## ELI5 analogy
+
+🧹 Cleaning a room
+
+* Kids running around → chaos
+* Ask kids to stop → clean safely
+* Kids resume play
+
+STW = "Everyone freeze for 5 ms"
+
+
+## Important truth (interview gold)
+
+> STW is unavoidable, but modern GC tries to make it short.
+
+* Minor GC → short STW
+* Full GC → long STW (bad)
 
 
