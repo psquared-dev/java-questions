@@ -1392,11 +1392,54 @@ For more: https://www.scaler.com/topics/course/free-operating-system-course/vide
 
 -----------------------------
 
-# Q-44 By default main thread doesn't terminate until the child threads are done, then what's the point of join() method?
+# Q-44 Is it true that main thread doesn't terminate until the child threads are done?
 
-Yes the main thread does not terminate until all non-daemon child threads have completed. 
-However, the purpose of the `join()` method used to control the order of execution, for example, you want to perform
-some action only when all the non-daemon threads are done executing. This is where you need `join()` method.
+No, `main` does NOT wait for the child thread. Consider the following example:
+
+```java
+public class Test06 {
+    public static void main(String[] args) {
+        Thread t1 = new Thread(() -> {
+
+            try {
+                Thread.sleep(1_000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            System.out.println("t1 - exit");
+        });
+
+        t1.start();
+        System.out.println("main - exit");
+    }
+}
+```
+
+**Output:**
+
+```text
+main - exit
+t1 - exit
+```
+
+Execution order (important)
+
+1. `t1.start()` → starts a new thread
+2. `main` immediately prints:
+    ```text
+    main - exit
+    ```
+3. `main` method finishes
+4. JVM does NOT exit yet
+5. JVM waits until all **non-daemon threads finish**
+6. `t1` wakes up after 1 second
+7. `t1` prints:
+    ```text
+    t1 - exit
+    ```
+8. Now JVM exits
+
 
 -----------------------------
 
