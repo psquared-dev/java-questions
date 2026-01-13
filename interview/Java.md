@@ -5228,10 +5228,22 @@ It includes:
 
 Common causes:
 
-* Promotion failure
-* Allocation failure
-* Metaspace full
-* Explicit `System.gc()` (sometimes)
+* **Promotion failure** 
+    
+    Surviving objects cannot be promoted to Old Generation, and Old Gen cleanup (Major GC / Mixed GC) fails to free enough space.
+
+* **Allocation failure**
+    
+    Eden allocation fails → Young GC runs → promotion pressure occurs → Old Gen cleanup fails → then Full GC is triggered. <br> 
+    ⚠️ Allocation failure by itself does NOT immediately cause Full GC.
+
+* **Metaspace full**
+
+    JVM cannot allocate class metadata; triggers Full GC to attempt class unloading.
+
+* **Explicit System.gc() (sometimes)**
+
+    Depends on GC and JVM flags; may trigger Full GC or concurrent GC.
 
 **Code example**
 
