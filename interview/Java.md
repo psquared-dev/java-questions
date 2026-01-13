@@ -282,7 +282,8 @@
   * [Step 4: JVM tries to evacuate live objects](#step-4-jvm-tries-to-evacuate-live-objects)
   * [Step 5: JVM attempts promotion](#step-5-jvm-attempts-promotion)
   * [Step 6: Promotion Failure occurs (THIS IS THE MOMENT)](#step-6-promotion-failure-occurs-this-is-the-moment)
-  * [Step 7: JVM escalates → Full GC](#step-7-jvm-escalates--full-gc)
+  * [Step 7: Old Generation cleanup attempt](#step-7-old-generation-cleanup-attempt)
+  * [Step 8: JVM escalates → Full GC](#step-8-jvm-escalates--full-gc)
   * [Step 8: Why Full GC still fails here](#step-8-why-full-gc-still-fails-here)
   * [One-sentence interview answer](#one-sentence-interview-answer)
 <!-- TOC -->
@@ -5549,7 +5550,22 @@ At this exact point:
 JVM has **no safe place** to put live objects.
 
 
-## Step 7: JVM escalates → Full GC
+## Step 7: Old Generation cleanup attempt
+
+Because the prior Young/Minor GC and promotion attempt did not reclaim enough memory to accommodate 
+surviving objects, the JVM detects Old Generation pressure and attempts to free space in the Old Generation.
+
+* **Classic collectors (Serial / Parallel GC)**
+    → Run a Major GC to clean the Old Generation.
+
+* **G1 GC**
+    → Run one or more Mixed GCs, collecting Young regions along with selected Old regions that contain a 
+    high amount of garbage.
+
+
+## Step 8: JVM escalates → Full GC
+
+Only if Major GC / Mixed GC cannot free enough space, then:
 
 JVM now says:
 
