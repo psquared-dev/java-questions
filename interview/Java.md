@@ -5255,11 +5255,11 @@ public static void main(String[] args) {
 
 ## Side-by-side comparison (ELI5)
 
-| GC Type  | Cleans      | Speed     | STW    | Risk   |
-|----------|-------------|-----------|--------|--------|
-| Minor GC | Young Gen   | Fast      | Short  | Low    |
-| Major GC | Old Gen     | Slow      | Longer | Medium |
-| Full GC  | Entire Heap | Very Slow | Long   | High   |
+| GC Type  | Cleans      | Speed     | STW     | Risk   |
+|----------|-------------|-----------|---------|--------|
+| Minor GC | Young Gen   | Fast      | Short   | Low    |
+| Major GC | Old Gen     | Slow      | Longer  | Medium |
+| Full GC  | Entire Heap | Very Slow | Longest | High   |
 
 
 # Q-120 What is Stop-The-World(STW) problem?
