@@ -4632,7 +4632,7 @@ public class FieldTest {
 
 # Q-117 Explain JVM Architecture?
 
-![](../images/jvm-architecture.png)
+![jvm-architecture](../images/jvm-architecture.png)
 <br>
 SRC: https://www.geeksforgeeks.org/java/how-jvm-works-jvm-architecture/
 
@@ -4969,7 +4969,7 @@ GC #3 → age = 3
 Students move class to class every year.
 
 
-## 2 Promotion to Old Generation
+## 2. Promotion to Old Generation
 
 **When does promotion happen?**
 
@@ -4995,7 +4995,7 @@ This object:
 Student graduates and starts working.
 
 
-## 3 Old Generation (Tenured)
+## 3. Old Generation (Tenured)
 
 **What it is:**
 
@@ -5019,7 +5019,7 @@ Home for **long-living objects**.
 Adults change houses rarely—but moving is painful.
 
 
-## 4 Why Two Survivor Spaces?
+## 4. Why Two Survivor Spaces?
 
 **Simple reason:**
 
@@ -5035,7 +5035,7 @@ To avoid fragmentation and keep copying clean.
 You move students from Classroom A to Classroom B every year, never mixing old desks.
 
 
-## 5 End-to-End Example Flow
+## 5. End-to-End Example Flow
 
 ```java
 public void process() {
