@@ -5556,9 +5556,11 @@ Because the prior Young/Minor GC and promotion attempt did not reclaim enough me
 surviving objects, the JVM detects Old Generation pressure and attempts to free space in the Old Generation.
 
 * **Classic collectors (Serial / Parallel GC)**
+ 
     → Run a Major GC to clean the Old Generation.
 
 * **G1 GC**
+ 
     → Run one or more Mixed GCs, collecting Young regions along with selected Old regions that contain a 
     high amount of garbage.
 
