@@ -225,6 +225,32 @@
 * [Q-114 How to use chaining with Supplier?](#q-114-how-to-use-chaining-with-supplier)
 * [Q-115 Is runtime polymorphism is applicable for fields also?](#q-115-is-runtime-polymorphism-is-applicable-for-fields-also)
 * [Q-116 Do we have access to `this` the lambda?](#q-116-do-we-have-access-to-this-the-lambda)
+* [Q-117 Explain JVM Architecture?](#q-117-explain-jvm-architecture)
+  * [1. JVM Language Class (.class file)](#1-jvm-language-class-class-file)
+  * [2. Class Loader — “The Librarian”](#2-class-loader--the-librarian)
+  * [3. JVM Memory (Big Box in Diagram)](#3-jvm-memory-big-box-in-diagram)
+    * [3.1 Method Area — "Class Blueprint Shelf"](#31-method-area--class-blueprint-shelf)
+    * [3.2 Heap — "Big Toy Box"](#32-heap--big-toy-box)
+    * [3.3 Stack — "Each Thread's Notebook"](#33-stack--each-threads-notebook)
+    * [3.4 PC Register — "Bookmark"](#34-pc-register--bookmark)
+    * [3.5 Native Method Stack — "Foreign Language Notes"](#35-native-method-stack--foreign-language-notes)
+  * [4. Execution Engine — "The Brain"](#4-execution-engine--the-brain)
+    * [4.1 Interpreter — "Reads Slowly"](#41-interpreter--reads-slowly)
+    * [4.2 JIT Compiler — "Learns and Gets Faster"](#42-jit-compiler--learns-and-gets-faster)
+    * [4.3 Garbage Collector — "Cleaner"](#43-garbage-collector--cleaner)
+  * [5. Native Method Interface (JNI) — "Translator"](#5-native-method-interface-jni--translator)
+  * [6 Native Method Libraries — "External Helpers"](#6-native-method-libraries--external-helpers)
+  * [How Everything Works Together (Story)](#how-everything-works-together-story)
+* [Q-118 - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.](#q-118---explain-the-jvm-heap-structure-shown-in-this-diagram-and-describe-the-role-of-each-memory-region)
+  * [Big Picture (ELI5)](#big-picture-eli5)
+  * [1. Young Generation](#1-young-generation)
+    * [1.1 Eden Space (Birthplace)](#11-eden-space-birthplace)
+    * [1.2 Survivor Space S0 (First Survival Test)](#12-survivor-space-s0-first-survival-test)
+    * [1.3 Survivor Space S1 (Second Survival Test)](#13-survivor-space-s1-second-survival-test)
+  * [2 Promotion to Old Generation](#2-promotion-to-old-generation)
+  * [3 Old Generation (Tenured)](#3-old-generation-tenured)
+  * [4 Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
+  * [5 End-to-End Example Flow](#5-end-to-end-example-flow)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -4602,4 +4628,428 @@ public class FieldTest {
 ```
 
 # Q-116 Do we have access to `this` the lambda?
+
+
+# Q-117 Explain JVM Architecture?
+
+![](../images/jvm-architecture.png)
+<br>
+SRC: https://www.geeksforgeeks.org/java/how-jvm-works-jvm-architecture/
+
+Think of the JVM as a factory that takes Java bytecode and safely runs it on your computer.
+
+## 1. JVM Language Class (.class file)
+
+**What it is (ELI5)**
+
+This is the instruction manual written in a language the JVM understands (bytecode).
+
+* You write Java
+* Compiler converts it to `.class`
+* JVM reads this file
+
+
+## 2. Class Loader — “The Librarian”
+
+**What it does**
+
+The **Class Loader**:
+
+* Finds `.class` files
+* Loads them into JVM memory
+* Verifies they are safe
+* Links them for execution
+
+**ELI5**
+
+📚 A librarian who fetches books before reading starts.
+
+
+**Important detail (simple)**
+
+There are multiple loaders, but conceptually:
+
+* Bootstrap → core Java (String, Object)
+* Application → your code
+
+## 3. JVM Memory (Big Box in Diagram)
+
+### 3.1 Method Area — "Class Blueprint Shelf"
+
+**What it stores**
+
+* Class structure
+* Method code
+* Static variables
+* Constant pool
+
+
+**ELI5**
+
+🏗️ Blueprints of buildings, not the buildings themselves.
+
+
+**Key points**
+
+* Shared by all threads
+* One copy per class
+* In Java 8+, implemented as **Metaspace**
+
+---
+
+### 3.2 Heap — "Big Toy Box"
+
+**What it stores**
+
+* Objects created using `new`
+* Arrays
+
+**ELI5**
+
+🧸 All toys go into one big box everyone can access.
+
+**Key points**
+
+* Shared by all threads
+* Garbage Collector cleans it
+* Largest memory area
+
+---
+
+### 3.3 Stack — "Each Thread's Notebook"
+
+**What it stores**
+
+* Method calls
+* Local variables
+* Partial results
+
+**ELI5**
+
+📓 Each thread gets its own notebook.
+
+
+**Key points**
+
+* One stack per thread
+* Very fast
+* Automatically cleaned
+
+---
+
+### 3.4 PC Register — "Bookmark"
+
+**What it stores**
+
+* Address of the next instruction to execute
+
+**ELI5**
+
+🔖 A bookmark telling JVM where you stopped reading.
+
+**Key points**
+
+* One per thread
+* Very small
+* Crucial for multithreading
+
+
+---
+
+### 3.5 Native Method Stack — "Foreign Language Notes"
+
+**What it stores**
+
+* Calls to non-Java code (C/C++)
+
+**ELI5**
+
+🗒️ Notes written in another language.
+
+
+## 4. Execution Engine — "The Brain"
+
+This is where code actually runs.
+
+###  4.1 Interpreter — "Reads Slowly"
+What it does
+
+* Reads bytecode line by line
+* Executes immediately
+
+**ELI5**
+
+👶 Reads instructions one step at a time.
+
+**Pros / Cons**
+
+* ✔ Fast startup
+* ❌ Slower execution
+
+---
+
+### 4.2 JIT Compiler — "Learns and Gets Faster"
+
+**What it does**
+
+* Detects frequently used code
+* Converts it to machine code
+* Optimizes execution
+
+**ELI5**
+
+🧠 Memorizes common steps to move faster next time.
+
+**Result**
+
+🔥 Java programs get faster as they run.
+
+---
+
+### 4.3 Garbage Collector — "Cleaner"
+
+**What it does**
+
+* Finds unused objects
+* Frees heap memory
+
+**ELI5**
+
+🧹 Cleans toys no one is playing with.
+
+
+## 5. Native Method Interface (JNI) — "Translator"
+
+**What it does**
+
+* Connects Java code to native libraries
+
+**ELI5**
+
+🌍 A translator between Java and C/C++.
+
+
+## 6 Native Method Libraries — "External Helpers"
+
+**What they are**
+
+* OS-level libraries
+* Written in C/C++
+
+**ELI5**
+
+🧰 Outside helpers that Java can call when needed.
+
+
+## How Everything Works Together (Story)
+
+1. `.class` file is given to JVM
+2. **Class Loader** loads it
+3. Code & metadata go to **Method Area**
+4. Objects go to **Heap**
+5. Method calls go to **Stack**
+6. **Execution Engine** runs the code
+7. **Garbage Collector** cleans memory
+8. Program finishes 🎉
+
+
+# Q-118 - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.
+
+```text
+Heap
+ ├── Young Generation
+ │    ├── Eden
+ │    ├── Survivor S0
+ │    └── Survivor S1
+ └── Old Generation
+```
+
+Below is an ELI5, step-by-step explanation of each heap area, using a single simple story so the behavior is 
+intuitive rather than abstract.
+
+## Big Picture (ELI5)
+
+Imagine the JVM heap as a **school system** for objects.
+
+* **Young Generation** = Kindergarten + Primary school
+* **Old Generation** = College / Working professionals
+
+---
+
+* Objects start young.
+* Most don't live long.
+* Only the survivors grow old.
+
+## 1. Young Generation
+
+This is where all new objects are born.
+
+### 1.1 Eden Space (Birthplace)
+
+**What it is (ELI5):**
+
+Eden is the nursery. Every new baby object is born here.
+
+**Example:**
+
+```java
+User u = new User();
+Order o = new Order();
+```
+
+Both `u` and `o` are created in Eden.
+
+**What usually happens:**
+
+* Eden fills up very fast
+* JVM says: "Let me clean this place"
+
+This triggers **Minor GC**.
+
+**Reality check:**
+
+* Most objects die here
+* They are never copied anywhere else
+
+**ELI5 analogy:**
+
+Most toys kids ask for are forgotten in 5 minutes.
+
+---
+
+### 1.2 Survivor Space S0 (First Survival Test)
+
+**What it is:**
+
+Objects that **did not die** during Minor GC are moved here.
+
+**Example:**
+
+```java
+List<String> cache = new ArrayList<>();
+```
+
+If `cache` is still referenced after GC:
+
+* It survives
+* It moves from **Eden → S0**
+
+**Important rule:**
+
+* Eden is emptied completely after Minor GC
+* Only alive objects are copied
+
+**ELI5 analogy:**
+
+Kids who didn’t quit school move to Grade 1.
+
+---
+
+### 1.3 Survivor Space S1 (Second Survival Test)
+
+**What it is:**
+Objects keep hopping between S0 and S1 while aging.
+
+**How it works:**
+
+* Next Minor GC happens
+* Objects in S0 that are still alive → moved to S1
+* Their **age increases by 1**
+
+**Age example:**
+
+```text
+GC #1 → age = 1
+GC #2 → age = 2
+GC #3 → age = 3
+```
+
+**ELI5 analogy:**
+
+Students move class to class every year.
+
+
+## 2 Promotion to Old Generation
+
+**When does promotion happen?**
+
+An object is promoted when:
+
+* It reaches a certain age (default ~15 GCs), OR
+* Survivor space is full, OR
+* Object is too large
+
+**Example:**
+
+```java
+static Map<String, Config> appConfig;
+```
+
+This object:
+
+* Lives for the entire application lifetime
+* Quickly promoted to Old Generation
+
+**ELI5 analogy:**
+
+Student graduates and starts working.
+
+
+## 3 Old Generation (Tenured)
+
+**What it is:**
+
+Home for **long-living objects**.
+
+**Typical objects here:**
+
+* Singletons
+* Caches
+* Session data
+* Large collections
+
+**GC behavior:**
+
+* Collected by Major GC / Full GC
+* Happens rarely
+* Much slower and more expensive
+
+**ELI5 analogy:**
+
+Adults change houses rarely—but moving is painful.
+
+
+## 4 Why Two Survivor Spaces?
+
+**Simple reason:**
+
+To avoid fragmentation and keep copying clean.
+
+**Rule:**
+
+* JVM always copies from **one survivor → the other**
+* One is empty at any time
+
+**ELI5 analogy:**
+
+You move students from Classroom A to Classroom B every year, never mixing old desks.
+
+
+## 5 End-to-End Example Flow
+
+```java
+public void process() {
+    Order o = new Order();          // Eden
+    List<Item> items = new ArrayList<>(); // Eden
+}
+```
+
+**Step-by-step:**
+
+1. Objects created → **Eden**
+2. Eden fills → Minor GC
+3. `Order` still referenced → moved to `S0`
+4. Next GC → `Order` moves to S1, age++
+5. After many GCs → `Order` promoted to **Old Gen**
+6. If reference removed → collected in Major GC
 
