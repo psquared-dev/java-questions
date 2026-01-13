@@ -272,6 +272,19 @@
   * [Tiny code example](#tiny-code-example)
   * [ELI5 analogy](#eli5-analogy)
   * [Important truth (interview gold)](#important-truth-interview-gold)
+* [Q-121 What is Allocation Failure?](#q-121-what-is-allocation-failure)
+  * [Simple code example](#simple-code-example)
+  * [Step-by-step what JVM does](#step-by-step-what-jvm-does)
+* [Q-122 What is Promotion Failure?](#q-122-what-is-promotion-failure)
+  * [Step 1: Objects are created in Eden](#step-1-objects-are-created-in-eden)
+  * [Step 2: Eden becomes full → Allocation Failure](#step-2-eden-becomes-full--allocation-failure)
+  * [Step 3: Minor GC starts (STW)](#step-3-minor-gc-starts-stw)
+  * [Step 4: JVM tries to evacuate live objects](#step-4-jvm-tries-to-evacuate-live-objects)
+  * [Step 5: JVM attempts promotion](#step-5-jvm-attempts-promotion)
+  * [Step 6: Promotion Failure occurs (THIS IS THE MOMENT)](#step-6-promotion-failure-occurs-this-is-the-moment)
+  * [Step 7: JVM escalates → Full GC](#step-7-jvm-escalates--full-gc)
+  * [Step 8: Why Full GC still fails here](#step-8-why-full-gc-still-fails-here)
+  * [One-sentence interview answer](#one-sentence-interview-answer)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -5305,8 +5318,6 @@ public static void main(String[] args) {
 }
 ```
 
-
-
 When Eden fills:
 
 * JVM pauses this loop
@@ -5333,5 +5344,237 @@ STW = "Everyone freeze for 5 ms"
 
 * Minor GC → short STW
 * Full GC → long STW (bad)
+
+
+# Q-121 What is Allocation Failure?
+
+What it means (plain English)
+
+> JVM tried to create a new object, but there was no space in Young Generation (Eden).
+>
+
+So JVM says:
+
+> "I can't allocate memory. I must run minor GC."
+>
+
+That situation is called **Allocation Failure**.
+
+## Simple code example
+
+```java
+public static void main(String[] args) {
+    while (true) {
+        new Object(); // keep allocating
+    }
+}
+```
+
+## Step-by-step what JVM does
+
+**Step 1: Object creation**
+* `new Object()` goes to Eden
+
+**Step 2: Eden fills up**
+* No space left
+
+**Step 3: Allocation Failure occurs**
+* JVM cannot allocate new object
+
+**Step 4: JVM runs Minor GC**
+* Tries to free space in Young Gen
+
+👉 This is normal and expected
+
+
+# Q-122 What is Promotion Failure?
+
+JVM tried to move surviving objects from Young Gen to Old Gen, but Old Gen had no space. 
+That's a Promotion Failure.
+
+**Promotion Failure can lead to Full GC**. Consider the following example:
+
+```java
+static List<Object> list = new ArrayList<>();
+
+public static void main(String[] args) {
+    while (true) {
+        list.add(new Object());
+    }
+}
+```
+
+Key facts:
+
+* list is static → GC Root
+* Every object added is long-lived
+* Nothing ever becomes unreachable
+
+
+## Step 1: Objects are created in Eden
+
+Each iteration:
+
+```java
+new Object();
+```
+
+
+JVM does:
+* Allocate object in Eden
+* Eden fills quickly
+
+
+## Step 2: Eden becomes full → Allocation Failure
+
+JVM tries to allocate a new object but:
+
+```text
+Eden: ❌ no space
+```
+
+This is an **Allocation Failure**.
+
+So JVM says:
+> "Let me run a Minor GC."
+
+
+
+## Step 3: Minor GC starts (STW)
+
+During Minor GC, JVM does:
+
+1. Stop-the-world
+2. Find GC roots
+    * list (static)
+3. Traverse references
+
+What JVM discovers:
+
+```text
+list → object1
+list → object2
+list → object3
+...
+```
+
+👉 Every object is reachable <br>
+👉 Nothing is dead
+
+
+## Step 4: JVM tries to evacuate live objects
+
+Minor GC uses copying.
+
+JVM tries to move live objects:
+
+```text
+Eden → Survivor (S0 / S1)
+```
+
+But here’s the problem 👇
+
+* Too many objects survived
+* Survivor space is small by design
+
+So JVM says:
+> "Survivor is too small — I must promote objects to Old Gen."
+>
+
+
+## Step 5: JVM attempts promotion
+
+Promotion means:
+
+```text
+Young Gen → Old Gen
+```
+
+JVM checks:
+
+```text
+Old Gen free space ?
+```
+
+Two possibilities:
+
+
+**Case A: Old Gen has space ✅ (normal)**
+
+* Objects are promoted
+* Eden is cleared
+* Program continues
+
+No problem.
+
+
+**Case B: Old Gen does NOT have space ❌ **
+
+Why Old Gen is full:
+
+* Objects have been accumulating for a long time
+* list keeps references forever
+* Nothing ever got deleted
+
+So JVM sees:
+
+```text
+Old Gen: ❌ insufficient space
+```
+
+## Step 6: Promotion Failure occurs (THIS IS THE MOMENT)
+
+> Promotion Failure = JVM tried to move surviving Young objects to Old Gen, but Old Gen had no space
+>
+
+This is a hard failure.
+
+At this exact point:
+
+* Young GC could not free space
+* Promotion could not happen
+
+JVM has **no safe place** to put live objects.
+
+
+## Step 7: JVM escalates → Full GC
+
+JVM now says:
+
+> "I've tried everything cheap.
+I must clean the entire heap."
+
+So it triggers:
+👉 Full GC
+
+Full GC:
+
+* Scans Young Gen
+* Scans Old Gen
+* Tries to compact
+* Tries to free anything
+
+
+## Step 8: Why Full GC still fails here
+
+In your code:
+
+* list still holds references
+* All objects are still reachable
+* Nothing can be freed
+
+So after Full GC:
+
+* Still no space
+* JVM throws:
+    ```text
+    OutOfMemoryError: Java heap space
+    ```
+
+## One-sentence interview answer
+
+> Promotion failure happens when a Minor GC cannot free enough space because surviving objects need to be 
+> promoted, but the Old Generation does not have sufficient free space, forcing a Full GC.
+> 
 
 
