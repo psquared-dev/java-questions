@@ -65,7 +65,7 @@
 * [Q-41 What are the motivations for ExecutorService?](#q-41-what-are-the-motivations-for-executorservice)
 * [Q-42 When ExecutorService was introduced in java?](#q-42-when-executorservice-was-introduced-in-java)
 * [Q-43 Whats the diff b\w process and threads?](#q-43-whats-the-diff-bw-process-and-threads)
-* [Q-44 By default main thread doesn't terminate until the child threads are done, then what's the point of join() method?](#q-44-by-default-main-thread-doesnt-terminate-until-the-child-threads-are-done-then-whats-the-point-of-join-method)
+* [Q-44 Is it true that main thread doesn't terminate until the child threads are done?](#q-44-is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
 * [Q-45 What is the diff b/w objects and references?](#q-45-what-is-the-diff-bw-objects-and-references)
 * [Q-46 Exaplain stack and heap memory regions in the context of threads?](#q-46-exaplain-stack-and-heap-memory-regions-in-the-context-of-threads)
   * [What is allocated on the Heap?](#what-is-allocated-on-the-heap)
@@ -88,7 +88,7 @@
 * [Q-59 Will the following code compile?](#q-59-will-the-following-code-compile)
 * [Q-60 Do `doubles` and `float` type overflow?](#q-60-do-doubles-and-float-type-overflow)
 * [Q-61 What is shadowing?](#q-61-what-is-shadowing)
-* [Q-62 var is used for Local Variable Type Inference (LVTI). Can  we use it to declare variables?](#q-62-var-is-used-for-local-variable-type-inference-lvti-can--we-use-it-to-declare-variables)
+* [Q-62 var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q-62-var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
 * [Q-63 Will the following code compile?](#q-63-will-the-following-code-compile)
 * [Q-64 Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword](#q-64-mentions-some-other-possible-scenarios-where-we-cant-use-the-var-lvti-keyword)
 * [Q-65 What is string interning?](#q-65-what-is-string-interning)
@@ -188,6 +188,9 @@
     * [2\. The "New Way" (With Default Methods)](#2-the-new-way-with-default-methods)
 * [Q-93 How to create immutable collections in Java?](#q-93-how-to-create-immutable-collections-in-java)
 * [Q-94 Can a class implement two interface with the same default method?](#q-94-can-a-class-implement-two-interface-with-the-same-default-method)
+  * [The Conflict Visualization](#the-conflict-visualization)
+  * [The Code Solution](#the-code-solution)
+  * [Important Rule: "Class Wins"](#important-rule-class-wins)
 * [Q-95 What is AutoCloseable interface?](#q-95-what-is-autocloseable-interface)
 * [Q-96 Difference between Optional.of() and Optional.ofNullable()?](#q-96-difference-between-optionalof-and-optionalofnullable)
 * [Q-97 How to manually trigger the garbage collection process?](#q-97-how-to-manually-trigger-the-garbage-collection-process)
@@ -221,6 +224,7 @@
 * [Q-113 What is Consumer chaining?](#q-113-what-is-consumer-chaining)
 * [Q-114 How to use chaining with Supplier?](#q-114-how-to-use-chaining-with-supplier)
 * [Q-115 Is runtime polymorphism is applicable for fields also?](#q-115-is-runtime-polymorphism-is-applicable-for-fields-also)
+* [Q-116 Do we have access to `this` the lambda?](#q-116-do-we-have-access-to-this-the-lambda)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
