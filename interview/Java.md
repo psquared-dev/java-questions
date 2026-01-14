@@ -1025,18 +1025,10 @@ every other variable pointing to that shared object. Because they cannot be chan
 
 # Q-17 What is JDK?
 
-Ans: 
+JDK (Java Development Kit) is a software development environment used to develop Java applications.
 
-* Stands for Java Development Kit
-* It is a set of tools to help developers write Java programs
-* Comes with the JRE (because you need to run what you develop)
-* Based off the Java language specification
-
-* Includes
-    * Java compiler
-    * Class libraries
-    * Utilities
-
+* JRE = JVM + Library Classes (`java.lang`, `java.util`, etc.)
+* JDK = JRE + Development Tools (compilers like `javac`, `javap`, debuggers, documentation generator etc.)
 
 -----------------------------
 
