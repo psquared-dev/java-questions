@@ -48,7 +48,7 @@
 * [Q-29 What is lambda expression?](#q-29-what-is-lambda-expression)
 * [Q-30 What is Stream in java 8?](#q-30-what-is-stream-in-java-8)
 * [Q-31 What is diff bw Vector and ArrayList?](#q-31-what-is-diff-bw-vector-and-arraylist)
-* [Q-32 Collection framework heirarchy](#q-32-collection-framework-heirarchy)
+* [Q-32 Collection framework hierarchy](#q-32-collection-framework-hierarchy)
 * [Q-33 Diff b\w Hashtable and HashMap](#q-33-diff-bw-hashtable-and-hashmap)
 * [Q-34 What is blocking Queue](#q-34-what-is-blocking-queue)
 * [Q-35 What are some use cases of reflection](#q-35-what-are-some-use-cases-of-reflection)
@@ -67,7 +67,7 @@
 * [Q-43 Whats the diff b\w process and threads?](#q-43-whats-the-diff-bw-process-and-threads)
 * [Q-44 Is it true that main thread doesn't terminate until the child threads are done?](#q-44-is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
 * [Q-45 What is the diff b/w objects and references?](#q-45-what-is-the-diff-bw-objects-and-references)
-* [Q-46 Exaplain stack and heap memory regions in the context of threads?](#q-46-exaplain-stack-and-heap-memory-regions-in-the-context-of-threads)
+* [Q-46 Explain stack and heap memory regions in the context of threads?](#q-46-explain-stack-and-heap-memory-regions-in-the-context-of-threads)
   * [What is allocated on the Heap?](#what-is-allocated-on-the-heap)
   * [Heap Memory Management](#heap-memory-management)
   * [Objects vs References](#objects-vs-references)
@@ -1252,7 +1252,7 @@ Ans: `Vector` is thread-safe but `ArrayList` is not.
 -----------------------------
 
 
-# Q-32 Collection framework heirarchy
+# Q-32 Collection framework hierarchy
 
 Ans:
 
@@ -1578,7 +1578,7 @@ Here:
 
 -----------------------------
 
-# Q-46 Exaplain stack and heap memory regions in the context of threads?
+# Q-46 Explain stack and heap memory regions in the context of threads?
 
 ## What is allocated on the Heap?
 * Objects (anything created with the new operator)
