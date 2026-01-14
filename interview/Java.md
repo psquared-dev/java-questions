@@ -387,7 +387,7 @@ Ans:
 
 * Method area (permgen/metaspace)
     * **What:** Stores Class Structures (metadata), static variables, and the bytecode itself.
-    * Note: In modern Java, this uses native memory (outside the Heap).
+    * **Note:** In modern Java, this uses native memory (outside the Heap).
 
 * PC Register (Program Counter)
     * **What:** Holds the address of the current instruction being executed.
