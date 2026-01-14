@@ -323,22 +323,21 @@
 
 # Q-1 - What is JIT?
 
-Ans: JIT is an abbreviation for Just-in-Time Compiler. It
-increases efficiency of the interpreter by compiling the
-bytecode in the runtime. JIT compiles Code to Machine Level
-directly for higher speeds of code execution.
+JIT (Just-In-Time) Compiler is a component of the JVM that optimizes performance. While the Interpreter 
+executes bytecode line-by-line, the JIT identifies frequently used methods (Hotspots) and compiles them 
+into native machine code on the fly. This allows Java to run nearly as fast as C++ after a warm-up period.
 
 -----------------------------
 
 
 # Q-2 - What is class Loader?
 
-Ans:  Part of JRE
-* They load Java classes into the runtime (JVM)
-* This happens only when needed
-* JVM requests a class
-* Class loader tries to find it and load it (in the metaspace). If the class is not used for a while 
-then it can be removed from the metaspace and on request it can loaded again.
+* Part of the JRE that dynamically loads Java classes into the JVM memory (Metaspace).
+* **Lazy Loading:** It does not load all classes at startup; it loads them only when the application needs them.
+* **Delegation Hierarchy:** When asked to load a class, a ClassLoader first delegates the request to its Parent. 
+  It only tries to load it itself if the Parent cannot find it.
+* **Visibility:** A child ClassLoader can see classes loaded by the parent, but the parent cannot see classes 
+  loaded by the child.
 
 In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them usable by the JVM.
 
@@ -360,7 +359,8 @@ Ans:
 
 **Application (System) ClassLoader**
 
-* Loads classes from the application classpath (`-cp`, `CLASSPATH`, `target/classes`, or the module path when running modular apps).
+* Loads classes from the application classpath (`-cp`, `CLASSPATH`, `target/classes`, or the module path when 
+  running modular apps).
 * Parent is Platform loader.
 
 **Custom Class Loaders**
@@ -376,21 +376,25 @@ Ans:
 
 Ans:
 
-* Heap
-    * Space for objects in memory
-    * "Global"
-    * Largest of the memory spaces
+* Heap Space
+    * **What:** Where all Objects live (e.g., `new Employee()`).
+    * **Scope:** Shared by all threads (Global).
+    * **Cleanup:** Managed by Garbage Collector.
 * Stack
-    * Holds thread level data
-    * Local variables and object references
-    * Call frames for each method execution
+    * **What:** Stores method calls (Stack Frames), local variables, and partial results.
+    * **Scope:** One per thread (Thread-safe).
+    * **Cleanup:** Automatically cleaned when the method finishes.
 
-* Code area (meta space)
-    * Stores bytecode, JIT info
+* Method area (permgen/metaspace)
+    * **What:** Stores Class Structures (metadata), static variables, and the bytecode itself.
+    * Note: In modern Java, this uses native memory (outside the Heap).
 
-* Implementation / native area
-    * Registers
-    * C implementation stacks
+* PC Register (Program Counter)
+    * **What:** Holds the address of the current instruction being executed.
+    * **Analogy:** The "bookmark" telling the CPU which line to read next.
+
+* Native Method Stack
+    * **What:** Used for native code (C/C++ libraries) called via JNI.
 
 
 -----------------------------
