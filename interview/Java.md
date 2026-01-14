@@ -47,7 +47,10 @@
   * [Key Idea 2: finalize() runs ONCE per object](#key-idea-2-finalize-runs-once-per-object)
   * [Why "ONLY ONCE"? (Simple explanation)](#why-only-once-simple-explanation)
 * [Q-24  Diff b/w StringBuilder and StringBuffer?](#q-24--diff-bw-stringbuilder-and-stringbuffer)
-* [Q-25 Real World use cases of Serializable interface.](#q-25-real-world-use-cases-of-serializable-interface)
+* [Q-25 What is Serializable interface? List some real-world use-cases for it.](#q-25-what-is-serializable-interface-list-some-real-world-use-cases-for-it)
+  * [Key statement](#key-statement)
+    * [Serialization code (standard)](#serialization-code-standard)
+    * [What the JVM actually does internally (THIS is the reflection part)](#what-the-jvm-actually-does-internally-this-is-the-reflection-part)
 * [Q-26 What is functional interface.](#q-26-what-is-functional-interface)
   * [Examples of Functional Interfaces in Java](#examples-of-functional-interfaces-in-java)
 * [Q-27 Can you tell few functional interface which is already there before java 8?](#q-27-can-you-tell-few-functional-interface-which-is-already-there-before-java-8)
@@ -1248,14 +1251,92 @@ Because JVM guarantees:
 
 # Q-24  Diff b/w StringBuilder and StringBuffer?
 
-Ans: `StringBuffer` is thread safe but `StringBuilder` is not.
+`StringBuffer` is thread safe but `StringBuilder` is not.
 
 -----------------------------
 
 
-# Q-25 Real World use cases of Serializable interface.
+# Q-25 What is Serializable interface? List some real-world use-cases for it.
 
-Ans: 
+`Serializable` is a marker interface in Java that indicates an object can be converted 
+into a byte stream and later reconstructed back into an object.
+
+It is primarily used when objects need to:
+
+* Be persisted to disk
+* Be transmitted over a network
+* Be stored in caches or HTTP sessions
+* Cross JVM boundaries
+
+
+## Key statement
+
+During serialization, the JVM uses reflection to inspect an object's fields and convert their values 
+into a byte stream, even though `Serializable` has no methods.
+
+Now let’s prove this with an example.
+
+```java
+import java.io.Serializable;
+
+class User implements Serializable {
+  int id;
+  String name;
+
+  User(int id, String name) {
+    this.id = id;
+    this.name = name;
+  }
+}
+```
+
+Notice:
+
+* `Serializable` has no methods
+* We did not write any serialization logic
+
+
+### Serialization code (standard)
+
+```java
+import java.io.*;
+
+public class Test {
+    public static void main(String[] args) throws Exception {
+
+        User user = new User(1, "Alice");
+
+        ObjectOutputStream oos =
+            new ObjectOutputStream(new FileOutputStream("user.ser"));
+
+        oos.writeObject(user);
+        oos.close();
+    }
+}
+```
+
+### What the JVM actually does internally (THIS is the reflection part)
+
+When this line runs:
+
+```text
+oos.writeObject(user);
+```
+
+The JVM internally does something conceptually similar to this (simplified):
+
+```java
+Class<?> clazz = user.getClass();          // via reflection
+Field[] fields = clazz.getDeclaredFields(); // via reflection
+
+for (Field f : fields) {
+    f.setAccessible(true);                 // bypass access checks
+    Object value = f.get(user);            // read field value
+    writeToStream(value);                  // convert to bytes
+}
+```
+
+**Note:** Just writing raw values would be insufficient. Java serialization must and does write metadata.
 
 
 -----------------------------
