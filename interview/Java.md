@@ -57,9 +57,9 @@
 * [Q-28 What are all functional interface introduced in java 8?](#q-28-what-are-all-functional-interface-introduced-in-java-8)
 * [Q-29 What is lambda expression?](#q-29-what-is-lambda-expression)
 * [Q-30 What is Stream in java 8?](#q-30-what-is-stream-in-java-8)
-* [Q-31 What is diff bw Vector and ArrayList?](#q-31-what-is-diff-bw-vector-and-arraylist)
+* [Q-31 What is diff b/w Vector and ArrayList?](#q-31-what-is-diff-bw-vector-and-arraylist)
 * [Q-32 Collection framework hierarchy](#q-32-collection-framework-hierarchy)
-* [Q-33 Diff b\w Hashtable and HashMap](#q-33-diff-bw-hashtable-and-hashmap)
+* [Q-33 Diff b/w Hashtable and HashMap](#q-33-diff-bw-hashtable-and-hashmap)
 * [Q-34 What is blocking Queue](#q-34-what-is-blocking-queue)
 * [Q-35 What are some use cases of reflection](#q-35-what-are-some-use-cases-of-reflection)
 * [Q-36 When would you use parallelStream()](#q-36-when-would-you-use-parallelstream)
@@ -1407,7 +1407,7 @@ Streams are not collections. They do NOT store data - they process data.
 
 -----------------------------
 
-# Q-31 What is diff bw Vector and ArrayList?
+# Q-31 What is diff b/w Vector and ArrayList?
 
 Ans: `Vector` is thread-safe but `ArrayList` is not.
 
@@ -1424,13 +1424,16 @@ Ans:
 
 -----------------------------
 
-# Q-33 Diff b\w Hashtable and HashMap
+# Q-33 Diff b/w Hashtable and HashMap
 
 Ans: 
 
 * `Hashtable` is thread-safe but `HashMap` is not.
 * `HashMap` allows key with `null` value but `Hashtable` doesn't.
 
+Note that `Hashtable` uses method-level synchronization which is a bottleneck.
+If you need a thread-safe map, use `ConcurrentHashMap` (which is much faster than `Hashtable` because it 
+uses segment locking/CAS instead of locking the entire object).
 
 -----------------------------
 
