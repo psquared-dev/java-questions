@@ -301,6 +301,24 @@
   * [Example 6: Following references (walking the graph)](#example-6-following-references-walking-the-graph)
     * [GC traversal](#gc-traversal-2)
   * [The single rule GC follows (memorize this)](#the-single-rule-gc-follows-memorize-this)
+* [Q-124 Explain the working of G1 Garbage Collector](#q-124-explain-the-working-of-g1-garbage-collector)
+  * [What is G1 GC?](#what-is-g1-gc)
+  * [Code example (we will use this throughout)](#code-example-we-will-use-this-throughout)
+  * [Phase 1: Object allocation (NO GC yet)](#phase-1-object-allocation-no-gc-yet)
+  * [Phase 2: Remembered Set creation (during normal execution)](#phase-2-remembered-set-creation-during-normal-execution)
+  * [Phase 3: GC starts (Stop-the-World)](#phase-3-gc-starts-stop-the-world)
+    * [Step 1: GC Root traversal (liveness)](#step-1-gc-root-traversal-liveness)
+    * [Step 2: Region accounting (THIS IS CRITICAL)](#step-2-region-accounting-this-is-critical)
+    * [Step 3: Region selection (why G1 is called "Garbage First")](#step-3-region-selection-why-g1-is-called-garbage-first)
+    * [Step 4: Safety check using remembered sets](#step-4-safety-check-using-remembered-sets)
+    * [Step 5: Cleanup result](#step-5-cleanup-result)
+  * [Now let's place this into the FULL G1 FLOW](#now-lets-place-this-into-the-full-g1-flow)
+    * [Young GC (baseline behavior)](#young-gc-baseline-behavior)
+    * [When Old Gen pressure appears](#when-old-gen-pressure-appears)
+  * [Full escalation chain (memorize this)](#full-escalation-chain-memorize-this)
+  * [When does G1 move to Full GC?](#when-does-g1-move-to-full-gc)
+  * [Why classic collectors were slower](#why-classic-collectors-were-slower)
+  * [Final interview-ready summary (perfect answer)](#final-interview-ready-summary-perfect-answer)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -5924,3 +5942,323 @@ Anything it cannot reach goes.
 
 That's all.
 
+
+# Q-124 Explain the working of G1 Garbage Collector
+
+## What is G1 GC?
+
+G1 GC divides the heap into small regions and incrementally cleans the most garbage-heavy regions to avoid long pauses.
+
+Instead of this (old collectors):
+
+```text
+[ Young Gen ][ Old Gen ]
+```
+
+G1 uses this:
+
+```text
+[ R1 ][ R2 ][ R3 ][ R4 ][ R5 ] ...
+```
+
+Each region:
+
+* Same size (1–32 MB)
+* Can act as Eden, Survivor, Old, or Free
+* Role can change over time
+
+Important:
+
+> Young / Old are logical roles, not fixed memory areas.
+> 
+
+
+## Code example (we will use this throughout)
+
+```java
+class Demo {
+    static Object root; // static → GC root
+
+    public static void main(String[] args) {
+        Object a = new Object(); // A
+        Object b = new Object(); // B
+        Object c = new Object(); // C
+        Object d = new Object(); // D
+
+        root = a;
+        a = b;
+    }
+}
+```
+
+## Phase 1: Object allocation (NO GC yet)
+
+Assume objects land like this:
+
+```text
+R1: A
+R3: B, C, D
+R2: empty
+R4: empty
+```
+
+References created by code:
+
+```text
+GC Root → A (R1)
+A (R1) → B (R3)
+```
+
+## Phase 2: Remembered Set creation (during normal execution)
+
+When this line runs:
+
+```java
+a = b;
+```
+
+The JVM notices:
+
+```text
+Reference from R1 → R3
+```
+
+So it records:
+
+```text
+Remembered Set of R3:
+  ← R1
+```
+
+Key point:
+
+> Remembered sets are created during normal execution, not during GC.
+
+
+## Phase 3: GC starts (Stop-the-World)
+
+GC always does two distinct jobs:
+
+1. Decide which objects are alive
+2. Decide which regions to clean
+
+
+### Step 1: GC Root traversal (liveness)
+
+GC looks ONLY at GC roots:
+
+* Static fields
+* Thread stacks
+
+Here:
+
+```text
+root → A
+A → B
+```
+
+Alive objects:
+
+```text
+A (R1)
+B (R3)
+```
+
+Dead objects:
+
+```text
+C (R3)
+D (R3)
+```
+
+### Step 2: Region accounting (THIS IS CRITICAL)
+
+GC now summarizes per region.
+
+**R1**
+
+* Contains: A
+* Alive: A
+
+```text
+R1: 100% alive
+```
+
+**R2**
+
+* Contains: nothing
+
+```text
+R2: empty (ignored)
+```
+
+**R3**
+
+* Contains: B, C, D
+* Alive: B
+* Dead: C, D
+
+```text
+R3: 33% alive, 67% garbage
+```
+
+**R4**
+
+* Contains: nothing
+
+```text
+R4: empty (ignored)
+```
+
+This accounting is **not guessed** - it comes directly from marking.
+
+
+### Step 3: Region selection (why G1 is called "Garbage First")
+
+GC asks:
+
+> "Which region gives me the most memory back for the least work?"
+
+Comparison:
+
+```text
+R1 → 0% garbage
+R3 → ~67% garbage ✅
+```
+
+So:
+> R3 is selected for cleanup
+> 
+
+
+### Step 4: Safety check using remembered sets
+
+Before deleting anything in R3, GC must ensure:
+
+> "Is anything outside R3 still pointing into R3?"
+
+GC looks at:
+
+```text
+Remembered Set of R3 → { R1 }
+```
+
+**So GC checks only R1, not the entire heap**.
+
+GC finds:
+
+```text
+A (R1) → B (R3)
+```
+
+So:
+
+* B must be kept
+* C and D can be deleted
+
+
+### Step 5: Cleanup result
+
+After cleanup:
+
+```text
+R3: B
+```
+
+Memory reclaimed safely.
+
+
+## Now let's place this into the FULL G1 FLOW
+
+### Young GC (baseline behavior)
+
+Trigger:
+
+```text
+Eden regions fill up
+```
+
+Action:
+
+* Stop the world (short)
+* Collect Young regions only
+* Promote survivors to Old regions
+
+This is equivalent to Minor GC.
+
+
+### When Old Gen pressure appears
+
+Symptoms:
+
+* Promotions increase
+* Old regions accumulate
+* JVM detects rising Old Gen usage
+
+Young GC does not stop.
+
+Instead, JVM does additional work:
+
+* Clean selected Old regions (garbage-heavy ones)
+* Use remembered sets to do this safely
+
+This combined operation is called **Mixed GC**. 
+
+```text
+Mixed GC = Young GC + selected Old Gen cleanup
+```
+
+## Full escalation chain (memorize this)
+
+```text
+Eden fills
+→ Young GC
+
+Old Gen pressure
+→ Mixed GC (Young GC + selected Old)
+
+Mixed GC succeeds
+→ continue
+
+Mixed GC fails repeatedly
+→ Full GC (last resort)
+
+Full GC fails
+→ OutOfMemoryError
+```
+
+## When does G1 move to Full GC?
+
+> Only when repeated Mixed GCs fail to reclaim enough Old Gen space.
+
+Common reasons:
+
+* Almost all objects are alive
+* Heavy static references
+* Memory leak
+* Extreme fragmentation
+
+
+## Why classic collectors were slower
+
+Serial / Parallel GC:
+
+* Old Gen = one large block
+* No regions
+* No remembered sets
+
+So:
+> "To clean Old Gen, scan all of it."
+
+Result:
+
+* Long pauses
+* Poor latency
+
+
+## Final interview-ready summary (perfect answer)
+
+> G1 divides the heap into regions, marks live objects starting from GC roots, computes garbage per region, and 
+> performs Mixed GCs—Young GC plus selected garbage-heavy Old regions—using remembered sets for safety, escalating
+> to Full GC only if Mixed GCs cannot reclaim enough space.
+> 
