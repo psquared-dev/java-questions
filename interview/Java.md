@@ -4,7 +4,7 @@
 * [Q-3 - What are different types of classloaders?](#q-3---what-are-different-types-of-classloaders)
 * [Q-4 - What are the diff memory area allocated by JVM?](#q-4---what-are-the-diff-memory-area-allocated-by-jvm)
 * [Q-5 - Is the following program correct?](#q-5---is-the-following-program-correct)
-* [Q-6 - What are default value stored in local variables?](#q-6---what-are-default-value-stored-in-local-variables)
+* [Q-6 - Do local variables in Java have default values?](#q-6---do-local-variables-in-java-have-default-values)
 * [Q-7 - What is association, aggregation and composition?](#q-7---what-is-association-aggregation-and-composition)
   * [Association](#association)
   * [Two forms of association](#two-forms-of-association)
