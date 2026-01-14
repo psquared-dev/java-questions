@@ -414,9 +414,11 @@ Ans: Yes. Notice that `public` and `static` keywords can be in any order.
 
 -----------------------------
 
-# Q-6 - What are default value stored in local variables?
+# Q-6 - Do local variables in Java have default values?
 
-Ans: There is no concept of default value for local variables.
+Ans: Local variables **do not have a default value**. Unlike instance variables (fields), they are not 
+automatically initialized. You must explicitly initialize them before use; otherwise, you will get 
+a compile-time error.
 
 -----------------------------
 
