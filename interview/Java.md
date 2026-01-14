@@ -41,7 +41,7 @@
 * [Q-20 What are different thread states?](#q-20-what-are-different-thread-states)
 * [Q-21 What is daemon thread?](#q-21-what-is-daemon-thread)
 * [Q-22 Can you run the code before executing main methods?](#q-22-can-you-run-the-code-before-executing-main-methods)
-* [Q-23  How many times the finalize method called?](#q-23--how-many-times-the-finalize-method-called)
+* [Q-23  How many times is the finalize() method called in Java?](#q-23--how-many-times-is-the-finalize-method-called-in-java)
   * [What is finalize()?](#what-is-finalize)
   * [Key Idea 1: finalize() may run OR may not run](#key-idea-1-finalize-may-run-or-may-not-run)
   * [Key Idea 2: finalize() runs ONCE per object](#key-idea-2-finalize-runs-once-per-object)
@@ -1153,7 +1153,7 @@ I am running INSIDE main.
 -----------------------------
 
 
-# Q-23  How many times the finalize method called?
+# Q-23  How many times is the finalize() method called in Java?
 
 ## What is finalize()?
 
