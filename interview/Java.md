@@ -1344,8 +1344,6 @@ for (Field f : fields) {
 
 # Q-26 What is functional interface.
 
-Ans: 
-
 A Functional Interface is an interface that contains **exactly one abstract method**.
 It can have:
 
@@ -1373,8 +1371,6 @@ Functional Interfaces are the foundation of lambda expressions and method refere
 
 # Q-27 Can you tell few functional interface which is already there before java 8?
 
-Ans:
-
 * Runnable
 * Callable
 * Comparator (interviewer might ask about equals() method inside comparator)
@@ -1383,8 +1379,6 @@ Ans:
 
 
 # Q-28 What are all functional interface introduced in java 8?
-
-Ans:
 
 * Function
 * Predicate
@@ -1396,16 +1390,13 @@ Ans:
 
 # Q-29 What is lambda expression?
 
-Ans: Lambda expressions basically express instances of functional interfaces, in other
-word It provides a clear and concise way to represent method of a functional using
-an expression.
+A lambda expression is a compact syntax for implementing the single abstract method 
+of a functional interface.
 
 
 -----------------------------
 
 # Q-30 What is Stream in java 8?
-
-Ans: 
 
 A Stream is a sequence of data elements that supports functional-style operations such as 
 filtering, mapping, and reducing - without modifying the original data source.
