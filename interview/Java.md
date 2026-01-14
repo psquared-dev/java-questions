@@ -17,11 +17,13 @@
     * [3. The Exception Nightmare](#3-the-exception-nightmare)
     * [4. The "Marker Interface" Confusion](#4-the-marker-interface-confusion)
 * [Q-9 - What is marker interface?](#q-9---what-is-marker-interface)
+  * [Resources](#resources)
 * [Q-10 - What object cloning?](#q-10---what-object-cloning)
   * [Why does Cloneable matter?](#why-does-cloneable-matter)
   * [Types of Cloning](#types-of-cloning)
     * [Shallow Clone (default)](#shallow-clone-default)
     * [Deep Clone](#deep-clone)
+  * [Resources](#resources-1)
 * [Q-11 - Why Java is not completely Object-Oriented?](#q-11---why-java-is-not-completely-object-oriented)
 * [Q-12 What are Wrapper classes](#q-12-what-are-wrapper-classes)
 * [Q-13 Define Singleton class](#q-13-define-singleton-class-)
@@ -659,8 +661,9 @@ class Employee implements Cloneable {
 
 Without this badge, `clone()` throws an exception.
 
+## Resources
 
-Video: https://www.youtube.com/watch?v=qeGCxKCWFcQ
+* [Marker Interface in Java (Tutorial) e.g. Serialization, Remote](https://www.youtube.com/watch?v=qeGCxKCWFcQ)
 
 
 -----------------------------
@@ -716,6 +719,8 @@ copy.address = new Address(this.address); // deep copy
 ```
 
 Deep clone must be implemented manually.
+
+## Resources
 
 1. Video 1: https://www.youtube.com/watch?v=b2uFL4BFDYg
 1. Video 2: https://www.youtube.com/watch?v=WIh-TVq4ifI
