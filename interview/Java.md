@@ -286,6 +286,21 @@
   * [Step 8: JVM escalates → Full GC](#step-8-jvm-escalates--full-gc)
   * [Step 8: Why Full GC still fails here](#step-8-why-full-gc-still-fails-here)
   * [One-sentence interview answer](#one-sentence-interview-answer)
+* [Q-123 Explain working of GC Roots?](#q-123-explain-working-of-gc-roots)
+  * [Example 1: Single thread, single object](#example-1-single-thread-single-object)
+    * [What memory looks like while main is running](#what-memory-looks-like-while-main-is-running)
+    * [How GC works here (step by step)](#how-gc-works-here-step-by-step)
+  * [Example 2: Multiple method calls (stack frames)](#example-2-multiple-method-calls-stack-frames)
+    * [GC root traversal](#gc-root-traversal)
+  * [Example 3: When stack root disappears](#example-3-when-stack-root-disappears)
+    * [GC traversal now](#gc-traversal-now)
+  * [Example 4: Static variable (class root)](#example-4-static-variable-class-root)
+    * [GC traversal](#gc-traversal)
+  * [Example 5: Multiple threads](#example-5-multiple-threads)
+    * [GC traversal](#gc-traversal-1)
+  * [Example 6: Following references (walking the graph)](#example-6-following-references-walking-the-graph)
+    * [GC traversal](#gc-traversal-2)
+  * [The single rule GC follows (memorize this)](#the-single-rule-gc-follows-memorize-this)
 <!-- TOC -->
 
 # Q-1 - What is JIT?
@@ -5607,4 +5622,305 @@ So after Full GC:
 > promoted, but the Old Generation does not have sufficient free space, forcing a Full GC.
 > 
 
+
+# Q-123 Explain working of GC Roots?
+
+GC Roots are the starting points from which the Garbage Collector decides what is alive.
+
+If an object is reachable from a GC Root → it is alive. 
+
+If not → it is garbage.
+
+The 3 main GC Roots:
+
+1. All live thread stacks
+2. Class metadata (static fields)
+3. JNI / native references
+
+
+**Goal (what we are showing)**
+
+We want to see:
+
+* Where GC roots come from
+* How GC starts from them
+* How it walks references
+* How it decides what stays and what goes
+
+
+## Example 1: Single thread, single object
+
+Code
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Object o = new Object();
+        // GC could run here
+    }
+}
+```
+
+### What memory looks like while main is running
+
+**Thread stack (main thread)**
+
+```text
+Stack (main thread)
+-------------------
+o  ───► Object@1
+```
+
+**Heap**
+
+```text
+Heap
+----
+Object@1
+```
+
+### How GC works here (step by step)
+
+1. JVM pauses the program
+2. JVM looks at active threads
+3. Finds the main thread
+4. Looks at its stack
+5. Sees variable `o`
+6. Follows `o` to `Object@1`
+7. Marks `Object@1` as alive
+
+That's it.
+
+Nothing else is checked.
+
+---
+
+## Example 2: Multiple method calls (stack frames)
+
+Code
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        foo();
+    }
+
+    static void foo() {
+        bar();
+    }
+
+    static void bar() {
+        Object o = new Object();
+        // GC could run here
+    }
+}
+```
+
+**What the stack looks like**
+
+```text
+Stack (main thread)
+-------------------
+bar()
+  o  ───► Object@1
+foo()
+main()
+```
+
+### GC root traversal
+
+GC does this:
+
+1. JVM pauses program
+2. JVM finds the main thread
+3. JVM walks every stack frame
+   * `bar()` → sees `o`
+   * `foo()` → nothing
+   * `main()` → nothing
+
+4. Follows `o` to `Object@1`
+5. Marks it alive
+
+**Yes — GC goes all the way down the stack**, frame by frame.
+
+---
+
+## Example 3: When stack root disappears
+
+Code
+
+```java
+static void foo() {
+    Object o = new Object();
+}
+
+public static void main(String[] args) {
+    foo();
+    // GC could run here
+}
+```
+
+**After foo() returns**
+
+```text
+Stack (main thread)
+-------------------
+main()
+```
+
+
+**Heap**
+
+```text
+Object@1
+```
+
+### GC traversal now
+
+1. JVM pauses program
+2. JVM scans thread stack
+3. No reference to `Object@1`
+4. No other roots exist
+5. `Object@1` is not reachable
+6. It is garbage
+
+---
+
+
+## Example 4: Static variable (class root)
+
+Code
+
+```java
+class Store {
+    static Object shared;
+}
+
+public class Demo {
+    public static void main(String[] args) {
+        Store.shared = new Object();
+        // GC could run here
+    }
+}
+```
+
+**Memory - Class area (static data)**
+
+```text
+Store.shared ───► Object@2
+```
+
+**Heap**
+
+```text
+Object@2
+```
+
+### GC traversal
+
+1. JVM pauses program
+2. JVM scans thread stacks
+3. JVM scans static variables
+4. Finds `Store.shared`
+5. Follows it to `Object@2`
+6. Marks `Object@2` alive
+
+Even if no thread variable points to it, it stays.
+
+---
+
+
+## Example 5: Multiple threads
+
+Code
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        new Thread(() -> {
+            Object a = new Object();
+            sleep();
+        }).start();
+
+        new Thread(() -> {
+            Object b = new Object();
+            sleep();
+        }).start();
+    }
+}
+```
+
+**Memory**
+
+```text
+Thread-1 stack
+--------------
+a ───► Object@A
+
+Thread-2 stack
+--------------
+b ───► Object@B
+```
+
+### GC traversal
+
+GC does:
+
+1. Pause everything
+2. Scan Thread-1 stack
+    * finds `a` → Object@A
+3. Scan Thread-2 stack
+    * finds `b` → Object@B
+4. Both objects are alive
+
+If a thread ends, its stack disappears, and so do its roots.
+
+---
+
+## Example 6: Following references (walking the graph)
+
+Code
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Object a = new Object();
+        Object b = new Object();
+        a = b;
+        // GC could run here
+    }
+}
+```
+
+**Memory**
+
+```text
+Stack
+-----
+a ───► Object@B
+b ───► Object@B
+
+Heap
+----
+Object@A   (no references)
+Object@B
+```
+
+### GC traversal
+
+1. Start from stack
+2. Follow `a` → Object@B
+3. Follow `b` → Object@B
+4. Object@B is alive
+5. Object@A is unreachable → garbage
+
+GC does not care that Object@A was created first.
+
+## The single rule GC follows (memorize this)
+
+> GC starts from known references and follows pointers.
+Anything it can reach stays.
+Anything it cannot reach goes.
+
+That's all.
 
