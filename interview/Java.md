@@ -1035,7 +1035,7 @@ JDK (Java Development Kit) is a software development environment used to develop
 
 # Q-18 What are access specifiers?
 
-Ans: Access Specifiers are predefined keywords used to help
+Access Specifiers are predefined keywords used to help
 JVM with understanding the scope of a variable, method, and
 a class. We have four access specifiers.
 
@@ -1060,7 +1060,7 @@ a class. We have four access specifiers.
 
 # Q-19 What is Dynamic Method Dispatch?
 
-Ans: The Dynamic method dispatch is a process where the
+The Dynamic method dispatch is a process where the
 method call is executed during the run-time. The overridden
 method is called through a reference variable of super class.
 This process is also known as Run-Time Polymorphism
@@ -1070,7 +1070,7 @@ This process is also known as Run-Time Polymorphism
 
 # Q-20 What are different thread states?
 
-Ans: ![thread states](../images/thread-lifecycle.png)
+![thread states](../images/thread-lifecycle.png)
 
 * when `sleep()` is called it goes to timed waiting
 * when `join()` is called thread goes to waiting state
@@ -1081,7 +1081,7 @@ Ans: ![thread states](../images/thread-lifecycle.png)
 
 # Q-21 What is daemon thread?
 
-Ans: A Daemon Thread is a low-priority thread that runs in the background to provide services 
+A Daemon Thread is a low-priority thread that runs in the background to provide services 
 to other threads (User Threads).
 
 The most important thing to remember is the JVM's exit behavior:
@@ -1111,7 +1111,7 @@ cleanup.start();
 
 # Q-22 Can you run the code before executing main methods?
 
-Ans: Yes, we can execute any code, even before the main
+Yes, we can execute any code, even before the main
 method. We will be using a **static block** of code in the class
 when creating the objects at load time of the class. Any
 statements within this static block of code will get executed
@@ -1154,8 +1154,6 @@ I am running INSIDE main.
 
 
 # Q-23  How many times the finalize method called?
-
-Ans: 
 
 ## What is finalize()?
 
