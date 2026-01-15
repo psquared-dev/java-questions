@@ -2433,7 +2433,7 @@ Execution order (important)
 
 # Q-45 What is the diff b/w objects and references?
 
-1\. Object
+**1. Object**
 
 An object is the actual data stored in memory (on the heap).
 
@@ -2445,7 +2445,7 @@ It contains:
 
 You cannot directly access an object - you access it through a reference.
 
-2\. Reference
+**2. Reference**
 
 A reference is like a pointer or address that "points to" an object in memory.
 
