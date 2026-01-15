@@ -150,6 +150,12 @@
   * [Summary Table (Interview Gold)](#summary-table-interview-gold)
   * [Resources](#resources-7)
 * [Q-54 What are some key points to remember when using virtual threads](#q-54-what-are-some-key-points-to-remember-when-using-virtual-threads)
+  * [1. The Golden Rule: Throughput, Not Latency](#1-the-golden-rule-throughput-not-latency)
+  * [2. CPU-Bound Tasks = No Benefit](#2-cpu-bound-tasks--no-benefit)
+  * [3. The "Pinning" Problem (Critical Interview Topic)](#3-the-pinning-problem-critical-interview-topic)
+  * [4. Do NOT Pool Virtual Threads](#4-do-not-pool-virtual-threads)
+  * [5. ThreadLocal Explosion](#5-threadlocal-explosion)
+  * [Resources](#resources-8)
 * [Q-55 Explain the evolution of concurrency API in Java](#q-55-explain-the-evolution-of-concurrency-api-in-java)
 * [Q-56 What is CopyOnWriteArrayList and Why is it named CopyOnWriteArrayList, why don't they use something like Collections.synchronizedList()?](#q-56-what-is-copyonwritearraylist-and-why-is-it-named-copyonwritearraylist-why-dont-they-use-something-like-collectionssynchronizedlist)
   * [CopyOnWriteArrayList](#copyonwritearraylist)
@@ -322,7 +328,7 @@
   * [3. Old Generation (Tenured)](#3-old-generation-tenured)
   * [4. Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
   * [5. End-to-End Example Flow](#5-end-to-end-example-flow)
-  * [Resources](#resources-8)
+  * [Resources](#resources-9)
 * [Q-119 Explain Minor GC vs Major GC vs Full GC](#q-119-explain-minor-gc-vs-major-gc-vs-full-gc)
   * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
     * [When does Minor GC happen?](#when-does-minor-gc-happen)
@@ -2901,12 +2907,63 @@ t.join();
 
 # Q-54 What are some key points to remember when using virtual threads
 
-* Virtual thread provide no direct benefit if task is CPU bound. 
-* Virtual Threads and Latency
-* Virtual Threads provide NO benefit
-* The only performance benefit to Virtual Thread s is throughput
+**Key Points:**
 
-Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
+## 1. The Golden Rule: Throughput, Not Latency
+
+* **Throughput (YES):** Virtual Threads allow you to handle **Millions** of concurrent connections 
+  instead of thousands. This massively increases system throughput (requests per second).
+
+* **Latency (NO):** They do not execute code faster. In fact, a single request might be micro-seconds 
+  slower due to the overhead of mounting/unmounting from the carrier thread.
+
+* **Key Phrase:** "Virtual threads scale concurrency, not speed."
+
+
+## 2. CPU-Bound Tasks = No Benefit
+
+* **Why:** Virtual threads rely on yielding (unmounting) when they hit a blocking I/O 
+  operation (like waiting for a DB query).
+
+* **The Trap:** If you run a heavy calculation (CPU-bound), the virtual thread never yields.
+  It hogs the underlying OS Carrier Thread, blocking other virtual threads from running.
+
+* **Advice:** Stick to Platform Threads for heavy computation (e.g., video processing, encryption).
+
+
+## 3. The "Pinning" Problem (Critical Interview Topic)
+
+This is the most common "gotcha" in Virtual Threads.
+
+* **The Issue:** If you use a synchronized block or a native method, the virtual thread becomes 
+  pinned to the carrier thread. Even if it hits blocking I/O, it cannot unmount.
+
+* **The Fix:** Use `ReentrantLock` instead of `synchronized` where possible in new code, although the 
+  JDK team is working on fixing this limitation.
+
+
+## 4. Do NOT Pool Virtual Threads
+
+* **Old Habit:** With Platform threads, we used `ExecutorService` pools because creating threads was 
+  expensive (2MB memory + OS calls).
+
+* **New Rule:** Virtual threads are cheap (bytes of memory + no OS call). Create a new one for every task.
+
+* **Code:** Use `Executors.newVirtualThreadPerTaskExecutor()`, never `newFixedThreadPool()`.
+
+## 5. ThreadLocal Explosion
+
+* **The Danger:** In the old world, we had 200 threads, so 200 `ThreadLocal` variables were fine.
+
+* **The New World:** If you have 1 million virtual threads, 1 million `ThreadLocal` instances can 
+  instantly cause an `OutOfMemoryError`.
+
+* **Advice:** Use `ScopedValues` (Preview feature) instead of `ThreadLocal` for passing context.
+
+
+## Resources
+
+* https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
 
 -----------------------------
 
