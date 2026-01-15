@@ -1558,6 +1558,7 @@ BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10);
 * Systems where memory usage must be capped
 * Rate-limited pipelines
 
+---
 
 ### LinkedBlockingQueue
 
@@ -1585,6 +1586,7 @@ To allow higher concurrency between producers and consumers.
 * Task queues
 * Default queue used in many thread-pool configurations
 
+---
 
 ### PriorityBlockingQueue
 
@@ -1613,6 +1615,7 @@ BlockingQueue<Task> queue = new PriorityBlockingQueue<>();
 * Job prioritization systems
 * Event processing where priority matters
 
+---
 
 ### DelayQueue
 
@@ -1641,6 +1644,7 @@ DelayQueue<DelayedTask> queue = new DelayQueue<>();
 * Cache expiration
 * Scheduled task execution
 
+---
 
 ### SynchronousQueue
 
