@@ -98,7 +98,12 @@
   * [Diff b/w Abstraction and Encapsulation](#diff-bw-abstraction-and-encapsulation)
 * [Q-40 How many methods are there compare strings in Java?](#q-40-how-many-methods-are-there-compare-strings-in-java)
 * [Q-41 What are the motivations for ExecutorService?](#q-41-what-are-the-motivations-for-executorservice)
-* [Q-42 When ExecutorService was introduced in java?](#q-42-when-executorservice-was-introduced-in-java)
+* [Q-42 — How do you properly shut down an ExecutorService?](#q-42--how-do-you-properly-shut-down-an-executorservice)
+  * [Why shutdown is required](#why-shutdown-is-required)
+  * [shutdown() — Graceful shutdown](#shutdown--graceful-shutdown)
+  * [shutdownNow() — Immediate shutdown](#shutdownnow--immediate-shutdown)
+  * [awaitTermination() — Wait for shutdown to complete](#awaittermination--wait-for-shutdown-to-complete)
+  * [Proper shutdown pattern (INTERVIEW GOLD)](#proper-shutdown-pattern-interview-gold)
 * [Q-43 What's the diff b/w process and threads?](#q-43-whats-the-diff-bw-process-and-threads)
 * [Q-44 Is it true that main thread doesn't terminate until the child threads are done?](#q-44-is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
 * [Q-45 What is the diff b/w objects and references?](#q-45-what-is-the-diff-bw-objects-and-references)
@@ -2084,16 +2089,143 @@ There are 5 main ways to compare Strings, depending on your goal:
 
 # Q-41 What are the motivations for ExecutorService?
 
-1. Hight level API
-1. Thread creation is resource intensive
-1. Return result
+The `ExecutorService` framework was introduced (in Java 5) to solve three major problems 
+with manual `new Thread()` management:
+
+1. **Resource Management (Pooling):**
+    * **Problem:** Creating a new Thread (new Thread()) is expensive. It requires OS resources 
+    and memory stack allocation. Creating 1,000 threads for 1,000 short tasks will crash the JVM.
+     
+    * **Solution:** `ExecutorService` uses a Thread Pool. It creates a fixed number of 
+    threads (e.g., 10) and reuses them for millions of tasks, saving memory and CPU time
+
+
+2. **Abstraction (High-Level API):**
+    * **Problem:** With raw threads, you have to manually code the queuing logic, 
+    error handling, and lifecycle management (waiting for them to finish).
+   
+    * **Solution:** ExecutorService decouples "Submission" from "Execution." You just 
+    say `executor.submit(task)`, and it handles the queuing, scheduling, and load balancing automatically.
+
+
+3. **Returning Results (Futures):**
+    * **Problem:** Standard Runnable threads cannot return a value. They have 
+    a void `run()` method. To get data out, you had to write complex shared-variable hacks.
+   
+    * **Solution:** ExecutorService supports `Callable` tasks, which return a `Future` object. 
+    This allows you to easily retrieve the result (or exception) of an asynchronous computation
+    once it finishes.
 
 
 -----------------------------
 
-# Q-42 When ExecutorService was introduced in java?
+# Q-42 — How do you properly shut down an ExecutorService?
 
-Java 5
+## Why shutdown is required
+
+An `ExecutorService` manages non-daemon threads. 
+
+If you do not shut it down:
+
+* JVM will not exit
+* Threads keep running or waiting
+* Resources leak (memory, threads)
+
+So shutdown is **mandatory** in production code.
+
+## shutdown() — Graceful shutdown
+
+**What it does:**
+
+* Stops accepting new tasks
+* Allows already submitted tasks to finish
+* Does not interrupt running threads
+
+```java
+executor.shutdown();
+```
+
+**ELI5**
+
+> "Finish your current work, but don't take new work."
+
+**When to use**
+
+* Normal application shutdown
+* When task completion is important
+
+
+## shutdownNow() — Immediate shutdown
+
+**What it does**
+
+* Attempts to stop everything immediately
+* Interrupts running threads
+* Returns a list of tasks that never started
+
+```java
+List<Runnable> pending = executor.shutdownNow();
+```
+
+**Important detail**
+
+* Interrupt is a request, not a guarantee
+* Tasks must handle interruption properly
+
+**ELI5**
+> "Drop what you’re doing and stop now."
+
+**When to use**
+
+* Emergency shutdown
+* Application failure scenarios
+
+
+## awaitTermination() — Wait for shutdown to complete
+
+**What it does**
+
+* Blocks the calling thread
+* Waits until:
+    * All tasks finish
+    * Timeout expires
+    * Thread is interrupted
+
+```java
+executor.awaitTermination(10, TimeUnit.SECONDS);
+```
+
+**Return value**
+
+* `true` → executor terminated
+* `false` → timeout occurred
+
+
+**ELI5**
+
+>"Wait until everyone is done or time runs out."
+
+
+## Proper shutdown pattern (INTERVIEW GOLD)
+
+```java
+executor.shutdown(); // graceful
+
+try {
+    if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+        executor.shutdownNow(); // force
+    }
+} catch (InterruptedException e) {
+    executor.shutdownNow();
+    Thread.currentThread().interrupt();
+}
+```
+
+**Why this is correct**
+
+* Tries graceful shutdown first
+* Escalates only if needed
+* Handles interruption correctly
 
 -----------------------------
 
