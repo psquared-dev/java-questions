@@ -139,6 +139,16 @@
 * [Q-52 Explain synchronization problem](#q-52-explain-synchronization-problem)
   * [Resources](#resources-6)
 * [Q-53 Explain different ways of inter-thread communication](#q-53-explain-different-ways-of-inter-thread-communication)
+  * [1. wait(), notify(), notifyAll() (Intrinsic Locks)](#1-wait-notify-notifyall-intrinsic-locks)
+  * [2. volatile Variables (Visibility-Based Communication)](#2-volatile-variables-visibility-based-communication)
+  * [3. Lock and Condition (java.util.concurrent.locks)](#3-lock-and-condition-javautilconcurrentlocks)
+  * [4. Blocking Queues (`BlockingQueue`)](#4-blocking-queues-blockingqueue)
+  * [5. Semaphores](#5-semaphores)
+  * [6. Latches and Barriers](#6-latches-and-barriers)
+  * [7. Atomic Variables](#7-atomic-variables)
+  * [8. Thread.join()](#8-threadjoin)
+  * [Summary Table (Interview Gold)](#summary-table-interview-gold)
+  * [Resources](#resources-7)
 * [Q-54 What are some key points to remember when using virtual threads](#q-54-what-are-some-key-points-to-remember-when-using-virtual-threads)
 * [Q-55 Explain the evolution of concurrency API in Java](#q-55-explain-the-evolution-of-concurrency-api-in-java)
 * [Q-56 What is CopyOnWriteArrayList and Why is it named CopyOnWriteArrayList, why don't they use something like Collections.synchronizedList()?](#q-56-what-is-copyonwritearraylist-and-why-is-it-named-copyonwritearraylist-why-dont-they-use-something-like-collectionssynchronizedlist)
@@ -312,7 +322,7 @@
   * [3. Old Generation (Tenured)](#3-old-generation-tenured)
   * [4. Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
   * [5. End-to-End Example Flow](#5-end-to-end-example-flow)
-  * [Resources](#resources-7)
+  * [Resources](#resources-8)
 * [Q-119 Explain Minor GC vs Major GC vs Full GC](#q-119-explain-minor-gc-vs-major-gc-vs-full-gc)
   * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
     * [When does Minor GC happen?](#when-does-minor-gc-happen)
@@ -2713,7 +2723,179 @@ integrity and correctness are preserved.
 
 # Q-53 Explain different ways of inter-thread communication
 
-Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
+Inter-thread communication refers to mechanisms that allow threads to coordinate execution, share data 
+safely, and signal events without busy-waiting or race conditions.
+
+Below are the primary, interview-relevant mechanisms in Java, grouped by abstraction level.
+
+## 1. wait(), notify(), notifyAll() (Intrinsic Locks)
+
+These methods enable threads to communicate via object monitors.
+
+**How it works**
+
+* A thread calls `wait()` to release the monitor and suspend execution.
+* Another thread calls `notify()` / `notifyAll()` to wake waiting threads.
+* Must be used **inside a synchronized block/method**.
+
+**Typical Use Case**
+
+Producer–Consumer coordination.
+
+```java
+synchronized (lock) {
+    while (!condition) {
+        lock.wait();
+    }
+    // proceed
+}
+```
+
+Pros:
+* Low-level, powerful
+
+Cons:
+* Error-prone (missed signals, spurious wakeups)
+
+
+## 2. volatile Variables (Visibility-Based Communication)
+
+Used when one thread needs to **signal state changes** to others.
+
+**How it works**
+
+* Guarantees **visibility and ordering**
+* Does not provide mutual exclusion
+
+```java
+volatile boolean stopped = false;
+```
+
+**Use Case**
+* Simple flags (stop signals, readiness indicators)
+
+
+## 3. Lock and Condition (java.util.concurrent.locks)
+
+A more flexible alternative to `synchronized` + `wait/notify`.
+
+**How it works**
+
+* `Condition.await()` ≈ `wait()`
+* `Condition.signal()` / `signalAll()` ≈ `notify()`
+
+```java
+lock.lock();
+try {
+    condition.await();
+} finally {
+    lock.unlock();
+}
+```
+
+**Advantages:**
+
+* Multiple conditions per lock
+* Better control and readability
+
+
+## 4. Blocking Queues (`BlockingQueue`)
+
+High-level, built-in inter-thread communication.
+
+**How it works**
+
+* `put()` blocks if full
+* `take()` blocks if empty
+
+```java
+BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10);
+```
+
+**Best for**
+
+* Producer–Consumer patterns
+* Eliminates manual synchronization
+
+
+## 5. Semaphores
+
+Used to **control access to a limited number of resources**.
+
+**How it works**
+
+* `acquire()` blocks if permits unavailable
+* `release()` signals availability
+
+
+```java
+Semaphore semaphore = new Semaphore(3);
+```
+
+**Use Case**
+
+* Connection pools
+* Rate limiting
+
+
+## 6. Latches and Barriers
+
+**CountDownLatch**
+
+* One-time synchronization point
+* Threads wait until count reaches zero
+
+**CyclicBarrier**
+
+* Reusable barrier
+* All threads wait until everyone arrives
+
+
+## 7. Atomic Variables
+
+Used for **lock-free communication** using CAS (Compare-And-Swap).
+
+```java
+AtomicInteger counter = new AtomicInteger();
+counter.incrementAndGet();
+```
+
+**Use Case**
+
+* Counters, sequence numbers
+* Non-blocking coordination
+
+
+## 8. Thread.join()
+
+Allows one thread to **wait for another thread to complete**.
+
+```java
+t.join();
+```
+
+**Use Case**
+
+* Dependency sequencing
+
+## Summary Table (Interview Gold)
+
+| Mechanism          | Communication Style   | Blocking | Level  |
+|--------------------|-----------------------|----------|--------|
+| `wait/notify`      | Condition signaling   | Yes      | Low    |
+| `volatile`         | Visibility signaling  | No       | Low    |
+| `Lock + Condition` | Advanced signaling    | Yes      | Medium |
+| `BlockingQueue`    | Data passing          | Yes      | High   |
+| `Semaphore`        | Resource permits      | Yes      | Medium |
+| `CountDownLatch`   | One-time coordination | Yes      | High   |
+| `CyclicBarrier`    | Group synchronization | Yes      | High   |
+| Atomic variables   | Lock-free signaling   | No       | Medium |
+| `join()`           | Completion dependency | Yes      | Low    |
+
+
+## Resources
+
+* https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
 
 -----------------------------
 
