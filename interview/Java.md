@@ -117,12 +117,17 @@
     * [3. Minimal metadata](#3-minimal-metadata)
     * [4. Fast communication](#4-fast-communication)
   * [Interview-perfect closing line (memorize)](#interview-perfect-closing-line-memorize)
+  * [Resources:](#resources-2)
 * [Q-44 Is it true that main thread doesn't terminate until the child threads are done?](#q-44-is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
 * [Q-45 What is the diff b/w objects and references?](#q-45-what-is-the-diff-bw-objects-and-references)
-* [Q-46 Explain stack and heap memory regions in the context of threads?](#q-46-explain-stack-and-heap-memory-regions-in-the-context-of-threads)
-  * [What is allocated on the Heap?](#what-is-allocated-on-the-heap)
-  * [Heap Memory Management](#heap-memory-management)
   * [Objects vs References](#objects-vs-references)
+* [Q-46 Explain stack and heap memory regions in the context of threads?](#q-46-explain-stack-and-heap-memory-regions-in-the-context-of-threads)
+  * [1. Stack Memory (Thread-specific)](#1-stack-memory-thread-specific)
+  * [2. Heap Memory (Shared across threads)](#2-heap-memory-shared-across-threads)
+  * [3. Metaspace (not in heap)](#3-metaspace-not-in-heap)
+  * [Key clarification (interview-critical)](#key-clarification-interview-critical)
+  * [4. Why this matters for threads](#4-why-this-matters-for-threads)
+  * [Interview-perfect closing line (memorize)](#interview-perfect-closing-line-memorize-1)
 * [Q-47 What is latency and throughput?](#q-47-what-is-latency-and-throughput)
 * [Q-48 What is an atomic operation?](#q-48-what-is-an-atomic-operation)
 * [Q-49 Mention some atomic operations?](#q-49-mention-some-atomic-operations)
@@ -303,7 +308,7 @@
   * [3. Old Generation (Tenured)](#3-old-generation-tenured)
   * [4. Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
   * [5. End-to-End Example Flow](#5-end-to-end-example-flow)
-  * [Resources](#resources-2)
+  * [Resources](#resources-3)
 * [Q-119 Explain Minor GC vs Major GC vs Full GC](#q-119-explain-minor-gc-vs-major-gc-vs-full-gc)
   * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
     * [When does Minor GC happen?](#when-does-minor-gc-happen)
@@ -2466,23 +2471,6 @@ Here:
 * `e1` → a reference pointing to that object
 * `e2` → another reference pointing to the same object
 
------------------------------
-
-# Q-46 Explain stack and heap memory regions in the context of threads?
-
-## What is allocated on the Heap?
-* Objects (anything created with the new operator)
-    1. String
-    1. Object
-    1. Collection
-* Members of classes
-    1. Static variables
-
-## Heap Memory Management
-
-* Governed and managed by Garbage Collector
-* Objects - stay as long as we have a reference to them.
-* Members of classes - exist as long as their parent objects exist (same life cycle as their parents)    
 
 ## Objects vs References
 
@@ -2495,6 +2483,139 @@ References != Objects
 ![alt text](../images/memory-regions-summary.png)
 
 Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199598#notes
+
+-----------------------------
+
+# Q-46 Explain stack and heap memory regions in the context of threads?
+
+## 1. Stack Memory (Thread-specific)
+
+The stack stores the execution state of a thread.
+
+**Ownership**
+
+* One stack per thread
+* Not shared
+* Exists inside the process address space
+
+**What is allocated on the stack?**
+
+* Method call frames
+* Local variables (primitives)
+* References to objects (not the objects themselves)
+
+```java
+void foo() {
+    int x = 10;          // stack
+    User u = new User(); // reference on stack
+}
+```
+
+* `x` → stack
+* `u` (reference) → stack
+* `new User()` → heap
+
+**Why stack is thread-safe**
+
+Each thread has its own stack, so local variables are isolated by default.
+
+
+## 2. Heap Memory (Shared across threads)
+
+The heap stores objects and shared data that can be accessed by multiple threads.
+
+**Ownership**
+
+* Shared by all threads in a process
+* Managed by the Garbage Collector
+
+**What is allocated on the heap?**
+
+**Objects:** Anything created with `new`:
+
+```java
+new Object();
+new String("abc");
+new ArrayList<>();
+```
+
+**Instance variables:** Instance variables live inside objects, and objects live on the heap:
+
+```java
+class User {
+    int age; // heap (inside object)
+}
+```
+
+**Static variables**
+
+```java
+class Counter {
+    static int count = 0;
+}
+```
+
+* The value of `count` → heap
+* Shared across all threads
+* Needs synchronization if mutable
+
+
+## 3. Metaspace (not in heap)
+
+**What is Metaspace?**
+
+Metaspace stores class metadata, not variable values.
+
+What goes into Metaspace?
+
+* Class structure
+* Method bytecode
+* Field names and types
+* Constant pool
+* Annotations
+
+Example:
+
+```java
+class A {
+    static int x;
+    int y;
+}
+```
+
+* Metaspace:
+`Class A` has a static field `x` and an instance field `y`
+
+* Heap:
+Actual value of `x` and objects containing `y`
+
+
+## Key clarification (interview-critical)
+
+* ❌ Static variables are NOT stored in Metaspace
+* ✅ Static variable values are stored on the heap
+* ✅ Only metadata is in Metaspace
+
+
+## 4. Why this matters for threads
+
+* Stack → isolated → safe
+* Heap → shared → needs synchronization
+* Metaspace → read-mostly → safe
+
+This explains:
+
+* Why local variables don't need locks
+* Why shared objects do
+* Why static fields cause race conditions
+
+
+## Interview-perfect closing line (memorize)
+
+In a multithreaded application, each thread has its own stack for execution state, all threads 
+share the heap where objects and static variable values reside, and class metadata is stored 
+separately in Metaspace.
+
 
 -----------------------------
 
