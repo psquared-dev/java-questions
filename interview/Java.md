@@ -130,10 +130,14 @@
   * [Interview-perfect closing line (memorize)](#interview-perfect-closing-line-memorize-1)
 * [Q-47 What is latency and throughput?](#q-47-what-is-latency-and-throughput)
 * [Q-48 What is an atomic operation?](#q-48-what-is-an-atomic-operation)
-* [Q-49 Mention some atomic operations?](#q-49-mention-some-atomic-operations)
+* [Q-49 Which read and write operations are atomic in Java?](#q-49-which-read-and-write-operations-are-atomic-in-java)
+  * [Resources](#resources-3)
 * [Q-50 What is deadlock?](#q-50-what-is-deadlock)
+  * [Resources:](#resources-4)
 * [Q-51 Explain synchronized keyword](#q-51-explain-synchronized-keyword)
+  * [Resources](#resources-5)
 * [Q-52 Explain synchronization problem](#q-52-explain-synchronization-problem)
+  * [Resources](#resources-6)
 * [Q-53 Explain different ways of inter-thread communication](#q-53-explain-different-ways-of-inter-thread-communication)
 * [Q-54 What are some key points to remember when using virtual threads](#q-54-what-are-some-key-points-to-remember-when-using-virtual-threads)
 * [Q-55 Explain the evolution of concurrency API in Java](#q-55-explain-the-evolution-of-concurrency-api-in-java)
@@ -308,7 +312,7 @@
   * [3. Old Generation (Tenured)](#3-old-generation-tenured)
   * [4. Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
   * [5. End-to-End Example Flow](#5-end-to-end-example-flow)
-  * [Resources](#resources-3)
+  * [Resources](#resources-7)
 * [Q-119 Explain Minor GC vs Major GC vs Full GC](#q-119-explain-minor-gc-vs-major-gc-vs-full-gc)
   * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
     * [When does Minor GC happen?](#when-does-minor-gc-happen)
@@ -2621,41 +2625,89 @@ separately in Metaspace.
 
 # Q-47 What is latency and throughput?
 
-* Latency - The time to completion of a task. Measured in time units
-* Throughput - The amount of tasks completed in a given period. Measured in tasks/time unit
+* Latency - Latency is the time taken to complete a single request or task.
+* Throughput - Throughput is the number of tasks completed in a given time period.
 
 -----------------------------
 
 # Q-48 What is an atomic operation?
 
-An operation or a set of operations is considered atomic, if it appears to the rest of the system as if it 
-occurred at once.
+Atomic means "all or nothing".
+
+An atomic operation is something that:
+
+* Cannot be broken in the middle
+* Cannot be seen half-done by others
+
+To everyone else, it looks like it **happened in one single step**.
 
 -----------------------------
 
-# Q-49 Mention some atomic operations?
+# Q-49 Which read and write operations are atomic in Java?
 
-* Assignments to primitive types (excluding double and long)
-* Assignments to references
-* Assignments to double and long using volatile keyword
+Atomic Read/Write Operations
+
+1. Reads and writes of all primitive types except `long` and `double`
+    * `int`, `boolean`, `char`, `byte`, `short`, `float`
+    * Atomic for both read and write
+
+2. Reads and writes of `long` and `double` declared as `volatile`
+    * Guarantees atomicity plus visibility
+
+3. Reads and writes of object references
+    * Assignment and access to references are atomic
+
+4. Reads and writes of volatile variables (any type)
+    * Atomic read/write with visibility and ordering guarantees
+
+5. Reads and writes via classes in `java.util.concurrent.atomic`
+    * Examples: `AtomicInteger.get()`, `AtomicInteger.set()`, `AtomicReference.get()`
+
+6. Monitor enter and exit (`synchronized`)
+    * Lock acquisition and release are atomic operations
+
+
+## Resources
+
+* https://www.oreilly.com/library/view/the-java-r-language/9780133260335/ch17lev1sec7.html
 
 -----------------------------
 
 # Q-50 What is deadlock?
 
-Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/quiz/4476614#notes
+Deadlock is a situation where two or more threads are stuck forever, because each 
+one is waiting for the other to release something.
+
+
+## Resources:
+
+* https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/quiz/4476614#notes
 
 -----------------------------
 
 # Q-51 Explain synchronized keyword
 
-Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11200008#notes
+The `synchronized` keyword provides **Mutual Exclusion and Visibility for critical sections of code**. 
+It ensures that only one thread can execute a protected block of code at a time, preventing race conditions.
+
+## Resources
+
+* https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11200008#notes
 
 -----------------------------
 
 # Q-52 Explain synchronization problem
 
-Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
+The synchronization problem arises in concurrent systems when multiple threads or processes 
+access shared mutable resources without proper coordination, leading to incorrect, inconsistent, 
+or unpredictable results.
+
+In essence, it is the problem of controlling concurrent access to shared data so that data 
+integrity and correctness are preserved.
+
+## Resources
+
+* https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
 
 -----------------------------
 
