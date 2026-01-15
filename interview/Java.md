@@ -160,7 +160,7 @@
 * [Q-56 What is CopyOnWriteArrayList and Why is it named CopyOnWriteArrayList, why don't they use something like Collections.synchronizedList()?](#q-56-what-is-copyonwritearraylist-and-why-is-it-named-copyonwritearraylist-why-dont-they-use-something-like-collectionssynchronizedlist)
   * [CopyOnWriteArrayList](#copyonwritearraylist)
   * [Collections.synchronizedList](#collectionssynchronizedlist)
-* [Q-57 How many threads gets initiated when you start a basic java program?](#q-57-how-many-threads-gets-initiated-when-you-start-a-basic-java-program)
+* [Q-57 Which threads are guaranteed to be created when a Java program starts?](#q-57-which-threads-are-guaranteed-to-be-created-when-a-java-program-starts)
 * [Q-58 What is the diff b/w JDK and JRE?](#q-58-what-is-the-diff-bw-jdk-and-jre)
 * [Q-59 Will the following code compile?](#q-59-will-the-following-code-compile)
 * [Q-60 Do `doubles` and `float` type overflow?](#q-60-do-doubles-and-float-type-overflow)
@@ -3035,9 +3035,32 @@ synchronized (syncList) {
 
 -----------------------------
 
-# Q-57 How many threads gets initiated when you start a basic java program?
+# Q-57 Which threads are guaranteed to be created when a Java program starts?
 
-2 threads. Main and garbage collector (which is a daemon thread).
+The only thread that is guaranteed to be created when a Java program starts is the `main` thread.
+
+**Explanation (Interview-Safe)**
+
+* The JVM must create the main (non-daemon) thread to invoke:
+    ```java
+    public static void main(String[] args)
+    ```
+* **This is the only thread mandated by the Java Language Specification**.
+
+**All other threads—such as:**
+
+* Garbage Collector threads
+* JIT compiler threads
+* Signal dispatcher
+* Reference handler / finalizer threads
+
+are **JVM implementation–dependent**:
+
+* They may exist
+* They may be multiple
+* They may start lazily or dynamically
+
+Therefore, they are **not guaranteed**.
 
 -----------------------------
 
