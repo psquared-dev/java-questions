@@ -99,7 +99,7 @@
 * [Q-40 How many methods are there compare strings in Java?](#q-40-how-many-methods-are-there-compare-strings-in-java)
 * [Q-41 What are the motivations for ExecutorService?](#q-41-what-are-the-motivations-for-executorservice)
 * [Q-42 When ExecutorService was introduced in java?](#q-42-when-executorservice-was-introduced-in-java)
-* [Q-43 Whats the diff b\w process and threads?](#q-43-whats-the-diff-bw-process-and-threads)
+* [Q-43 What's the diff b/w process and threads?](#q-43-whats-the-diff-bw-process-and-threads)
 * [Q-44 Is it true that main thread doesn't terminate until the child threads are done?](#q-44-is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
 * [Q-45 What is the diff b/w objects and references?](#q-45-what-is-the-diff-bw-objects-and-references)
 * [Q-46 Explain stack and heap memory regions in the context of threads?](#q-46-explain-stack-and-heap-memory-regions-in-the-context-of-threads)
@@ -286,6 +286,7 @@
   * [3. Old Generation (Tenured)](#3-old-generation-tenured)
   * [4. Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
   * [5. End-to-End Example Flow](#5-end-to-end-example-flow)
+  * [Resources](#resources-2)
 * [Q-119 Explain Minor GC vs Major GC vs Full GC](#q-119-explain-minor-gc-vs-major-gc-vs-full-gc)
   * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
     * [When does Minor GC happen?](#when-does-minor-gc-happen)
@@ -2061,11 +2062,22 @@ This is encapsulation.
 
 # Q-40 How many methods are there compare strings in Java?
 
-1. Using `equals()` method
-1. Using `equalsIgnorecase()` method
-1. Using `compareTo()`
-1. Using `compareTolgnorecase()` method
-1. `Objects.equals()` method
+There are 5 main ways to compare Strings, depending on your goal:
+
+1. `equals()`: Checks if contents are identical (Case-sensitive).
+    * Use case: Authentication (Password check).
+
+2. `equalsIgnoreCase()`: Checks contents ignoring case.
+    * Use case: Search functionality (User types `"java"`, finds `Java`).
+
+3. `compareTo()`: Returns an integer (negative, zero, positive) for sorting (Lexicographical order).
+    * Use case: Sorting a list of names alphabetically.
+
+4. `compareToIgnoreCase()`: Same as compareTo but case-insensitive.
+    * Use case: Sorting names where `"Apple"` and `"apple"` should be treated effectively the same.
+
+5. `Objects.equals(s1, s2)`: Null-safe version of `.equals()`.
+    * Use case: Best practice when you are not sure if `s1` is null. It avoids `NullPointerException`.
 
 
 -----------------------------
@@ -2085,7 +2097,7 @@ Java 5
 
 -----------------------------
 
-# Q-43 Whats the diff b\w process and threads?
+# Q-43 What's the diff b/w process and threads?
 
 ![threads vs process](../images/threads-vs-process.png)
 
@@ -5724,6 +5736,10 @@ public void process() {
 5. After many GCs → `Order` promoted to **Old Gen**
 6. If reference removed → collected in Major GC
 
+
+## Resources
+
+* [Garbage collection in Java, with Animation and discussion of G1 GC](https://www.youtube.com/watch?v=UnaNQgzw4zY)
 
 # Q-119 Explain Minor GC vs Major GC vs Full GC
 
