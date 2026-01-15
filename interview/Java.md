@@ -163,6 +163,11 @@
 * [Q-57 Which threads are guaranteed to be created when a Java program starts?](#q-57-which-threads-are-guaranteed-to-be-created-when-a-java-program-starts)
 * [Q-58 What is the diff b/w JDK and JRE?](#q-58-what-is-the-diff-bw-jdk-and-jre)
 * [Q-59 Will the following code compile?](#q-59-will-the-following-code-compile)
+  * [1. Widening = implicit (safe)](#1-widening--implicit-safe)
+  * [2. Narrowing = explicit cast required (unsafe)](#2-narrowing--explicit-cast-required-unsafe)
+  * [Why `myChar = myByte` is not allowed](#why-mychar--mybyte-is-not-allowed)
+  * [Why `myShort = myChar` is not allowed](#why-myshort--mychar-is-not-allowed)
+  * [Why myChar = myShort is not allowed](#why-mychar--myshort-is-not-allowed)
 * [Q-60 Do `doubles` and `float` type overflow?](#q-60-do-doubles-and-float-type-overflow)
 * [Q-61 What is shadowing?](#q-61-what-is-shadowing)
 * [Q-62 var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q-62-var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
@@ -3081,31 +3086,71 @@ The Hierarchy
 ```java
 byte myByte = 'a';
 char myChar = 'a';
+short myShort;
 
 myChar = myByte;
-
 myShort = myChar;
 myChar = myShort; 
 ```
 
 No.
 
-```java
-byte myByte = 'a';
-char myChar = 'a';
+Here is the general rule:
 
-// The following conversions combine both widening and
-// narrowing primitive conversions:
-// First, the byte is converted to an int via widening primitive
-// conversion (§5.1.2), and then the resulting int is converted to a char by narrowi
-// So... This does not work for variables,
-// compiler does not have enough information to determine if the narrowing is ok.
-myChar = myByte;
-// short and char are the same width but char is unsigned
-// so conversion is not allowed
-myShort = myChar;
-myChar = myShort; 
-```
+> Java allows implicit conversions only when the conversion is a widening primitive conversion 
+> that cannot lose information or change the sign. All narrowing conversions require an 
+> explicit cast, except when assigning a compile-time constant that fits in the target type.
+>
+
+## 1. Widening = implicit (safe)
+
+* Target type can represent all possible values of the source type
+* Sign is preserved
+* No overflow possible
+
+## 2. Narrowing = explicit cast required (unsafe)
+
+* Target type cannot represent all values
+* Sign may change
+* Overflow or truncation possible
+
+---
+
+## Why `myChar = myByte` is not allowed
+
+> Because byte → char is not a widening primitive conversion.
+>
+
+**Reason:**
+
+* `byte` is signed (`-128 to 127`)
+* `char` is unsigned (`0 to 65535`)
+* Some `byte` values (negative ones) cannot be represented by `char`
+
+
+## Why `myShort = myChar` is not allowed
+
+> Because char → short is not a widening primitive conversion.
+> 
+>
+
+**Reason:**
+
+* `char` is unsigned (`0 to 65535`)
+* `short` is signed (`-32768 to 32767`)
+* Many valid `char` values cannot fit into `short`
+
+
+## Why `myChar = myShort` is not allowed
+
+> Because short → char is not a widening primitive conversion.
+>
+
+**Reason:**
+
+* `short` is signed (`-32768 to 32767`)
+* `char` is unsigned (`0 to 65535`)
+* Negative `short` values cannot be represented by `char`
 
 -----------------------------
 
