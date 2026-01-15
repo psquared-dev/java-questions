@@ -2370,6 +2370,8 @@ Much less OS work.
 Threads are lightweight because they share the process's memory and resources, requiring only a stack, 
 registers, and a Thread Control Block, making creation and context switching much cheaper than processes.
 
+---
+
 ![threads vs process](../images/threads-vs-process.png)
 
 ## Resources:
