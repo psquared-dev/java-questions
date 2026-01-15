@@ -61,6 +61,19 @@
 * [Q-32 Collection framework hierarchy](#q-32-collection-framework-hierarchy)
 * [Q-33 Diff b/w Hashtable and HashMap](#q-33-diff-bw-hashtable-and-hashmap)
 * [Q-34 What is blocking Queue](#q-34-what-is-blocking-queue)
+  * [Why was BlockingQueue introduced?](#why-was-blockingqueue-introduced)
+  * [How BlockingQueue solves the problem](#how-blockingqueue-solves-the-problem)
+  * [Core BlockingQueue methods (important)](#core-blockingqueue-methods-important)
+    * [put() — blocking insert](#put--blocking-insert)
+    * [take() — blocking retrieval](#take--blocking-retrieval)
+    * [offer() — non-blocking insert](#offer--non-blocking-insert)
+    * [poll() — non-blocking retrieval](#poll--non-blocking-retrieval)
+  * [Types of BlockingQueue](#types-of-blockingqueue)
+    * [ArrayBlockingQueue](#arrayblockingqueue)
+    * [LinkedBlockingQueue](#linkedblockingqueue)
+    * [PriorityBlockingQueue](#priorityblockingqueue)
+    * [DelayQueue](#delayqueue)
+    * [SynchronousQueue](#synchronousqueue)
 * [Q-35 What are some use cases of reflection](#q-35-what-are-some-use-cases-of-reflection)
 * [Q-36 When would you use parallelStream()](#q-36-when-would-you-use-parallelstream)
 * [Q-37 Explain executor service and types of it.](#q-37-explain-executor-service-and-types-of-it)
@@ -120,11 +133,11 @@
   * [Unchecked Exceptions (Runtime)](#unchecked-exceptions-runtime)
 * [Q-75 Explain collection framework hierarchy?](#q-75-explain-collection-framework-hierarchy)
 * [Q-76 What is BlockingQueue?](#q-76-what-is-blockingqueue)
-  * [ArrayBlockingQueue](#arrayblockingqueue)
-  * [LinkedBlockingQueue](#linkedblockingqueue)
-  * [PriorityBlockingQueue](#priorityblockingqueue)
-  * [DelayQueue](#delayqueue)
-  * [SynchronousQueue](#synchronousqueue)
+  * [ArrayBlockingQueue](#arrayblockingqueue-1)
+  * [LinkedBlockingQueue](#linkedblockingqueue-1)
+  * [PriorityBlockingQueue](#priorityblockingqueue-1)
+  * [DelayQueue](#delayqueue-1)
+  * [SynchronousQueue](#synchronousqueue-1)
 * [Q-77 What is Exception chaining?](#q-77-what-is-exception-chaining)
   * [Why is Exception Chaining needed?](#why-is-exception-chaining-needed)
   * [Real-World Example (ELI5)](#real-world-example-eli5)
@@ -1409,7 +1422,7 @@ Streams are not collections. They do NOT store data - they process data.
 
 # Q-31 What is diff b/w Vector and ArrayList?
 
-Ans: `Vector` is thread-safe but `ArrayList` is not.
+`Vector` is thread-safe but `ArrayList` is not.
 
 
 -----------------------------
@@ -1417,16 +1430,12 @@ Ans: `Vector` is thread-safe but `ArrayList` is not.
 
 # Q-32 Collection framework hierarchy
 
-Ans:
-
 ![collection-framework](/images/collection-framework.webp)
 
 
 -----------------------------
 
 # Q-33 Diff b/w Hashtable and HashMap
-
-Ans: 
 
 * `Hashtable` is thread-safe but `HashMap` is not.
 * `HashMap` allows key with `null` value but `Hashtable` doesn't.
@@ -1439,10 +1448,236 @@ uses segment locking/CAS instead of locking the entire object).
 
 # Q-34 What is blocking Queue
 
-Ans: A Queue that additionally supports operations that wait for
-the queue to become non-empty when retrieving an
-element, and wait for space to become available in the queue when
-storing an element.
+A `BlockingQueue` is a thread-safe queue that automatically coordinates producer and consumer threads
+by handling waiting and notification when the queue is empty or full.
+
+## Why was BlockingQueue introduced?
+
+Although Java already provided `synchronized`, `wait()`, and `notify()`, writing correct and reusable
+producer–consumer logic using these low-level primitives was complex and error-prone.
+
+BlockingQueue was introduced to:
+
+* Eliminate manual synchronization
+* Avoid direct use of `wait()` / `notify()`
+* Handle thread waiting and signaling correctly
+* Simplify producer–consumer coordination
+* Provide a reusable, well-tested abstraction
+
+In short, it encodes **correct concurrency patterns** so developers don't have to reimplement them.
+
+## How BlockingQueue solves the problem
+
+`BlockingQueue` automatically:
+
+* Makes producers wait when the queue is full
+* Makes consumers wait when the queue is empty
+* Ensures thread safety
+* Handles signaling between threads internally
+
+This removes the need for explicit locks and condition handling.
+
+
+## Core BlockingQueue methods (important)
+
+### put() — blocking insert
+
+* Inserts an element
+* Waits if the queue is full
+
+```java
+queue.put(item);
+```
+
+### take() — blocking retrieval
+
+* Removes and returns an element
+* Waits if the queue is empty
+
+```java
+queue.take();
+```
+
+### offer() — non-blocking insert
+
+* Attempts to insert an element
+* Returns immediately
+* Returns `false` if the queue is full
+
+```java
+boolean added = queue.offer(item);
+```
+
+### poll() — non-blocking retrieval
+
+* Attempts to retrieve an element
+* Returns immediately
+* Returns `null` if the queue is empty
+
+```java
+Integer value = queue.poll();
+```
+
+| Method    | Waits? | On failure      |
+|-----------|--------|-----------------|
+| `put()`   | Yes    | Waits           |
+| `take()`  | Yes    | Waits           |
+| `offer()` | No     | Returns `false` |
+| `poll()`  | No     | Returns `null`  |
+
+
+## Types of BlockingQueue
+
+Here is the breakdown of the 5 most important `BlockingQueue` implementations in `java.util.concurrent`.
+
+### ArrayBlockingQueue
+
+**What it is**
+
+* A bounded blocking queue backed by an array
+* Fixed size, defined at creation
+
+```java
+BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10);
+```
+
+**Key characteristics**
+
+* FIFO order
+* Fixed capacity
+* Single lock for producers and consumers
+* Optional fairness policy
+
+**Why it exists**
+
+* To provide strict capacity control and predictable memory usage.
+
+**Use cases**
+
+* Producer–consumer systems with back-pressure
+* Systems where memory usage must be capped
+* Rate-limited pipelines
+
+
+### LinkedBlockingQueue
+
+**What it is**
+
+* A linked-node based blocking queue
+* Can be bounded or unbounded
+
+```java
+BlockingQueue<Integer> queue = new LinkedBlockingQueue<>();
+```
+
+**Key characteristics**
+
+* FIFO order
+* Separate locks for put and take (better concurrency)
+* Higher throughput than array-based queues
+
+
+To allow higher concurrency between producers and consumers.
+
+**Use cases**
+
+* General-purpose producer–consumer problems
+* Task queues
+* Default queue used in many thread-pool configurations
+
+
+### PriorityBlockingQueue
+
+**What it is**
+
+* A **priority-based**, unbounded blocking queue
+* Elements are ordered by priority, not insertion order
+
+```java
+BlockingQueue<Task> queue = new PriorityBlockingQueue<>();
+```
+
+**Key characteristics**
+
+* Uses Comparable or Comparator
+* No capacity limit
+* FIFO is NOT guaranteed
+
+**Why it exists**
+
+* To process high-priority tasks first.
+
+**Use cases**
+
+* Task schedulers
+* Job prioritization systems
+* Event processing where priority matters
+
+
+### DelayQueue
+
+**What it is**
+
+* A blocking queue where elements become available **after a delay**
+* Elements must implement Delayed
+
+```java
+DelayQueue<DelayedTask> queue = new DelayQueue<>();
+```
+
+**Key characteristics**
+
+* Time-based availability
+* Unbounded
+* Elements retrieved only after delay expires
+
+**Why it exists**
+
+* To support time-based scheduling without manual timers.
+
+**Use cases**
+
+* Retry mechanisms
+* Cache expiration
+* Scheduled task execution
+
+
+### SynchronousQueue
+
+**What it is**
+
+* A blocking queue with zero capacity
+* No storage — direct handoff between threads
+
+```java
+BlockingQueue<Integer> queue = new SynchronousQueue<>();
+```
+
+**Key characteristics**
+
+* Each put() waits for a take()
+* No buffering
+* High throughput under load
+
+**Why it exists**
+
+To enable direct thread-to-thread handoff without queuing.
+
+**Use cases**
+
+* ThreadPoolExecutor (cached thread pools)
+* Task handoff scenarios
+* Low-latency systems
+
+
+| BlockingQueue         | Capacity  | Ordering   | Primary Use Case               |
+|-----------------------|-----------|------------|--------------------------------|
+| ArrayBlockingQueue    | Bounded   | FIFO       | Strict capacity control        |
+| LinkedBlockingQueue   | Optional  | FIFO       | General-purpose concurrency    |
+| PriorityBlockingQueue | Unbounded | Priority   | Priority-based task processing |
+| DelayQueue            | Unbounded | Time-based | Scheduled / delayed tasks      |
+| SynchronousQueue      | Zero      | None       | Direct thread handoff          |
+
 
 -----------------------------
 
