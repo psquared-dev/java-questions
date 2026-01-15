@@ -60,7 +60,7 @@
 * [Q-31 What is diff b/w Vector and ArrayList?](#q-31-what-is-diff-bw-vector-and-arraylist)
 * [Q-32 Collection framework hierarchy](#q-32-collection-framework-hierarchy)
 * [Q-33 Diff b/w Hashtable and HashMap](#q-33-diff-bw-hashtable-and-hashmap)
-* [Q-34 What is blocking Queue](#q-34-what-is-blocking-queue)
+* [Q-34 What is BlockingQueue?](#q-34-what-is-blockingqueue)
   * [Why was BlockingQueue introduced?](#why-was-blockingqueue-introduced)
   * [How BlockingQueue solves the problem](#how-blockingqueue-solves-the-problem)
   * [Core BlockingQueue methods (important)](#core-blockingqueue-methods-important)
@@ -76,6 +76,18 @@
     * [5. SynchronousQueue](#5-synchronousqueue)
 * [Q-35 What are some use cases of reflection](#q-35-what-are-some-use-cases-of-reflection)
 * [Q-36 When would you use parallelStream()](#q-36-when-would-you-use-parallelstream)
+  * [Parallel Stream — Three Examples Explained (Good vs Bad vs Dangerous)](#parallel-stream--three-examples-explained-good-vs-bad-vs-dangerous)
+  * [Example 1 — ✅ GOOD use of parallelStream()](#example-1---good-use-of-parallelstream)
+    * [Why this is GOOD](#why-this-is-good)
+    * [Final judgment](#final-judgment)
+  * [Example 2 — ❌ BAD use of parallelStream()](#example-2---bad-use-of-parallelstream)
+    * [Why this is BAD](#why-this-is-bad)
+    * [Final judgment](#final-judgment-1)
+  * [Example 3 — 💀 DANGEROUS use of parallelStream()](#example-3---dangerous-use-of-parallelstream)
+    * [Why this is DANGEROUS (not just slow)](#why-this-is-dangerous-not-just-slow)
+    * [Final judgment](#final-judgment-2)
+  * [One-page Comparison (Interview Gold)](#one-page-comparison-interview-gold-)
+  * [Final Rule to Say in Interview (Memorize This)](#final-rule-to-say-in-interview-memorize-this)
 * [Q-37 Explain executor service and types of it.](#q-37-explain-executor-service-and-types-of-it)
 * [Q-38 How to make class as immutable?](#q-38-how-to-make-class-as-immutable)
 * [Q-39 What are core principles of OOP?](#q-39-what-are-core-principles-of-oop)
@@ -1446,7 +1458,7 @@ uses segment locking/CAS instead of locking the entire object).
 
 -----------------------------
 
-# Q-34 What is blocking Queue
+# Q-34 What is BlockingQueue?
 
 A `BlockingQueue` is a thread-safe queue that automatically coordinates producer and consumer threads
 by handling waiting and notification when the queue is empty or full.
@@ -1711,6 +1723,181 @@ To enable direct thread-to-thread handoff without queuing.
 
 # Q-36 When would you use parallelStream()
 
+## Parallel Stream — Three Examples Explained (Good vs Bad vs Dangerous)
+
+## Example 1 — ✅ GOOD use of parallelStream()
+
+```java
+List<Integer> numbers = getOneMillionIntegers();
+
+long count = numbers.parallelStream()
+                    .filter(n -> isPrime(n)) // heavy CPU work
+                    .count();
+```
+
+### Why this is GOOD
+
+**What the code is doing**
+
+* You have 1 million numbers
+* For each number, you run `isPrime(n)`
+* Checking primality requires many CPU operations
+
+
+**Why parallelism helps here**
+
+* Each number is independent
+* No shared variables
+* No waiting on I/O
+* Heavy computation per element
+
+
+**What happens internally (ELI5)**
+
+* Java splits the list into chunks
+* Multiple CPU cores work at the same time
+* Each core checks different numbers
+* Results are combined at the end
+
+
+### Final judgment
+
+* ✅ Correct use of parallelStream
+* ✅ CPU-bound
+* ✅ Large dataset
+* ✅ Independent work
+
+
+**Interview line:**
+
+> Parallel streams are effective here because the workload is CPU-intensive, independent, and 
+> large enough to amortize parallel overhead.
+> 
+
+## Example 2 — ❌ BAD use of parallelStream()
+
+```java
+List<Integer> numbers = Arrays.asList(1, 2, 3, ... 1000);
+
+int sum = numbers.parallelStream()
+                 .mapToInt(n -> n)
+                 .sum();
+```
+
+### Why this is BAD
+
+**What the code is doing**
+
+* Just adding numbers
+* Operation per element is extremely cheap
+
+**Why parallelism hurts here**
+
+ParallelStream introduces overhead:
+
+* Splitting the list
+* Creating Fork/Join tasks
+* Scheduling threads
+* Merging partial sums
+* But the actual work:
+
+```text
+n -> n
+```
+
+takes almost no time.
+
+**What happens internally (ELI5)**
+
+You hired 8 workers to:
+
+* Add very small numbers
+* Spent more time organizing workers than doing work
+
+### Final judgment
+
+* ❌ Computation too small
+* ❌ Dataset too small
+* ❌ Parallel overhead > useful work
+
+**Interview line:**
+
+> This is inefficient because the overhead of parallel execution outweighs the 
+> trivial computation being performed.
+
+
+## Example 3 — 💀 DANGEROUS use of parallelStream()
+
+```java
+List<String> userIds = Arrays.asList("101", "102", ... "200");
+
+userIds.parallelStream()
+       .map(id -> database.getUser(id)) // BLOCKING I/O
+       .collect(Collectors.toList());
+```
+
+### Why this is DANGEROUS (not just slow)
+
+**What the code is doing**
+
+* Each element performs a blocking database call
+* DB call may take seconds
+
+**Critical hidden detail**
+
+`parallelStream()` uses:
+
+```text
+ForkJoinPool.commonPool
+```
+
+This pool:
+
+* Is shared by the entire JVM
+* Has limited threads (≈ CPU cores)
+* Is designed for CPU work, not blocking I/O
+
+**What happens internally (ELI5)**
+
+* All ForkJoin threads make DB calls
+* Threads block waiting for DB
+* No threads left for:
+    * other parallel streams
+    * CompletableFutures
+    * CPU work
+
+Result:
+
+* ❌ Thread starvation
+* ❌ App slowdown
+* ❌ Unpredictable production failures
+
+### Final judgment
+
+* 💀 Blocking I/O in shared ForkJoinPool
+* 💀 Can break unrelated parts of the application
+
+
+**Interview line:**
+
+> Using `parallelStream()` for blocking I/O is dangerous because it blocks the shared 
+> ForkJoinPool, starving unrelated parallel tasks across the JVM.
+> 
+
+## One-page Comparison (Interview Gold) 
+
+| Example            | Verdict      | Reason                                  |
+|--------------------|--------------|-----------------------------------------|
+| Prime number check | ✅ GOOD       | Heavy CPU work, independent, large data |
+| Summing 1–1000     | ❌ BAD        | Parallel overhead dominates             |
+| Database calls     | 💀 DANGEROUS | Blocks shared ForkJoinPool              |
+
+
+## Final Rule to Say in Interview (Memorize This)
+
+> Use parallelStream() only for large, CPU-bound, stateless operations.
+> Avoid it for small workloads and never use it for blocking I/O.
+>
 
 -----------------------------
 
