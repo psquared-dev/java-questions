@@ -69,11 +69,11 @@
     * [offer() — non-blocking insert](#offer--non-blocking-insert)
     * [poll() — non-blocking retrieval](#poll--non-blocking-retrieval)
   * [Types of BlockingQueue](#types-of-blockingqueue)
-    * [ArrayBlockingQueue](#arrayblockingqueue)
-    * [LinkedBlockingQueue](#linkedblockingqueue)
-    * [PriorityBlockingQueue](#priorityblockingqueue)
-    * [DelayQueue](#delayqueue)
-    * [SynchronousQueue](#synchronousqueue)
+    * [1. ArrayBlockingQueue](#1-arrayblockingqueue)
+    * [2. LinkedBlockingQueue](#2-linkedblockingqueue)
+    * [3. PriorityBlockingQueue](#3-priorityblockingqueue)
+    * [4. DelayQueue](#4-delayqueue)
+    * [5. SynchronousQueue](#5-synchronousqueue)
 * [Q-35 What are some use cases of reflection](#q-35-what-are-some-use-cases-of-reflection)
 * [Q-36 When would you use parallelStream()](#q-36-when-would-you-use-parallelstream)
 * [Q-37 Explain executor service and types of it.](#q-37-explain-executor-service-and-types-of-it)
@@ -133,11 +133,11 @@
   * [Unchecked Exceptions (Runtime)](#unchecked-exceptions-runtime)
 * [Q-75 Explain collection framework hierarchy?](#q-75-explain-collection-framework-hierarchy)
 * [Q-76 What is BlockingQueue?](#q-76-what-is-blockingqueue)
-  * [ArrayBlockingQueue](#arrayblockingqueue-1)
-  * [LinkedBlockingQueue](#linkedblockingqueue-1)
-  * [PriorityBlockingQueue](#priorityblockingqueue-1)
-  * [DelayQueue](#delayqueue-1)
-  * [SynchronousQueue](#synchronousqueue-1)
+  * [ArrayBlockingQueue](#arrayblockingqueue)
+  * [LinkedBlockingQueue](#linkedblockingqueue)
+  * [PriorityBlockingQueue](#priorityblockingqueue)
+  * [DelayQueue](#delayqueue)
+  * [SynchronousQueue](#synchronousqueue)
 * [Q-77 What is Exception chaining?](#q-77-what-is-exception-chaining)
   * [Why is Exception Chaining needed?](#why-is-exception-chaining-needed)
   * [Real-World Example (ELI5)](#real-world-example-eli5)
@@ -1530,7 +1530,7 @@ Integer value = queue.poll();
 
 Here is the breakdown of the 5 most important `BlockingQueue` implementations in `java.util.concurrent`.
 
-### ArrayBlockingQueue
+### 1. ArrayBlockingQueue
 
 **What it is**
 
@@ -1560,7 +1560,7 @@ BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10);
 
 ---
 
-### LinkedBlockingQueue
+### 2. LinkedBlockingQueue
 
 **What it is**
 
@@ -1588,7 +1588,7 @@ To allow higher concurrency between producers and consumers.
 
 ---
 
-### PriorityBlockingQueue
+### 3. PriorityBlockingQueue
 
 **What it is**
 
@@ -1617,7 +1617,7 @@ BlockingQueue<Task> queue = new PriorityBlockingQueue<>();
 
 ---
 
-### DelayQueue
+### 4. DelayQueue
 
 **What it is**
 
@@ -1646,7 +1646,7 @@ DelayQueue<DelayedTask> queue = new DelayQueue<>();
 
 ---
 
-### SynchronousQueue
+### 5. SynchronousQueue
 
 **What it is**
 
