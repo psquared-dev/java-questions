@@ -88,8 +88,8 @@
     * [Final judgment](#final-judgment-2)
   * [One-page Comparison (Interview Gold)](#one-page-comparison-interview-gold-)
   * [Final Rule to Say in Interview (Memorize This)](#final-rule-to-say-in-interview-memorize-this)
-* [Q-37 Explain executor service and types of it.](#q-37-explain-executor-service-and-types-of-it)
-* [Q-38 How to make class as immutable?](#q-38-how-to-make-class-as-immutable)
+* [Q-37 List diff types of Executorservice](#q-37-list-diff-types-of-executorservice)
+* [Q-38 How to make a class immutable?](#q-38-how-to-make-a-class-immutable)
 * [Q-39 What are core principles of OOP?](#q-39-what-are-core-principles-of-oop)
   * [Runtime Polymorphism](#runtime-polymorphism)
   * [Compile time Polymorphism](#compile-time-polymorphism)
@@ -1901,7 +1901,7 @@ Result:
 
 -----------------------------
 
-# Q-37 Explain executor service and types of it.
+# Q-37 List diff types of Executorservice
 
 1. Fixed thread pool executor
 1. Single thread executor
@@ -1909,17 +1909,13 @@ Result:
 1. Scheduled thread pool executor
 1. Work stealing thread pool executor
 
-Executors.newFixedThreadPool(3);
-
 
 -----------------------------
 
 
-# Q-38 How to make class as immutable?
+# Q-38 How to make a class immutable?
 
-Ans:
-
-Rules to make object Immutable
+Rules to make object Immutable:
 
 1. Declare the class as final so it can't be extended.
 2. Make all the fields private so that direct access is not allowed.
