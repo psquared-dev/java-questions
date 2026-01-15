@@ -105,6 +105,18 @@
   * [awaitTermination() — Wait for shutdown to complete](#awaittermination--wait-for-shutdown-to-complete)
   * [Proper shutdown pattern (INTERVIEW GOLD)](#proper-shutdown-pattern-interview-gold)
 * [Q-43 What's the diff b/w process and threads?](#q-43-whats-the-diff-bw-process-and-threads)
+  * [Process — Components](#process--components)
+    * [What a process owns](#what-a-process-owns)
+  * [Thread — Components (core focus)](#thread--components-core-focus)
+    * [What a thread owns (per thread)](#what-a-thread-owns-per-thread)
+  * [Thread Control Block (TCB)](#thread-control-block-tcb)
+  * [What Threads Share (inside the same process)](#what-threads-share-inside-the-same-process)
+  * [Why Threads Are Lightweight (this is critical)](#why-threads-are-lightweight-this-is-critical)
+    * [1. No separate address space](#1-no-separate-address-space)
+    * [2. Cheaper context switching](#2-cheaper-context-switching)
+    * [3. Minimal metadata](#3-minimal-metadata)
+    * [4. Fast communication](#4-fast-communication)
+  * [Interview-perfect closing line (memorize)](#interview-perfect-closing-line-memorize)
 * [Q-44 Is it true that main thread doesn't terminate until the child threads are done?](#q-44-is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
 * [Q-45 What is the diff b/w objects and references?](#q-45-what-is-the-diff-bw-objects-and-references)
 * [Q-46 Explain stack and heap memory regions in the context of threads?](#q-46-explain-stack-and-heap-memory-regions-in-the-context-of-threads)
@@ -2231,9 +2243,138 @@ try {
 
 # Q-43 What's the diff b/w process and threads?
 
+**A Process** is an independent instance of a program in execution, possessing its own 
+isolated memory address space and system resources.
+
+**A Thread** is the smallest unit of execution managed by the OS. 
+It exists within a process and shares the process's 
+resources (Heap memory, File handles, Code segment) while maintaining 
+its own private execution context (Stack, Registers, and Program Counter).
+
+## Process — Components
+
+### What a process owns
+
+🧠 Process Virtual Address Space
+
+* Code section - Program instructions (read-only)
+* Data section - Global & static variables
+* Heap - Dynamically allocated memory
+* Stack area (important) - Space where multiple thread stacks live
+
+🧾 OS Metadata
+
+* Process Control Block (PCB)
+    Stores:
+    * PID
+    * Process state
+    * Memory mappings (page tables)
+    * Open file table
+    * List of threads
+    * Scheduling info
+
+
+## Thread — Components (core focus)
+
+### What a thread owns (per thread)
+🧠 Execution State
+
+1. Stack
+    * Method call frames
+    * Local variables
+    * Return addresses
+
+2. Registers
+    * General purpose registers
+    * Stack pointer
+    * Instruction pointer (PC)
+
+3. Thread Control Block (TCB) ← IMPORTANT
+
+
+## Thread Control Block (TCB)
+
+The TCB is the OS data structure that describes a thread.
+
+**What the TCB contains**
+
+| Field               | What it stores              |
+|---------------------|-----------------------------|
+| Thread ID           | Unique identifier           |
+| Thread state        | Running / Ready / Blocked   |
+| Program Counter     | Next instruction to execute |
+| Stack pointer       | Location of thread’s stack  |
+| Register snapshot   | Saved CPU registers         |
+| Priority            | Scheduling priority         |
+| Parent process      | Which process owns it       |
+| Scheduling metadata | Time slice, CPU affinity    |
+
+ELI5
+
+> The TCB is the resume file of a thread.
+> When the OS pauses a thread, it saves everything needed to continue later.
+> 
+>
+
+## What Threads Share (inside the same process)
+
+All threads inside one process share:
+
+* Code section
+* Data section (static variables)
+* Heap (objects)
+* Open files & sockets
+
+This sharing is why threads exist.
+
+
+## Why Threads Are Lightweight (this is critical)
+
+Threads are lightweight because they reuse almost everything.
+
+### 1. No separate address space
+
+* Process creation → new virtual memory
+* Thread creation → reuse existing memory
+
+### 2. Cheaper context switching
+
+Process switch requires:
+
+* Switching page tables
+* Flushing TLB
+* Memory remapping
+
+Thread switch requires only:
+
+* Saving/restoring registers
+* Switching stack pointer
+
+Much less OS work.
+
+
+### 3. Minimal metadata
+
+* PCB = large, complex
+* TCB = small and simple
+
+
+### 4. Fast communication
+
+* Processes → IPC (pipes, sockets)
+* Threads → shared variables (heap)
+
+
+## Interview-perfect closing line (memorize)
+
+Threads are lightweight because they share the process's memory and resources, requiring only a stack, 
+registers, and a Thread Control Block, making creation and context switching much cheaper than processes.
+
 ![threads vs process](../images/threads-vs-process.png)
 
-For more: https://www.scaler.com/topics/course/free-operating-system-course/video/1443/
+## Resources:
+
+* https://www.scaler.com/topics/course/free-operating-system-course/video/1443/
 
 -----------------------------
 
