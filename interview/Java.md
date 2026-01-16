@@ -233,7 +233,17 @@
     * [Add methods](#add-methods)
     * [Changes that break compatibility](#changes-that-break-compatibility)
 * [Q-81 How to prevent serialization of a field?](#q-81-how-to-prevent-serialization-of-a-field)
+  * [1. The transient Keyword (The Standard Way)](#1-the-transient-keyword-the-standard-way)
+  * [2. The static Modifier (The "Class-Level" Rule)](#2-the-static-modifier-the-class-level-rule)
 * [Q-82 How Java resolves method conflicts from multiple interfaces?](#q-82-how-java-resolves-method-conflicts-from-multiple-interfaces)
+  * [1. No Conflict for Abstract Methods (Pre–Java 8)](#1-no-conflict-for-abstract-methods-prejava-8)
+  * [2. Class Always Wins over Interface](#2-class-always-wins-over-interface)
+  * [3. Conflict Between Default Methods (Diamond Problem)](#3-conflict-between-default-methods-diamond-problem)
+  * [4. Interface Inheritance: Most Specific Default Wins](#4-interface-inheritance-most-specific-default-wins)
+  * [5. Abstract vs Default Method](#5-abstract-vs-default-method)
+  * [6. Static Methods in Interfaces](#6-static-methods-in-interfaces)
+  * [Conflict Resolution Priority (Memory Aid)](#conflict-resolution-priority-memory-aid)
+  * [Interview-Ready One-Liner](#interview-ready-one-liner)
 * [Q-83 Why `Object.clone()` is defined as protected?](#q-83-why-objectclone-is-defined-as-protected)
 * [Q-84 What are the advantages of String being immutable?](#q-84-what-are-the-advantages-of-string-being-immutable)
 * [Q-85 Whats the default implementation of `Object.equals()` method?](#q-85-whats-the-default-implementation-of-objectequals-method)
@@ -4505,12 +4515,217 @@ No issue - methods are not serialized.
 * Changing the type of field
 * Changing the class hierarchy
 
+
+
 # Q-81 How to prevent serialization of a field?
+
+To prevent a field from being serialized in Java, you have two primary options
+depending on the nature of the field.
+
+## 1. The transient Keyword (The Standard Way)
+
+You explicitly mark the field with the `transient` keyword. 
+This tells the JVM: "Ignore this field when writing the object state to a stream."
+
+```java
+class User implements Serializable {
+    String username;          // Serialized
+    transient String password; // NOT Serialized (ignored)
+}
+```
+
+When this object is deserialized, the password field will not contain the original value; 
+it will be initialized to its default value (e.g., `null` for objects, `0` for integers, `false` for booleans).
+
+## 2. The static Modifier (The "Class-Level" Rule)
+
+Static fields are never serialized. Because serialization saves the state of an Object (instance), and 
+static fields belong to the Class, they are ignored by the serialization process entirely.
+
+```java
+class User implements Serializable {
+    static String companyName; // NOT Serialized (belongs to class)
+}
+```
 
 To prevent a field from being serialized, you can mark it with the `transient` keyword
 
 
+
 # Q-82 How Java resolves method conflicts from multiple interfaces?
+
+Java resolves method conflicts from multiple interfaces using well-defined rules 
+introduced primarily with default methods (Java 8).
+
+
+## 1. No Conflict for Abstract Methods (Pre–Java 8)
+
+If multiple interfaces declare the same abstract method:
+
+```java
+interface A {
+    void foo();
+}
+
+interface B {
+    void foo();
+}
+
+class C implements A, B {
+    public void foo() { }
+}
+```
+
+✔ No conflict
+
+* Only one implementation is required
+* Method signatures are identical
+
+
+## 2. Class Always Wins over Interface
+
+If a class (or superclass) provides a concrete implementation:
+
+```java
+class Base {
+    public void foo() {}
+}
+
+interface A {
+    default void foo() {}
+}
+
+class C extends Base implements A {}
+```
+
+✔ No conflict
+
+* **Class method wins**
+* Interface default method is ignored
+
+> Rule: Class > Interface
+> 
+>
+
+
+## 3. Conflict Between Default Methods (Diamond Problem)
+
+If two interfaces define the **same default method**:
+
+```java
+interface A {
+    default void foo() {}
+}
+
+interface B {
+    default void foo() {}
+}
+
+class C implements A, B {
+    // Compile-time error unless overridden
+}
+```
+
+❌ Compile-time error
+
+**Resolution:**
+
+The **implementing class must override the method**:
+
+```java
+class C implements A, B {
+    @Override
+    public void foo() {
+        A.super.foo(); // optional
+    }
+}
+```
+
+> Java forces the class to explicitly resolve ambiguity.
+> 
+
+
+## 4. Interface Inheritance: Most Specific Default Wins
+
+If one interface extends another:
+
+```java
+interface A {
+    default void foo() {}
+}
+
+interface B extends A {
+    default void foo() {}
+}
+
+class C implements B {}
+```
+
+✔ No conflict
+
+* B's default method is used
+* More specific interface wins
+
+> Rule: Subinterface > Superinterface
+
+
+## 5. Abstract vs Default Method
+
+If one interface provides a default method and another declares it abstract:
+
+```java
+interface A {
+    default void foo() {}
+}
+
+interface B {
+    void foo();
+}
+
+class C implements A, B {
+    public void foo() {}
+}
+```
+
+✔ Class must implement `foo()`
+* Abstract declaration forces implementation
+
+
+## 6. Static Methods in Interfaces
+
+```java
+interface A {
+    static void foo() {}
+}
+
+interface B {
+    static void foo() {}
+}
+```
+
+
+
+✔ No conflict
+* Static methods are **not inherited**
+* Must be called using interface name
+
+## Conflict Resolution Priority (Memory Aid)
+
+```text
+Class
+  ↓
+Subinterface
+  ↓
+Interface
+```
+
+## Interview-Ready One-Liner
+
+> Java resolves multiple interface method conflicts by giving priority to 
+> class implementations, requiring explicit overrides for conflicting default methods, and selecting
+> the most specific interface implementation when inheritance is involved.
+
+
 
 # Q-83 Why `Object.clone()` is defined as protected?
 
