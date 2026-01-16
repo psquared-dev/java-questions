@@ -200,12 +200,17 @@
   * [Checked Exceptions (Compile-Time)](#checked-exceptions-compile-time)
   * [Unchecked Exceptions (Runtime)](#unchecked-exceptions-runtime)
 * [Q-75 Explain collection framework hierarchy?](#q-75-explain-collection-framework-hierarchy)
-* [Q-76 What is BlockingQueue?](#q-76-what-is-blockingqueue)
-  * [ArrayBlockingQueue](#arrayblockingqueue)
-  * [LinkedBlockingQueue](#linkedblockingqueue)
-  * [PriorityBlockingQueue](#priorityblockingqueue)
-  * [DelayQueue](#delayqueue)
-  * [SynchronousQueue](#synchronousqueue)
+* [Q-76 Explain the evolution from SortedSet (Java 1.2) to NavigableSet (Java 6). Why was a new interface introduced instead of extending SortedSet, given that TreeSet already existed?](#q-76-explain-the-evolution-from-sortedset-java-12-to-navigableset-java-6-why-was-a-new-interface-introduced-instead-of-extending-sortedset-given-that-treeset-already-existed)
+  * [1. SortedSet](#1-sortedset)
+    * [What SortedSet Does Not Guarantee](#what-sortedset-does-not-guarantee)
+  * [2. TreeSet Existed Before NavigableSet](#2-treeset-existed-before-navigableset)
+  * [3. The Problem Before Java 6](#3-the-problem-before-java-6)
+  * [4. NavigableSet](#4-navigableset)
+    * [What NavigableSet Adds](#what-navigableset-adds)
+  * [5. Why NavigableSet Was Introduced (Despite Existing Capability)](#5-why-navigableset-was-introduced-despite-existing-capability)
+    * [What Changed in Java 6](#what-changed-in-java-6)
+  * [6. Summary Table (Version-Accurate)](#6-summary-table-version-accurate)
+  * [Final Interview-Ready Answer (Concise)](#final-interview-ready-answer-concise)
 * [Q-77 What is Exception chaining?](#q-77-what-is-exception-chaining)
   * [Why is Exception Chaining needed?](#why-is-exception-chaining-needed)
   * [Real-World Example (ELI5)](#real-world-example-eli5)
@@ -1751,6 +1756,68 @@ To enable direct thread-to-thread handoff without queuing.
 | DelayQueue            | Unbounded | Time-based | Scheduled / delayed tasks      |
 | SynchronousQueue      | Zero      | None       | Direct thread handoff          |
 
+
+**Example usage of BlockingQueue with Producer-Consumer:**
+
+```java
+public class PizzaShop {
+
+    public static void main(String[] args) {
+        // 1. Create a Queue with a FIXED capacity of 3
+        BlockingQueue<String> counter = new ArrayBlockingQueue<>(3);
+
+        // --- The Chef Thread (Producer) ---
+        Thread chef = new Thread(() -> {
+            try {
+                for (int i = 1; i <= 10; i++) {
+                    String pizza = "Pizza #" + i;
+
+                    System.out.println("👨‍🍳 Chef is baking " + pizza);
+                    // put() will BLOCK here if the queue is full (size == 3)
+                    counter.put(pizza);
+                    System.out.println("✅ Chef placed " + pizza + " on counter. [Count: " + counter.size() + "]");
+
+                    Thread.sleep(200); // Baking takes a little time
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        // --- The Customer Thread (Consumer) ---
+        Thread customer = new Thread(() -> {
+            try {
+                // Let the chef get a head start to fill the counter
+                Thread.sleep(1000);
+
+                while (true) {
+                    // take() will BLOCK here if the queue is empty (size == 0)
+                    String pizza = counter.take();
+                    System.out.println("😋 Customer bought " + pizza + ". [Count: " + counter.size() + "]");
+
+                    Thread.sleep(1000); // Eating takes longer than baking!
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        chef.start();
+        customer.start();
+    }
+}
+```
+
+**How it works:**
+
+* The example models a classic producer–consumer problem using `ArrayBlockingQueue`.
+* The chef is the producer, baking pizzas and placing them on a counter with a fixed capacity of 3.
+* The customer is the consumer, taking pizzas from the counter and eating them.
+* When the counter (queue) is full, the chef's call to `put()` blocks automatically until the customer removes a pizza.
+* When the counter is empty, the customer’s call to `take()` blocks automatically until the chef produces a pizza.
+* This shows how `BlockingQueue` handles synchronization internally, without using manual `wait()` / `notify()`.
+* The example demonstrates smooth, thread-safe communication between producer and consumer, with natural backpressure
+  when one becomes faster than the other.
 
 -----------------------------
 
@@ -3979,209 +4046,179 @@ Legend:
 * I = Interface
 * C = Concrete Implementation
 
-# Q-76 What is BlockingQueue?
+# Q-76 Explain the evolution from SortedSet (Java 1.2) to NavigableSet (Java 6). Why was a new interface introduced instead of extending SortedSet, given that TreeSet already existed?
 
-Before `BlockingQueue` existed, developers had to solve producer–consumer problems manually:
+## 1. SortedSet
 
-* Shared list or array
-* Add/remove items with synchronized
-* Manually call wait() and notify()
-* Risk of deadlocks
-* Hard to get correct under concurrency
+**What is SortedSet?**
 
-**Example (old painful code):**
+SortedSet is a Set that maintains its elements in sorted order, either by natural ordering or 
+by a provided Comparator.
 
-```java
-synchronized(queue) {
-    while(queue.isEmpty()) {
-        queue.wait();
-    }
-    item = queue.remove();
-}
-```
+**Java version**
+* Introduced in Java 1.2 (as part of the Java Collections Framework)
 
-This pattern is:
+**What SortedSet Guarantees**
 
-* Hard to write
-* Hard to debug
-* Easy to break
-* Not scalable
+`SortedSet` defines ordering guarantees only.
 
-`BlockingQueue` was introduced to solve this by:
+* `first()` - lowest element
+* `last()` - highest element
+* `headSet(E toElement)` - elements strictly less than `toElement`
+* `tailSet(E fromElement)` - elements greater than or equal to `fromElement`
+* `subSet(E fromElement, E toElement)` - range view
 
-1\. Automatically blocking producers if the queue is full
-  * No need to write `wait()` manually.
+These allow:
 
-2\. Automatically blocking consumers if the queue is empty
-  * No need for `notify()` or condition variables.
+* Maintaining sorted order
+* Creating range-based views
 
-3\. Fully thread-safe
-  * Handles locking internally.
 
-4\. Makes producer–consumer systems very easy
+### What SortedSet Does Not Guarantee
 
-5\. Works seamlessly with thread pools (`ExecutorService`)
-  * `Executors` internally use BlockingQueues to store tasks.
+SortedSet does **not** define:
 
-Now Let's explain each `BlockingQueue`:
+* Closest smaller element
+* Closest larger element
+* Reverse traversal
+* Inclusive/exclusive boundary control
+* Remove-and-return operations
 
-## ArrayBlockingQueue
+Even if an implementation can do these things, the **interface does not promise them**.
 
-**Why introduced:**
-> Many real systems need a bounded queue to prevent overwhelming memory or downstream services. 
-> A fixed-size queue backed by an array.
 
-**Real-life ELI5 example:**
+## 2. TreeSet Existed Before NavigableSet
 
-A kitchen has only 5 slots for dishes. 
+**Important clarification**
+> Yes, `TreeSet` already existed when `NavigableSet` was introduced.
+>
 
-If all 5 are full:
-  * Cook must wait.
+**Timeline**
 
-If no dishes:
-  * Waiter waits.
+* **Java 1.2:**
+    * `SortedSet` introduced
+    * `TreeSet` introduced
+    * `TreeSet` implemented SortedSet
+    * Internally backed by a Red-Black Tree
 
-```java
-BlockingQueue<String> q = new ArrayBlockingQueue<>(5);
-```
+A Red-Black Tree already supports:
 
-## LinkedBlockingQueue
+* Predecessor / successor
+* Ordered traversal
+* Efficient boundary lookups
 
-Usually unbounded, backed by linked nodes.
+So **the underlying data structure already had the capability**.
 
-**Why introduced:**
-> * Needed a queue that can grow large without fixed limits
-> * Higher throughput for heavy producer workloads
 
-**Real-life example:**
+## 3. The Problem Before Java 6
 
-A big counter in a restaurant with lots of space.
-
-Cooks almost never wait.
+Before Java 6, developers commonly wrote patterns like:
 
 ```java
-BlockingQueue<String> q = new LinkedBlockingQueue<>();
+set.headSet(x).last();
 ```
 
-## PriorityBlockingQueue
+This worked, but it had problems:
 
-Not FIFO — items come out by priority.
+* Multiple operations instead of one
+* Verbose and error-prone
+* Intent not clearly expressed
+* No interface-level guarantee
+* Not portable across different `SortedSet` implementations
 
-**Why introduced:**
-> For systems where important tasks must run first.
+Most importantly:
+> These navigation operations were not part of the `SortedSet` contract.
 
-**Real-life example:**
 
-Hospital emergency room:
-* Critical patients go first
-* Even if they arrived later
+## 4. NavigableSet
 
-```java
-BlockingQueue<Integer> q = new PriorityBlockingQueue<>();
-q.put(10);
-q.put(1); // this comes out first
-```
+**What is NavigableSet?**
+> `NavigableSet` extends `SortedSet` by formally defining navigation operations over a sorted set.
+>
 
-## DelayQueue
+**Java version**
+* Introduced in Java 6
 
-Items are only available after their delay expires.
 
-**Why introduced:**
-> To support delayed tasks without writing timers manually.
+### What NavigableSet Adds
 
-**Real-life example:**
+Navigation methods:
 
-Alarm system:
-* An alarm activates only after 10 seconds
-* Until then, it cannot be taken
+* `lower(e)` - greatest element `< e`
+* `floor(e)` - greatest element `≤ e`
+* `ceiling(e)` - smallest element `≥ e`
+* `higher(e)` - smallest element `> e`
 
-```java
-DelayQueue<DelayedTask> q = new DelayQueue<>();
-```
+Traversal and mutation:
 
-## SynchronousQueue
+* descendingSet()
+* pollFirst(), pollLast()
 
-Capacity = 0.
-No storage.
+Precise range control:
 
-**Why introduced:**
-> Needed for systems where each task must be handed off directly to a worker.
+* subSet(from, boolean, to, boolean)
 
-**Real-life example:**
+These operations are now:
 
-Cook hands dish directly to waiter — no table in between.
+* Explicit
+* Guaranteed
+* Single-operation semantics
 
-If waiter isn't there:
-* Cook waits.
 
-If cook isn't there:
-* Waiter waits.
+## 5. Why NavigableSet Was Introduced (Despite Existing Capability)
 
-```java
-BlockingQueue<String> q = new SynchronousQueue<>();
-```
+The key reason (very important)
 
-**Example usage of BlockingQueue with Producer-Consumer:**
+> NavigableSet was introduced not because the data structure changed, but because 
+> the API contract was insufficient.
+> 
+>
 
-```java
-public class PizzaShop {
+Specifically:
 
-    public static void main(String[] args) {
-        // 1. Create a Queue with a FIXED capacity of 3
-        BlockingQueue<String> counter = new ArrayBlockingQueue<>(3);
+* `SortedSet` did not express navigation semantics
+* Adding methods to `SortedSet` would break backward compatibility
+* Java chose to extend the API safely via a new interface
 
-        // --- The Chef Thread (Producer) ---
-        Thread chef = new Thread(() -> {
-            try {
-                for (int i = 1; i <= 10; i++) {
-                    String pizza = "Pizza #" + i;
+### What Changed in Java 6
 
-                    System.out.println("👨‍🍳 Chef is baking " + pizza);
-                    // put() will BLOCK here if the queue is full (size == 3)
-                    counter.put(pizza);
-                    System.out.println("✅ Chef placed " + pizza + " on counter. [Count: " + counter.size() + "]");
+* `NavigableSet` was added
+* `TreeSet` was updated to implement `NavigableSet`
+* No new data structure was introduced
+* Existing behavior remained unchanged
 
-                    Thread.sleep(200); // Baking takes a little time
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
+This preserved:
 
-        // --- The Customer Thread (Consumer) ---
-        Thread customer = new Thread(() -> {
-            try {
-                // Let the chef get a head start to fill the counter
-                Thread.sleep(1000);
+* Backward compatibility
+* API clarity
+* Future extensibility
 
-                while (true) {
-                    // take() will BLOCK here if the queue is empty (size == 0)
-                    String pizza = counter.take();
-                    System.out.println("😋 Customer bought " + pizza + ". [Count: " + counter.size() + "]");
+## 6. Summary Table (Version-Accurate)
 
-                    Thread.sleep(1000); // Eating takes longer than baking!
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
+| Aspect                          | SortedSet    | NavigableSet                  |
+|---------------------------------|--------------|-------------------------------|
+| Introduced in                   | Java 1.2     | Java 6                        |
+| Guarantees                      | Sorted order | Sorted order + navigation     |
+| Closest element lookup          | ❌            | ✅                             |
+| Reverse traversal               | ❌            | ✅                             |
+| Polling boundaries              | ❌            | ✅                             |
+| TreeSet present at introduction | Yes          | Yes (updated to implement it) |
 
-        chef.start();
-        customer.start();
-    }
-}
-```
 
-How it works:
+## Final Interview-Ready Answer (Concise)
 
-* The example models a classic producer–consumer problem using `ArrayBlockingQueue`.
-* The chef is the producer, baking pizzas and placing them on a counter with a fixed capacity of 3.
-* The customer is the consumer, taking pizzas from the counter and eating them.
-* When the counter (queue) is full, the chef's call to `put()` blocks automatically until the customer removes a pizza.
-* When the counter is empty, the customer’s call to `take()` blocks automatically until the chef produces a pizza.
-* This shows how `BlockingQueue` handles synchronization internally, without using manual `wait()` / `notify()`.
-* The example demonstrates smooth, thread-safe communication between producer and consumer, with natural backpressure 
-when one becomes faster than the other.
+`SortedSet`, introduced in Java 1.2, guarantees only sorted order and basic range views. 
+Its primary implementation, `TreeSet`, already existed and was backed by a Red-Black Tree that 
+supported navigation internally. However, these capabilities were not part of the interface contract. 
+Java 6 introduced `NavigableSet` to formally define and guarantee navigation operations 
+such as predecessor, successor, reverse traversal, and precise boundary control, without breaking 
+backward compatibility. `TreeSet` was then updated to implement `NavigableSet`.
+
+**One Sentence to Remember**
+> The data structure already had the ability; NavigableSet gave it a formal, portable contract.
+> 
+
+
 
 # Q-77 What is Exception chaining?
 
