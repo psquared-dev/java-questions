@@ -6182,7 +6182,29 @@ Not in the following cases:
 * System.exit()
 * System crash
 
+
+
+
 # Q-102 What are methods provided by the Object class?
+
+`Object` is the root class of all Java classes. Every class implicitly inherits its methods.
+
+| Method                                     | Purpose                                          |
+|--------------------------------------------|--------------------------------------------------|
+| `boolean equals(Object obj)`               | Compares this object with another for equality   |
+| `int hashCode()`                           | Returns a hash code value for the object         |
+| `String toString()`                        | Returns a string representation of the object    |
+| `Class<?> getClass()`                      | Returns the runtime class of the object          |
+| `protected Object clone()`                 | Creates and returns a copy of the object         |
+| `protected void finalize()` *(deprecated)* | Called by GC before object reclamation           |
+| `void wait()`                              | Causes the current thread to wait until notified |
+| `void wait(long timeout)`                  | Waits for the specified time                     |
+| `void wait(long timeout, int nanos)`       | Waits with nanosecond precision                  |
+| `void notify()`                            | Wakes up a single waiting thread                 |
+| `void notifyAll()`                         | Wakes up all waiting threads                     |
+
+
+
 
 # Q-103 Difference between fail-fast and fail-safe iterators?
 
