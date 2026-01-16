@@ -300,9 +300,20 @@
   * [The Code Solution](#the-code-solution)
   * [Important Rule: "Class Wins"](#important-rule-class-wins)
 * [Q-95 What is AutoCloseable interface?](#q-95-what-is-autocloseable-interface)
+  * [1. The Core Purpose: Try-With-Resources](#1-the-core-purpose-try-with-resources)
+  * [2. Code Example](#2-code-example)
+  * [3. Senior Engineer Nuance: Exception Suppression](#3-senior-engineer-nuance-exception-suppression)
 * [Q-96 Difference between Optional.of() and Optional.ofNullable()?](#q-96-difference-between-optionalof-and-optionalofnullable)
 * [Q-97 How to manually trigger the garbage collection process?](#q-97-how-to-manually-trigger-the-garbage-collection-process)
 * [Q-98 What are some Garbage collection algorithms?](#q-98-what-are-some-garbage-collection-algorithms)
+  * [1. The Classics (Throughput Focused)](#1-the-classics-throughput-focused)
+    * [1. Serial GC (-XX:+UseSerialGC)](#1-serial-gc--xxuseserialgc)
+    * [2. Parallel GC (-XX:+UseParallelGC)](#2-parallel-gc--xxuseparallelgc)
+  * [2. The Modern Standard (Balanced)](#2-the-modern-standard-balanced)
+    * [3. G1 GC (Garbage First) (-XX:+UseG1GC)](#3-g1-gc-garbage-first--xxuseg1gc)
+  * [3. The Low-Latency (Future)](#3-the-low-latency-future)
+    * [4. ZGC (Z Garbage Collector) (-XX:+UseZGC)](#4-zgc-z-garbage-collector--xxusezgc)
+  * [Senior Engineer Note: What happened to CMS?](#senior-engineer-note-what-happened-to-cms)
 * [Q-99 What are sealed classes?](#q-99-what-are-sealed-classes)
 * [Q-100 Why can't we override private and static methods?](#q-100-why-cant-we-override-private-and-static-methods)
   * [Why you cannot override private methods](#why-you-cannot-override-private-methods)
@@ -5861,7 +5872,77 @@ ignored, and there is no ambiguity error.
 
 > ParentClass > InterfaceDefaultMethod
 
+
+
+
 # Q-95 What is AutoCloseable interface?
+
+`AutoCloseable` is a functional interface introduced in Java 7 that allows an object to be 
+used in the try-with-resources statement.
+
+Its single method, void `close() throws Exception`, is called automatically when the `try` block exits 
+(whether normally or due to an exception).
+
+## 1. The Core Purpose: Try-With-Resources
+
+Before Java 7, you had to close resources (files, sockets, DB connections) manually in 
+a finally block. This was verbose and error-prone.
+
+`AutoCloseable` automates this cleanup.
+
+The Interface Definition:
+
+```java
+public interface AutoCloseable {
+    void close() throws Exception;
+}
+```
+
+## 2. Code Example
+
+Here is how you implement it and use it.
+
+```java
+// 1. Create a Custom Resource
+class MyResource implements AutoCloseable {
+    @Override
+    public void close() {
+        System.out.println("Resource closed automatically!");
+    }
+    
+    public void doWork() {
+        System.out.println("Working...");
+    }
+}
+
+// 2. Use it in Try-With-Resources
+public class Main {
+    public static void main(String[] args) {
+        // Notice the parenthesis after 'try'
+        try (MyResource res = new MyResource()) {
+            res.doWork();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 'close()' is guaranteed to run here.
+    }
+}
+```
+
+## 3. Senior Engineer Nuance: Exception Suppression
+
+**The Problem (Old finally way):** If your code throws an exception (e.g., `RuntimeException`) AND 
+your `finally` block throws an exception (e.g., `IOException` while closing), the original exception is lost. 
+The caller only sees the closing error, which hides the real bug.
+
+The Solution (`AutoCloseable` way): If both the `try` block and the `close()` method throw exceptions:
+
+1. The try block exception is **propagated** (this is the one you want to see).
+2. The `close()` exception is **suppressed** and attached to the main exception.
+3. You can retrieve it using **mainException.getSuppressed()**.
+
+
+
 
 # Q-96 Difference between Optional.of() and Optional.ofNullable()?
 
@@ -5921,11 +6002,88 @@ Summary: When to use what?
 * `Optional.of()`: "I just created this object 2 lines ago. It SHOULD be there. If it's null, something is terrifyingly wrong." (Logic assertion).
 
 
+
+
 # Q-97 How to manually trigger the garbage collection process?
 
 Call `System.gc()`
 
+
+
 # Q-98 What are some Garbage collection algorithms?
+
+Here are the main Garbage Collection algorithms in Java, categorized by their 
+primary goal (Throughput vs. Latency).
+
+## 1. The Classics (Throughput Focused)
+
+### 1. Serial GC (-XX:+UseSerialGC)
+
+* **How it works:** Uses a single thread for both Young and Old generation cleaning. 
+  It pauses the entire application (Stop-The-World) while running.
+
+* **Best Use Case:** Single-threaded environments (like simple command-line tools) or 
+  small heaps (under 100MB). It has the smallest memory footprint.
+
+
+### 2. Parallel GC (-XX:+UseParallelGC)
+
+* **How it works:** Also known as the "Throughput Collector." It freezes the app (STW) but uses multiple 
+  threads to clean the heap very quickly.
+
+* **Status:** This was the **default in Java 8**.
+
+* **Best Use Case:** Batch processing, Number crunching, or internal backend jobs where you care about
+  Throughput (jobs per hour) more than long pause times.
+
+
+## 2. The Modern Standard (Balanced)
+
+### 3. G1 GC (Garbage First) (-XX:+UseG1GC)
+
+* **How it works:** Splits the heap into small regions (1MB–32MB). It tracks which regions have 
+  the most garbage and cleans those first (hence the name).
+
+* **Status:** This is the default in Java 9+.
+
+* **Key Feature:** It allows you to set a Max Pause Time Target (e.g., "Try not to pause 
+  for more than 200ms"), and it attempts to meet that goal.
+
+* **Best Use Case:** General-purpose backend services (Web Servers, REST APIs) running on hardware 
+  with 4GB+ RAM.
+
+
+## 3. The Low-Latency (Future)
+
+### 4. ZGC (Z Garbage Collector) (-XX:+UseZGC)
+
+* **How it works:** A scalable low-latency collector. It performs expensive work concurrently (while 
+  your app is running) using "Colored Pointers" and "Load Barriers."
+
+* **Performance:** It guarantees pause times under 1ms (in latest versions), regardless of 
+  whether your heap is 2GB or 16TB.
+
+* **Best Use Case:** High-frequency trading, real-time bidding, or massive heaps where any pause 
+  is unacceptable.
+
+| Algorithm    | Goal                               | Threads  | Default In      |
+|:-------------|:-----------------------------------|:---------|:----------------|
+| **Serial**   | Low Overhead                       | 1        | Client machines |
+| **Parallel** | **Throughput**                     | Multiple | Java 8          |
+| **G1**       | **Balance** (Throughput + Latency) | Multiple | **Java 9+**     |
+| **ZGC**      | **Ultra-Low Latency** (<1ms)       | Multiple | Java 21 (LTS)   |
+
+
+## Senior Engineer Note: What happened to CMS?
+
+You might be asked about CMS (Concurrent Mark Sweep).
+
+Answer: It was the old "Low Latency" king. However, it suffered from **memory fragmentation**(Swiss 
+Cheese heap) and erratic "Concurrent Mode Failures" that caused long pauses. It was **removed
+in Java 14**. Do not recommend it for new projects.
+
+
+
 
 # Q-99 What are sealed classes?
 
