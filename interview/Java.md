@@ -182,8 +182,11 @@
 * [Q-66 Will the following statement adds string to the string pool?](#q-66-will-the-following-statement-adds-string-to-the-string-pool)
   * [The Nuance: The final Keyword](#the-nuance-the-final-keyword)
 * [Q-67 What happens when we concatenate string with different type?](#q-67-what-happens-when-we-concatenate-string-with-different-type)
+  * [What Actually Happens (Under the Hood)](#what-actually-happens-under-the-hood)
+    * [Case 1: Primitive Types](#case-1-primitive-types)
+    * [Case 2: Reference Types](#case-2-reference-types)
 * [Q-68 What is the difference b/w `equals()` and `equalsIgnoreCase()` method?](#q-68-what-is-the-difference-bw-equals-and-equalsignorecase-method)
-* [Q-69 What is the differnece b/w `isEmpty()` and `isBlank()` method of String object?](#q-69-what-is-the-differnece-bw-isempty-and-isblank-method-of-string-object)
+* [Q-69 What is the difference b/w `isEmpty()` and `isBlank()` method of String object?](#q-69-what-is-the-difference-bw-isempty-and-isblank-method-of-string-object)
 * [Q-70 Diff b/w `String`, `StringBuilder` and `StringBuffer`](#q-70-diff-bw-string-stringbuilder-and-stringbuffer)
 * [Q-71 What is hashCode() and how It's related to equals()?](#q-71-what-is-hashcode-and-how-its-related-to-equals)
   * [The Analogy: The Library](#the-analogy-the-library)
@@ -3415,28 +3418,124 @@ String s2 = s1 + " world";  // Compiler treats s1 as "hello"
 
 # Q-67 What happens when we concatenate string with different type?
 
-When you concatenate a string to a reference variable, if the variable is a reference type,
-the `toString()` method on the object is called, if the variable is a primitive data type, 
-the variable is boxed to a wrapper and its `toString()` method is called.
+When a String is concatenated with another operand using `+`, Java converts the 
+other operand to a String. 
+
+* For reference types, `toString()` is called (unless the reference is `null`).
+* For primitive types, Java does not box them; instead, it uses `String.valueOf()` to convert them to a String.
+
+
+## What Actually Happens (Under the Hood)
+
+The compiler rewrites string concatenation into something like:
+
+```java
+new StringBuilder()
+    .append(...)
+    .append(...)
+    .toString();
+```
+
+And each `append()` internally calls `String.valueOf(...)`.
+
+
+### Case 1: Primitive Types
+
+```java
+String s = "Value: " + 10;
+```
+
+What happens:
+
+* `10` is a primitive
+* **No boxing occurs**
+* Java calls:
+    ```java
+    String.valueOf(10)
+    ``` 
+* Result: `"10"`
+
+✔ Important:
+> Primitives are NOT boxed during string concatenation.
+> 
+
+
+### Case 2: Reference Types
+
+```java
+Object obj = new User();
+String s = "User: " + obj;
+```
+
+What happens:
+
+* Java calls:
+    ```java
+    String.valueOf(obj)
+    ```
+* Which internally does:
+    ```java
+    obj.toString();
+    ```
+
+If `obj == null`:
+
+```java
+String s = "User: " + null;
+```
+
+Result:
+
+```text
+"User: null"
+```
+
+No `NullPointerException`
 
 -----------------------------
 
 # Q-68 What is the difference b/w `equals()` and `equalsIgnoreCase()` method?
 
-The `equalsIgnoreCase()` takes a `String` object where as `equals()` takes `Object`, rest of the 
-functionality remains the same.
+The primary difference is case sensitivity.
+
+1. Case Sensitivity:
+
+* `equals()`: Is case-sensitive. It returns `true` only if the characters 
+  match exactly, including casing (e.g., `"Java".equals("java")` returns `false`).
+* `equalsIgnoreCase()`: Is case-insensitive. It returns `true` if the characters match regardless 
+  of casing (e.g., `"Java".equalsIgnoreCase("java")` returns `true`).
+
+2. Parameter Type:
+
+* `equals(Object anObject)`: Accepts an argument of type `Object`. (It overrides the method 
+  from the `Object` class).
+* `equalsIgnoreCase(String anotherString)`: Accepts an argument of type `String`. (It is a method 
+  specific to the `String` class).
 
 -----------------------------
 
-# Q-69 What is the differnece b/w `isEmpty()` and `isBlank()` method of String object?
+# Q-69 What is the difference b/w `isEmpty()` and `isBlank()` method of String object?
 
-![alt text](../images/isempty-vs-isblanck.png)
+| Feature / Condition                      | isEmpty()            | isBlank()           |
+|:-----------------------------------------|:---------------------|:--------------------|
+| **New in Java 11**                       | No                   | Yes                 |
+| **String has length of 0** (`""`)        | evaluates to `true`  | evaluates to `true` |
+| **String has only whitespace** (`"   "`) | evaluates to `false` | evaluates to `true` |
 
 -----------------------------
 
 # Q-70 Diff b/w `String`, `StringBuilder` and `StringBuffer`
 
-![alt text](../images/types-of-string.png)
+| Feature         | String                            | StringBuilder                       | StringBuffer                       |
+|-----------------|-----------------------------------|-------------------------------------|------------------------------------|
+| Mutability      | Immutable                         | Mutable                             | Mutable                            |
+| Thread-safety   | Thread-safe (immutable)           | Not thread-safe                     | Thread-safe (synchronized)         |
+| Performance     | Slow for frequent modifications   | Fast                                | Slower than StringBuilder          |
+| Synchronization | Not required                      | None                                | Yes (methods synchronized)         |
+| Use case        | Constant or rarely changed text   | Single-threaded string manipulation | Multi-threaded string manipulation |
+| Introduced in   | Java 1.0                          | Java 5                              | Java 1.0                           |
+| Memory usage    | Higher due to new object creation | Lower                               | Lower                              |
+| String pool     | Yes (literals interned)           | No                                  | No                                 |
 
 -----------------------------
 
