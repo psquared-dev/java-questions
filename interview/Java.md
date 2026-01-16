@@ -315,6 +315,9 @@
     * [4. ZGC (Z Garbage Collector) (-XX:+UseZGC)](#4-zgc-z-garbage-collector--xxusezgc)
   * [Senior Engineer Note: What happened to CMS?](#senior-engineer-note-what-happened-to-cms)
 * [Q-99 What are sealed classes?](#q-99-what-are-sealed-classes)
+  * [1. The Syntax](#1-the-syntax)
+  * [2. The Three Rules for Subclasses](#2-the-three-rules-for-subclasses)
+  * [3. Why use them? (The "Killer Feature")](#3-why-use-them-the-killer-feature)
 * [Q-100 Why can't we override private and static methods?](#q-100-why-cant-we-override-private-and-static-methods)
   * [Why you cannot override private methods](#why-you-cannot-override-private-methods)
   * [Why you cannot override static methods](#why-you-cannot-override-static-methods)
@@ -6086,6 +6089,56 @@ in Java 14**. Do not recommend it for new projects.
 
 
 # Q-99 What are sealed classes?
+
+Sealed Classes (introduced in Java 17) allow a class or interface to strictly restrict which 
+other classes may extend or implement it.
+
+In simple terms: A parent class decides exactly who its children are.
+
+## 1. The Syntax
+
+You use the `sealed` keyword to define the class and the `permits` keyword to list the allowed subclasses.
+
+```java
+// 1. Parent restricts children to ONLY Circle and Square
+public sealed class Shape permits Circle, Square { }
+
+// 2. Child 1: Must be final, sealed, or non-sealed
+public final class Circle extends Shape { }
+
+// 3. Child 2: Can be non-sealed to open inheritance back up
+public non-sealed class Square extends Shape { }
+```
+
+
+## 2. The Three Rules for Subclasses
+
+Every class that extends a sealed class must specify how it relates to inheritance. 
+It must choose exactly one of these three modifiers:
+
+* `final`: "I am the end of the line." No one can extend this class.
+* `sealed`: "I have specific children." It continues the restriction.
+* `non-sealed`: "I am open." It breaks the seal and allows anyone to extend it from this point down.
+
+
+## 3. Why use them? (The "Killer Feature")
+
+The biggest advantage is Exhaustive Pattern Matching in switch statements.
+
+Because the compiler knows exactly which subclasses exist, it can ensure you cover every possible case. 
+You do not need a default block.
+
+```java
+// Compile-time safety!
+String result = switch (shape) {
+    case Circle c -> "It is a circle with radius " + c.radius();
+    case Square s -> "It is a square with side " + s.side();
+    // No 'default' needed because Java knows no other shapes exist!
+};
+```
+
+
+
 
 # Q-100 Why can't we override private and static methods?
 
