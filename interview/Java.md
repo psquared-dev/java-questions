@@ -246,8 +246,10 @@
   * [Interview-Ready One-Liner](#interview-ready-one-liner)
 * [Q-83 Why `Object.clone()` is defined as protected?](#q-83-why-objectclone-is-defined-as-protected)
 * [Q-84 What are the advantages of String being immutable?](#q-84-what-are-the-advantages-of-string-being-immutable)
-* [Q-85 Whats the default implementation of `Object.equals()` method?](#q-85-whats-the-default-implementation-of-objectequals-method)
+* [Q-85 What's the default implementation of `Object.equals()` method?](#q-85-whats-the-default-implementation-of-objectequals-method)
 * [Q-86 What are Fail Fast and Fail Safe Iterators?](#q-86-what-are-fail-fast-and-fail-safe-iterators)
+  * [Fail-Fast Iterators](#fail-fast-iterators)
+  * [Fail-Safe Iterators](#fail-safe-iterators)
 * [Q-87 What is Spurious Wakeup?](#q-87-what-is-spurious-wakeup)
 * [Q-88 What is Comparable interface?](#q-88-what-is-comparable-interface)
 * [Q-89 What is class level lock?](#q-89-what-is-class-level-lock)
@@ -4771,12 +4773,16 @@ class A implements Cloneable {
 }
 ```
 
+
+
 # Q-84 What are the advantages of String being immutable?
 
 1. Thread safety
 2. Memory re-use
 
-# Q-85 Whats the default implementation of `Object.equals()` method?
+
+
+# Q-85 What's the default implementation of `Object.equals()` method?
 
 The default implementation of `equals()` in `Object` performs a reference comparison, meaning:
 
@@ -4791,9 +4797,57 @@ obj1.equals(obj2)  <=>  obj1 == obj2
 Both check identity, not content.
 
 
+
+
 # Q-86 What are Fail Fast and Fail Safe Iterators?
 
+## Fail-Fast Iterators
+
+Fail-fast iterators immediately throw a `ConcurrentModificationException` if the 
+underlying collection is structurally modified during iteration(except through the 
+iterator's own `remove()` method).
+
+Examples:
+
+* `ArrayList`
+* `HashMap`
+* `HashSet`
+
+Key points:
+
+* Works on the original collection
+* Detects concurrent modification using `modCount`
+* Not thread-safe
+
+
+## Fail-Safe Iterators
+
+Fail-safe iterators do not throw `ConcurrentModificationException` because they iterate 
+over a snapshot or a copy of the collection.
+
+Examples:
+
+* `CopyOnWriteArrayList`
+* `CopyOnWriteArraySet`
+* Iterators of `ConcurrentHashMap`
+
+Key points:
+
+* Operate on a snapshot
+* Reflect state at iteration start
+* Thread-safe but may not show latest changes
+
+
+
+
 # Q-87 What is Spurious Wakeup?
+
+A spurious wakeup occurs when a thread waiting on `wait()` or `await()` wakes up without any 
+corresponding `notify`, `notifyAll`, or `signal` call. It happens due to JVM and OS-level scheduling 
+and synchronization optimizations, which is why waiting conditions must always be checked in a loop.
+
+
+
 
 # Q-88 What is Comparable interface?
 
