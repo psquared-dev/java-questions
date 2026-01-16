@@ -3560,9 +3560,9 @@ and check every single book until you find it. (Slow!)
 
 When you save `map.put(key, value)`, Java does this:
 
-1. Calculate Hash: It calls `key.hashCode()` to get a number (e.g., 12345).
-2. Find Bucket: It converts that number into a small "bucket index" (e.g., bucket #5).
-3. Store: It drops your data into Bucket #5.
+1. **Calculate Hash:** It calls `key.hashCode()` to get a number (e.g., 12345).
+2. **Find Bucket:** It converts that number into a small "bucket index" (e.g., bucket #5).
+3. **Store:** It drops your data into Bucket #5.
 
 When you retrieve `map.get(key)`:
 
@@ -3753,9 +3753,9 @@ It splits into two main branches: `Error` and `Exception`.
 
 2\. The **"Fatal"** Branch: `Error`
 
-What it is: Serious system-level problems that your application cannot reasonably recover from.
+**What it is:** Serious system-level problems that your application cannot reasonably recover from.
 
-Responsibility: These are usually issues with the JVM itself or hardware resources. You should generally 
+**Responsibility:** These are usually issues with the JVM itself or hardware resources. You should generally 
 not try to catch these.
 
 Examples:
@@ -3766,9 +3766,9 @@ Examples:
 
 3\. The **"Recoverable"** Branch: `Exception`
 
-What it is: Conditions that your application might reasonably want to catch and handle.
+**What it is:** Conditions that your application might reasonably want to catch and handle.
 
-Responsibility: This is where developers spend 99% of their time.
+**Responsibility:** This is where developers spend 99% of their time.
 
 This branch is further divided into two critical categories:
 
@@ -3778,10 +3778,10 @@ This branch is further divided into two critical categories:
 
 ## Checked Exceptions (Compile-Time)
 
-* Parent: Directly extends `Exception` (but not `RuntimeException`).
-* The Rule: The Compiler checks these. You are forced to handle them (using `try-catch`) or declare them
+* **Parent:** Directly extends `Exception` (but not `RuntimeException`).
+* **The Rule:** The Compiler checks these. You are forced to handle them (using `try-catch`) or declare them
 in your method signature (using `throws`).
-* Philosophy: These represent "External Failures" that are often out of your control (e.g., the file isn't there, the
+* **Philosophy:** These represent "External Failures" that are often out of your control (e.g., the file isn't there, the
 internet is down). Java wants to ensure you have a "Plan B"
 * Examples:
   * `IOException` (File handling).
@@ -3790,9 +3790,9 @@ internet is down). Java wants to ensure you have a "Plan B"
 
 ## Unchecked Exceptions (Runtime)
 
-* Parent: Extends `RuntimeException`.
-* The Rule: The compiler does not check these. You can compile your code without handling them.
-* Philosophy: These represent "Programming Logic Errors." These are usually your fault as a 
+* **Parent:** Extends `RuntimeException`.
+* **The Rule:** The compiler does not check these. You can compile your code without handling them.
+* **Philosophy:** These represent "Programming Logic Errors." These are usually your fault as a 
 developer (e.g., you didn't check for null, you divided by zero). You shouldn't try to catch these; 
 you should fix your code so they don't happen.
 * Examples:
