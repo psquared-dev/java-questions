@@ -167,14 +167,20 @@
   * [2. Narrowing = explicit cast required (unsafe)](#2-narrowing--explicit-cast-required-unsafe)
   * [Why `myChar = myByte` is not allowed](#why-mychar--mybyte-is-not-allowed)
   * [Why `myShort = myChar` is not allowed](#why-myshort--mychar-is-not-allowed)
-  * [Why myChar = myShort is not allowed](#why-mychar--myshort-is-not-allowed)
+  * [Why `myChar = myShort` is not allowed](#why-mychar--myshort-is-not-allowed)
 * [Q-60 Do `doubles` and `float` type overflow?](#q-60-do-doubles-and-float-type-overflow)
 * [Q-61 What is shadowing?](#q-61-what-is-shadowing)
 * [Q-62 var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q-62-var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
 * [Q-63 Will the following code compile?](#q-63-will-the-following-code-compile)
 * [Q-64 Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword](#q-64-mentions-some-other-possible-scenarios-where-we-cant-use-the-var-lvti-keyword)
 * [Q-65 What is string interning?](#q-65-what-is-string-interning)
+  * [Key Points to Mention](#key-points-to-mention)
+    * [1. String literals are automatically interned](#1-string-literals-are-automatically-interned)
+    * [2. new String() always creates a new object](#2-new-string-always-creates-a-new-object)
+    * [3. Manual interning using intern()](#3-manual-interning-using-intern)
+  * [Purpose of interning](#purpose-of-interning)
 * [Q-66 Will the following statement adds string to the string pool?](#q-66-will-the-following-statement-adds-string-to-the-string-pool)
+  * [The Nuance: The final Keyword](#the-nuance-the-final-keyword)
 * [Q-67 What happens when we concatenate string with different type?](#q-67-what-happens-when-we-concatenate-string-with-different-type)
 * [Q-68 What is the difference b/w `equals()` and `equalsIgnoreCase()` method?](#q-68-what-is-the-difference-bw-equals-and-equalsignorecase-method)
 * [Q-69 What is the differnece b/w `isEmpty()` and `isBlank()` method of String object?](#q-69-what-is-the-differnece-bw-isempty-and-isblank-method-of-string-object)
@@ -3160,7 +3166,7 @@ Integers **wrap around**, while Floats **explode to Infinity**.
 
 Here is the distinction:
 
-1\. Integers (Wrap Around)
+**1\. Integers (Wrap Around)**
 
 When an integer type (`int`, `long`, `byte`, `short`) overflows, it loops back to the minimum value (negative). 
 This is often a silent bug.
@@ -3171,7 +3177,7 @@ int result = max + 1;
 // Result is -2,147,483,648 (Wraps to minimum)
 ```
 
-2\. Floating Point (Infinity)
+**2\. Floating Point (Infinity)**
 
 When a `float` or `double` exceeds its maximum storage capacity, it does not wrap around. Instead, it hits a special 
 value called `Infinity`.
@@ -3215,13 +3221,13 @@ public class Main19 {
 }
 ```
 
-What is happening?
+**What is happening?**
 
 * You declared `int i = 10` in the `main` method.
 * Inside the for loop, you declared another `int i`.
 * The inner `i` shadows the outer `i`.
 
-Result:
+**Result:**
 
 Inside the for loop:
   * When you say `i`, Java uses the loop's `i`, not the main method's `i`.
@@ -3242,13 +3248,13 @@ var name = "John";   // inferred as String
 var age = 25;        // inferred as int
 ```
 
-But this is allowed only for local variables, not fields, not method parameters, and not return types.
+But this is allowed only for local variables, **not fields, not method parameters, and not return types**.
 
-Also note that, `var` is not a reserved keyword. It is a restricted type name.
+Also note that, `var` is **not a reserved keyword**. It is a restricted type name.
 
 This means:
 
-* Java treats var specially only when used in variable declarations.
+* Java treats `var` specially only when used in variable declarations.
 * But outside that context, you can use `var` as an identifier.
 
 Example:
@@ -3259,7 +3265,8 @@ String var = "Hi";   // valid
 class var { }        // valid class name (but discouraged)
 ```
 
-If `var` appears where the compiler expects a type, it is treated as LVTI. Otherwise, it is treated as a normal name.
+If `var` appears where the compiler expects a type, it is treated as LVTI. Otherwise, it is treated
+as a normal name.
 
 -----------------------------
 
@@ -3321,28 +3328,88 @@ class var{
 }
 ```
 
-We can use LVTI only for local variables in methods, code blocks and loop variables.
+We can use **LVTI only for local variables in methods, code blocks and loop variables**.
 
 -----------------------------
 
 # Q-65 What is string interning?
 
-When a string is created without a constructor, aka not using `new`, the string is stored 
-in a special area of the heap called **string pool**, whose purpose is to maintain a set of 
-unique strings - this is called **String interning**.
+String interning is a JVM optimization in which identical String values are stored only once in 
+a special pool called the String Pool. When a string literal is created, the JVM checks the pool; 
+if an equivalent string already exists, a reference to the existing string is returned instead of 
+creating a new object.
 
-We can manually intern, using the `intern()` method of the `String` object.
+## Key Points to Mention
+
+### 1. String literals are automatically interned
+
+```java
+String s1 = "java";
+String s2 = "java";
+```
+
+* Both `s1` and `s2` reference the same object from the String Pool.
+
+
+### 2. new String() always creates a new object
+
+```java
+String s3 = new String("java");
+```
+
+* `s3` is a new object on the heap
+* `"java"` literal is still in the String Pool
+
+
+### 3. Manual interning using intern()
+
+```java
+String s4 = s3.intern();
+```
+
+* Returns the canonical (pooled) instance of the string
+
+
+## Purpose of interning
+
+* Saves memory
+* Enables fast reference comparisons (`==`)
+* Useful for frequently repeated strings
 
 -----------------------------
 
 # Q-66 Will the following statement adds string to the string pool?
 
+The Explanation:
+
+1. **Compile-Time (String Pool):** If you write "hello" + " world", the Java compiler sees that 
+   both are literals (constants). It combines them into "hello world" during compilation and 
+   places that single string in the pool.
+
+2. **Run-Time (Heap):** In your code, `s1` is a variable. The compiler cannot know for 
+  sure what `s1` will contain at runtime (technically it can here, but the rule is strict 
+  for non-final variables). Therefore, JVM executes this as:
+
+    ```java
+    new StringBuilder().append(s1).append(" world").toString()
+    ```
+    **This creates a new object on the Heap**, not the Pool.
+
+## The Nuance: The final Keyword
+
+Follow-up question: "How can you force `s2` into the pool without using `.intern()`?"
+
+Answer: Make `s1` final.
+
 ```java
-String s1 = "hello";
-String s2 = s1 + " world";   // this adds the string to the string pool?
+final String s1 = "hello";  // Now it is a Constant
+String s2 = s1 + " world";  // Compiler treats s1 as "hello"
 ```
 
-The expression `s1 + " world"` doesn't add the resultant string to the string pool, unless `intern()` method is called.
+* Because `s1` is `final`, the compiler treats it as a constant value.
+* The expression becomes `"hello" + " world"`.
+* The result `"hello world"` is placed in the String Pool.
+
 
 -----------------------------
 
