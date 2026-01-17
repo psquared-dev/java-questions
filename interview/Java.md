@@ -1238,9 +1238,9 @@ objects in the main method.
 
 When you run a Java program (e.g., `java MyClass`), the JVM performs the following steps:
 
-* Load the Class: It finds `MyClass.class` and loads it into memory.
-* Execute Static Blocks: During this loading phase, it runs all `static` blocks and initializes static variables.
-* Call Main: Only after the class is fully loaded does it look for and call `public static void main`.
+* **Load the Class:** It finds `MyClass.class` and loads it into memory.
+* **Execute Static Blocks:** During this loading phase, it runs all `static` blocks and initializes static variables.
+* **Call Main:** Only after the class is fully loaded does it look for and call `public static void main`.
 
 Example:
 
