@@ -498,8 +498,6 @@ In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them us
 
 # Q-4 What are the diff memory area allocated by JVM?
 
-Ans:
-
 * Heap Space
     * **What:** Where all Objects live (e.g., `new Employee()`).
     * **Scope:** Shared by all threads (Global).
@@ -533,14 +531,14 @@ class Head{
 }
 ```
 
-Ans: Yes. Notice that `public` and `static` keywords can be in any order.
+Yes. Notice that `public` and `static` keywords can be in any order.
 
 
 -----------------------------
 
 # Q-6 Do local variables in Java have default values?
 
-Ans: Local variables **do not have a default value**. Unlike instance variables (fields), they are not 
+Local variables **do not have a default value**. Unlike instance variables (fields), they are not 
 automatically initialized. You must explicitly initialize them before use; otherwise, you will get 
 a compile-time error.
 
@@ -1086,7 +1084,7 @@ It ensures the write to memory is visible to all other threads only after the co
 
 # Q-14 What are packages?
 
-Just a collection of related classes. The use of packages helps and code reusability and name clash.
+Just a collection of related classes. The use of packages helps in code reusability and name clash.
 
 
 -----------------------------
