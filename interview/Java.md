@@ -470,7 +470,6 @@ In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them us
 
 # Q-3 What are different types of classloaders?
 
-Ans:
 
 **Bootstrap ClassLoader**
 
@@ -1087,24 +1086,21 @@ It ensures the write to memory is visible to all other threads only after the co
 
 # Q-14 What are packages?
 
-Ans: Just a collection of related classes. The use of packages helps and code reusability and name clash.
+Just a collection of related classes. The use of packages helps and code reusability and name clash.
 
 
 -----------------------------
 
 # Q-15 Do we have pointers in Java?
 
-Ans: No
+No
 
 -----------------------------
 
 # Q-16 What is Java String Pool?
 
-Ans: A collection of strings in Java's Heap memory is
-referred as Java String Pool. In case you try to create a new
-string object, JVM first checks for the presence of the object
-in the pool. If available, the same object reference is shared
-with the variable, else a new object is created.
+Java String Pool (String Constant Pool) is a special memory region inside the heap that 
+stores string literals and interned strings to enable reuse and save memory.
 
 Its primary purpose is **Memory Efficiency**. Since String is the most widely used class in Java, 
 creating a new object for every single `"Hello"` or `"Error"` string in an application would waste 
