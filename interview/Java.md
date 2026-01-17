@@ -1,30 +1,30 @@
 <!-- TOC -->
-* [Q-1 - What is JIT?](#q-1---what-is-jit)
-* [Q-2 - What is class Loader?](#q-2---what-is-class-loader)
-* [Q-3 - What are different types of classloaders?](#q-3---what-are-different-types-of-classloaders)
-* [Q-4 - What are the diff memory area allocated by JVM?](#q-4---what-are-the-diff-memory-area-allocated-by-jvm)
-* [Q-5 - Is the following program correct?](#q-5---is-the-following-program-correct)
-* [Q-6 - Do local variables in Java have default values?](#q-6---do-local-variables-in-java-have-default-values)
-* [Q-7 - What is association, aggregation and composition?](#q-7---what-is-association-aggregation-and-composition)
+* [Q-1 What is JIT?](#q-1-what-is-jit)
+* [Q-2 What is class Loader?](#q-2-what-is-class-loader)
+* [Q-3 What are different types of classloaders?](#q-3-what-are-different-types-of-classloaders)
+* [Q-4 What are the diff memory area allocated by JVM?](#q-4-what-are-the-diff-memory-area-allocated-by-jvm)
+* [Q-5 Is the following program correct?](#q-5-is-the-following-program-correct)
+* [Q-6 Do local variables in Java have default values?](#q-6-do-local-variables-in-java-have-default-values)
+* [Q-7 What is association, aggregation and composition?](#q-7-what-is-association-aggregation-and-composition)
   * [Association](#association)
   * [Two forms of association](#two-forms-of-association)
   * [Aggregation (weak ownership)](#aggregation-weak-ownership)
   * [Composition (strong ownership)](#composition-strong-ownership)
-* [Q-8 - What is copy constructor?](#q-8---what-is-copy-constructor)
+* [Q-8 What is copy constructor?](#q-8-what-is-copy-constructor)
   * [Copy Constructor vs clone() — Which is better?](#copy-constructor-vs-clone--which-is-better)
     * [1. The "Constructor Bypass" Problem (Critical)](#1-the-constructor-bypass-problem-critical)
     * [2. The Type Casting Tax](#2-the-type-casting-tax)
     * [3. The Exception Nightmare](#3-the-exception-nightmare)
     * [4. The "Marker Interface" Confusion](#4-the-marker-interface-confusion)
-* [Q-9 - What is marker interface?](#q-9---what-is-marker-interface)
+* [Q-9 What is marker interface?](#q-9-what-is-marker-interface)
   * [Resources](#resources)
-* [Q-10 - What object cloning?](#q-10---what-object-cloning)
+* [Q-10 What object cloning?](#q-10-what-object-cloning)
   * [Why does Cloneable matter?](#why-does-cloneable-matter)
   * [Types of Cloning](#types-of-cloning)
     * [Shallow Clone (default)](#shallow-clone-default)
     * [Deep Clone](#deep-clone)
   * [Resources](#resources-1)
-* [Q-11 - Why Java is not completely Object-Oriented?](#q-11---why-java-is-not-completely-object-oriented)
+* [Q-11 Why Java is not completely Object-Oriented?](#q-11-why-java-is-not-completely-object-oriented)
 * [Q-12 What are Wrapper classes](#q-12-what-are-wrapper-classes)
 * [Q-13 Define Singleton class](#q-13-define-singleton-class-)
   * [Sequence of events (step-by-step)](#sequence-of-events-step-by-step)
@@ -442,9 +442,11 @@
   * [When does G1 move to Full GC?](#when-does-g1-move-to-full-gc)
   * [Why classic collectors were slower](#why-classic-collectors-were-slower)
   * [Final interview-ready summary (perfect answer)](#final-interview-ready-summary-perfect-answer)
+* [Q-125 What new features were introduced](#q-125-what-new-features-were-introduced)
+* [Q-126 Give a walk-thorugh of the new features introduced since Java 8?](#q-126-give-a-walk-thorugh-of-the-new-features-introduced-since-java-8-)
 <!-- TOC -->
 
-# Q-1 - What is JIT?
+# Q-1 What is JIT?
 
 JIT (Just-In-Time) Compiler is a component of the JVM that optimizes performance. While the Interpreter 
 executes bytecode line-by-line, the JIT identifies frequently used methods (Hotspots) and compiles them 
@@ -453,7 +455,7 @@ into native machine code on the fly. This allows Java to run nearly as fast as C
 -----------------------------
 
 
-# Q-2 - What is class Loader?
+# Q-2 What is class Loader?
 
 * Part of the JRE that dynamically loads Java classes into the JVM memory (Metaspace).
 * **Lazy Loading:** It does not load all classes at startup; it loads them only when the application needs them.
@@ -466,7 +468,7 @@ In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them us
 
 -----------------------------
 
-# Q-3 - What are different types of classloaders?
+# Q-3 What are different types of classloaders?
 
 Ans:
 
@@ -495,7 +497,7 @@ Ans:
 
 -----------------------------
 
-# Q-4 - What are the diff memory area allocated by JVM?
+# Q-4 What are the diff memory area allocated by JVM?
 
 Ans:
 
@@ -522,7 +524,7 @@ Ans:
 
 -----------------------------
 
-# Q-5 - Is the following program correct?
+# Q-5 Is the following program correct?
 
 ```java
 class Head{
@@ -537,7 +539,7 @@ Ans: Yes. Notice that `public` and `static` keywords can be in any order.
 
 -----------------------------
 
-# Q-6 - Do local variables in Java have default values?
+# Q-6 Do local variables in Java have default values?
 
 Ans: Local variables **do not have a default value**. Unlike instance variables (fields), they are not 
 automatically initialized. You must explicitly initialize them before use; otherwise, you will get 
@@ -546,16 +548,19 @@ a compile-time error.
 -----------------------------
 
 
-# Q-7 - What is association, aggregation and composition?
+# Q-7 What is association, aggregation and composition?
 
 ## Association
 
 Association is the general relationship where one class knows about or interacts with another class.
 
-Association often means a class has a field referencing another object - but not always (it can also be through a method).
+or
 
-So association is the umbrella term.
+Association is a general HAS-A relationship, where one object is connected to another, 
+without implying ownership or lifecycle control.
 
+Association often means a class has a field referencing another object - 
+but not always (it can also be through a method).
 
 ## Two forms of association
 
@@ -641,7 +646,7 @@ Association (has-a)
 
 -----------------------------
 
-# Q-8 - What is copy constructor?
+# Q-8 What is copy constructor?
 
 A copy constructor is a constructor that creates a new object by copying the state of 
 another object of the same class.
@@ -735,9 +740,9 @@ The design of `clone()` is weird.
 -----------------------------
 
 
-# Q-9 - What is marker interface?
+# Q-9 What is marker interface?
 
-Ans:  A marker interface is an interface with **no methods**. It's like putting a sticker on a class.
+A marker interface is an interface with **no methods**. It's like putting a sticker on a class.
 
 The sticker tells the JVM or a framework:
 > "This class has a special property — treat it differently."
@@ -746,8 +751,8 @@ So the interface **marks** the class for special behavior.
 
 Common marker interfaces in Java:
 
-1. Serializable
-2. Cloneable
+1. `Serializable`
+2. `Cloneable`
 
 **Example 1:** Serializable
 
@@ -784,12 +789,13 @@ Without this badge, `clone()` throws an exception.
 
 -----------------------------
 
-# Q-10 - What object cloning?
+# Q-10 What object cloning?
 
-Object cloning is the process of creating an exact copy of an existing object in Java.
-The new object has the same values as the original but is a separate instance in memory.
+Object cloning is the process of creating a copy of an existing object by directly 
+duplicating its memory state, without invoking any constructors.
 
-Cloning is done using the `clone()` method, usually with the class implementing the `Cloneable` marker interface.
+Cloning is done using the `clone()` method, usually with the class implementing 
+the `Cloneable` marker interface.
 
 ## Why does Cloneable matter?
 
@@ -846,7 +852,7 @@ Deep clone must be implemented manually.
 -----------------------------
 
 
-# Q-11 - Why Java is not completely Object-Oriented?
+# Q-11 Why Java is not completely Object-Oriented?
 
 Ans: Because of primitive types like `int`, `char`, `float` etc.
 
@@ -8341,3 +8347,9 @@ Result:
 > performs Mixed GCs—Young GC plus selected garbage-heavy Old regions—using remembered sets for safety, escalating
 > to Full GC only if Mixed GCs cannot reclaim enough space.
 > 
+
+
+# Q-125 What new features were introduced
+
+
+# Q-126 Give a walk-thorugh of the new features introduced since Java 8? 
