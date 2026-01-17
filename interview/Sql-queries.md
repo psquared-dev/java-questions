@@ -17,6 +17,10 @@
 * [Q-12 Explain the difference b/w UNION and UNION ALL](#q-12-explain-the-difference-bw-union-and-union-all)
   * [Example](#example)
   * [Important Rules (Interview-Relevant)](#important-rules-interview-relevant)
+* [Q-12 What is wrong with using COUNT() inside an EXISTS subquery, and how would you correct it?](#q-12-what-is-wrong-with-using-count-inside-an-exists-subquery-and-how-would-you-correct-it)
+    * [Key fact about COUNT(...)](#key-fact-about-count)
+    * [What EXISTS actually checks](#what-exists-actually-checks)
+    * [✅ Correct Way to Use EXISTS](#-correct-way-to-use-exists)
 <!-- TOC -->
 
 # Q-1 WAQ to select the 2nd highest salary from the employee table
@@ -385,4 +389,94 @@ Duplicates preserved.
 * Both queries must return:
     * Same number of columns
     * Compatible data types
+
+
+
+
+# Q-12 What is wrong with using COUNT() inside an EXISTS subquery, and how would you correct it?
+
+Consider the following tables:
+
+**prison**
+
+| id | name      |
+|----|-----------|
+| 1  | Alcatraz  |
+| 2  | Sing Sing |
+| 3  | Shawshank |
+
+**prisoner**
+
+| id | name | age | prison_id |
+|----|------|-----|-----------|
+| 1  | John | 45  | 1         |
+| 2  | Mike | 30  | 1         |
+| 3  | Alex | 55  | 2         |
+| 4  | Bob  | 60  | 2         |
+
+Now, find prisons that have at least one prisoner older than 50. 
+
+The following query looks fine, but it doesn't.
+
+```sql
+SELECT *
+FROM prison p
+WHERE EXISTS (
+    SELECT COUNT(id)
+    FROM prisoner pr
+    WHERE pr.prison_id = p.id
+      AND pr.age > 50
+);
+```
+
+### Key fact about COUNT(...)
+
+* `COUNT()` always returns exactly one row
+* Even when there are no matching rows
+* In that case, it returns `0`
+
+So when the subquery returns:
+
+```text
+count
+-----
+0
+```
+
+That is still a row.
+
+### What EXISTS actually checks
+
+> `EXISTS` does NOT check the value returned.
+> It only checks whether the subquery returns at least one row.
+> 
+
+Since `COUNT()` always returns one row:
+
+```sql
+EXISTS (SELECT COUNT(id) ...)
+```
+
+* ➡️ always evaluates to `TRUE`
+* ➡️ the prison row is included, even when there are zero prisoners over 50
+
+
+### ✅ Correct Way to Use EXISTS
+
+```sql
+SELECT *
+FROM prison p
+WHERE EXISTS (
+    SELECT 1
+    FROM prisoner pr
+    WHERE pr.prison_id = p.id
+      AND pr.age > 50
+);
+```
+
+Why this works
+
+* Subquery returns **rows only if a matching prisoner exists**
+* If none exist → **zero rows**
+* `EXISTS` → `FALSE`
 
