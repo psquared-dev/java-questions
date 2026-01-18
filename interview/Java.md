@@ -1098,7 +1098,7 @@ No
 # Q-16 What is Java String Pool?
 
 Java String Pool (String Constant Pool) is a special memory region inside the heap that 
-stores string literals and interned strings to **enable reuse and save memory**.
+stores interned strings to **enable reuse and save memory**.
 
 Since String is the most widely used class in Java, creating a new object for 
 every single `"Hello"` or `"Error"` string in an application would waste 
