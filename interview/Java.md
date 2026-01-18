@@ -3478,6 +3478,11 @@ String s4 = s3.intern();
 
 # Q-66 Will the following statement adds string to the string pool?
 
+```java
+String s1 = "hello";
+String s2 = s1 + " world";   // this adds the string to the string pool?
+```
+
 The Explanation:
 
 1. **Compile-Time (String Pool):** If you write "hello" + " world", the Java compiler sees that 
