@@ -1190,8 +1190,8 @@ This process is also known as Run-Time Polymorphism
 
 ![thread states](../images/thread-lifecycle.png)
 
-* when `sleep()` is called it goes to timed waiting
-* when `join()` is called thread goes to waiting state
+* when `sleep()` is called, it goes to timed waiting (but the lock is not released)
+* when `wait()` / `join()` is called, thread goes to waiting state
 * when thread is waiting for lock it goes to blocked state
 
 -----------------------------
