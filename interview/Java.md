@@ -1114,9 +1114,9 @@ String s1 = "Hello";
 String s2 = "Hello";
 ```
 
-* Action: JVM checks the pool.
-* Result: It finds `"Hello"` created by `s1`.
-* Outcome: `s2` simply points to the same reference as `s1`. No new object is created.
+* **Action:** JVM checks the pool.
+* **Result:** It finds `"Hello"` created by `s1`.
+* **Outcome:** `s2` simply points to the same reference as `s1`. No new object is created.
 
 ## 2. The new Keyword (The Forceful Way)
 
@@ -1124,9 +1124,10 @@ String s2 = "Hello";
 String s3 = new String("Hello");
 ```
 
-* Action: The `new` keyword forces the creation of a brand new object on the standard Heap, outside the
-pool (even if `"Hello"` already exists in the pool).
-* Result: `s1 == s3` will be false because they are at different memory addresses, even though `s1.equals(s3)` is `true`.
+* **Action:** The `new` keyword forces the creation of a brand new object on the standard Heap, outside the
+  pool (even if `"Hello"` already exists in the pool).
+* **Result:** `s1 == s3` will be false because they are at different memory addresses, even 
+  though `s1.equals(s3)` is `true`.
 
 ## Why this works: Immutability
 
@@ -1134,7 +1135,8 @@ The only reason Java can safely share one `"Hello"` object among 100 different
 variables is because **Strings are Immutable**.
 
 If `s1` could change the content from `"Hello"` to `"Help"`, it would corrupt `s2` and 
-every other variable pointing to that shared object. Because they cannot be changed, they can be safely shared.
+every other variable pointing to that shared object. Because they cannot be changed, they can be 
+safely shared.
 
 -----------------------------
 
