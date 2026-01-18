@@ -2216,19 +2216,19 @@ This is encapsulation.
 There are 5 main ways to compare Strings, depending on your goal:
 
 1. `equals()`: Checks if contents are identical (Case-sensitive).
-    * Use case: Authentication (Password check).
+    * **Use case:** Authentication (Password check).
 
 2. `equalsIgnoreCase()`: Checks contents ignoring case.
-    * Use case: Search functionality (User types `"java"`, finds `Java`).
+    * **Use case:** Search functionality (User types `"java"`, finds `Java`).
 
 3. `compareTo()`: Returns an integer (negative, zero, positive) for sorting (Lexicographical order).
-    * Use case: Sorting a list of names alphabetically.
+    * **Use case:** Sorting a list of names alphabetically.
 
-4. `compareToIgnoreCase()`: Same as compareTo but case-insensitive.
-    * Use case: Sorting names where `"Apple"` and `"apple"` should be treated effectively the same.
+4. `compareToIgnoreCase()`: Same as `compareTo()` but case-insensitive.
+    * **Use case:** Sorting names where `"Apple"` and `"apple"` should be treated effectively the same.
 
 5. `Objects.equals(s1, s2)`: Null-safe version of `.equals()`.
-    * Use case: Best practice when you are not sure if `s1` is null. It avoids `NullPointerException`.
+    * **Use case:** Best practice when you are not sure if `s1` is `null`. It avoids `NullPointerException`.
 
 
 -----------------------------
