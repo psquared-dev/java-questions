@@ -2377,8 +2377,9 @@ try {
 
 # Q-43 What's the diff b/w process and threads?
 
-**A Process** is an independent instance of a program in execution, possessing its own 
-isolated memory address space and system resources.
+**A Process** is an independent instance of a program in execution, possessing its own
+private memory address space - partitioned into the Code Section, Data Section, Heap, and 
+Stack - along with ownership of system resources like open files and sockets.
 
 **A Thread** is the smallest unit of execution managed by the OS. 
 It exists within a process and shares the process's 
