@@ -3549,7 +3549,8 @@ String s = "Value: " + 10;
 What happens:
 
 * `10` is a primitive
-* **No boxing occurs**
+* **No boxing occurs (a common misconception is that the primitive type 
+  is boxed first and then `toString()` is called)**
 * Java calls:
     ```java
     String.valueOf(10)
