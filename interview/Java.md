@@ -46,7 +46,7 @@
   * [Key Idea 1: finalize() may run OR may not run](#key-idea-1-finalize-may-run-or-may-not-run)
   * [Key Idea 2: finalize() runs ONCE per object](#key-idea-2-finalize-runs-once-per-object)
   * [Why "ONLY ONCE"? (Simple explanation)](#why-only-once-simple-explanation)
-* [Q-24 Which class is thread-safe: StringBuilder or StringBuffer?.](#q-24-which-class-is-thread-safe-stringbuilder-or-stringbuffer)
+* [Q-24 Which class is thread-safe: StringBuilder or StringBuffer?](#q-24-which-class-is-thread-safe-stringbuilder-or-stringbuffer)
 * [Q-25 What is Serializable interface? List some real-world use-cases for it.](#q-25-what-is-serializable-interface-list-some-real-world-use-cases-for-it)
   * [Key statement](#key-statement)
     * [Serialization code (standard)](#serialization-code-standard)
@@ -1364,7 +1364,7 @@ Because JVM guarantees:
 -----------------------------
 
 
-# Q-24 Which class is thread-safe: StringBuilder or StringBuffer?.
+# Q-24 Which class is thread-safe: StringBuilder or StringBuffer?
 
 `StringBuffer` is thread safe.
 
