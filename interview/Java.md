@@ -3677,15 +3677,17 @@ When you retrieve `map.get(key)`:
 
 If you override `equals()`, you MUST override `hashCode()`.
 
-1\. If `a.equals(b)` is `true`: Then `a.hashCode()` MUST be equal to `b.hashCode()`.
-  * Why? If they are "equal," they must live in the same bucket. If they were in different buckets, the HashMap would never find the second one.
+1\. If `a.equals(b)` is `true`: Then `a.hashCode() == b.hashCode()` MUST be `true`.
+  * Why? If they are "equal," they must live in the same bucket. If they were in different 
+  buckets, the HashMap would never find the second one.
 
-2\. If `a.hashCode() == b.hashCode()`: They are NOT necessarily equal.
+2\. If `a.hashCode() == b.hashCode()`: `a.equals(b)` may be `true` or `false`.
   * Why? This is called a Collision. Two different objects (like "Aa" and "BB") might accidentally produce 
  the same math result. They end up in the same bucket, sitting next to each other. 
  The HashMap then uses `equals()` to tell them apart.
 
-3\. `hashCode()` must return the same value every time during the object's lifetime, as long as its data doesn't change.
+3\. `hashCode()` must return the same value every time during the object's lifetime, as long as 
+  its data doesn't change.
 
 
 # Q-72 When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?
