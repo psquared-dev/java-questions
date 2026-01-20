@@ -4575,8 +4575,6 @@ class User implements Serializable {
 }
 ```
 
-To prevent a field from being serialized, you can mark it with the `transient` keyword
-
 
 
 # Q-82 How Java resolves method conflicts from multiple interfaces?
