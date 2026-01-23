@@ -34,7 +34,82 @@
     * [Using `@Qualifier`](#using-qualifier-1)
   * [Case 3 – Using Multiple Implementations at the Same Time](#case-3--using-multiple-implementations-at-the-same-time)
   * [Case 4 – Selecting an Implementation at Runtime](#case-4--selecting-an-implementation-at-runtime)
-* [Q-3 What are Spring bean scopes?](#q-3-what-are-spring-bean-scopes)
+* [Q-10 How is a singleton in Spring different from a singleton in core Java?](#q-10-how-is-a-singleton-in-spring-different-from-a-singleton-in-core-java)
+  * [Why Spring does this](#why-spring-does-this)
+* [Q-11 Why should singleton beans in Spring be immutable?](#q-11-why-should-singleton-beans-in-spring-be-immutable)
+  * [Why mutable singleton beans are dangerous](#why-mutable-singleton-beans-are-dangerous)
+  * [Immutable singleton beans are safe](#immutable-singleton-beans-are-safe)
+* [Q-12 What are lazy and eager bean initialization?](#q-12-what-are-lazy-and-eager-bean-initialization)
+  * [Eager Loading (The Default)](#eager-loading-the-default)
+  * [Lazy Loading](#lazy-loading)
+* [Q-13 What are the different bean scopes in Spring?](#q-13-what-are-the-different-bean-scopes-in-spring)
+  * [Singleton (Default)](#singleton-default)
+  * [Prototype](#prototype)
+  * [Important Spring Design Nuance (Frequently Asked in Interviews)](#important-spring-design-nuance-frequently-asked-in-interviews)
+  * [Correct Solutions](#correct-solutions)
+    * [1. Use ObjectProvider (Recommended)](#1-use-objectprovider-recommended)
+    * [2. Inject `ApplicationContext`](#2-inject-applicationcontext)
+* [Q-13 What is Spring Boot? Why did you use Spring Boot in your project not Spring?](#q-13-what-is-spring-boot-why-did-you-use-spring-boot-in-your-project-not-spring)
+  * [Why I used Spring Boot in my project](#why-i-used-spring-boot-in-my-project)
+* [Q-14 What the purpose of @Configuration annotation in Spring boot?](#q-14-what-the-purpose-of-configuration-annotation-in-spring-boot)
+  * [Key interview points (important nuance included):](#key-interview-points-important-nuance-included)
+  * [The Senior Follow-Up: `proxyBeanMethods = false`](#the-senior-follow-up-proxybeanmethods--false)
+* [Q-15 What does the @SpringBootApplicaton annotation does?](#q-15-what-does-the-springbootapplicaton-annotation-does)
+  * [1. @Configuration](#1-configuration)
+  * [2. @EnableAutoConfiguration (The Magic)](#2-enableautoconfiguration-the-magic)
+  * [3. @ComponentScan](#3-componentscan)
+  * [Code Equivalence](#code-equivalence)
+  * [Senior Engineer Nuance](#senior-engineer-nuance)
+* [Q-16 How to disable specific configuration class?](#q-16-how-to-disable-specific-configuration-class)
+  * [1. Using the Annotation (Compile Time)](#1-using-the-annotation-compile-time)
+  * [2. Using Properties File (Runtime)](#2-using-properties-file-runtime)
+  * [@ConditionalOnProperty and @Profile](#conditionalonproperty-and-profile)
+  * [1. Using @Profile (Environment-Based Control)](#1-using-profile-environment-based-control)
+  * [2. Using @ConditionalOnProperty (Feature Flag Control)](#2-using-conditionalonproperty-feature-flag-control)
+* [Q-17 Can we replace Embedded Tomcat server in Spring boot?](#q-17-can-we-replace-embedded-tomcat-server-in-spring-boot)
+  * [1. The Supported Alternatives](#1-the-supported-alternatives)
+  * [2. How to do it (Maven)](#2-how-to-do-it-maven)
+* [Q-18 What is RestController and how it's related to @Controller?](#q-18-what-is-restcontroller-and-how-its-related-to-controller)
+  * [The Relationship (The Formula)](#the-relationship-the-formula)
+  * [1. @Controller (The Traditional Way)](#1-controller-the-traditional-way)
+  * [2. @ResponseBody](#2-responsebody)
+  * [3. @RestController (The Modern Way)](#3-restcontroller-the-modern-way)
+* [Q-19 What's the difference between @RequestMapping and @GetMapping?](#q-19-whats-the-difference-between-requestmapping-and-getmapping)
+  * [@RequestMapping](#requestmapping)
+  * [@GetMapping](#getmapping)
+  * [Relationship between them](#relationship-between-them)
+  * [Key differences (interview table)](#key-differences-interview-table)
+  * [When to use which?](#when-to-use-which)
+* [Q-20 What's Profile in Spring boot?](#q-20-whats-profile-in-spring-boot)
+  * [Why do we need Profiles?](#why-do-we-need-profiles)
+  * [How Profiles work](#how-profiles-work)
+    * [1. Activating a profile](#1-activating-a-profile)
+  * [2. Profile-specific configuration files](#2-profile-specific-configuration-files)
+* [Q-22 How do you read configuration values in a Spring Boot application?](#q-22-how-do-you-read-configuration-values-in-a-spring-boot-application)
+  * [1. Using @Value (Simple, small use cases)](#1-using-value-simple-small-use-cases)
+  * [2. Using Environment (Dynamic / conditional access)](#2-using-environment-dynamic--conditional-access)
+  * [3. Using @ConfigurationProperties (RECOMMENDED)](#3-using-configurationproperties-recommended)
+* [Q-21 What is RestControllerAdvice?](#q-21-what-is-restcontrolleradvice)
+    * [Q-When we define Controller, it gets converted to servlet or not?](#q-when-we-define-controller-it-gets-converted-to-servlet-or-not)
+    * [Q-What is Dispatcher servlet?](#q-what-is-dispatcher-servlet)
+    * [Q- Mention the REST api principles](#q--mention-the-rest-api-principles)
+    * [Q- What Object Oriented Principles you used in the project.](#q--what-object-oriented-principles-you-used-in-the-project)
+    * [Q-What is Data Source?](#q-what-is-data-source)
+    * [Q-What is JDBC Driver](#q-what-is-jdbc-driver-)
+    * [Q-What is Factory Pattern](#q-what-is-factory-pattern)
+    * [Q-How to configure multiple data sources](#q-how-to-configure-multiple-data-sources)
+    * [Q-Why spring boot?](#q-why-spring-boot)
+    * [Q-What are different levels of logging (in order of less severe to more severe)?](#q-what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
+    * [Q-What is AuditAware interface?](#q-what-is-auditaware-interface)
+    * [Q-What are different ways to read configs in Spring Boot?](#q-what-are-different-ways-to-read-configs-in-spring-boot)
+    * [Q-What are the various ways to activate spring profile?](#q-what-are-the-various-ways-to-activate-spring-profile)
+    * [Q-What is the order in which the configs are processed?](#q-what-is-the-order-in-which-the-configs-are-processed)
+    * [Q-How to encrypt values using spring config server?](#q-how-to-encrypt-values-using-spring-config-server)
+    * [Q-Using config server how to get updated value of config without restarting microservice?](#q-using-config-server-how-to-get-updated-value-of-config-without-restarting-microservice)
+    * [Q-Refreshing configs using message bus](#q-refreshing-configs-using-message-bus)
+    * [Q-Auto refresh config using webhooks](#q-auto-refresh-config-using-webhooks)
+    * [Q-How client side load balancing works?](#q-how-client-side-load-balancing-works)
+    * [Q-Eureka Self-preservation mode](#q-eureka-self-preservation-mode)
 <!-- TOC -->
 
 # Q-1 What are two essentials feature of Spring Core?
@@ -898,7 +973,662 @@ class A {
 ```
 
 
-# Q-4 What is RestControllerAdvice?
+
+# Q-13 What is Spring Boot? Why did you use Spring Boot in your project not Spring?
+
+Spring Boot is an opinionated framework built on top of the Spring Framework that simplifies 
+the development of production-ready Java applications.
+
+## Why I used Spring Boot in my project
+
+* Providing auto-configuration based on classpath dependencies
+* Offering starter dependencies (e.g., spring-boot-starter-web)
+* Embedding application servers (Tomcat, Jetty, Undertow)
+* Enabling standalone, executable JARs
+* Exposing production features via Actuator (health, metrics, monitoring)
+
+
+
+# Q-14 What the purpose of @Configuration annotation in Spring boot?
+
+The `@Configuration` annotation tells Spring this class provides bean definitions.
+
+## Key interview points (important nuance included):
+
+* It indicates that the class contains `@Bean` methods
+* Spring **registers the configuration class itself as a bean**
+* Spring creates a **CGLIB proxy** for the configuration class
+* **CGLIB is required only when one `@Bean` method calls another `@Bean` method within the same 
+  configuration class**
+    * The proxy intercepts such calls
+    * Ensures **singleton reuse** instead of creating new objects
+* **CGLIB is not involved when beans are injected into services or other components**
+    * Services receive beans **directly from the container**
+    * They never call `@Bean` methods
+
+
+## The Senior Follow-Up: `proxyBeanMethods = false`
+
+Interviewers often ask: "Can we disable this CGLIB behavior to improve performance?"
+
+**The Answer:** Yes, by using `@Configuration(proxyBeanMethods = false)`.
+
+* **What it does:** It turns off CGLIB proxying for that configuration class. 
+  The class is treated as a plain factory.
+* **The Benefit:** Faster startup time and less memory usage (no extra proxy class generated). 
+  This is often called "Lite Mode".
+* **The Risk:** You lose the Singleton guarantee for inter-bean method calls. 
+  If `beanA()` calls `beanB()` directly, `beanB` will be created from scratch every time.
+* **When to use it:** When your beans don't depend on each other within the configuration 
+  class (i.e., no method calls each other), or if you purely use parameter injection.
+
+
+
+
+# Q-15 What does the @SpringBootApplicaton annotation does?
+
+The `@SpringBootApplication` annotation is a convenience annotation that acts as the main 
+entry point for a Spring Boot application.
+
+It is a "3-in-1" meta-annotation that combines three critical Spring annotations into one 
+to save you from writing boilerplate code.
+
+The 3 Annotations it Wraps:
+
+```text
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan
+```
+
+When you use `@SpringBootApplication`, you are implicitly applying:
+
+## 1. @Configuration
+
+* **Role:** Marks the class as a source of bean definitions.
+* **Significance:** It allows you to define `@Bean` methods in your main class 
+  if needed (though usually, we keep the main class clean).
+
+
+## 2. @EnableAutoConfiguration (The Magic)
+
+**Role:** This enables Spring Boot's auto-configuration mechanism.
+
+**Significance:** It tells Spring Boot to look at the JARs on your classpath and 
+  automatically configure beans.
+    * **Example:** "I see spring-boot-starter-web on the classpath, so I will configure Tomcat and Spring MVC."
+    * **Example:** "I see a DataSource class, so I will configure a database connection."
+
+
+## 3. @ComponentScan
+
+* **Role:** Tells Spring to scan for components (`@Controller`, `@Service`, `@Repository`) in the 
+  current package and all of its sub-packages.
+* **Significance:** This is why we always place the main application class in 
+  the root package (e.g., `com.example.project`). If you put it in a sub-package, it won't 
+  find your services defined in sibling packages.
+
+
+## Code Equivalence
+
+Writing this:
+
+```java
+@SpringBootApplication
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}
+```
+
+Is exactly the same as writing this (but much cleaner):
+
+```java
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}
+```
+
+## Senior Engineer Nuance
+
+Q: Can we customize it? A: Yes. Since it wraps `@ComponentScan`, you can pass parameters to it 
+to change the scanning behavior.
+
+* `@SpringBootApplication(scanBasePackages = "com.other.library")` This is useful if you have a 
+ multi-module project or need to include beans from a library outside your main package structure.
+
+
+
+
+# Q-16 How to disable specific configuration class?
+
+In Spring Boot, you might sometimes want to prevent a specific default behavior (like Spring 
+automatically configuring a database you don't need). You can do this in two ways:
+
+
+## 1. Using the Annotation (Compile Time)
+
+This is the most common approach. You can use the exclude attribute on the 
+main `@SpringBootApplication` annotation.
+
+**Example:** Disabling the default Database Auto-Configuration.
+
+```java
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}
+```
+
+
+## 2. Using Properties File (Runtime)
+
+This approach is useful if you want to disable configuration based on the 
+environment (e.g., disable security in Dev but keep it in Prod) without changing Java code.
+
+In `application.properties`:
+
+```properties
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+```
+
+In `application.yml`:
+
+```yaml
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+```
+
+
+## @ConditionalOnProperty and @Profile
+
+`@ConditionalOnProperty` and `@Profile` annotations are actually the preferred ways to control 
+configuration loading in a production application because they offer more flexibility than 
+hard-coding an exclusion.
+
+
+However, there is a key distinction:
+
+* `exclude` (previous answer) is for **removing Spring Boot's default** auto-configurations.
+* `@Profile` and `@ConditionalOnProperty` are typically used to control YOUR own configuration
+  classes or beans.
+
+Here is how to use them effectively:
+
+## 1. Using @Profile (Environment-Based Control)
+
+Use this when you want to load a configuration only in **specific environments** (e.g., Dev vs. Prod).
+
+**Scenario:** You want an H2 database for local development, but a PostgreSQL connection for production.
+
+```java
+@Configuration
+@Profile("dev") // This class ONLY loads if 'dev' profile is active
+public class DevDatabaseConfig {
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder().build();
+    }
+}
+```
+
+**How to activate:** Add `spring.profiles.active=dev` in your `application.properties`.
+
+
+## 2. Using @ConditionalOnProperty (Feature Flag Control)
+
+This is the most powerful option. It allows you to enable or disable entire modules based on a 
+simple property in `application.properties`. This is how Spring Boot's own internal starters work.
+
+**Scenario:** You have an Email Service, but you want to disable it entirely for now 
+without deleting the code.
+
+```java
+@Configuration
+// Load this config ONLY if 'app.email.enabled' is 'true' in properties
+@ConditionalOnProperty(
+    name = "app.email.enabled", 
+    havingValue = "true", 
+    matchIfMissing = false // If property is missing, do NOT load this config
+)
+public class EmailConfig {
+    
+    @Bean
+    public EmailService emailService() {
+        return new EmailService();
+    }
+}
+```
+
+In `application.properties`:
+
+```properties
+app.email.enabled=true  # Set to false to disable the entire config
+```
+
+| Method                       | Use Case                                                                                                         | Best For...                           |
+|:-----------------------------|:-----------------------------------------------------------------------------------------------------------------|:--------------------------------------|
+| **`exclude`**                | You want to **permanently** remove a default Spring Boot behavior (e.g., "I never want the default DataSource"). | Cleaning up conflicts with libraries. |
+| **`@Profile`**               | You want different beans for **different environments** (Dev vs. Test vs. Prod).                                 | Database configs, Mock services.      |
+| **`@ConditionalOnProperty`** | You want to toggle **specific features** on/off via configuration.                                               | Feature flags, optional modules.      |
+
+
+
+
+# Q-17 Can we replace Embedded Tomcat server in Spring boot?
+
+Yes, absolutely. Spring Boot is designed to be flexible, and the embedded Tomcat 
+server is just the default.
+
+You can easily replace it with Jetty or Undertow.
+
+
+## 1. The Supported Alternatives
+
+* Tomcat: (Default) Robust, widely used, standard for Servlet stack.
+* Jetty: Known for being lightweight and having a smaller memory footprint. 
+  Excellent for long-lived connections (like WebSockets).
+* Undertow: (By JBoss) A high-performance, non-blocking web server. It is often faster 
+  than Tomcat for high-throughput applications.
+* Netty: The default for Spring WebFlux (Reactive stack), but generally not used for standard Spring MVC.
+
+
+## 2. How to do it (Maven)
+
+To switch servers, you must first `exclude` the default Tomcat dependency from 
+the `spring-boot-starter-web` and then add the dependency for the server you want.
+
+**Example: Switching to Jetty**
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <exclusions>
+            <exclusion>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-tomcat</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jetty</artifactId>
+    </dependency>
+</dependencies>
+```
+
+
+
+# Q-18 What is RestController and how it's related to @Controller?
+
+`@RestController` is a specialized version of the `@Controller` annotation used in Spring MVC. 
+It is a convenience annotation designed specifically for creating RESTful Web Services.
+
+## The Relationship (The Formula)
+
+The most important thing to remember (and mention in an interview) is this equation:
+
+```text
+@RestController = @Controller + @ResponseBody
+```
+
+It combines two annotations into one.
+
+Detailed Breakdown
+
+## 1. @Controller (The Traditional Way)
+
+* **Purpose:** Marks the class as a Spring MVC Controller.
+* **Behavior:** By default, methods in a `@Controller` are expected to return a View 
+  Name (like "index.html" or "home.jsp").
+* **The Problem for APIs:** If you want to return JSON data (like a `User` object), you explicitly 
+  have to add `@ResponseBody` to every single method. Otherwise, Spring will try to find a file 
+  named "User" and fail.
+
+```java
+@Controller
+public class PageController {
+
+    @GetMapping("/home")
+    public String home() {
+        return "home"; // view name
+    }
+}
+```
+
+
+## 2. @ResponseBody
+
+* **Purpose:** Tells Spring: "Do not interpret the return value as a view name. 
+  Instead, write the return value directly into the HTTP Response Body."
+* **Mechanism:** It triggers a message converter (usually Jackson) to serialize your 
+  Java Object into JSON or XML.
+
+
+```java
+@Controller
+public class OldUserController {
+
+    @GetMapping("/users")
+    @ResponseBody  
+    public List<String> getUsers() {
+        return List.of("Alice", "Bob");
+    }
+}
+```
+
+
+## 3. @RestController (The Modern Way)
+
+* **Purpose:** Since 99% of modern APIs return JSON, `@RestController` adds `@ResponseBody` to every
+  method in the class automatically.
+* **Benefit:** It saves you from typing `@ResponseBody` on every method.
+
+
+```java
+@RestController // @ResponseBody is automatic for all methods
+public class NewUserController {
+
+    @GetMapping("/users")
+    public List<String> getUsers() {
+        return List.of("Alice", "Bob"); // Automatically converted to JSON
+    }
+}
+```
+
+
+
+# Q-19 What's the difference between @RequestMapping and @GetMapping?
+
+In Spring Framework, both annotations are used to map HTTP requests to controller methods, but they 
+differ in scope, intent, and clarity.
+
+## @RequestMapping
+
+`@RequestMapping` is the generic and oldest request-mapping annotation.
+
+Key characteristics:
+
+* Can handle any HTTP method (GET, POST, PUT, DELETE, etc.)
+* HTTP method must be specified explicitly
+* Can be used at class level and method level
+
+```java
+@RequestMapping(value = "/users", method = RequestMethod.GET)
+public List<User> getUsers() {
+    return userService.findAll();
+}
+```
+
+
+## @GetMapping
+
+`@GetMapping` is a **specialized shortcut annotation** introduced in Spring 4.3.
+
+Key characteristics:
+
+* Handles **only HTTP GET** requests
+* More **readable and expressive**
+* Cannot accidentally map other HTTP methods
+
+```java
+@GetMapping("/users")
+public List<User> getUsers() {
+    return userService.findAll();
+}
+```
+
+
+## Relationship between them
+
+```text
+@GetMapping ≡ @RequestMapping(method = RequestMethod.GET)
+```
+
+Similarly:
+
+* `@PostMapping`
+* `@PutMapping`
+* `@DeleteMapping`
+* `@PatchMapping`
+
+
+## Key differences (interview table)
+
+| Aspect        | `@RequestMapping`           | `@GetMapping`      |
+|---------------|-----------------------------|--------------------|
+| HTTP methods  | Any                         | Only GET           |
+| Readability   | Verbose                     | Clean and explicit |
+| Risk          | Can forget method attribute | No ambiguity       |
+| Introduced in | Early Spring                | Spring 4.3         |
+
+
+## When to use which?
+
+* Use `@GetMapping` for GET APIs (recommended best practice)
+* Use `@RequestMapping`:
+    * At **class level** for common paths
+    * When mapping **multiple HTTP methods** to the same handler
+
+Example:
+
+```java
+@RequestMapping("/users")
+public class UserController {
+
+    @GetMapping
+    public List<User> getUsers() { ... }
+
+    @PostMapping
+    public User createUser() { ... }
+}
+```
+
+
+
+# Q-20 What's Profile in Spring boot?
+
+In Spring Boot, a Profile is a mechanism used to group and activate beans and configuration based
+on the runtime environment.
+
+In simple terms:
+> Profiles allow you to load different configurations for different environments 
+> such as dev, test, qa, and prod.
+
+
+## Why do we need Profiles?
+
+Different environments require different behavior:
+
+* Different databases (H2 vs MySQL vs PostgreSQL)
+* Different security settings
+* Different logging levels
+* Feature toggles
+
+Profiles solve this **cleanly without code changes**.
+
+
+## How Profiles work
+
+### 1. Activating a profile
+
+Profiles can be activated using:
+
+Properties file (`application.properties`) :
+
+```text
+spring.profiles.active=dev
+```
+
+Command line:
+
+```text
+-Dspring.profiles.active=prod
+```
+
+Environment variable:
+
+```text
+SPRING_PROFILES_ACTIVE=prod
+```
+
+
+## 2. Profile-specific configuration files
+
+Spring Boot automatically picks:
+
+```text
+application-dev.properties
+application-prod.properties
+```
+
+
+# Q-22 How do you read configuration values in a Spring Boot application?
+
+
+## 1. Using @Value (Simple, small use cases)
+
+Best when you need **1–2 configuration values**.
+
+```text
+app.name=Order Service
+app.timeout=5000
+```
+
+```java
+@RestController
+public class OrderController {
+
+    @Value("${app.name}")
+    private String appName;
+
+    @Value("${app.timeout}")
+    private int timeout;
+
+    @GetMapping("/info")
+    public String info() {
+        return appName + " - " + timeout;
+    }
+}
+```
+
+**Pros**
+
+* Very simple
+* Quick to use
+
+**Cons**
+
+* Not type-safe
+* Hard to manage for many properties
+* No validation
+
+
+## 2. Using Environment (Dynamic / conditional access)
+
+Useful when keys are **dynamic** or optional.
+
+```java
+@Service
+public class PaymentService {
+
+    private final Environment environment;
+
+    public PaymentService(Environment environment) {
+        this.environment = environment;
+    }
+
+    public void process() {
+        String mode = environment.getProperty("payment.mode", "CASH");
+    }
+}
+```
+
+**Pros**
+
+* Supports default values
+* Useful for conditional logic
+
+**Cons**
+
+* String-based (not type-safe)
+* Less readable
+
+
+## 3. Using @ConfigurationProperties (RECOMMENDED)
+
+This is the **best practice** for real projects and interviews.
+
+**Step 1: Define config**
+
+```yaml
+app:
+  name: Order Service
+  timeout: 5000
+  retry:
+    max-attempts: 3
+```
+
+**Step 2: Create config class**
+
+```java
+@Component
+@ConfigurationProperties(prefix = "app")
+public class AppProperties {
+
+    private String name;
+    private int timeout;
+    private Retry retry;
+
+    public static class Retry {
+        private int maxAttempts;
+        // getters & setters
+    }
+
+    // getters & setters
+}
+```
+
+**Step 3: Inject into service/controller**
+
+```java
+@Service
+public class OrderService {
+
+    private final AppProperties appProperties;
+
+    public OrderService(AppProperties appProperties) {
+        this.appProperties = appProperties;
+    }
+
+    public void process() {
+        int retries = appProperties.getRetry().getMaxAttempts();
+    }
+}
+```
+
+**Pros**
+
+* Type-safe
+* Clean structure
+* Easy to maintain
+* Supports validation
+
+
+
+# Q-21 What is RestControllerAdvice?
  
 1. Docker vs Jar
 1. Datasouce vs driver
