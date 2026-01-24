@@ -49,38 +49,38 @@
   * [Correct Solutions](#correct-solutions)
     * [1. Use ObjectProvider (Recommended)](#1-use-objectprovider-recommended)
     * [2. Inject `ApplicationContext`](#2-inject-applicationcontext)
-* [Q-13 What is Spring Boot? Why did you use Spring Boot in your project not Spring?](#q-13-what-is-spring-boot-why-did-you-use-spring-boot-in-your-project-not-spring)
+* [Q-14 What is Spring Boot? Why did you use Spring Boot in your project not Spring?](#q-14-what-is-spring-boot-why-did-you-use-spring-boot-in-your-project-not-spring)
   * [Why I used Spring Boot in my project](#why-i-used-spring-boot-in-my-project)
-* [Q-14 What the purpose of @Configuration annotation in Spring boot?](#q-14-what-the-purpose-of-configuration-annotation-in-spring-boot)
+* [Q-15 What the purpose of @Configuration annotation in Spring boot?](#q-15-what-the-purpose-of-configuration-annotation-in-spring-boot)
   * [Key interview points (important nuance included):](#key-interview-points-important-nuance-included)
   * [The Senior Follow-Up: `proxyBeanMethods = false`](#the-senior-follow-up-proxybeanmethods--false)
-* [Q-15 What does the @SpringBootApplicaton annotation does?](#q-15-what-does-the-springbootapplicaton-annotation-does)
+* [Q-16 What does the @SpringBootApplicaton annotation does?](#q-16-what-does-the-springbootapplicaton-annotation-does)
   * [1. @Configuration](#1-configuration)
   * [2. @EnableAutoConfiguration (The Magic)](#2-enableautoconfiguration-the-magic)
   * [3. @ComponentScan](#3-componentscan)
   * [Code Equivalence](#code-equivalence)
   * [Senior Engineer Nuance](#senior-engineer-nuance)
-* [Q-16 How to disable specific configuration class?](#q-16-how-to-disable-specific-configuration-class)
+* [Q-17 How to disable specific configuration class?](#q-17-how-to-disable-specific-configuration-class)
   * [1. Using the Annotation (Compile Time)](#1-using-the-annotation-compile-time)
   * [2. Using Properties File (Runtime)](#2-using-properties-file-runtime)
   * [@ConditionalOnProperty and @Profile](#conditionalonproperty-and-profile)
   * [1. Using @Profile (Environment-Based Control)](#1-using-profile-environment-based-control)
   * [2. Using @ConditionalOnProperty (Feature Flag Control)](#2-using-conditionalonproperty-feature-flag-control)
-* [Q-17 Can we replace Embedded Tomcat server in Spring boot?](#q-17-can-we-replace-embedded-tomcat-server-in-spring-boot)
+* [Q-18 Can we replace Embedded Tomcat server in Spring boot?](#q-18-can-we-replace-embedded-tomcat-server-in-spring-boot)
   * [1. The Supported Alternatives](#1-the-supported-alternatives)
   * [2. How to do it (Maven)](#2-how-to-do-it-maven)
-* [Q-18 What is RestController and how it's related to @Controller?](#q-18-what-is-restcontroller-and-how-its-related-to-controller)
+* [Q-19 What is RestController and how it's related to @Controller?](#q-19-what-is-restcontroller-and-how-its-related-to-controller)
   * [The Relationship (The Formula)](#the-relationship-the-formula)
   * [1. @Controller (The Traditional Way)](#1-controller-the-traditional-way)
   * [2. @ResponseBody](#2-responsebody)
   * [3. @RestController (The Modern Way)](#3-restcontroller-the-modern-way)
-* [Q-19 What's the difference between @RequestMapping and @GetMapping?](#q-19-whats-the-difference-between-requestmapping-and-getmapping)
+* [Q-20 What's the difference between @RequestMapping and @GetMapping?](#q-20-whats-the-difference-between-requestmapping-and-getmapping)
   * [@RequestMapping](#requestmapping)
   * [@GetMapping](#getmapping)
   * [Relationship between them](#relationship-between-them)
   * [Key differences (interview table)](#key-differences-interview-table)
   * [When to use which?](#when-to-use-which)
-* [Q-20 What's Profile in Spring boot?](#q-20-whats-profile-in-spring-boot)
+* [Q-21 What's Profile in Spring boot?](#q-21-whats-profile-in-spring-boot)
   * [Why do we need Profiles?](#why-do-we-need-profiles)
   * [How Profiles work](#how-profiles-work)
     * [1. Activating a profile](#1-activating-a-profile)
@@ -89,9 +89,50 @@
   * [1. Using @Value (Simple, small use cases)](#1-using-value-simple-small-use-cases)
   * [2. Using Environment (Dynamic / conditional access)](#2-using-environment-dynamic--conditional-access)
   * [3. Using @ConfigurationProperties (RECOMMENDED)](#3-using-configurationproperties-recommended)
-* [Q-21 What is RestControllerAdvice?](#q-21-what-is-restcontrolleradvice)
-    * [Q-When we define Controller, it gets converted to servlet or not?](#q-when-we-define-controller-it-gets-converted-to-servlet-or-not)
-    * [Q-What is Dispatcher servlet?](#q-what-is-dispatcher-servlet)
+* [Q-23 What is RestControllerAdvice?](#q-23-what-is-restcontrolleradvice)
+  * [Why it exists (the problem it solves)](#why-it-exists-the-problem-it-solves)
+  * [What you typically use it for](#what-you-typically-use-it-for)
+  * [Typical usage pattern](#typical-usage-pattern)
+  * [Difference between related annotations](#difference-between-related-annotations)
+* [Q-24 What is Spring Actuator?](#q-24-what-is-spring-actuator)
+  * [Why Spring Actuator exists (the problem it solves)](#why-spring-actuator-exists-the-problem-it-solves)
+  * [What Spring Actuator provides](#what-spring-actuator-provides)
+  * [How you enable Spring Actuator](#how-you-enable-spring-actuator)
+* [Q-25 How to change Actuator port?](#q-25-how-to-change-actuator-port)
+* [Q-26 How to expose / hide Actuator endpoints?](#q-26-how-to-expose--hide-actuator-endpoints)
+* [Q-27 How to create a custom Actuator endpoint?](#q-27-how-to-create-a-custom-actuator-endpoint)
+  * [Custom endpoint using @Endpoint](#custom-endpoint-using-endpoint)
+  * [Supported operations](#supported-operations)
+* [Q-28 What is spring-boot-maven-plugin?](#q-28-what-is-spring-boot-maven-plugin)
+  * [1. The Problem: Standard Maven Builds](#1-the-problem-standard-maven-builds)
+  * [2. The Solution: The "Fat JAR"](#2-the-solution-the-fat-jar)
+  * [3. Key Goals (Interview Checklist)](#3-key-goals-interview-checklist)
+* [Q-29 What are the advantages of yaml over properties file?](#q-29-what-are-the-advantages-of-yaml-over-properties-file)
+  * [Key advantages of YAML over .properties](#key-advantages-of-yaml-over-properties)
+    * [1. Hierarchical and structured configuration (biggest advantage)](#1-hierarchical-and-structured-configuration-biggest-advantage)
+    * [2. Better readability for large configs](#2-better-readability-for-large-configs)
+    * [3. Native support for lists](#3-native-support-for-lists)
+    * [5. Reduced duplication and better maintainability](#5-reduced-duplication-and-better-maintainability)
+    * [6. Strong fit with @ConfigurationProperties](#6-strong-fit-with-configurationproperties)
+  * [Disadvantages of YAML (important to mention)](#disadvantages-of-yaml-important-to-mention)
+* [Q-30 What's the difference between liveness and readiness?](#q-30-whats-the-difference-between-liveness-and-readiness)
+  * [Liveness Probe — "Should this app be restarted?"](#liveness-probe--should-this-app-be-restarted)
+  * [Readiness Probe — "Can this app receive traffic?"](#readiness-probe--can-this-app-receive-traffic)
+  * [Side-by-side comparison](#side-by-side-comparison)
+* [Q-31 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?](#q-31-what-are-servlets-what-is-a-web-servlet-container-and-why-is-it-needed-what-problems-did-developers-face-with-servlets-that-led-to-frameworks-like-spring-mvc)
+  * [1. What are Servlets?](#1-what-are-servlets)
+  * [2️. What is a Web / Servlet Container?](#2-what-is-a-web--servlet-container)
+    * [Responsibilities of a Servlet Container](#responsibilities-of-a-servlet-container)
+    * [WSGI analogy (important and correct)](#wsgi-analogy-important-and-correct)
+  * [3. What was the problem with Servlets?](#3-what-was-the-problem-with-servlets)
+  * [Key problems with Servlets](#key-problems-with-servlets)
+    * [1. Excessive boilerplate](#1-excessive-boilerplate)
+    * [2. Tight coupling to HTTP](#2-tight-coupling-to-http)
+    * [3. Poor separation of concerns](#3-poor-separation-of-concerns)
+    * [4. No built-in MVC abstraction](#4-no-built-in-mvc-abstraction)
+    * [5. Weak support for cross-cutting concerns](#5-weak-support-for-cross-cutting-concerns)
+* [Q-32 When we define Controller, it gets converted to servlet or not?](#q-32-when-we-define-controller-it-gets-converted-to-servlet-or-not)
+* [Q-32 Compare Servlet vs Filter vs Interceptor](#q-32-compare-servlet-vs-filter-vs-interceptor)
     * [Q- Mention the REST api principles](#q--mention-the-rest-api-principles)
     * [Q- What Object Oriented Principles you used in the project.](#q--what-object-oriented-principles-you-used-in-the-project)
     * [Q-What is Data Source?](#q-what-is-data-source)
@@ -974,7 +1015,7 @@ class A {
 
 
 
-# Q-13 What is Spring Boot? Why did you use Spring Boot in your project not Spring?
+# Q-14 What is Spring Boot? Why did you use Spring Boot in your project not Spring?
 
 Spring Boot is an opinionated framework built on top of the Spring Framework that simplifies 
 the development of production-ready Java applications.
@@ -989,7 +1030,7 @@ the development of production-ready Java applications.
 
 
 
-# Q-14 What the purpose of @Configuration annotation in Spring boot?
+# Q-15 What the purpose of @Configuration annotation in Spring boot?
 
 The `@Configuration` annotation tells Spring this class provides bean definitions.
 
@@ -1025,7 +1066,7 @@ Interviewers often ask: "Can we disable this CGLIB behavior to improve performan
 
 
 
-# Q-15 What does the @SpringBootApplicaton annotation does?
+# Q-16 What does the @SpringBootApplicaton annotation does?
 
 The `@SpringBootApplication` annotation is a convenience annotation that acts as the main 
 entry point for a Spring Boot application.
@@ -1106,7 +1147,7 @@ to change the scanning behavior.
 
 
 
-# Q-16 How to disable specific configuration class?
+# Q-17 How to disable specific configuration class?
 
 In Spring Boot, you might sometimes want to prevent a specific default behavior (like Spring 
 automatically configuring a database you don't need). You can do this in two ways:
@@ -1224,7 +1265,7 @@ app.email.enabled=true  # Set to false to disable the entire config
 
 
 
-# Q-17 Can we replace Embedded Tomcat server in Spring boot?
+# Q-18 Can we replace Embedded Tomcat server in Spring boot?
 
 Yes, absolutely. Spring Boot is designed to be flexible, and the embedded Tomcat 
 server is just the default.
@@ -1271,7 +1312,7 @@ the `spring-boot-starter-web` and then add the dependency for the server you wan
 
 
 
-# Q-18 What is RestController and how it's related to @Controller?
+# Q-19 What is RestController and how it's related to @Controller?
 
 `@RestController` is a specialized version of the `@Controller` annotation used in Spring MVC. 
 It is a convenience annotation designed specifically for creating RESTful Web Services.
@@ -1350,7 +1391,7 @@ public class NewUserController {
 
 
 
-# Q-19 What's the difference between @RequestMapping and @GetMapping?
+# Q-20 What's the difference between @RequestMapping and @GetMapping?
 
 In Spring Framework, both annotations are used to map HTTP requests to controller methods, but they 
 differ in scope, intent, and clarity.
@@ -1438,7 +1479,7 @@ public class UserController {
 
 
 
-# Q-20 What's Profile in Spring boot?
+# Q-21 What's Profile in Spring boot?
 
 In Spring Boot, a Profile is a mechanism used to group and activate beans and configuration based
 on the runtime environment.
@@ -1628,7 +1669,618 @@ public class OrderService {
 
 
 
-# Q-21 What is RestControllerAdvice?
+
+# Q-23 What is RestControllerAdvice?
+
+`@RestControllerAdvice` is a specialized Spring annotation used to implement global 
+exception handling and response customization for REST APIs.
+
+It is part of the Spring Framework ecosystem and applies across all `@RestControllers` in the application.
+
+Formally:
+
+```text
+@RestControllerAdvice = @ControllerAdvice + @ResponseBody
+```
+
+This means:
+
+* `@ControllerAdvice` → applies logic globally to multiple controllers
+* `@ResponseBody` → ensures responses are serialized as JSON/XML, not views
+
+## Why it exists (the problem it solves)
+
+**Without @RestControllerAdvice:**
+
+* Each controller must handle exceptions individually
+* Error responses become inconsistent
+* Duplicate try–catch blocks spread across controllers
+
+**With @RestControllerAdvice:**
+
+* Exception handling is centralized
+* Error responses are consistent
+* Controllers remain clean and focused on business logic
+
+
+## What you typically use it for
+
+1. Global exception handling
+2. Mapping exceptions to HTTP status codes
+3. Standardizing error response structure
+4. Cross-cutting REST concerns (errors, validation failures)
+
+
+##  Typical usage pattern
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFound(ResourceNotFoundException ex) {
+        return new ErrorResponse("NOT_FOUND", ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidation(MethodArgumentNotValidException ex) {
+        return new ErrorResponse("VALIDATION_ERROR", "Invalid request data");
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleGeneric(Exception ex) {
+        return new ErrorResponse("INTERNAL_ERROR", "Something went wrong");
+    }
+}
+```
+
+**How it works internally (flow)**
+
+1. A request hits a `@RestController`
+2. An exception is thrown
+3. Spring checks registered `@RestControllerAdvice` beans
+4. The matching `@ExceptionHandler` method is invoked
+5. Response is serialized and returned to the client
+
+
+## Difference between related annotations
+
+| Annotation              | Purpose                                                   |
+|-------------------------|-----------------------------------------------------------|
+| `@ControllerAdvice`     | Global advice for MVC controllers (usually returns views) |
+| `@RestControllerAdvice` | Global advice for REST controllers (returns JSON/XML)     |
+| `@ExceptionHandler`     | Handles specific exceptions                               |
+| `@ResponseStatus`       | Sets HTTP status for response                             |
+
+
+
+
+# Q-24 What is Spring Actuator?
+
+Spring Boot Actuator is a production-ready module of Spring Boot that provides built-in 
+endpoints to monitor, manage, and inspect a running application.
+
+It exposes operational information such as:
+
+* Application health
+* Metrics
+* Environment properties
+* Thread dumps
+* HTTP request traces
+
+
+## Why Spring Actuator exists (the problem it solves)
+
+In real systems, deploying an application is not enough. You must answer:
+
+* Is the application up or down?
+* Is it healthy?
+* How much memory / CPU is it using?
+* Are threads blocked or leaking?
+* Is a downstream dependency failing?
+
+Spring Actuator answers these without writing custom code.
+
+## What Spring Actuator provides
+
+Actuator exposes management endpoints over HTTP or JMX.
+
+Common built-in endpoints
+
+| Endpoint               | Purpose                   |
+|------------------------|---------------------------|
+| `/actuator/health`     | Application health status |
+| `/actuator/info`       | Application metadata      |
+| `/actuator/metrics`    | JVM & app metrics         |
+| `/actuator/env`        | Environment properties    |
+| `/actuator/beans`      | Spring beans info         |
+| `/actuator/threaddump` | Thread dump               |
+| `/actuator/heapdump`   | Heap snapshot             |
+| `/actuator/loggers`    | View/change log levels    |
+
+
+## How you enable Spring Actuator
+
+Add dependency:
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+Expose endpoints:
+
+```text
+management.endpoints.web.exposure.include=health,info,metrics
+```
+
+Q-25 How to change the Actuator base endpoint?
+
+**Default**
+
+```text
+/actuator
+```
+
+**Change base path**
+
+```text
+management.endpoints.web.base-path=/manage
+```
+
+Now:
+
+```text
+/manage/health
+/manage/metrics
+```
+
+# Q-25 How to change Actuator port?
+
+Default
+
+* Actuator runs on same port as application
+
+Run Actuator on a separate port (best practice)
+
+```text
+management.server.port=8081
+```
+
+Now:
+
+* App → http://localhost:8080
+* Actuator → http://localhost:8081/actuator/health
+
+
+# Q-26 How to expose / hide Actuator endpoints?
+
+**Expose specific endpoints**
+
+```text
+management.endpoints.web.exposure.include=health,info,metrics
+```
+
+**Expose all endpoints (NOT recommended)**
+
+```text
+management.endpoints.web.exposure.include=*
+```
+
+**Exclude sensitive endpoints**
+
+```text
+management.endpoints.web.exposure.exclude=env,beans
+```
+
+# Q-27 How to create a custom Actuator endpoint?
+
+## Custom endpoint using @Endpoint
+
+```java
+@Component
+@Endpoint(id = "buildinfo")
+public class BuildInfoEndpoint {
+
+    @ReadOperation
+    public Map<String, String> buildInfo() {
+        return Map.of(
+            "version", "1.0.0",
+            "owner", "Payments Team",
+            "status", "stable"
+        );
+    }
+}
+```
+
+Access URL:
+
+```text
+/actuator/buildinfo
+```
+
+## Supported operations
+
+| Annotation         | HTTP mapping |
+|--------------------|--------------|
+| `@ReadOperation`   | GET          |
+| `@WriteOperation`  | POST         |
+| `@DeleteOperation` | DELETE       |
+
+
+
+
+# Q-28 What is spring-boot-maven-plugin?
+
+The spring-boot-maven-plugin is a vital tool that bridges the gap between 
+a standard Maven build and a Spring Boot application.
+
+Its primary job is to Repackage your application into an Executable JAR (often 
+called a "Fat JAR" or "Uber JAR").
+
+## 1. The Problem: Standard Maven Builds
+
+By default, when you run mvn package, Maven creates a **"Skinny JAR"**.
+
+* It contains only your compiled classes (`.class` files).
+* It does not contain your dependencies (like Spring Web, Jackson, Hibernate, Tomcat).
+* If you try to run it (`java -jar app.jar`), it fails immediately with `ClassNotFoundException` 
+  because it can't find the libraries it needs.
+
+## 2. The Solution: The "Fat JAR"
+
+The Spring Boot plugin steps in after the standard package phase. It creates a new JAR that includes:
+
+1. **Your Code:** All your compiled classes.
+2. **Dependencies:** All the JAR files defined in your pom.xml (nested inside BOOT-INF/lib).
+3. **Embedded Server:** The Tomcat/Jetty server binaries.
+4. **A Special Loader:** A custom ClassLoader that knows how to read those nested JARs.
+
+
+## 3. Key Goals (Interview Checklist)
+
+* `repackage`: The main goal. It takes the original JAR and bundles all dependencies inside it 
+  so you can run it with `java -jar myapp.jar`.
+* `run`: Allows you to start the application directly from the command line during development
+  using `mvn spring-boot:run`.
+* `build-info`: Generates a `build-info.properties` file containing version, time, and artifact
+  details (useful for actuator health checks).
+
+
+
+
+# Q-29 What are the advantages of yaml over properties file?
+
+In Spring Boot, configuration can be written using either:
+
+* `application.properties` (key–value format), or
+* `application.yml` (YAML — Yet Another Markup Language).
+
+YAML is functionally equivalent to `.properties`, but offers several structural and 
+readability advantages, especially in large or complex configurations.
+
+
+## Key advantages of YAML over .properties
+
+### 1. Hierarchical and structured configuration (biggest advantage)
+
+YAML is natively hierarchical, while .properties is flat.
+
+YAML
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/appdb
+    username: root
+    password: secret
+```
+
+Properties
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/appdb
+spring.datasource.username=root
+spring.datasource.password=secret
+```
+
+* ✔ YAML mirrors the object structure used by Spring
+* ✔ Easier to reason about nested configurations
+
+
+### 2. Better readability for large configs
+
+* Indentation replaces long prefixes
+* Visually groups related settings
+* Reduces repetition
+
+This becomes critical when configs exceed 100+ lines.
+
+
+### 3. Native support for lists
+
+YAML
+
+```yaml
+app:
+  servers:
+    - host1
+    - host2
+    - host3
+```
+
+Properties
+
+```properties
+app.servers[0]=host1
+app.servers[1]=host2
+app.servers[2]=host3
+```
+
+* ✔ YAML is cleaner and less error-prone
+* ✔ Much easier to bind to `List<T>` or `Set<T>`
+
+
+### 5. Reduced duplication and better maintainability
+
+Because YAML is structured:
+
+* Common prefixes appear once
+* Changes are localized
+* Less copy-paste
+
+This reduces configuration drift over time.
+
+
+
+### 6. Strong fit with @ConfigurationProperties
+
+YAML aligns naturally with Spring’s type-safe configuration binding.
+
+```yaml
+app:
+  cache:
+    ttl: 60
+    max-size: 1000
+```
+
+```java
+@ConfigurationProperties(prefix = "app.cache")
+public class CacheProperties {
+    private int ttl;
+    private int maxSize;
+}
+```
+
+* ✔ YAML reads almost like a POJO
+* ✔ Easier mapping and debugging
+
+
+## Disadvantages of YAML (important to mention)
+
+| Limitation                   | Explanation                               |
+|------------------------------|-------------------------------------------|
+| Indentation-sensitive        | Whitespace errors can break startup       |
+| Harder to diff sometimes     | Indentation changes create noisy diffs    |
+| No inline comments per value | Less flexible than `.properties` comments |
+
+Note:
+
+If both `application.yml` and `application.properties` exist, Spring Boot loads both, but values 
+from `application.properties` override those from `application.yml`.
+
+
+
+
+# Q-30 What's the difference between liveness and readiness?
+
+* **Liveness:** "Is the application running?"
+* **Readiness:** "Is the application ready to accept traffic?"
+
+## Liveness Probe — "Should this app be restarted?"
+
+**What it checks**
+
+* Is the application alive?
+* Is it stuck, deadlocked, or non-responsive?
+
+**Behavior**
+
+* If the liveness probe fails repeatedly → Kubernetes kills and restarts the container.
+
+
+**Typical failure causes**
+
+* Deadlock
+* Infinite loop
+* Memory corruption
+* JVM hung but process still running
+
+
+**Mental model**
+
+> "This app is broken beyond recovery — restart it."
+> 
+
+## Readiness Probe — "Can this app receive traffic?"
+
+**What it checks**
+
+* Is the application **ready to serve requests** right now?
+
+**Behavior**
+
+* If the readiness probe fails → Kubernetes **removes the pod from Service endpoints**
+* **No restart happens**
+
+**Typical failure causes**
+
+* Database temporarily down
+* Cache warming
+* Startup not completed
+* Dependency unavailable
+
+**Mental model**
+
+> "This app is alive, but not ready — stop sending traffic."
+>
+> 
+
+## Side-by-side comparison
+
+| Aspect            | Liveness      | Readiness                      |
+|-------------------|---------------|--------------------------------|
+| Question answered | Is it alive?  | Can it serve traffic?          |
+| Failure action    | Pod restarted | Pod removed from load balancer |
+| Traffic impact    | Indirect      | Immediate                      |
+| Used for          | Self-healing  | Traffic control                |
+| Restart triggered | ✅ Yes         | ❌ No                           |
+
+# Q-31 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?
+
+## 1. What are Servlets?
+
+A Servlet is a Java class that runs on a server and handles **HTTP requests and responses**.
+
+* Defined by the **Servlet API** (Jakarta / Java EE specification)
+* Used to build **server-side web applications** in Java
+* Executes inside a **Servlet Container**, not directly on the JVM
+
+**Key characteristics**
+
+* Receives requests as `HttpServletRequest`
+* Sends responses via `HttpServletResponse`
+* Lifecycle managed by the container
+* Low-level, HTTP-centric programming model
+
+**Example**
+
+```java
+@WebServlet("/hello")
+public class HelloServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        resp.getWriter().write("Hello World");
+    }
+}
+```
+
+**One-line (interview-safe)**
+
+> A Servlet is a Java server-side component that processes HTTP requests 
+> and generates HTTP responses.
+
+
+## 2️. What is a Web / Servlet Container?
+
+A Servlet Container is a runtime environment that:
+
+* Loads Java Servlets
+* Manages their lifecycle
+* Handles HTTP communication on their behalf
+
+It acts as the **bridge between the web server and Java application code**.
+
+**Why it is needed**
+
+A server **cannot execute Java web code directly**. 
+It needs a component that understands:
+
+* Java bytecode
+* Servlet APIs
+* HTTP request/response mapping
+
+That component is the **Servlet Container**.
+
+
+### Responsibilities of a Servlet Container
+
+* Accept HTTP requests
+* Convert them into `HttpServletRequest`
+* Invoke the correct servlet
+* Manage threads and concurrency
+* Handle sessions and security
+* Control servlet lifecycle (`init`, `service`, `destroy`)
+
+
+### WSGI analogy (important and correct)
+
+A Servlet Container plays the **same role in Java** that a **WSGI server** plays in Python.
+
+| Java              | Python           |
+|-------------------|------------------|
+| Servlet Container | WSGI Server      |
+| Servlet API       | WSGI Spec        |
+| Tomcat / Jetty    | Gunicorn / uWSGI |
+
+**One-line (interview-safe)**
+
+> A Servlet Container is like WSGI in Python — it allows the web server to execute Java web 
+> applications by providing a standard runtime and interface.
+
+
+## 3. What was the problem with Servlets?
+
+Servlets are **too low-level** for building large, maintainable applications.
+
+They work well, but they force developers to handle **too many concerns in one place**.
+
+## Key problems with Servlets
+
+### 1. Excessive boilerplate
+
+* Manual request parsing
+* Manual response writing
+* Repetitive error handling
+
+### 2. Tight coupling to HTTP
+
+* Business logic tied directly to `HttpServletRequest`
+* Hard to test outside a container
+
+### 3. Poor separation of concerns
+
+* Routing, validation, business logic, and view handling often mixed
+* Leads to "fat servlets"
+
+### 4. No built-in MVC abstraction
+
+* MVC had to be implemented manually
+* Inconsistent across applications
+
+### 5. Weak support for cross-cutting concerns
+
+* Logging, security, transactions require repetitive code
+* Filters become overloaded and hard to manage
+
+
+
+# Q-32 When we define Controller, it gets converted to servlet or not?
+
+❌ No. A Spring `@Controller` **is NOT converted into a Servlet**.
+
+✔ It is a Spring-managed bean that is **invoked by a Servlet**.
+
+The servlet involved is `DispatcherServlet`.
+
+![](../images/dispatcherServlet.png)
+
+* The Servlet container (Tomcat/Jetty) manages servlets
+* Spring MVC registers **one front-controller servlet**
+* All HTTP requests flow through that servlet
+* Controllers are **plain Java objects (POJOs)**
+
+
+
+
+# Q-33 Compare Servlet vs Filter vs Interceptor
  
 1. Docker vs Jar
 1. Datasouce vs driver
@@ -1644,17 +2296,6 @@ public class OrderService {
 1. Explain types of design patterns and when they are used
 1. Explain the request flow in spring application
 
------------------------------
-
-### Q-When we define Controller, it gets converted to servlet or not?
-
-Ans: No, spring Boot uses a dispatcher servlet to handle HTTP requests and delegate them to the appropriate controllers.
-
-### Q-What is Dispatcher servlet?
-
-Ans: ![](../images/dispatcherServlet.png)
-
------------------------------
 
 ### Q- Mention the REST api principles
 
