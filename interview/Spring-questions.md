@@ -132,7 +132,28 @@
     * [4. No built-in MVC abstraction](#4-no-built-in-mvc-abstraction)
     * [5. Weak support for cross-cutting concerns](#5-weak-support-for-cross-cutting-concerns)
 * [Q-32 When we define Controller, it gets converted to servlet or not?](#q-32-when-we-define-controller-it-gets-converted-to-servlet-or-not)
-* [Q-32 Compare Servlet vs Filter vs Interceptor](#q-32-compare-servlet-vs-filter-vs-interceptor)
+* [Q-33 Explain Filter and Interceptor. How do they differ?](#q-33-explain-filter-and-interceptor-how-do-they-differ)
+  * [1. What is a Filter?](#1-what-is-a-filter)
+    * [Key characteristics](#key-characteristics)
+    * [Typical use cases](#typical-use-cases)
+  * [2. What is an Interceptor?](#2-what-is-an-interceptor)
+    * [Key characteristics](#key-characteristics-1)
+    * [Lifecycle hooks](#lifecycle-hooks)
+    * [Typical use cases](#typical-use-cases-1)
+  * [3. Execution order (critical)](#3-execution-order-critical)
+* [Q-34 Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?](#q-34-why-can-a-servlet-filter-execute-more-than-once-for-a-single-http-request-explain-the-underlying-mechanism-and-give-concrete-examples)
+  * [1. Very Basics — What does “execute once” even mean?](#1-very-basics--what-does-execute-once-even-mean)
+  * [2. What is a dispatch?](#2-what-is-a-dispatch)
+  * [3. Core Rule (must be memorized)](#3-core-rule-must-be-memorized)
+  * [4. Case 1 — ERROR dispatch (most common in Spring Boot)](#4-case-1--error-dispatch-most-common-in-spring-boot)
+  * [5. Case 2 — FORWARD dispatch (server-side routing)](#5-case-2--forward-dispatch-server-side-routing)
+  * [6. Case 3 — ASYNC dispatch (modern Spring MVC)](#6-case-3--async-dispatch-modern-spring-mvc)
+  * [7. Case 4 — INCLUDE dispatch (legacy but valid)](#7-case-4--include-dispatch-legacy-but-valid)
+  * [8. Why this does NOT always happen in Spring Boot](#8-why-this-does-not-always-happen-in-spring-boot)
+  * [9. How double execution actually happens in real projects](#9-how-double-execution-actually-happens-in-real-projects)
+  * [10. How OncePerRequestFilter fits in](#10-how-onceperrequestfilter-fits-in)
+  * [11. Special case — Spring Security (important gotcha)](#11-special-case--spring-security-important-gotcha)
+  * [12. Summary Table (Interview Gold)](#12-summary-table-interview-gold)
     * [Q- Mention the REST api principles](#q--mention-the-rest-api-principles)
     * [Q- What Object Oriented Principles you used in the project.](#q--what-object-oriented-principles-you-used-in-the-project)
     * [Q-What is Data Source?](#q-what-is-data-source)
@@ -2141,6 +2162,9 @@ from `application.properties` override those from `application.yml`.
 | Used for          | Self-healing  | Traffic control                |
 | Restart triggered | ✅ Yes         | ❌ No                           |
 
+
+
+
 # Q-31 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?
 
 ## 1. What are Servlets?
@@ -2280,8 +2304,368 @@ The servlet involved is `DispatcherServlet`.
 
 
 
-# Q-33 Compare Servlet vs Filter vs Interceptor
- 
+# Q-33 Explain Filter and Interceptor. How do they differ?
+
+## 1. What is a Filter?
+
+**Definition**
+
+A Filter is a **Servlet-level component** defined by the **Servlet specification**.
+It intercepts HTTP requests and responses **before they reach Spring MVC**.
+
+**Filters are executed by the Servlet Container**, not by Spring MVC.
+
+
+### Key characteristics
+
+* Part of Servlet API
+* Executes before `DispatcherServlet`
+* Applies to all requests (including static resources)
+* Works with raw `ServletRequest` / `ServletResponse`
+* Lifecycle managed by the Servlet container
+
+
+### Typical use cases
+
+* Authentication / authorization (low-level)
+* CORS handling
+* Request/response logging
+* Compression
+* Character encoding
+* Security headers
+
+Example:
+
+```java
+@Component
+public class LoggingFilter extends OncePerRequestFilter {
+    @Override
+    protected void doFilterInternal(HttpServletRequest req,
+                                    HttpServletResponse res,
+                                    FilterChain chain)
+            throws IOException, ServletException {
+        log.info("Request received");
+        chain.doFilter(req, res);
+    }
+}
+```
+
+## 2. What is an Interceptor?
+
+**Definition**
+
+An Interceptor is a Spring MVC component that intercepts requests around controller execution.
+
+It executes inside Spring MVC, after `DispatcherServlet` has chosen a handler.
+
+### Key characteristics
+
+* Spring-managed bean
+* Executes after `DispatcherServlet`
+* Applies only to controller requests
+* Has access to:
+    * Handler (controller + method)
+    * ModelAndView
+* Not part of Servlet specification
+
+
+### Lifecycle hooks
+
+```text
+preHandle()        // before controller
+postHandle()       // after controller, before view
+afterCompletion()  // after request completion
+```
+
+### Typical use cases
+
+* Authorization based on controller/method
+* Auditing
+* Metrics and timing
+* Locale / tenant resolution
+* Business-level logging
+
+
+## 3. Execution order (critical)
+
+```text
+Client
+  ↓
+Servlet Filter(s)
+  ↓
+DispatcherServlet
+  ↓
+Interceptor.preHandle()
+  ↓
+Controller
+  ↓
+Interceptor.postHandle()
+  ↓
+View Rendering
+  ↓
+Interceptor.afterCompletion()
+  ↓
+Response
+```
+
+**Filters always run before Interceptors**.
+
+
+
+# Q-34 Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?
+
+## 1. Very Basics — What does “execute once” even mean?
+
+**Common assumption (WRONG)**
+
+> One HTTP request → filter executes once
+
+**Actual rule (CORRECT)**
+
+> A Servlet Filter executes once per dispatch, not once per request.
+
+This distinction is the root cause of **all double-execution cases**.
+
+
+## 2. What is a dispatch?
+
+A dispatch occurs when the **Servlet Container** routes a request through the servlet pipeline.
+
+The Servlet specification defines these **dispatcher types**:
+
+| DispatcherType | Meaning                      |
+|----------------|------------------------------|
+| REQUEST        | Initial client request       |
+| FORWARD        | Internal server-side forward |
+| ERROR          | Error handling               |
+| ASYNC          | Async resume                 |
+| INCLUDE        | Resource inclusion           |
+
+Each dispatcher type represents **a new entry into the filter chain**.
+
+
+## 3. Core Rule (must be memorized)
+
+> Every dispatch re-enters the filter chain.
+>
+
+**So if a single HTTP request causes multiple dispatches, the filter may execute multiple times**.
+
+
+## 4. Case 1 — ERROR dispatch (most common in Spring Boot)
+
+**Code**
+
+```java
+@RestController
+public class UserController {
+
+    @GetMapping("/user")
+    public String getUser() {
+        throw new RuntimeException("boom");
+    }
+}
+```
+
+**What happens internally**
+
+```text
+DISPATCH #1 → REQUEST
+  ↓
+Filter executes
+  ↓
+Controller throws exception
+
+DISPATCH #2 → ERROR
+  ↓
+Filter executes again (if mapped to ERROR)
+  ↓
+/error handler
+```
+
+**Important Spring Boot default**
+
+* Filters are auto-registered for **REQUEST** only
+* **ERROR** dispatch still happens
+* Filter runs **again only if ERROR is enabled explicitly**
+
+
+## 5. Case 2 — FORWARD dispatch (server-side routing)
+
+**Code**
+
+```java
+@Controller
+public class UserController {
+
+    @GetMapping("/v1/user")
+    public String v1() {
+        return "forward:/v2/user";
+    }
+
+    @GetMapping("/v2/user")
+    @ResponseBody
+    public String v2() {
+        return "user v2";
+    }
+}
+```
+
+**Dispatch flow**
+
+```text
+DISPATCH #1 → REQUEST (/v1/user)
+  ↓
+Filter executes
+  ↓
+Controller returns forward
+
+DISPATCH #2 → FORWARD (/v2/user)
+  ↓
+Filter executes again (if mapped to FORWARD)
+```
+
+**Key point**
+
+* Same HTTP request
+* Same request object
+* Browser URL unchanged
+* Two dispatches → possible double execution
+
+
+
+## 6. Case 3 — ASYNC dispatch (modern Spring MVC)
+
+**Code**
+
+```java
+@GetMapping("/async")
+public Callable<String> async() {
+    return () -> "done";
+}
+```
+
+**Dispatch flow**
+
+```text
+DISPATCH #1 → REQUEST
+  ↓
+Filter executes
+  ↓
+Async started
+  ↓
+Thread released
+
+DISPATCH #2 → ASYNC
+  ↓
+Filter executes again (if mapped to ASYNC)
+  ↓
+Response written
+```
+
+**Why this happens**
+
+Async is `pause + resume`, not continuation. The container must re-dispatch to complete the response.
+
+
+## 7. Case 4 — INCLUDE dispatch (legacy but valid)
+
+**Code**
+
+```java
+request.getRequestDispatcher("/header").include(request, response);
+```
+
+**Dispatch flow**
+
+```text
+DISPATCH #1 → REQUEST
+DISPATCH #2 → INCLUDE
+```
+
+Filter executes twice if INCLUDE is enabled.
+
+
+## 8. Why this does NOT always happen in Spring Boot
+
+Spring Boot design decision
+
+> Auto-registered filters are mapped to:
+
+
+```text
+DispatcherType.REQUEST only
+```
+
+So:
+
+* Multiple dispatches still occur
+* Filters participate only in REQUEST
+* This avoids accidental double execution
+
+
+## 9. How double execution actually happens in real projects
+
+Explicit dispatcher type configuration
+
+```java
+@Bean
+FilterRegistrationBean<MyFilter> reg() {
+    FilterRegistrationBean<MyFilter> bean = new FilterRegistrationBean<>();
+    bean.setFilter(new MyFilter());
+    bean.setDispatcherTypes(
+        DispatcherType.REQUEST,
+        DispatcherType.ERROR,
+        DispatcherType.FORWARD
+    );
+    return bean;
+}
+```
+
+Now the filter executes once **per matching dispatch**.
+
+
+## 10. How OncePerRequestFilter fits in
+
+Even if multiple dispatches occur:
+
+```java
+public class MyFilter extends OncePerRequestFilter { }
+```
+
+Spring ensures:
+
+```text
+REQUEST → executes
+ERROR   → skipped
+FORWARD → skipped
+ASYNC   → skipped
+```
+
+So the filter runs **once per logical HTTP request**.
+
+
+## 11. Special case — Spring Security (important gotcha)
+
+A filter may execute twice **even without multiple dispatches if**:
+
+* Registered in **Servlet filter chain**
+* AND added to **Spring Security filter chain**
+
+This is a **registration issue**, not a dispatch issue.
+
+
+## 12. Summary Table (Interview Gold)
+
+| Cause             | Why filter runs twice    |
+|-------------------|--------------------------|
+| ERROR dispatch    | Exception handling       |
+| FORWARD dispatch  | Internal routing         |
+| ASYNC dispatch    | Async resume             |
+| INCLUDE dispatch  | Resource inclusion       |
+| Dual registration | Servlet + Security chain |
+
+
 1. Docker vs Jar
 1. Datasouce vs driver
 1. Explain application architecture.
