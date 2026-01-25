@@ -7,11 +7,20 @@
 * [Q-3 What is Spring AOP?](#q-3-what-is-spring-aop)
   * [Spring AOP (part of Spring Core)](#spring-aop-part-of-spring-core)
 * [Q-4 What is context or application context in spring app?](#q-4-what-is-context-or-application-context-in-spring-app)
+  * [1. The `BeanFactory` (The Heart)](#1-the-beanfactory-the-heart)
+  * [2. The ApplicationContext (The Complete Car)](#2-the-applicationcontext-the-complete-car)
   * [Why use `ApplicationContext` instead of just `BeanFactory`?](#why-use-applicationcontext-instead-of-just-beanfactory)
 * [Q-5 What are the different ways of adding a bean to the spring context?](#q-5-what-are-the-different-ways-of-adding-a-bean-to-the-spring-context)
+  * [1. Using Stereotype Annotations (`@Component`, `@Service`, etc.)](#1-using-stereotype-annotations-component-service-etc)
+  * [2. Using `@Bean` Methods in a `@Configuration` Class](#2-using-bean-methods-in-a-configuration-class)
+  * [3. Programmatic Registration (`registerBean()` / `registerSingleton()`)](#3-programmatic-registration-registerbean--registersingleton)
+  * [4. Using XML Configuration (Legacy Approach)](#4-using-xml-configuration-legacy-approach)
 * [Q-6 Can we define multiple beans of the same type?](#q-6-can-we-define-multiple-beans-of-the-same-type)
   * [The real issue: Injection ambiguity](#the-real-issue-injection-ambiguity)
   * [How to resolve ambiguity](#how-to-resolve-ambiguity)
+    * [1. Use `@Qualifier`](#1-use-qualifier)
+    * [2. Use `@Primary`](#2-use-primary)
+    * [3. Inject all beans as a collection](#3-inject-all-beans-as-a-collection)
   * [Key rules to remember](#key-rules-to-remember)
 * [Q-7 What is Dependency Injection (DI) in spring?](#q-7-what-is-dependency-injection-di-in-spring)
   * [Simple Example (Method Parameter Injection)](#simple-example-method-parameter-injection)
@@ -178,7 +187,16 @@
   * [Option 3 - Manual if check inside doFilter (NOT recommended)](#option-3---manual-if-check-inside-dofilter-not-recommended)
   * [Option 4 - Use Interceptor instead (important distinction)](#option-4---use-interceptor-instead-important-distinction)
   * [Execution flow (important)](#execution-flow-important)
-  * [Q-38 How transactions works in spring?](#q-38-how-transactions-works-in-spring)
+* [Q-38 How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.](#q-38-how-does-transaction-management-work-in-spring-explain-the-role-of-transactional-proxies-and-what-happens-at-runtime)
+  * [1. What is a transaction? (Very basics)](#1-what-is-a-transaction-very-basics)
+  * [2. How Spring manages transactions (big picture)](#2-how-spring-manages-transactions-big-picture)
+  * [3. What happens at runtime (step-by-step)](#3-what-happens-at-runtime-step-by-step)
+  * [4. Key components involved](#4-key-components-involved)
+    * [1. @Transactional](#1-transactional)
+    * [2. Transaction Proxy (AOP)](#2-transaction-proxy-aop)
+    * [3. PlatformTransactionManager](#3-platformtransactionmanager)
+  * [5. Rollback rules (very important)](#5-rollback-rules-very-important)
+* [Q-39 What is Transaction Propagation?](#q-39-what-is-transaction-propagation)
 * [Q-What is Data Source?](#q-what-is-data-source)
     * [Q-What is JDBC Driver](#q-what-is-jdbc-driver-)
     * [Q-How to configure multiple data sources](#q-how-to-configure-multiple-data-sources)
@@ -3147,7 +3165,115 @@ Controller
 ```
 
 
-## Q-38 How transactions works in spring?
+# Q-38 How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.
+
+## 1. What is a transaction? (Very basics)
+
+A transaction is a sequence of operations that must follow ACID properties:
+
+* Atomicity – All operations succeed or all fail
+* Consistency – Data remains valid
+* Isolation – Concurrent transactions don’t interfere incorrectly
+* Durability – Committed data is persisted
+
+Spring's job is to manage transaction boundaries reliably and consistently.
+
+
+## 2. How Spring manages transactions (big picture)
+
+Spring uses **declarative transaction management**, mainly via `@Transactional`.
+
+Under the hood, Spring:
+
+* Creates a proxy around your bean
+* Intercepts method calls
+* Starts, commits, or rolls back a transaction automatically
+
+**You do not write transaction code yourself**.
+
+
+## 3. What happens at runtime (step-by-step)
+
+Consider this service method:
+
+```java
+@Transactional
+public void createOrder() {
+    orderRepo.save(order);
+    paymentRepo.save(payment);
+}
+```
+
+**Runtime flow**
+
+1. Client calls `createOrder()`
+2. Call goes to **Spring proxy**, not the actual method
+3. Proxy checks `@Transactional`
+4. Proxy asks `TransactionManager` to:
+    * Start transaction
+5. Method executes
+6. If method completes normally:
+    * Proxy commits transaction
+7. If method throws exception:
+    * Proxy rolls back transaction
+
+
+## 4. Key components involved
+
+### 1. @Transactional
+
+* Declares transaction boundary
+* Can be applied at:
+    * Method level
+    * Class level
+
+
+### 2. Transaction Proxy (AOP)
+
+* Created using **Spring AOP**
+* Intercepts method calls
+* Controls transaction lifecycle
+
+⚠️ Important:
+**Only external method calls go through the proxy**
+
+
+### 3. PlatformTransactionManager
+
+* Strategy interface for transaction management
+* Examples:
+    * `DataSourceTransactionManager` (JDBC)
+    * `JpaTransactionManager` (JPA/Hibernate)
+
+Spring picks the correct one automatically.
+
+
+## 5. Rollback rules (very important)
+
+**Default behavior**
+
+* ✅ Rollback on unchecked exceptions (`RuntimeException`)
+* ❌ No rollback on checked exceptions
+
+Customizing rollback
+
+```java
+@Transactional(rollbackFor = Exception.class)
+```
+
+or
+
+```java
+@Transactional(noRollbackFor = CustomException.class)
+```
+
+
+# Q-39 What is Transaction Propagation?
+
+Transaction propagation defines how a transactional method behaves when it is called from 
+another transactional method—specifically, whether it joins, creates, suspends, or rejects a transaction.
+
+
 
 1. transaction
 2. async
