@@ -197,6 +197,25 @@
     * [3. PlatformTransactionManager](#3-platformtransactionmanager)
   * [5. Rollback rules (very important)](#5-rollback-rules-very-important)
 * [Q-39 What is Transaction Propagation?](#q-39-what-is-transaction-propagation)
+  * [Why propagation exists (intuition)](#why-propagation-exists-intuition)
+  * [1. REQUIRED (Default)](#1-required-default)
+  * [2. REQUIRES_NEW](#2-requires_new)
+    * [Now let’s execute this step by step](#now-lets-execute-this-step-by-step)
+    * [Key observation (this is the point)](#key-observation-this-is-the-point)
+    * [One concrete, neutral example (no notifications)](#one-concrete-neutral-example-no-notifications)
+  * [3. NESTED](#3-nested)
+    * [Important prerequisite (must know)](#important-prerequisite-must-know)
+    * [Simple code example](#simple-code-example)
+    * [Step-by-step execution (very literal)](#step-by-step-execution-very-literal)
+    * [Key observation (this is the core)](#key-observation-this-is-the-core)
+  * [4. SUPPORTS (Basics Only)](#4-supports-basics-only)
+    * [Case 1. SUPPORTS is called inside a transaction](#case-1-supports-is-called-inside-a-transaction)
+    * [Case 2. SUPPORTS is called without a transaction](#case-2-supports-is-called-without-a-transaction)
+    * [Key observation (important)](#key-observation-important)
+  * [5. NOT_SUPPORTED](#5-not_supported)
+    * [Simple code example](#simple-code-example-1)
+    * [Step-by-step execution](#step-by-step-execution)
+    * [Key observation (this is the core)](#key-observation-this-is-the-core-1)
 * [Q-What is Data Source?](#q-what-is-data-source)
     * [Q-What is JDBC Driver](#q-what-is-jdbc-driver-)
     * [Q-How to configure multiple data sources](#q-how-to-configure-multiple-data-sources)
@@ -3271,7 +3290,606 @@ or
 # Q-39 What is Transaction Propagation?
 
 Transaction propagation defines how a transactional method behaves when it is called from 
-another transactional method—specifically, whether it joins, creates, suspends, or rejects a transaction.
+another transactional method—specifically, whether it **joins**, **creates**, **suspends**, 
+or **rejects** a transaction.
+
+In Spring, this is configured via:
+
+```java
+@Transactional(propagation = Propagation.REQUIRED)
+```
+
+## Why propagation exists (intuition)
+
+In real applications:
+
+* One service method often calls another
+* Both may be transactional
+* Spring must decide: **one transaction or multiple?**
+
+Propagation answers that question.
+
+The following are 7 Propagation Types.
+
+| Propagation          | Behavior                              |
+|----------------------|---------------------------------------|
+| REQUIRED  (default)  | Join existing or create new           |
+| REQUIRES_NEW         | Always create new, suspend existing   |
+| SUPPORTS             | Join if exists, else no transaction   |
+| NOT_SUPPORTED        | Always no transaction                 |
+| MANDATORY            | Must have existing transaction        |
+| NEVER                | Must not have transaction             |
+| NESTED               | Savepoint within existing transaction |
+
+
+## 1. REQUIRED (Default)
+
+Consider the following example:
+
+```java
+@Transactional
+public void outer() {
+    inner();
+}
+
+@Transactional
+public void inner() {
+}
+```
+
+Question:
+
+> Should this be one transaction or two transactions?
+>
+
+Spring must decide.
+
+Spring's default rule is:
+
+> "If there is already a transaction, use it."
+> 
+
+This rule is called:
+
+```text
+Propagation.REQUIRED
+```
+
+What happens
+
+* `outer()` starts a transaction
+* `inner()` **joins the same transaction**
+* There is **only one transaction**
+
+If `inner()` fails:
+
+* Whole transaction rolls back
+
+This is the **simplest and most common case**.
+
+
+## 2. REQUIRES_NEW
+
+First: the rule (plain English)
+
+> `REQUIRES_NEW` means:
+> "Always run this work in its own transaction, no matter what."
+>
+
+If another transaction already exists:
+
+* Pause it
+* Do the new work
+* Finish it
+* Resume the old one
+
+That's all it means.
+
+Very simple code example:
+
+```java
+@Transactional
+public void outer() {
+    stepA();
+    inner();   // REQUIRES_NEW
+    stepC();
+}
+
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void inner() {
+    stepB();
+}
+```
+
+### Now let’s execute this step by step
+
+**Step 1 — Call outer()**
+
+* Spring starts Transaction TX-1
+* TX-1 is active
+
+```text
+TX-1: ACTIVE
+```
+
+---
+
+**Step 2 — stepA()**
+
+* Runs inside TX-1
+* Changes are not committed yet
+
+```text
+TX-1: ACTIVE (uncommitted work)
+```
+
+---
+
+**Step 3 — Call inner() (REQUIRES_NEW)**
+
+Spring sees:
+
+* TX-1 already exists
+* `inner()` demands a new transaction
+
+So Spring does **exactly this**:
+
+**3.1 Pause TX-1**
+
+* TX-1 is suspended
+* Nothing is committed
+* Nothing is rolled back
+
+```text
+TX-1: SUSPENDED
+```
+
+**3.2 Start TX-2**
+
+* Brand new transaction
+
+```text
+TX-2: ACTIVE
+```
+
+---
+
+**Step 4 — stepB() runs**
+
+* Runs inside TX-2
+* Changes belong **only to TX-2**
+
+---
+
+**Step 5 — Finish inner()**
+
+Two possibilities:
+
+Case A: `inner()` succeeds
+
+* TX-2 is committed
+
+```text
+TX-2: COMMITTED
+```
+
+Case B: **inner()** fails
+
+* TX-2 is rolled back
+
+```text
+TX-2: ROLLED BACK
+```
+
+Either way, TX-2 is now finished.
+
+---
+
+**Step 6 — Resume TX-1**
+
+* TX-1 is re-attached
+* Execution continues in `outer()`
+
+```text
+TX-1: ACTIVE again
+```
+
+---
+
+
+**Step 7 — stepC() runs**
+
+* Still inside TX-1
+
+---
+
+**Step 8 — Finish outer()**
+
+* If `outer()` succeeds → TX-1 commits
+* If `outer()` fails → TX-1 rolls back
+
+---
+
+### Key observation (this is the point)
+
+* TX-1 and TX-2 are **completely independent**
+* What happens in TX-2 does not decide TX-1
+* What happens in TX-1 does not undo TX-2
+
+### One concrete, neutral example (no notifications)
+
+Think of:
+
+* **TX-1** = main business operation
+* **TX-2** = side operation that must stand on its own
+
+For example:
+
+* Save main record (TX-1)
+* Save reference/history record (TX-2)
+* Main operation later fails
+
+TX-2 can still be committed.
+
+
+## 3. NESTED
+
+The rule (plain English):
+
+> NESTED means:
+> "Create a checkpoint inside the current transaction so I can roll back just part of it."
+>
+
+Key idea:
+
+* There is **only ONE transaction**
+* No new transaction is created
+* A **savepoint** is created inside the transaction
+
+
+### Important prerequisite (must know)
+
+`NESTED` works only if:
+
+* There is **already a transaction**
+* The database supports **savepoints**
+
+If no transaction exists:
+
+* `NESTED` behaves like `REQUIRED`
+
+
+### Simple code example
+
+```java
+@Transactional
+public void outer() {
+    stepA();
+    inner();   // NESTED
+    stepC();
+}
+
+@Transactional(propagation = Propagation.NESTED)
+public void inner() {
+    stepB();
+}
+```
+
+
+### Step-by-step execution (very literal)
+
+**Step 1 — Call outer()**
+
+* Spring starts Transaction TX-1
+* TX-1 is active
+
+```text
+TX-1: ACTIVE
+```
+
+---
+
+**Step 2 — stepA()**
+
+* Runs inside TX-1
+* Changes are not committed yet
+
+```text
+TX-1: ACTIVE (work done)
+```
+
+---
+
+**Step 3 — Call inner() (NESTED)**
+
+Spring sees:
+
+* TX-1 exists
+* Propagation = `NESTED`
+
+So Spring does:
+
+3.1 Create a savepoint
+
+* Savepoint = "remember this exact state"
+
+```text
+TX-1:
+  - stepA done
+  - SAVEPOINT created
+```
+
+No new transaction is started.
+
+---
+
+**Step 4 — stepB() runs**
+
+* Runs inside TX-1
+* Changes are made after the savepoint
+
+---
+
+**Step 5 — What if inner() fails?**
+
+If `inner()` throws an exception:
+
+* Spring rolls back to the savepoint
+* Changes from `stepB()` are undone
+* Changes from `stepA()` remain
+
+```text
+TX-1:
+  - stepA kept
+  - stepB undone
+```
+
+TX-1 is still active.
+
+---
+
+**Step 6 — Continue in outer()**
+
+Execution resumes in `outer()`:
+
+```text
+stepC();
+```
+
+* Still inside TX-1
+
+---
+
+**Step 7 — Finish outer()**
+
+* If outer succeeds → TX-1 commits
+* If outer fails → TX-1 rolls back completely
+
+---
+
+### Key observation (this is the core)
+
+* There is **only one transaction**
+* `NESTED` allows **partial rollback**
+* Outer code **controls what happens next**
+
+**Note:**
+
+> Rollback happens till the savepoint if the nested method fails.
+> Rollback happens entirely if the outer transaction fails.
+
+## 4. SUPPORTS (Basics Only)
+
+The rule (plain English)
+
+> SUPPORTS means:
+> "If there is a transaction, use it.
+> If there isn’t one, don’t create one."
+> 
+
+That's all.
+
+**Simple code example**
+
+```java
+@Transactional
+public void outer() {
+    stepA();
+    inner();   // SUPPORTS
+    stepC();
+}
+
+@Transactional(propagation = Propagation.SUPPORTS)
+public void inner() {
+    stepB();
+}
+```
+
+### Case 1. SUPPORTS is called inside a transaction
+
+Step-by-step
+
+1. `outer()` starts → TX-1
+2. `stepA()` runs inside TX-1
+3. `inner()` is called
+4. Spring sees:
+    * Transaction exists
+    * Propagation = SUPPORTS
+5. Spring joins TX-1
+
+```text
+TX-1:
+  stepA
+  stepB
+  stepC
+```
+
+**Result**
+
+* Only **one transaction**
+* If TX-1 rolls back → everything rolls back
+
+`SUPPORTS` behaves exactly like `REQUIRED` in this case.
+
+
+### Case 2. SUPPORTS is called without a transaction
+
+```text
+public void caller() {
+    inner();   // SUPPORTS
+}
+```
+
+**Step-by-step**
+
+1. No transaction exists
+2. `inner()` is called
+3. Spring sees:
+    * No transaction
+    * Propagation = SUPPORTS
+4. Spring **does nothing**
+5. Method runs **non-transactionally**
+
+```text
+NO TRANSACTION
+```
+
+Result
+
+* No transaction created
+* No commit / rollback control
+* Each DB operation is auto-committed
+
+
+### Key observation (important)
+
+`SUPPORTS` never starts a transaction.
+
+It only:
+
+* Participates if one already exists
+* Otherwise stays out
+
+
+## 5. NOT_SUPPORTED
+
+The rule (plain English)
+
+> NOT_SUPPORTED means:
+> "Do NOT run this code inside a transaction - ever."
+>
+
+If a transaction already exists:
+
+* Pause it
+* Run this code without a transaction
+* Resume the old transaction
+
+
+### Simple code example
+
+```java
+@Transactional
+public void outer() {
+    stepA();
+    inner();   // NOT_SUPPORTED
+    stepC();
+}
+
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
+public void inner() {
+    stepB();
+}
+```
+
+### Step-by-step execution
+
+**Step 1 — Call outer()**
+
+* Spring starts Transaction TX-1
+
+```text
+TX-1: ACTIVE
+```
+
+---
+
+
+**Step 2 — stepA()**
+
+* Runs inside TX-1
+* Changes are uncommitted
+
+---
+
+**Step 3 — Call inner() (NOT_SUPPORTED)**
+
+Spring sees:
+
+* TX-1 exists
+* Propagation = `NOT_SUPPORTED`
+
+Spring does:
+
+**3.1 Suspend TX-1**
+
+* TX-1 is paused
+* No commit
+* No rollback
+
+```text
+TX-1: SUSPENDED
+```
+
+
+**3.2 Run inner() without a transaction**
+
+* `stepB()` runs non-transactionally
+* Each DB operation auto-commits immediately
+
+```text
+NO TRANSACTION
+```
+
+---
+
+**Step 4 — Finish inner()**
+
+* Nothing to commit or rollback
+* Changes are already permanent
+
+---
+
+**Step 5 — Resume TX-1**
+
+```text
+TX-1: ACTIVE again
+```
+
+---
+
+**Step 6 — stepC()**
+
+```text
+Runs inside TX-1
+```
+
+---
+
+**Step 7 — Finish outer()**
+
+* If outer succeeds → TX-1 commits
+* If outer fails → TX-1 rolls back
+
+---
+
+### Key observation (this is the core)
+
+* Work inside `NOT_SUPPORTED`:
+    * Is never transactional
+    * Cannot be rolled back
+* Outer transaction rollback:
+    * Does not affect `inner()` 
 
 
 
