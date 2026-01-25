@@ -203,6 +203,9 @@ Other Features in Spring Core
 * Type conversion
 * Spring Expression Language (SpEL)
 
+
+
+
 # Q-2 What is IOC?
 
 Spring Core
@@ -244,6 +247,9 @@ Inversion of Control (IoC)
     * Uses configuration to decide how objects behave and interact
 
 
+
+
+
 # Q-3 What is Spring AOP?
 
 ## Spring AOP (part of Spring Core)
@@ -256,6 +262,9 @@ Inversion of Control (IoC)
     * Transactions
     * Security
 
+
+
+
 # Q-4 What is context or application context in spring app?
 
 Spring Context:
@@ -266,7 +275,7 @@ Spring Context:
 
 There are actually two types of containers in Spring:
 
-1\. The `BeanFactory` (The Heart)
+## 1. The `BeanFactory` (The Heart)
 
 This is the root interface. It provides the basic configuration mechanism and the core IoC functionality
 (creating beans and injecting dependencies).
@@ -274,9 +283,10 @@ This is the root interface. It provides the basic configuration mechanism and th
   * Use Case: Almost never used directly by developers anymore 
 (mostly used for mobile/embedded systems where memory is extremely limited).
 
-2\. The ApplicationContext (The Complete Car)
+## 2. The ApplicationContext (The Complete Car)
 
-This is a sub-interface of `BeanFactory`. It includes everything the `BeanFactory` does, plus enterprise-specific features.
+This is a sub-interface of `BeanFactory`. It includes everything the `BeanFactory` does, plus 
+enterprise-specific features.
 
   * Role: It is the "Engine" + "Dashboard" + "AC" + "GPS".
   * Use Case: This is what you use 99.9% of the time 
@@ -284,12 +294,13 @@ This is a sub-interface of `BeanFactory`. It includes everything the `BeanFactor
 
 ## Why use `ApplicationContext` instead of just `BeanFactory`?
 
-Since `ApplicationContext` extends `BeanFactory`, it can do everything the basic container does, plus these "Pro" features:
+Since `ApplicationContext` extends `BeanFactory`, it can do everything the basic container does, plus 
+these "Pro" features:
 
-1. Event Publishing: It allows beans to talk to each other using the Observer pattern (`ApplicationEvents`).
-2. Internationalization (i18n): It can read message bundles for multi-language support.
-3. Environment Abstraction: It understands "Profiles" (Dev, Test, Prod) and properties files.
-4. Automatic BeanPostProcessor Registration: This is crucial. It automatically 
+1. **Event Publishing:** It allows beans to talk to each other using the Observer pattern (`ApplicationEvents`).
+2. **Internationalization (i18n):** It can read message bundles for multi-language support.
+3. **Environment Abstraction:** It understands "Profiles" (Dev, Test, Prod) and properties files.
+4. **Automatic BeanPostProcessor Registration:** This is crucial. It automatically 
 detects annotations like `@Autowired` and `@Transactional`. If you used plain `BeanFactory`, 
 you would have to manually register the processors that make those annotations work.
 
@@ -303,11 +314,14 @@ ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.cl
 MyService service = context.getBean(MyService.class);
 ```
 
+
+
+
 # Q-5 What are the different ways of adding a bean to the spring context?
 
 There are four main ways to add a bean to the Spring context.
 
-1\. Using Stereotype Annotations (`@Component`, `@Service`, etc.)
+## 1. Using Stereotype Annotations (`@Component`, `@Service`, etc.)
 
 Spring automatically detects beans during component scanning.
 
@@ -319,7 +333,7 @@ class Parrot {
 
 📌 Requirement: Class must be in a package scanned by `@ComponentScan`
 
-2\. Using `@Bean` Methods in a `@Configuration` Class
+## 2. Using `@Bean` Methods in a `@Configuration` Class
 
 Beans are created explicitly using factory methods.
 
@@ -341,7 +355,7 @@ class ProjectConfig {
 * You want to configure third-party classes
 * Bean construction is complex
 
-3\. Programmatic Registration (`registerBean()` / `registerSingleton()`)
+## 3. Programmatic Registration (`registerBean()` / `registerSingleton()`)
 
 Beans are **registered manually at runtime** using the Spring container API.
 
@@ -365,7 +379,7 @@ context.refresh();
     * Conditional runtime registration
     * Tests
 
-4\. Using XML Configuration (Legacy Approach)
+## 4. Using XML Configuration (Legacy Approach)
 
 Beans are defined in XML configuration files.
 
@@ -376,6 +390,9 @@ Example:
 ```
 
 📌 Mostly legacy; rarely used in modern Spring apps.
+
+
+
 
 # Q-6 Can we define multiple beans of the same type?
 
