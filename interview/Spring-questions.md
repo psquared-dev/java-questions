@@ -154,24 +154,39 @@
   * [10. How OncePerRequestFilter fits in](#10-how-onceperrequestfilter-fits-in)
   * [11. Special case — Spring Security (important gotcha)](#11-special-case--spring-security-important-gotcha)
   * [12. Summary Table (Interview Gold)](#12-summary-table-interview-gold)
-    * [Q- Mention the REST api principles](#q--mention-the-rest-api-principles)
-    * [Q- What Object Oriented Principles you used in the project.](#q--what-object-oriented-principles-you-used-in-the-project)
-    * [Q-What is Data Source?](#q-what-is-data-source)
+* [Q-35 What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems](#q-35-what-is-an-idempotent-api-which-http-methods-are-idempotent-and-why-does-idempotency-matter-in-restful-systems)
+  * [1. What does idempotent mean? (Very basics)](#1-what-does-idempotent-mean-very-basics)
+  * [2. Why idempotency matters](#2-why-idempotency-matters)
+  * [3. Idempotent ≠ Safe (important distinction)](#3-idempotent--safe-important-distinction)
+  * [4. HTTP Methods — Idempotency Overview](#4-http-methods--idempotency-overview)
+  * [5. Method-by-method explanation](#5-method-by-method-explanation)
+    * [GET – Idempotent](#get--idempotent)
+    * [PUT – Idempotent](#put--idempotent)
+    * [DELETE – Idempotent](#delete--idempotent)
+    * [POST – Not idempotent](#post--not-idempotent)
+    * [PATCH – Conditionally idempotent](#patch--conditionally-idempotent)
+* [Q-36 If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?](#q-36-if-multiple-servlet-filters-are-registered-in-a-spring-boot-application-how-is-their-execution-order-determined-and-how-can-we-explicitly-control-that-order)
+  * [How Spring Boot decides filter order (important)](#how-spring-boot-decides-filter-order-important)
+  * [How to explicitly control the order (BEST PRACTICE)](#how-to-explicitly-control-the-order-best-practice)
+    * [Option 1: Use @Order (simple & common)](#option-1-use-order-simple--common)
+    * [Option 2: Use FilterRegistrationBean (most control)](#option-2-use-filterregistrationbean-most-control)
+  * [Important interview clarification](#important-interview-clarification)
+* [Q-37 How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?](#q-37-how-can-we-make-a-servlet-filter-execute-only-for-certain-endpoints-in-a-spring-boot-application)
+  * [Option 1 - Use FilterRegistrationBean with URL patterns (BEST & CLEANEST)](#option-1---use-filterregistrationbean-with-url-patterns-best--cleanest)
+  * [URL pattern rules (Servlet spec)](#url-pattern-rules-servlet-spec)
+  * [Option 2 - Use OncePerRequestFilter.shouldNotFilter() (Spring-style)](#option-2---use-onceperrequestfiltershouldnotfilter-spring-style)
+  * [Option 3 - Manual if check inside doFilter (NOT recommended)](#option-3---manual-if-check-inside-dofilter-not-recommended)
+  * [Option 4 - Use Interceptor instead (important distinction)](#option-4---use-interceptor-instead-important-distinction)
+  * [Execution flow (important)](#execution-flow-important)
+  * [Q-38 How transactions works in spring?](#q-38-how-transactions-works-in-spring)
+* [Q-What is Data Source?](#q-what-is-data-source)
     * [Q-What is JDBC Driver](#q-what-is-jdbc-driver-)
-    * [Q-What is Factory Pattern](#q-what-is-factory-pattern)
     * [Q-How to configure multiple data sources](#q-how-to-configure-multiple-data-sources)
-    * [Q-Why spring boot?](#q-why-spring-boot)
-    * [Q-What are different levels of logging (in order of less severe to more severe)?](#q-what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
+* [Q-What are different levels of logging (in order of less severe to more severe)?](#q-what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
     * [Q-What is AuditAware interface?](#q-what-is-auditaware-interface)
     * [Q-What are different ways to read configs in Spring Boot?](#q-what-are-different-ways-to-read-configs-in-spring-boot)
     * [Q-What are the various ways to activate spring profile?](#q-what-are-the-various-ways-to-activate-spring-profile)
     * [Q-What is the order in which the configs are processed?](#q-what-is-the-order-in-which-the-configs-are-processed)
-    * [Q-How to encrypt values using spring config server?](#q-how-to-encrypt-values-using-spring-config-server)
-    * [Q-Using config server how to get updated value of config without restarting microservice?](#q-using-config-server-how-to-get-updated-value-of-config-without-restarting-microservice)
-    * [Q-Refreshing configs using message bus](#q-refreshing-configs-using-message-bus)
-    * [Q-Auto refresh config using webhooks](#q-auto-refresh-config-using-webhooks)
-    * [Q-How client side load balancing works?](#q-how-client-side-load-balancing-works)
-    * [Q-Eureka Self-preservation mode](#q-eureka-self-preservation-mode)
 <!-- TOC -->
 
 # Q-1 What are two essentials feature of Spring Core?
@@ -2666,6 +2681,454 @@ This is a **registration issue**, not a dispatch issue.
 | Dual registration | Servlet + Security chain |
 
 
+
+
+# Q-35 What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems
+
+## 1. What does idempotent mean? (Very basics)
+
+> An API operation is idempotent if making the same request multiple times results 
+> in the same meaningful final state on the server.
+
+Key clarifications:
+
+* We care about the **final state**, not how many times it ran
+* Internal side effects (logs, timestamps) are ignored
+* Idempotency is about **safe retries**
+
+
+## 2. Why idempotency matters
+
+Idempotency is critical because retries are unavoidable:
+
+* Network timeouts
+* Client crashes
+* Load balancers
+* Mobile networks
+* At-least-once delivery
+
+Without idempotency:
+
+* Retries can corrupt data
+* Duplicate records or actions occur
+
+
+## 3. Idempotent ≠ Safe (important distinction)
+
+| Term       | Meaning                        |
+|------------|--------------------------------|
+| Safe       | Does not modify server state   |
+| Idempotent | Same final state after retries |
+
+
+Examples:
+
+* GET → safe and idempotent
+* PUT → idempotent but not safe
+
+
+## 4. HTTP Methods — Idempotency Overview
+
+| HTTP Method | Idempotent?        | Why                  |
+|-------------|--------------------|----------------------|
+| GET         | ✅ Yes              | Read-only            |
+| HEAD        | ✅ Yes              | Metadata only        |
+| OPTIONS     | ✅ Yes              | Capability query     |
+| PUT         | ✅ Yes              | Replaces resource    |
+| DELETE      | ✅ Yes              | Deletes resource     |
+| POST        | ❌ No               | Creates new resource |
+| PATCH       | ❌ *Not guaranteed* | Applies a change     |
+
+
+
+## 5. Method-by-method explanation
+
+### GET – Idempotent
+
+```text
+GET /users/10
+```
+
+* Repeating does not change server state
+* Safe and idempotent
+
+
+### PUT – Idempotent
+
+```text
+PUT /users/10
+{
+  "name": "Alice"
+}
+```
+
+* First call: creates or replaces resource
+* Subsequent calls: same final state
+
+**Important clarification**
+
+Even if the server updates metadata like `updatedOn`, PUT is still considered idempotent 
+at the API semantic level. Idempotency is defined by client-meaningful state, not internal 
+bookkeeping.
+
+
+### DELETE – Idempotent
+
+```text
+DELETE /users/10
+```
+
+* First call: deletes resource
+* Subsequent calls: resource already deleted
+* Final state remains deleted
+
+
+### POST – Not idempotent
+
+```text
+POST /users
+{
+  "name": "Alice"
+}
+```
+
+* Each call creates a new user
+* Multiple calls → multiple resources
+
+### PATCH – Conditionally idempotent
+
+
+**PATCH with append semantics**
+
+```text
+PATCH /users/10
+{
+  "roles": ["ADMIN"]
+}
+```
+
+Repeating:
+
+* Adds ADMIN again
+* Duplicates accumulate
+
+❌ Not idempotent
+
+----
+
+**PATCH with JSON Patch (RFC 6902)**
+
+JSON Patch defines operations like add, remove, replace.
+
+Example (RFC 6902)
+
+```text
+PATCH /users/10
+[
+  { "op": "add", "path": "/tags/-", "value": "vip" }
+]
+```
+
+Each retry:
+* Adds another `"vip"`
+
+❌ Not idempotent by design
+
+---
+
+**The confusing case — PATCH can be idempotent**
+
+```text
+PATCH /users/10
+{
+  "email": "a@b.com"
+}
+```
+
+If server logic is:
+
+```java
+user.setEmail("a@b.com");
+```
+
+Repeating:
+
+* email remains `a@b.com`
+
+✔ This specific PATCH is idempotent
+
+# Q-36 If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?
+
+Assume we have the following two filters:
+
+```java
+@Component
+public class Filter_01 implements Filter {
+    @Override
+    public void doFilter(ServletRequest servletRequest,
+                         ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException, ServletException {
+        System.out.println("Filter_01");
+        filterChain.doFilter(servletRequest, servletResponse);
+    }
+}
+
+@Component
+public class Filter_02 implements Filter {
+    @Override
+    public void doFilter(ServletRequest servletRequest,
+                         ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException, ServletException {
+        System.out.println("Filter_02");
+        filterChain.doFilter(servletRequest, servletResponse);
+    }
+}
+```
+
+The execution order is NOT guaranteed.
+
+Why:
+
+* Both filters are:
+    * `@Component`
+    * Auto-registered by Spring Boot
+    * Have **no explicit order**
+* Spring assigns them **the same default order** (`Ordered.LOWEST_PRECEDENCE`)
+* The container may execute them in **any order**
+
+You might see:
+
+```text
+Filter_01
+Filter_02
+```
+
+or
+
+```text
+Filter_02
+Filter_01
+```
+
+Both are valid and **should not be relied upon**.
+
+
+## How Spring Boot decides filter order (important)
+
+Servlet filter execution order is determined by:
+
+1. `@Order` annotation
+2. `FilterRegistrationBean.setOrder()`
+3. Default order (lowest precedence)
+
+**Lower order value => earlier execution**
+
+
+## How to explicitly control the order (BEST PRACTICE)
+
+
+### Option 1: Use @Order (simple & common)
+
+```java
+@Component
+@Order(1)
+public class Filter_01 implements Filter { }
+
+@Component
+@Order(2)
+public class Filter_02 implements Filter { }
+```
+
+**Execution order**
+
+```text
+Filter_01
+Filter_02  
+```
+
+### Option 2: Use FilterRegistrationBean (most control)
+
+```java
+@Bean
+public FilterRegistrationBean<Filter_01> filter01() {
+    FilterRegistrationBean<Filter_01> bean = new FilterRegistrationBean<>();
+    bean.setFilter(new Filter_01());
+    bean.setOrder(1);
+    return bean;
+}
+
+@Bean
+public FilterRegistrationBean<Filter_02> filter02() {
+    FilterRegistrationBean<Filter_02> bean = new FilterRegistrationBean<>();
+    bean.setFilter(new Filter_02());
+    bean.setOrder(2);
+    return bean;
+}
+```
+
+* ✔ Explicit
+* ✔ Predictable
+* ✔ Preferred in production
+
+```text
+Client
+  ↓
+Filter_01 (order = 1)
+  ↓
+Filter_02 (order = 2)
+  ↓
+DispatcherServlet
+```
+
+## Important interview clarification
+
+* `@Component` alone **does not define order**
+* Alphabetical class name **does not matter**
+* Execution order **must be explicitly defined**
+
+
+
+# Q-37 How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?
+
+
+## Option 1 - Use FilterRegistrationBean with URL patterns (BEST & CLEANEST)
+
+This is the correct and recommended approach.
+
+**Example**
+
+```java
+@Bean
+public FilterRegistrationBean<MyFilter> myFilter() {
+    FilterRegistrationBean<MyFilter> bean = new FilterRegistrationBean<>();
+    bean.setFilter(new MyFilter());
+
+    bean.addUrlPatterns("/api/*", "/admin/*");
+    bean.setOrder(1);
+
+    return bean;
+}
+```
+
+**Behavior**
+
+* Filter executes only for:
+
+```text
+/api/...
+/admin/...
+```
+
+* Filter does not execute for:
+
+```text
+/health
+/actuator
+/login
+```
+
+## URL pattern rules (Servlet spec)
+
+| Pattern  | Matches                       |
+|----------|-------------------------------|
+| `/api/*` | `/api/users`, `/api/orders/1` |
+| `/*`     | All endpoints                 |
+| `*.json` | `/data.json`                  |
+| `/login` | Only `/login`                 |
+
+
+## Option 2 - Use OncePerRequestFilter.shouldNotFilter() (Spring-style)
+
+Use this when:
+
+* You already have a global filter
+* You want logic-based exclusion
+
+**Example**
+
+```java
+@Component
+public class MyFilter extends OncePerRequestFilter {
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return !path.startsWith("/api/");
+    }
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws IOException, ServletException {
+
+        System.out.println("Filter executed");
+        filterChain.doFilter(request, response);
+    }
+}
+```
+
+Behavior
+
+* Filter runs **only for /api/**
+* Cleaner than writing `if` inside `doFilter`
+
+
+## Option 3 - Manual if check inside doFilter (NOT recommended)
+
+```java
+public void doFilter(...) {
+    if (!request.getRequestURI().startsWith("/api")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+    // filter logic
+}
+```
+
+* ❌ Harder to read
+* ❌ Easy to mess up
+* ❌ Poor interview answer
+
+
+## Option 4 - Use Interceptor instead (important distinction)
+
+If your requirement is:
+
+* Controller-specific
+* Method-aware
+* Spring MVC only
+
+➡ **Use Interceptors, not Filters**
+
+```java
+registry.addInterceptor(myInterceptor)
+        .addPathPatterns("/api/**")
+        .excludePathPatterns("/api/public/**");
+```
+
+
+## Execution flow (important)
+
+```text
+Client
+  ↓
+Servlet Filter (URL matched)
+  ↓
+DispatcherServlet
+  ↓
+Interceptor
+  ↓
+Controller
+```
+
+
+## Q-38 How transactions works in spring?
+
+1. transaction
+2. async
+3. gateway filters
 1. Docker vs Jar
 1. Datasouce vs driver
 1. Explain application architecture.
@@ -2681,32 +3144,23 @@ This is a **registration issue**, not a dispatch issue.
 1. Explain the request flow in spring application
 
 
-### Q- Mention the REST api principles
-
-Ans: 
-
-
-### Q- What Object Oriented Principles you used in the project.
-
-Ans:
-
-### Q-What is Data Source?
+# Q-What is Data Source?
 
 Ans: The data source is a component that manages connections to the database management
 systems (DBMS). The data source uses the JDBC driver to get the connections it manages. The 
-data source aims to improve the app’s performance by allowing its logic to reuse connections 
+data source aims to improve the app's performance by allowing its logic to reuse connections 
 to the DBMS and request new connections only when it needs them. The data source also makes 
 sure to close the connections when it releases them.
 
-The data source manages the connections. It provides the app with connections when it’s 
-requested and makes sure to create new connections only when it’s necessary.
+The data source manages the connections. It provides the app with connections when it's 
+requested and makes sure to create new connections only when it's necessary.
 
 Without an object taking the responsibility of a data source, the app would need to
 request a new connection for each operation with the data. This approach is not realistic
 in a production scenario because communicating through the network for establishing a new 
 connection for each operation would dramatically slow down the application and cause 
 performance issues. The data source makes sure your app only requests a new connection when 
-it really needs it, improving the app’s performance.
+it really needs it, improving the app's performance.
 
 A data source object can efficiently manage the connections to minimize the number
 of unnecessary operations. Instead of using the JDBC driver manager directly, we use
@@ -2723,29 +3177,16 @@ doesn’t provide a specific implementation for working with a particular techno
 MySQL, Postgres, or Oracle). The JDK only gives you the abstractions for objects an app needs 
 to work with a relational database. To gain the implementation of this abstraction and enable 
 your app to connect to a certain DBMS technology, you add a runtime dependency named the JDBC 
-driver (figure 12.3). Every technology vendor provides the JDBC driver you need to add to your 
+driver. Every technology vendor provides the JDBC driver you need to add to your 
 app to enable it to connect to that specific technology. The JDBC driver is not something that 
 comes either from the JDK or from a framework such as Spring.
 
-
-### Q-What is Factory Pattern
-
-Ans: 
 
 ### Q-How to configure multiple data sources
 
 Ans:
 
------------------------------
-
-### Q-Why spring boot?
-
-https://marcelclasses.udemy.com/course/hibernate-jpa-tutorial-for-beginners-in-100-steps/learn/lecture/32399796#questions
-
------------------------------
-
-
-### Q-What are different levels of logging (in order of less severe to more severe)?
+# Q-What are different levels of logging (in order of less severe to more severe)?
 
 1. TRACE: The least severe. Provides fine-grained informational events useful for debugging.
 1. DEBUG: Provides detailed information for diagnosing problems.
@@ -2806,44 +3247,3 @@ values. Properties are considered in the following order (with values from lower
 * ServletConfig init parameters
 * Command line arguments
 
------------------------------
-
-### Q-How to encrypt values using spring config server?
-
-https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944642#overview
-
------------------------------
-
-### Q-Using config server how to get updated value of config without restarting microservice?
-
-https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944644#overview
-
------------------------------
-
-### Q-Refreshing configs using message bus
-
-https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944646#overview
-
-
-### Q-Auto refresh config using webhooks
-
-https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944648#overview
-
-
------------------------------
-
-### Q-How client side load balancing works?
-
-![client-side-load-balancing](../images/client-side-load-balancing.png)
-
-https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944754#overview
-
------------------------------
-
-
-### Q-Eureka Self-preservation mode
-
-https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944828#overview
-
-
------------------------------
