@@ -638,6 +638,9 @@ Parrot parrot;
 
 Resolves ambiguity when multiple beans exist.
 
+
+
+
 # Q-9 How to use abstractions with the Spring Context?
 
 This example demonstrates how Spring encourages programming to abstractions (interfaces) 
