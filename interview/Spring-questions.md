@@ -418,7 +418,7 @@ class ProjectConfig {
 
 Here:
 
-* Both beans are of type Parrot
+* Both beans are of type `Parrot`
 * They have different bean names
 * Both are registered in the context
 
@@ -441,7 +441,7 @@ Because, Spring doesn't know **which Parrot to inject**.
 
 ## How to resolve ambiguity
 
-1\. Use `@Qualifier`
+### 1. Use `@Qualifier`
 
 ```java
 @Autowired
@@ -453,7 +453,7 @@ Parrot parrot;
 * Explicit and clear
 
 
-2\. Use `@Primary`
+### 2. Use `@Primary`
 
 ```java
 @Bean
@@ -466,7 +466,7 @@ Parrot parrot1() {
 * Default choice
 * Used when one bean is the "main" one
 
-3\. Inject all beans as a collection
+### 3. Inject all beans as a collection
 
 ```java
 @Autowired
@@ -481,6 +481,9 @@ Useful when processing all implementations
 * Each bean must have a unique name
 * Injection by type becomes ambiguous
 * Ambiguity must be resolved explicitly
+
+
+
 
 # Q-7 What is Dependency Injection (DI) in spring?
 
