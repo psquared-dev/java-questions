@@ -552,7 +552,7 @@ class Person {
 * ✔ Easy to test
 * ✔ Works well with `final` fields
 
-📌 Note: If there is only one constructor, @Autowired is optional (Spring 4.3+).
+📌 Note: If there is only one constructor, `@Autowired` is optional (Spring 4.3+).
 
 ## Field Injection
 
