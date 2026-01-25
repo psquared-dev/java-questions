@@ -216,6 +216,14 @@
     * [Simple code example](#simple-code-example-1)
     * [Step-by-step execution](#step-by-step-execution)
     * [Key observation (this is the core)](#key-observation-this-is-the-core-1)
+  * [6. MANDATORY](#6-mandatory)
+    * [Case 1. MANDATORY is called inside a transaction](#case-1-mandatory-is-called-inside-a-transaction)
+    * [Case 2. MANDATORY is called without a transaction](#case-2-mandatory-is-called-without-a-transaction)
+    * [Key observation (this is the point)](#key-observation-this-is-the-point-1)
+  * [7. NEVER](#7-never)
+    * [Case 1 - NEVER is called without a transaction](#case-1---never-is-called-without-a-transaction)
+    * [Case 2 - NEVER is called inside a transaction](#case-2---never-is-called-inside-a-transaction)
+    * [Key observation (this is the core)](#key-observation-this-is-the-core-2)
 * [Q-What is Data Source?](#q-what-is-data-source)
     * [Q-What is JDBC Driver](#q-what-is-jdbc-driver-)
     * [Q-How to configure multiple data sources](#q-how-to-configure-multiple-data-sources)
@@ -3890,6 +3898,179 @@ Runs inside TX-1
     * Cannot be rolled back
 * Outer transaction rollback:
     * Does not affect `inner()` 
+
+
+## 6. MANDATORY
+
+First: the rule (plain English)
+
+> MANDATORY means:
+> "This method MUST be called inside an existing transaction."
+>
+
+If no transaction exists:
+
+* Fail immediately
+
+Spring does not start a transaction for you.
+
+
+**Simple code example**
+
+```java
+@Transactional
+public void outer() {
+    stepA();
+    inner();   // MANDATORY
+}
+
+@Transactional(propagation = Propagation.MANDATORY)
+public void inner() {
+    stepB();
+}
+```
+
+### Case 1. MANDATORY is called inside a transaction
+
+**Step-by-step**
+
+1. outer() starts → TX-1
+2. stepA() runs inside TX-1
+3. inner() is called
+4. Spring sees:
+    * Transaction exists
+    * Propagation = MANDATORY
+5. Spring joins TX-1
+
+```text
+TX-1:
+  stepA
+  stepB
+```
+
+**Result**
+
+* One transaction
+* Normal execution
+
+
+### Case 2. MANDATORY is called without a transaction
+
+```java
+public void caller() {
+    inner();   // MANDATORY
+}
+```
+
+**Step-by-step**
+
+1. No transaction exists
+2. `inner()` is called
+3. Spring checks propagation
+4. Exception is thrown immediately
+
+```text
+IllegalTransactionStateException
+```
+
+**Result**
+
+* No method execution
+* Fail-fast behavior
+
+### Key observation (this is the point)
+
+`MANDATORY`:
+
+* Never creates a transaction
+* Never suspends a transaction
+* Simply **enforces a rule**
+
+
+## 7. NEVER
+
+First: the rule (plain English)
+
+> NEVER means:
+> "This method must NOT run inside a transaction."
+>
+
+If a transaction exists:
+
+* Fail immediately
+
+Spring does not suspend the transaction here — it **rejects the call**.
+
+Simple code example
+
+```java
+@Transactional
+public void outer() {
+    stepA();
+    inner();   // NEVER
+}
+
+@Transactional(propagation = Propagation.NEVER)
+public void inner() {
+    stepB();
+}
+```
+
+### Case 1 - NEVER is called without a transaction
+
+```java
+public void caller() {
+    inner();   // NEVER
+}
+```
+
+**Step-by-step**
+
+1. No transaction exists
+2. `inner()` is called
+3. Spring checks propagation
+4. Method runs normally
+
+
+```text
+NO TRANSACTION
+stepB executed
+```
+
+**Result**
+
+* Method executes successfully
+* No transaction involved
+
+### Case 2 - NEVER is called inside a transaction
+
+**Step-by-step**
+
+1. outer() starts → TX-1
+2. inner() is called
+3. Spring sees:
+    * Transaction exists
+    * Propagation = NEVER
+4. Spring throws an exception immediately
+
+```text
+IllegalTransactionStateException
+```
+
+**Result**
+
+* `inner()` does NOT execute
+* TX-1 continues or fails depending on handling
+
+
+### Key observation (this is the core)
+
+`NEVER` is the opposite of `MANDATORY`:
+
+* `MANDATORY` → requires a transaction
+* `NEVER` → forbids a transaction
+
+
 
 
 
