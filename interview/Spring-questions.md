@@ -208,7 +208,7 @@
     * [Simple code example](#simple-code-example)
     * [Step-by-step execution (very literal)](#step-by-step-execution-very-literal)
     * [Key observation (this is the core)](#key-observation-this-is-the-core)
-  * [4. SUPPORTS (Basics Only)](#4-supports-basics-only)
+  * [4. SUPPORTS](#4-supports)
     * [Case 1. SUPPORTS is called inside a transaction](#case-1-supports-is-called-inside-a-transaction)
     * [Case 2. SUPPORTS is called without a transaction](#case-2-supports-is-called-without-a-transaction)
     * [Key observation (important)](#key-observation-important)
@@ -3678,7 +3678,7 @@ stepC();
 > Rollback happens till the savepoint if the nested method fails.
 > Rollback happens entirely if the outer transaction fails.
 
-## 4. SUPPORTS (Basics Only)
+## 4. SUPPORTS
 
 The rule (plain English)
 
