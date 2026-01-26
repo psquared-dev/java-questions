@@ -1964,7 +1964,7 @@ Expose endpoints:
 management.endpoints.web.exposure.include=health,info,metrics
 ```
 
-Q-25 How to change the Actuator base endpoint?
+ ## How to change the Actuator base endpoint?
 
 **Default**
 
