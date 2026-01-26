@@ -1241,8 +1241,9 @@ When you use `@SpringBootApplication`, you are implicitly applying:
 
 **Significance:** It tells Spring Boot to look at the JARs on your classpath and 
   automatically configure beans.
-    * **Example:** "I see spring-boot-starter-web on the classpath, so I will configure Tomcat and Spring MVC."
-    * **Example:** "I see a DataSource class, so I will configure a database connection."
+
+* **Example:** "I see spring-boot-starter-web on the classpath, so I will configure Tomcat and Spring MVC."
+* **Example:** "I see a DataSource class, so I will configure a database connection."
 
 
 ## 3. @ComponentScan
