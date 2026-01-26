@@ -106,17 +106,18 @@
 * [Q-24 What is Spring Actuator?](#q-24-what-is-spring-actuator)
   * [Why Spring Actuator exists (the problem it solves)](#why-spring-actuator-exists-the-problem-it-solves)
   * [What Spring Actuator provides](#what-spring-actuator-provides)
-  * [How you enable Spring Actuator](#how-you-enable-spring-actuator)
-* [Q-25 How to change Actuator port?](#q-25-how-to-change-actuator-port)
-* [Q-26 How to expose / hide Actuator endpoints?](#q-26-how-to-expose--hide-actuator-endpoints)
-* [Q-27 How to create a custom Actuator endpoint?](#q-27-how-to-create-a-custom-actuator-endpoint)
-  * [Custom endpoint using @Endpoint](#custom-endpoint-using-endpoint)
-  * [Supported operations](#supported-operations)
-* [Q-28 What is spring-boot-maven-plugin?](#q-28-what-is-spring-boot-maven-plugin)
+  * [How you enable Spring Actuator?](#how-you-enable-spring-actuator)
+  * [How to change the Actuator base endpoint?](#how-to-change-the-actuator-base-endpoint)
+  * [How to change Actuator port?](#how-to-change-actuator-port)
+  * [How to expose / hide Actuator endpoints?](#how-to-expose--hide-actuator-endpoints)
+  * [How to create a custom Actuator endpoint?](#how-to-create-a-custom-actuator-endpoint)
+    * [Custom endpoint using @Endpoint](#custom-endpoint-using-endpoint)
+    * [Supported operations](#supported-operations)
+* [Q-25 What is spring-boot-maven-plugin?](#q-25-what-is-spring-boot-maven-plugin)
   * [1. The Problem: Standard Maven Builds](#1-the-problem-standard-maven-builds)
   * [2. The Solution: The "Fat JAR"](#2-the-solution-the-fat-jar)
   * [3. Key Goals (Interview Checklist)](#3-key-goals-interview-checklist)
-* [Q-29 What are the advantages of yaml over properties file?](#q-29-what-are-the-advantages-of-yaml-over-properties-file)
+* [Q-26 What are the advantages of yaml over properties file?](#q-26-what-are-the-advantages-of-yaml-over-properties-file)
   * [Key advantages of YAML over .properties](#key-advantages-of-yaml-over-properties)
     * [1. Hierarchical and structured configuration (biggest advantage)](#1-hierarchical-and-structured-configuration-biggest-advantage)
     * [2. Better readability for large configs](#2-better-readability-for-large-configs)
@@ -124,11 +125,11 @@
     * [5. Reduced duplication and better maintainability](#5-reduced-duplication-and-better-maintainability)
     * [6. Strong fit with @ConfigurationProperties](#6-strong-fit-with-configurationproperties)
   * [Disadvantages of YAML (important to mention)](#disadvantages-of-yaml-important-to-mention)
-* [Q-30 What's the difference between liveness and readiness?](#q-30-whats-the-difference-between-liveness-and-readiness)
+* [Q-27 What's the difference between liveness and readiness?](#q-27-whats-the-difference-between-liveness-and-readiness)
   * [Liveness Probe — "Should this app be restarted?"](#liveness-probe--should-this-app-be-restarted)
   * [Readiness Probe — "Can this app receive traffic?"](#readiness-probe--can-this-app-receive-traffic)
   * [Side-by-side comparison](#side-by-side-comparison)
-* [Q-31 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?](#q-31-what-are-servlets-what-is-a-web-servlet-container-and-why-is-it-needed-what-problems-did-developers-face-with-servlets-that-led-to-frameworks-like-spring-mvc)
+* [Q-28 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?](#q-28-what-are-servlets-what-is-a-web-servlet-container-and-why-is-it-needed-what-problems-did-developers-face-with-servlets-that-led-to-frameworks-like-spring-mvc)
   * [1. What are Servlets?](#1-what-are-servlets)
   * [2️. What is a Web / Servlet Container?](#2-what-is-a-web--servlet-container)
     * [Responsibilities of a Servlet Container](#responsibilities-of-a-servlet-container)
@@ -140,8 +141,8 @@
     * [3. Poor separation of concerns](#3-poor-separation-of-concerns)
     * [4. No built-in MVC abstraction](#4-no-built-in-mvc-abstraction)
     * [5. Weak support for cross-cutting concerns](#5-weak-support-for-cross-cutting-concerns)
-* [Q-32 When we define Controller, it gets converted to servlet or not?](#q-32-when-we-define-controller-it-gets-converted-to-servlet-or-not)
-* [Q-33 Explain Filter and Interceptor. How do they differ?](#q-33-explain-filter-and-interceptor-how-do-they-differ)
+* [Q-29 When we define Controller, it gets converted to servlet or not?](#q-29-when-we-define-controller-it-gets-converted-to-servlet-or-not)
+* [Q-30 Explain Filter and Interceptor. How do they differ?](#q-30-explain-filter-and-interceptor-how-do-they-differ)
   * [1. What is a Filter?](#1-what-is-a-filter)
     * [Key characteristics](#key-characteristics)
     * [Typical use cases](#typical-use-cases)
@@ -150,7 +151,7 @@
     * [Lifecycle hooks](#lifecycle-hooks)
     * [Typical use cases](#typical-use-cases-1)
   * [3. Execution order (critical)](#3-execution-order-critical)
-* [Q-34 Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?](#q-34-why-can-a-servlet-filter-execute-more-than-once-for-a-single-http-request-explain-the-underlying-mechanism-and-give-concrete-examples)
+* [Q-31 Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?](#q-31-why-can-a-servlet-filter-execute-more-than-once-for-a-single-http-request-explain-the-underlying-mechanism-and-give-concrete-examples)
   * [1. Very Basics — What does “execute once” even mean?](#1-very-basics--what-does-execute-once-even-mean)
   * [2. What is a dispatch?](#2-what-is-a-dispatch)
   * [3. Core Rule (must be memorized)](#3-core-rule-must-be-memorized)
@@ -163,7 +164,7 @@
   * [10. How OncePerRequestFilter fits in](#10-how-onceperrequestfilter-fits-in)
   * [11. Special case — Spring Security (important gotcha)](#11-special-case--spring-security-important-gotcha)
   * [12. Summary Table (Interview Gold)](#12-summary-table-interview-gold)
-* [Q-35 What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems](#q-35-what-is-an-idempotent-api-which-http-methods-are-idempotent-and-why-does-idempotency-matter-in-restful-systems)
+* [Q-32 What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems](#q-32-what-is-an-idempotent-api-which-http-methods-are-idempotent-and-why-does-idempotency-matter-in-restful-systems)
   * [1. What does idempotent mean? (Very basics)](#1-what-does-idempotent-mean-very-basics)
   * [2. Why idempotency matters](#2-why-idempotency-matters)
   * [3. Idempotent ≠ Safe (important distinction)](#3-idempotent--safe-important-distinction)
@@ -174,20 +175,20 @@
     * [DELETE – Idempotent](#delete--idempotent)
     * [POST – Not idempotent](#post--not-idempotent)
     * [PATCH – Conditionally idempotent](#patch--conditionally-idempotent)
-* [Q-36 If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?](#q-36-if-multiple-servlet-filters-are-registered-in-a-spring-boot-application-how-is-their-execution-order-determined-and-how-can-we-explicitly-control-that-order)
+* [Q-33 If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?](#q-33-if-multiple-servlet-filters-are-registered-in-a-spring-boot-application-how-is-their-execution-order-determined-and-how-can-we-explicitly-control-that-order)
   * [How Spring Boot decides filter order (important)](#how-spring-boot-decides-filter-order-important)
   * [How to explicitly control the order (BEST PRACTICE)](#how-to-explicitly-control-the-order-best-practice)
     * [Option 1: Use @Order (simple & common)](#option-1-use-order-simple--common)
     * [Option 2: Use FilterRegistrationBean (most control)](#option-2-use-filterregistrationbean-most-control)
   * [Important interview clarification](#important-interview-clarification)
-* [Q-37 How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?](#q-37-how-can-we-make-a-servlet-filter-execute-only-for-certain-endpoints-in-a-spring-boot-application)
+* [Q-34 How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?](#q-34-how-can-we-make-a-servlet-filter-execute-only-for-certain-endpoints-in-a-spring-boot-application)
   * [Option 1 - Use FilterRegistrationBean with URL patterns (BEST & CLEANEST)](#option-1---use-filterregistrationbean-with-url-patterns-best--cleanest)
   * [URL pattern rules (Servlet spec)](#url-pattern-rules-servlet-spec)
   * [Option 2 - Use OncePerRequestFilter.shouldNotFilter() (Spring-style)](#option-2---use-onceperrequestfiltershouldnotfilter-spring-style)
   * [Option 3 - Manual if check inside doFilter (NOT recommended)](#option-3---manual-if-check-inside-dofilter-not-recommended)
   * [Option 4 - Use Interceptor instead (important distinction)](#option-4---use-interceptor-instead-important-distinction)
   * [Execution flow (important)](#execution-flow-important)
-* [Q-38 How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.](#q-38-how-does-transaction-management-work-in-spring-explain-the-role-of-transactional-proxies-and-what-happens-at-runtime)
+* [Q-35 How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.](#q-35-how-does-transaction-management-work-in-spring-explain-the-role-of-transactional-proxies-and-what-happens-at-runtime)
   * [1. What is a transaction? (Very basics)](#1-what-is-a-transaction-very-basics)
   * [2. How Spring manages transactions (big picture)](#2-how-spring-manages-transactions-big-picture)
   * [3. What happens at runtime (step-by-step)](#3-what-happens-at-runtime-step-by-step)
@@ -196,7 +197,7 @@
     * [2. Transaction Proxy (AOP)](#2-transaction-proxy-aop)
     * [3. PlatformTransactionManager](#3-platformtransactionmanager)
   * [5. Rollback rules (very important)](#5-rollback-rules-very-important)
-* [Q-39 What is Transaction Propagation?](#q-39-what-is-transaction-propagation)
+* [Q-36 What is Transaction Propagation?](#q-36-what-is-transaction-propagation)
   * [Why propagation exists (intuition)](#why-propagation-exists-intuition)
   * [1. REQUIRED (Default)](#1-required-default)
   * [2. REQUIRES_NEW](#2-requires_new)
@@ -224,7 +225,7 @@
     * [Case 1 - NEVER is called without a transaction](#case-1---never-is-called-without-a-transaction)
     * [Case 2 - NEVER is called inside a transaction](#case-2---never-is-called-inside-a-transaction)
     * [Key observation (this is the core)](#key-observation-this-is-the-core-2)
-* [Q-40 What is the @Async annotation in Spring? How does it work internally, and when should we use it?](#q-40-what-is-the-async-annotation-in-spring-how-does-it-work-internally-and-when-should-we-use-it)
+* [Q-37 What is the @Async annotation in Spring? How does it work internally, and when should we use it?](#q-37-what-is-the-async-annotation-in-spring-how-does-it-work-internally-and-when-should-we-use-it)
   * [What problem does it solve?](#what-problem-does-it-solve)
   * [How it works internally (step by step)](#how-it-works-internally-step-by-step)
   * [Basic usage](#basic-usage)
@@ -233,9 +234,9 @@
   * [Exception handling in @Async](#exception-handling-in-async)
   * [Common gotchas (interview favorites)](#common-gotchas-interview-favorites)
   * [When should you use @Async?](#when-should-you-use-async)
-* [Q-41 What is Data Source?](#q-41-what-is-data-source)
-* [Q-42 What is JDBC Driver](#q-42-what-is-jdbc-driver-)
-* [Q-43 How to configure multiple data sources in Spring Boot?](#q-43-how-to-configure-multiple-data-sources-in-spring-boot)
+* [Q-38 What is Data Source?](#q-38-what-is-data-source)
+* [Q-39 What is JDBC Driver](#q-39-what-is-jdbc-driver-)
+* [Q-40 How to configure multiple data sources in Spring Boot?](#q-40-how-to-configure-multiple-data-sources-in-spring-boot)
   * [1. Why do we need multiple data sources?](#1-why-do-we-need-multiple-data-sources)
   * [2. Core concepts involved (must know)](#2-core-concepts-involved-must-know)
   * [3. High-level steps (interview checklist)](#3-high-level-steps-interview-checklist)
@@ -243,9 +244,9 @@
   * [5. Step 2: Create DataSource beans](#5-step-2-create-datasource-beans)
   * [6. Step 3: Configure EntityManagerFactory (JPA)](#6-step-3-configure-entitymanagerfactory-jpa)
   * [7. How Spring knows which DB to use](#7-how-spring-knows-which-db-to-use)
-* [Q-44 What are different levels of logging (in order of less severe to more severe)?](#q-44-what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
-* [Q-45 What are the various ways to activate spring profile?](#q-45-what-are-the-various-ways-to-activate-spring-profile)
-* [Q-46 What is the order in which Spring Boot configuration is processed?](#q-46-what-is-the-order-in-which-spring-boot-configuration-is-processed)
+* [Q-41 What are different levels of logging (in order of less severe to more severe)?](#q-41-what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
+* [Q-42 What are the various ways to activate spring profile?](#q-42-what-are-the-various-ways-to-activate-spring-profile)
+* [Q-43 What is the order in which Spring Boot configuration is processed?](#q-43-what-is-the-order-in-which-spring-boot-configuration-is-processed)
   * [1. Command-line arguments](#1-command-line-arguments)
   * [2. JVM system properties](#2-jvm-system-properties)
   * [3. OS environment variables](#3-os-environment-variables)
@@ -1947,7 +1948,7 @@ Common built-in endpoints
 | `/actuator/loggers`    | View/change log levels    |
 
 
-## How you enable Spring Actuator
+## How you enable Spring Actuator?
 
 Add dependency:
 
@@ -1964,7 +1965,7 @@ Expose endpoints:
 management.endpoints.web.exposure.include=health,info,metrics
 ```
 
- ## How to change the Actuator base endpoint?
+## How to change the Actuator base endpoint?
 
 **Default**
 
@@ -1985,7 +1986,7 @@ Now:
 /manage/metrics
 ```
 
-# Q-25 How to change Actuator port?
+## How to change Actuator port?
 
 Default
 
@@ -2003,7 +2004,7 @@ Now:
 * Actuator → http://localhost:8081/actuator/health
 
 
-# Q-26 How to expose / hide Actuator endpoints?
+## How to expose / hide Actuator endpoints?
 
 **Expose specific endpoints**
 
@@ -2023,9 +2024,9 @@ management.endpoints.web.exposure.include=*
 management.endpoints.web.exposure.exclude=env,beans
 ```
 
-# Q-27 How to create a custom Actuator endpoint?
+## How to create a custom Actuator endpoint?
 
-## Custom endpoint using @Endpoint
+### Custom endpoint using @Endpoint
 
 ```java
 @Component
@@ -2049,7 +2050,7 @@ Access URL:
 /actuator/buildinfo
 ```
 
-## Supported operations
+### Supported operations
 
 | Annotation         | HTTP mapping |
 |--------------------|--------------|
@@ -2060,7 +2061,7 @@ Access URL:
 
 
 
-# Q-28 What is spring-boot-maven-plugin?
+# Q-25 What is spring-boot-maven-plugin?
 
 The spring-boot-maven-plugin is a vital tool that bridges the gap between 
 a standard Maven build and a Spring Boot application.
@@ -2099,7 +2100,7 @@ The Spring Boot plugin steps in after the standard package phase. It creates a n
 
 
 
-# Q-29 What are the advantages of yaml over properties file?
+# Q-26 What are the advantages of yaml over properties file?
 
 In Spring Boot, configuration can be written using either:
 
@@ -2222,7 +2223,7 @@ from `application.properties` override those from `application.yml`.
 
 
 
-# Q-30 What's the difference between liveness and readiness?
+# Q-27 What's the difference between liveness and readiness?
 
 * **Liveness:** "Is the application running?"
 * **Readiness:** "Is the application ready to accept traffic?"
@@ -2289,7 +2290,7 @@ from `application.properties` override those from `application.yml`.
 
 
 
-# Q-31 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?
+# Q-28 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?
 
 ## 1. What are Servlets?
 
@@ -2410,7 +2411,7 @@ They work well, but they force developers to handle **too many concerns in one p
 
 
 
-# Q-32 When we define Controller, it gets converted to servlet or not?
+# Q-29 When we define Controller, it gets converted to servlet or not?
 
 ❌ No. A Spring `@Controller` **is NOT converted into a Servlet**.
 
@@ -2428,7 +2429,7 @@ The servlet involved is `DispatcherServlet`.
 
 
 
-# Q-33 Explain Filter and Interceptor. How do they differ?
+# Q-30 Explain Filter and Interceptor. How do they differ?
 
 ## 1. What is a Filter?
 
@@ -2536,7 +2537,7 @@ Response
 
 
 
-# Q-34 Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?
+# Q-31 Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?
 
 ## 1. Very Basics — What does “execute once” even mean?
 
@@ -2792,7 +2793,7 @@ This is a **registration issue**, not a dispatch issue.
 
 
 
-# Q-35 What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems
+# Q-32 What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems
 
 ## 1. What does idempotent mean? (Very basics)
 
@@ -2966,7 +2967,7 @@ Repeating:
 
 ✔ This specific PATCH is idempotent
 
-# Q-36 If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?
+# Q-33 If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?
 
 Assume we have the following two filters:
 
@@ -3097,7 +3098,7 @@ DispatcherServlet
 
 
 
-# Q-37 How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?
+# Q-34 How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?
 
 
 ## Option 1 - Use FilterRegistrationBean with URL patterns (BEST & CLEANEST)
@@ -3233,7 +3234,7 @@ Controller
 ```
 
 
-# Q-38 How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.
+# Q-35 How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.
 
 ## 1. What is a transaction? (Very basics)
 
@@ -3336,7 +3337,7 @@ or
 ```
 
 
-# Q-39 What is Transaction Propagation?
+# Q-36 What is Transaction Propagation?
 
 Transaction propagation defines how a transactional method behaves when it is called from 
 another transactional method—specifically, whether it **joins**, **creates**, **suspends**, 
@@ -4112,7 +4113,7 @@ IllegalTransactionStateException
 * `NEVER` → forbids a transaction
 
 
-# Q-40 What is the @Async annotation in Spring? How does it work internally, and when should we use it?
+# Q-37 What is the @Async annotation in Spring? How does it work internally, and when should we use it?
 
 `@Async` is a Spring annotation used to execute a method asynchronously—that is, the 
 method runs in a separate thread so the caller does not block waiting for it to finish.
@@ -4298,7 +4299,7 @@ Fix:
 1. Explain the request flow in spring application
 
 
-# Q-41 What is Data Source?
+# Q-38 What is Data Source?
 
 Ans: The data source is a component that manages connections to the database management
 systems (DBMS). The data source uses the JDBC driver to get the connections it manages. The 
@@ -4324,7 +4325,7 @@ a data source to retrieve and manage the connections.
 
 HikariCP the default data source implementation.
 
-# Q-42 What is JDBC Driver 
+# Q-39 What is JDBC Driver 
 
 Ans: JDBC offers you a way to connect to a DBMS to work with a database. However, the JDK 
 doesn’t provide a specific implementation for working with a particular technology (such as 
@@ -4338,7 +4339,7 @@ comes either from the JDK or from a framework such as Spring.
 
 
 
-# Q-43 How to configure multiple data sources in Spring Boot?
+# Q-40 How to configure multiple data sources in Spring Boot?
 
 ## 1. Why do we need multiple data sources?
 
@@ -4523,7 +4524,7 @@ Spring resolves DB usage based on:
 
 
 
-# Q-44 What are different levels of logging (in order of less severe to more severe)?
+# Q-41 What are different levels of logging (in order of less severe to more severe)?
 
 1. `TRACE`: The least severe. Provides fine-grained informational events useful for debugging.
 2. `DEBUG`: Provides detailed information for diagnosing problems.
@@ -4535,7 +4536,7 @@ Spring resolves DB usage based on:
 
 
 
-# Q-45 What are the various ways to activate spring profile?
+# Q-42 What are the various ways to activate spring profile?
 
 ```bash
 # this method is called command line arguments
@@ -4559,7 +4560,7 @@ $ SPRING_PROFILES_ACTIVE=qa java -jar target/userservice-0.0.1-SNAPSHOT.jar
 
 
 
-# Q-46 What is the order in which Spring Boot configuration is processed?
+# Q-43 What is the order in which Spring Boot configuration is processed?
 
 Configuration precedence (HIGHEST → LOWEST)
 
