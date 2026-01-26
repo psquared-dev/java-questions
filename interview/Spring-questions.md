@@ -464,7 +464,7 @@ Example:
 
 # Q-6 Can we define multiple beans of the same type?
 
-Spring allows **multiple beans of the same type** to exist in the application context.
+Yes, Spring allows **multiple beans of the same type** to exist in the application context.
 
 Example:
 
