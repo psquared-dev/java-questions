@@ -224,14 +224,37 @@
     * [Case 1 - NEVER is called without a transaction](#case-1---never-is-called-without-a-transaction)
     * [Case 2 - NEVER is called inside a transaction](#case-2---never-is-called-inside-a-transaction)
     * [Key observation (this is the core)](#key-observation-this-is-the-core-2)
-* [Q-What is Data Source?](#q-what-is-data-source)
-    * [Q-What is JDBC Driver](#q-what-is-jdbc-driver-)
-    * [Q-How to configure multiple data sources](#q-how-to-configure-multiple-data-sources)
-* [Q-What are different levels of logging (in order of less severe to more severe)?](#q-what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
-    * [Q-What is AuditAware interface?](#q-what-is-auditaware-interface)
-    * [Q-What are different ways to read configs in Spring Boot?](#q-what-are-different-ways-to-read-configs-in-spring-boot)
-    * [Q-What are the various ways to activate spring profile?](#q-what-are-the-various-ways-to-activate-spring-profile)
-    * [Q-What is the order in which the configs are processed?](#q-what-is-the-order-in-which-the-configs-are-processed)
+* [Q-40 What is the @Async annotation in Spring? How does it work internally, and when should we use it?](#q-40-what-is-the-async-annotation-in-spring-how-does-it-work-internally-and-when-should-we-use-it)
+  * [What problem does it solve?](#what-problem-does-it-solve)
+  * [How it works internally (step by step)](#how-it-works-internally-step-by-step)
+  * [Basic usage](#basic-usage)
+  * [Return types supported by @Async](#return-types-supported-by-async)
+  * [Thread pool behavior (very important)](#thread-pool-behavior-very-important)
+  * [Exception handling in @Async](#exception-handling-in-async)
+  * [Common gotchas (interview favorites)](#common-gotchas-interview-favorites)
+  * [When should you use @Async?](#when-should-you-use-async)
+* [Q-41 What is Data Source?](#q-41-what-is-data-source)
+* [Q-42 What is JDBC Driver](#q-42-what-is-jdbc-driver-)
+* [Q-43 How to configure multiple data sources in Spring Boot?](#q-43-how-to-configure-multiple-data-sources-in-spring-boot)
+  * [1. Why do we need multiple data sources?](#1-why-do-we-need-multiple-data-sources)
+  * [2. Core concepts involved (must know)](#2-core-concepts-involved-must-know)
+  * [3. High-level steps (interview checklist)](#3-high-level-steps-interview-checklist)
+  * [4. Step 1: Define properties (application.yml)](#4-step-1-define-properties-applicationyml)
+  * [5. Step 2: Create DataSource beans](#5-step-2-create-datasource-beans)
+  * [6. Step 3: Configure EntityManagerFactory (JPA)](#6-step-3-configure-entitymanagerfactory-jpa)
+  * [7. How Spring knows which DB to use](#7-how-spring-knows-which-db-to-use)
+* [Q-44 What are different levels of logging (in order of less severe to more severe)?](#q-44-what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
+* [Q-45 What are the various ways to activate spring profile?](#q-45-what-are-the-various-ways-to-activate-spring-profile)
+* [Q-46 What is the order in which Spring Boot configuration is processed?](#q-46-what-is-the-order-in-which-spring-boot-configuration-is-processed)
+  * [1. Command-line arguments](#1-command-line-arguments)
+  * [2. JVM system properties](#2-jvm-system-properties)
+  * [3. OS environment variables](#3-os-environment-variables)
+  * [4. `application.properties` / `application.yml` (external)](#4-applicationproperties--applicationyml-external)
+  * [5. Profile-specific config files](#5-profile-specific-config-files)
+  * [6. @TestPropertySource (tests only)](#6-testpropertysource-tests-only)
+  * [7. @PropertySource](#7-propertysource)
+  * [8. Default properties](#8-default-properties)
+  * [Final precedence list (clean)](#final-precedence-list-clean)
 <!-- TOC -->
 
 # Q-1 What are two essentials feature of Spring Core?
@@ -4071,7 +4094,172 @@ IllegalTransactionStateException
 * `NEVER` → forbids a transaction
 
 
+# Q-40 What is the @Async annotation in Spring? How does it work internally, and when should we use it?
 
+`@Async` is a Spring annotation used to execute a method asynchronously—that is, the 
+method runs in a separate thread so the caller does not block waiting for it to finish.
+
+
+## What problem does it solve?
+
+Synchronous execution blocks the caller thread.
+
+For non-critical or long-running tasks, this reduces throughput and hurts responsiveness.
+
+Common examples:
+
+* Sending emails/SMS
+* Publishing events
+* Calling slow external services
+* Background cleanup or processing
+
+`@Async` improves responsiveness and scalability.
+
+
+## How it works internally (step by step)
+
+1. You annotate a method with `@Async`
+2. Spring creates a proxy around the bean (AOP)
+3. When the method is called:
+    * The proxy submits the method execution to a thread pool
+    * The caller thread returns immediately
+4. The method executes on a different thread
+
+Important:
+**Only external calls through the proxy are async.**
+
+
+## Basic usage
+
+**1. Enable async support**
+
+```java
+@EnableAsync
+@Configuration
+public class AsyncConfig { }
+```
+
+**2. Annotate a method**
+
+```java
+@Async
+public void sendEmail() {
+    // runs in a separate thread
+}
+```
+
+Calling `sendEmail()` returns immediately.
+
+## Return types supported by @Async
+
+| Return Type            | Behavior                |
+|------------------------|-------------------------|
+| `void`                 | Fire-and-forget         |
+| `Future<T>`            | Legacy async result     |
+| `CompletableFuture<T>` | Preferred, non-blocking |
+
+Example:
+
+```java
+@Async
+public CompletableFuture<String> process() {
+    return CompletableFuture.completedFuture("done");
+}
+```
+
+## Thread pool behavior (very important)
+
+If you don’t configure a pool:
+
+* Spring uses `SimpleAsyncTaskExecutor`
+* ❌ Creates a new thread per task
+* ❌ Not suitable for production
+
+
+**Recommended: define a thread pool**
+
+```java
+@Bean
+public Executor taskExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(10);
+    executor.setMaxPoolSize(20);
+    executor.setQueueCapacity(100);
+    executor.setThreadNamePrefix("async-");
+    executor.initialize();
+    return executor;
+}
+```
+
+Then:
+
+```java
+@Async("taskExecutor")
+public void sendEmail() { }
+```
+
+## Exception handling in @Async
+
+`void` return type
+
+* Exceptions are **not propagated to the caller**
+* Must be handled via `AsyncUncaughtExceptionHandler`
+
+`Future / CompletableFuture`
+
+* Exceptions are captured in the future
+* Caller can handle them
+
+
+## Common gotchas (interview favorites)
+
+1. ⚠️ Self-invocation
+
+```java
+this.asyncMethod(); // NOT async
+```
+
+Why?
+
+* Call does not go through the proxy
+
+Fix:
+
+* Call from another bean
+
+
+2. ⚠️ @Async on private methods
+
+* ❌ Does not work
+* Proxies cannot intercept private methods
+
+
+3. ⚠️ Transactions and @Async
+
+* Async method runs in a different thread
+* Transaction context is NOT propagated
+* Requires a new transaction if needed
+
+
+4. ⚠️ Ordering and consistency
+
+* Async execution is non-deterministic
+* Not suitable for strict ordering requirements
+
+
+## When should you use @Async?
+
+✅ Use it when:
+
+* The task is independent
+* Result is not immediately required
+* Failures can be handled separately
+
+❌ Avoid it when:
+
+* You need transactional consistency
+* You need guaranteed execution order
+* The task is CPU-bound without proper limits
 
 
 1. transaction
@@ -4092,7 +4280,7 @@ IllegalTransactionStateException
 1. Explain the request flow in spring application
 
 
-# Q-What is Data Source?
+# Q-41 What is Data Source?
 
 Ans: The data source is a component that manages connections to the database management
 systems (DBMS). The data source uses the JDBC driver to get the connections it manages. The 
@@ -4118,7 +4306,7 @@ a data source to retrieve and manage the connections.
 
 HikariCP the default data source implementation.
 
-### Q-What is JDBC Driver 
+# Q-42 What is JDBC Driver 
 
 Ans: JDBC offers you a way to connect to a DBMS to work with a database. However, the JDK 
 doesn’t provide a specific implementation for working with a particular technology (such as 
@@ -4130,37 +4318,206 @@ app to enable it to connect to that specific technology. The JDBC driver is not 
 comes either from the JDK or from a framework such as Spring.
 
 
-### Q-How to configure multiple data sources
-
-Ans:
-
-# Q-What are different levels of logging (in order of less severe to more severe)?
-
-1. TRACE: The least severe. Provides fine-grained informational events useful for debugging.
-1. DEBUG: Provides detailed information for diagnosing problems.
-1. INFO: Informational messages that highlight the progress of the application at a coarse-grained level.
-1. WARN: Potentially harmful situations that are not necessarily errors but might need attention.
-1. ERROR: Error events that might still allow the application to continue running.
-1. FATAL: Very severe error events that will presumably lead the application to abort.
-
------------------------------
-
-### Q-What is AuditAware interface?
-
-https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39943208#overview
 
 
------------------------------
+# Q-43 How to configure multiple data sources in Spring Boot?
+
+## 1. Why do we need multiple data sources?
+
+In real systems, multiple data sources are used when:
+
+* Different modules use different databases
+    * e.g. user-db, order-db
+* One database is read-only, another is write
+* Legacy database + new database
+* Multi-tenant or sharded systems
+* Reporting DB separated from OLTP DB
+  
+## 2. Core concepts involved (must know)
+
+When using multiple data sources, Spring needs to know:
+
+| Component              | One per DB? |
+|------------------------|-------------|
+| `DataSource`           | ✅ Yes       |
+| `EntityManagerFactory` | ✅ Yes       |
+| `TransactionManager`   | ✅ Yes       |
+| `@Entity` packages     | ✅ Yes       |
+| `@Repository` packages | ✅ Yes       |
 
 
-### Q-What are different ways to read configs in Spring Boot?
-
-https://marcelclasses.udemy.com/course/master-microservices-with-spring-docker-kubernetes/learn/lecture/39944446#overview
+👉 Each database must be isolated end-to-end
 
 
------------------------------
+## 3. High-level steps (interview checklist)
 
-### Q-What are the various ways to activate spring profile?
+1. Define multiple DataSource properties
+2. Create multiple DataSource beans
+3. Create EntityManagerFactory per DataSource
+4. Create TransactionManager per DataSource
+5. Map repositories to the correct DataSource
+6. Mark one as `@Primary` (optional but recommended)
+
+
+## 4. Step 1: Define properties (application.yml)
+
+```yaml
+spring:
+  datasource:
+    userdb:
+      url: jdbc:mysql://localhost:3306/user_db
+      username: user
+      password: user123
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+    orderdb:
+      url: jdbc:mysql://localhost:3306/order_db
+      username: order
+      password: order123
+      driver-class-name: com.mysql.cj.jdbc.Driver
+```
+
+👉 Spring Boot does not auto-configure multiple data sources - we must do it manually.
+
+
+## 5. Step 2: Create DataSource beans
+
+```java
+@Configuration
+public class DataSourceConfig {
+
+    @Primary
+    @Bean(name = "userDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.userdb")
+    public DataSource userDataSource() {
+        return DataSourceBuilder.create().build();
+    }
+
+    @Bean(name = "orderDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.orderdb")
+    public DataSource orderDataSource() {
+        return DataSourceBuilder.create().build();
+    }
+}
+```
+
+Why `@Primary`?
+* Resolves ambiguity when Spring needs a default `DataSource`
+
+
+## 6. Step 3: Configure EntityManagerFactory (JPA)
+
+**User DB configuration**
+
+```java
+@Configuration
+@EnableJpaRepositories(
+    basePackages = "com.example.user.repository",
+    entityManagerFactoryRef = "userEntityManagerFactory",
+    transactionManagerRef = "userTransactionManager"
+)
+public class UserDbConfig {
+
+    @Primary
+    @Bean(name = "userEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean userEntityManagerFactory(
+            EntityManagerFactoryBuilder builder,
+            @Qualifier("userDataSource") DataSource dataSource) {
+
+        return builder
+                .dataSource(dataSource)
+                .packages("com.example.user.entity")
+                .persistenceUnit("userPU")
+                .build();
+    }
+
+    @Primary
+    @Bean(name = "userTransactionManager")
+    public PlatformTransactionManager userTransactionManager(
+            @Qualifier("userEntityManagerFactory") EntityManagerFactory emf) {
+
+        return new JpaTransactionManager(emf);
+    }
+}
+```
+
+**Order DB configuration**
+
+```java
+@Configuration
+@EnableJpaRepositories(
+    basePackages = "com.example.order.repository",
+    entityManagerFactoryRef = "orderEntityManagerFactory",
+    transactionManagerRef = "orderTransactionManager"
+)
+public class OrderDbConfig {
+
+    @Bean(name = "orderEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean orderEntityManagerFactory(
+            EntityManagerFactoryBuilder builder,
+            @Qualifier("orderDataSource") DataSource dataSource) {
+
+        return builder
+                .dataSource(dataSource)
+                .packages("com.example.order.entity")
+                .persistenceUnit("orderPU")
+                .build();
+    }
+
+    @Bean(name = "orderTransactionManager")
+    public PlatformTransactionManager orderTransactionManager(
+            @Qualifier("orderEntityManagerFactory") EntityManagerFactory emf) {
+
+        return new JpaTransactionManager(emf);
+    }
+}
+```
+
+After this configuration, the repositories in `com.example.user.repository` and `com.example.order.repository`
+will use the correct datasource. But if you want to implement `@Transaction` to a service class then 
+the default datasource will be picked up. To be explicit, you explicitly specify the transaction manager.
+
+```java
+@Transactional("userTransactionManager")
+public void createUser() {
+    // works on user DB
+}
+
+@Transactional("orderTransactionManager")
+public void createOrder() {
+    // works on order DB
+}
+```
+
+
+## 7. How Spring knows which DB to use
+
+Spring resolves DB usage based on:
+
+| Layer              | Mapping                  |
+|--------------------|--------------------------|
+| Repository package | `@EnableJpaRepositories` |
+| Entity package     | `packages()`             |
+| Transaction        | `transactionManagerRef`  |
+| DataSource         | injected via qualifier   |
+
+
+
+
+
+# Q-44 What are different levels of logging (in order of less severe to more severe)?
+
+1. `TRACE`: The least severe. Provides fine-grained informational events useful for debugging.
+2. `DEBUG`: Provides detailed information for diagnosing problems.
+3. `INFO`: Informational messages that highlight the progress of the application at a coarse-grained level.
+4. `WARN`: Potentially harmful situations that are not necessarily errors but might need attention.
+5. `ERROR`: Error events that might still allow the application to continue running.
+6. `FATAL`: Very severe error events that will presumably lead the application to abort.
+
+
+
+
+# Q-45 What are the various ways to activate spring profile?
 
 ```bash
 # this method is called command line arguments
@@ -4180,18 +4537,119 @@ or
 # this method uses system environment variables
 $ SPRING_PROFILES_ACTIVE=qa java -jar target/userservice-0.0.1-SNAPSHOT.jar
 ```
------------------------------
 
-### Q-What is the order in which the configs are processed?
 
-1. Spring Boot uses a very particular order that is designed to allow sensible overriding of 
-values. Properties are considered in the following order (with values from lower items overriding earlier ones):
 
-* Properties present inside files like application.properties
-* OS Environmental variables
-* Java System properties (System.getProperties()) (JVM options)
-* JNDI attributes from java:comp/env
-* ServletContext init parameters
-* ServletConfig init parameters
-* Command line arguments
+
+# Q-46 What is the order in which Spring Boot configuration is processed?
+
+Configuration precedence (HIGHEST → LOWEST)
+
+## 1. Command-line arguments
+
+```bash
+java -jar app.jar --server.port=9090
+```
+
+* Highest priority
+* Overrides everything else
+* Very common in production
+
+## 2. JVM system properties
+
+```bash
+java -Dserver.port=9090 -jar app.jar
+```
+
+
+
+* Slightly lower than CLI args
+* Common in CI/CD and containers
+
+
+## 3. OS environment variables
+
+```bash
+export SERVER_PORT=9090
+```
+
+* Used heavily in Docker / Kubernetes
+* Spring automatically maps:
+
+```text
+SERVER_PORT → server.port
+```
+
+## 4. `application.properties` / `application.yml` (external)
+
+Loaded in this order:
+
+* `./config/application.yml`
+* `./application.yml`
+* `classpath:/config/application.yml`
+* `classpath:/application.yml`
+
+👉 Files closer to the runtime directory override classpath files.
+
+
+## 5. Profile-specific config files
+
+If profile dev is active:
+
+```text
+application-dev.yml
+```
+
+Overrides values from:
+
+```text
+application.yml
+```
+
+But still overridden by CLI, env vars, JVM args.
+
+## 6. @TestPropertySource (tests only)
+
+```java
+@TestPropertySource(properties = "server.port=0")
+```
+
+* Overrides application configs
+* Used only in test context
+
+
+## 7. @PropertySource
+
+```java
+@PropertySource("classpath:custom.properties")
+```
+
+* Explicitly added property sources
+* Lower priority than application configs
+
+
+## 8. Default properties
+
+```text
+SpringApplication.setDefaultProperties(...)
+```
+
+* Lowest priority
+* Used as fallback
+
+
+## Final precedence list (clean)
+
+```text
+1. Command-line arguments (--key=value)
+2. JVM system properties (-Dkey=value)
+3. OS environment variables
+4. application-{profile}.yml / properties (external)
+5. application.yml / properties (external)
+6. application-{profile}.yml / properties (classpath)
+7. application.yml / properties (classpath)
+8. @PropertySource
+9. Default properties
+```
+
 
