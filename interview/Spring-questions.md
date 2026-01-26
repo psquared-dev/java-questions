@@ -590,6 +590,9 @@ class ProjectConfig {
   * Injects it into the method parameter
 * The `Person` object receives its dependency without creating it
 
+
+
+
 # Q-8 What are the different Ways of Using @Autowired annotation
 
 Spring can inject dependencies in three primary ways.
@@ -856,6 +859,10 @@ public class Person {
 
 📌 This allows dynamic selection, but introduces coupling to concrete classes.
 
+
+
+
+
 # Q-10 How is a singleton in Spring different from a singleton in core Java?
 
 In Spring, a singleton does not mean "only one instance per application" as it does in classic Java.
@@ -902,6 +909,9 @@ Because Spring:
 * Allows flexibility and configuration
 * Supports multiple implementations and instances cleanly
 
+
+
+
 # Q-11 Why should singleton beans in Spring be immutable?
 
 In Spring, a singleton bean is shared by all threads that access the application context.
@@ -932,6 +942,9 @@ This makes singleton beans:
 
 If you need to make an object bean in the Spring context, it should be singleton
 only if it's immutable. Avoid designing mutable singleton beans.
+
+
+
 
 # Q-12 What are lazy and eager bean initialization?
 
@@ -992,6 +1005,8 @@ public class ReportService {
 
 * Console Output on Startup: (Nothing).
 * Console Output only after you call `context.getBean(ReportService.class)`: `ReportService Created! (I am Lazy)`
+
+
 
 
 # Q-13 What are the different bean scopes in Spring?
@@ -1142,6 +1157,7 @@ class A {
 
 
 
+
 # Q-14 What is Spring Boot? Why did you use Spring Boot in your project not Spring?
 
 Spring Boot is an opinionated framework built on top of the Spring Framework that simplifies 
@@ -1154,6 +1170,7 @@ the development of production-ready Java applications.
 * Embedding application servers (Tomcat, Jetty, Undertow)
 * Enabling standalone, executable JARs
 * Exposing production features via Actuator (health, metrics, monitoring)
+
 
 
 
