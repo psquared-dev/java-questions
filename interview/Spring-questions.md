@@ -256,6 +256,26 @@
   * [7. @PropertySource](#7-propertysource)
   * [8. Default properties](#8-default-properties)
   * [Final precedence list (clean)](#final-precedence-list-clean)
+* [Q-43 In Spring MVC async request processing, how does the servlet container resume request handling after an asynchronous task completes?](#q-43-in-spring-mvc-async-request-processing-how-does-the-servlet-container-resume-request-handling-after-an-asynchronous-task-completes)
+* [Q-44 What is the Spring Bean lifecycle?](#q-44-what-is-the-spring-bean-lifecycle)
+  * [Plain Java (NO Spring)](#plain-java-no-spring)
+  * [Spring Bean Lifecycle](#spring-bean-lifecycle)
+  * [What Spring does — step by step](#what-spring-does--step-by-step)
+    * [STEP 1. Bean definition phase (no objects yet)](#step-1-bean-definition-phase-no-objects-yet)
+    * [STEP 2. Object creation (Constructor)](#step-2-object-creation-constructor)
+    * [STEP 3. Dependency Injection](#step-3-dependency-injection)
+    * [STEP 4. Aware callbacks (BeanNameAware)](#step-4-aware-callbacks-beannameaware)
+    * [STEP 5. BeanPostProcessor.beforeInitialization](#step-5-beanpostprocessorbeforeinitialization)
+    * [STEP 6. Initialization (@PostConstruct)](#step-6-initialization-postconstruct)
+    * [STEP 7. BeanPostProcessor.afterInitialization](#step-7-beanpostprocessorafterinitialization)
+    * [STEP 8. Bean is now READY and exposed](#step-8-bean-is-now-ready-and-exposed)
+    * [STEP 9. Normal application runtime](#step-9-normal-application-runtime)
+    * [STEP 10. Destruction (on shutdown)](#step-10-destruction-on-shutdown)
+  * [✅ LIFECYCLE ORDER](#-lifecycle-order)
+  * [🔑 Key points (lock these in)](#-key-points-lock-these-in)
+* [Q-45 What is DispatcherServlet and how does request flow work?](#q-what-is-dispatcherservlet-and-how-does-request-flow-work)
+* [Q-46 Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?](#q-difference-between-crudrepository-jparepository-and-pagingandsortingrepository)
+* [Q-47 What is EntityManager vs Repository abstraction?](#q-what-is-entitymanager-vs-repository-abstraction)
 <!-- TOC -->
 
 # Q-1 What are two essentials feature of Spring Core?
@@ -4299,6 +4319,8 @@ Fix:
 1. Explain the request flow in spring application
 
 
+
+
 # Q-38 What is Data Source?
 
 Ans: The data source is a component that manages connections to the database management
@@ -4324,6 +4346,9 @@ a data source to retrieve and manage the connections.
 ![data-source](../images/data-source.png)
 
 HikariCP the default data source implementation.
+
+
+
 
 # Q-39 What is JDBC Driver 
 
@@ -4672,3 +4697,347 @@ SpringApplication.setDefaultProperties(...)
 ```
 
 
+# Q-43 In Spring MVC async request processing, how does the servlet container resume request handling after an asynchronous task completes?
+
+# Q-44 What is the Spring Bean lifecycle?
+
+## Plain Java (NO Spring)
+
+```java
+class Engine {
+}
+
+class Car {
+    Engine engine;
+
+    Car() {
+        System.out.println("Car constructor");
+    }
+
+    void init() {
+        System.out.println("Car init");
+    }
+}
+```
+
+How YOU would create it:
+
+```java
+Engine e = new Engine();
+Car c = new Car();      // constructor
+c.engine = e;          // dependency injection (manual)
+c.init();              // init logic (manual)
+```
+
+Important takeaway
+
+You manually controlled 3 things:
+
+* Object creation
+* Dependency wiring
+* Initialization timing
+
+## Spring Bean Lifecycle
+
+Example
+
+```java
+@Component
+class Engine {
+    public Engine() {
+        System.out.println("Engine: constructor");
+    }
+}
+
+@Component
+class Car implements BeanNameAware {
+
+  @Autowired
+  private Engine engine;
+
+  public Car() {
+    System.out.println("Car: constructor");
+  }
+
+  @Override
+  public void setBeanName(String name) {
+    System.out.println("Car: BeanNameAware -> " + name);
+  }
+
+  @PostConstruct
+  public void init() {
+    System.out.println("Car: @PostConstruct init()");
+  }
+}
+```
+
+
+## What Spring does — step by step
+
+### STEP 1. Bean definition phase (no objects yet)
+
+Spring scans the classpath and **registers metadata**:
+
+* Bean name: `engine`
+* Bean name: `car`
+* Scope, dependencies, lifecycle hooks
+
+📌 No objects created yet.
+
+### STEP 2. Object creation (Constructor)
+
+Spring starts creating beans.
+
+**Engine first**
+
+```java
+new Engine();
+```
+
+Output:
+
+```text
+Engine: constructor
+```
+
+Engine has no dependencies → fine.
+
+**Car next**
+
+```java
+new Car();
+```
+
+Output:
+
+```text
+Car: constructor
+```
+
+**State right now**
+
+```text
+engine == null   ❌
+```
+
+📌 Constructor is too early to use dependencies.
+
+
+### STEP 3. Dependency Injection
+
+Spring now injects dependencies.
+
+```java
+car.engine = engineBean;
+```
+
+**State now**
+
+```text
+engine != null   ✅
+```
+
+* ✔ Dependencies are injected
+* ❌ Bean is still NOT initialized
+* ❌ Bean is NOT final
+
+
+### STEP 4. Aware callbacks (BeanNameAware)
+
+Because `Car` implements `BeanNameAware`, Spring calls:
+
+```java
+setBeanName("car");
+```
+
+Output:
+
+```text
+Car: BeanNameAware -> car
+```
+
+**Important facts**
+
+* Dependencies are already injected
+* Initialization has NOT happened yet
+* This step is metadata only
+
+📌 Spring is saying:
+
+> "Here is your identity inside the container."
+>
+
+
+### STEP 5. BeanPostProcessor.beforeInitialization
+
+Spring now executes all registered `BeanPostProcessor`s:
+
+```java
+postProcessBeforeInitialization(car, "car")
+```
+
+**What is TRUE at this moment**
+
+* Constructor ✅ done
+* Dependencies ✅ injected
+* Aware callbacks ✅ done
+* `@PostConstruct` ❌ NOT called
+* Proxies ❌ NOT created
+
+**What Spring uses beforeInitialization for**
+
+Spring itself uses this step to:
+
+1. Detect lifecycle annotations
+    * `@PostConstruct`
+    * `@PreDestroy`
+
+2. Prepare initialization callbacks
+   * Mark methods to be invoked next
+   * Register them internally
+
+* 📌 Spring usually does NOT wrap or replace the bean here
+* 📌 This is mostly a preparation / inspection phase
+
+**What you would do here (rare)**
+
+Only if you want to:
+
+* validate a bean before init
+* adjust configuration before init
+* implement framework-level behavior
+
+Example (rare, not typical app code):
+
+```java
+@Component
+class MyBPP implements BeanPostProcessor {
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String name) {
+        if (bean instanceof Car) {
+            // inspection / adjustment
+        }
+        return bean;
+    }
+}
+```
+
+
+### STEP 6. Initialization (@PostConstruct)
+
+Now Spring calls:
+
+```java
+car.init();
+```
+
+Output:
+
+```text
+Car: @PostConstruct init()
+```
+
+**What this means**
+
+* All dependencies are available
+* Safe place to open resources, caches, etc.
+* Bean has initialized itself
+
+❗ Still NOT the final bean
+
+Why?
+Because Spring may still wrap or replace it.
+
+
+### STEP 7. BeanPostProcessor.afterInitialization
+
+Spring now calls:
+
+```java
+postProcessAfterInitialization(car, "car");
+```
+
+This is the MOST IMPORTANT STEP
+
+Here Spring may:
+
+* Return the same object
+* OR return a proxy (AOP, `@Transactional`, `@Async`, security)
+
+Example:
+
+```text
+Car instance
+   ↓
+TransactionProxy(Car)   ← returned
+```
+
+📌 Whatever is returned here becomes the final bean
+
+### STEP 8. Bean is now READY and exposed
+
+Only after Step 7:
+
+* ✔ Bean is placed into ApplicationContext
+* ✔ Other beans can inject it
+* ✔ Controllers can use it
+* ✔ It may be a proxy
+
+👉 THIS is the real “bean ready” point
+
+
+### STEP 9. Normal application runtime
+
+Calls like:
+
+```java
+car.drive();
+```
+
+Go through:
+
+* proxy (if present)
+* actual business logic
+
+### STEP 10. Destruction (on shutdown)
+
+Spring calls:
+
+```java
+@PreDestroy
+public void cleanup() { }
+```
+
+Beans are destroyed in reverse order.
+
+
+## ✅ LIFECYCLE ORDER
+
+```text
+1. Constructor (object created)
+2. Dependency Injection (@Autowired)
+3. Aware callbacks (BeanNameAware, etc.)
+4. BeanPostProcessor.beforeInitialization
+5. @PostConstruct / init-method
+6. BeanPostProcessor.afterInitialization   ← FINAL BEAN
+7. Bean is ready and exposed
+8. @PreDestroy / destroy
+```
+
+## 🔑 Key points (lock these in)
+
+* Constructor ≠ init
+* Dependencies are injected before `BeanNameAware`
+* `beforeInitialization` prepares, inspects, validates
+* `afterInitialization` decides the final object
+* Bean is NOT ready until after `afterInitialization`
+
+
+
+
+# Q-45 What is DispatcherServlet and how does request flow work?
+
+# Q-46 Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?
+
+# Q-47 What is EntityManager vs Repository abstraction?
