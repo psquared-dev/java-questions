@@ -5442,7 +5442,7 @@ The `Repository` (specifically Spring Data JPA) is a Facade or wrapper built on 
 
 * **Role:** It dramatically reduces boilerplate code by generating implementation 
   classes at runtime (using the Proxy pattern).
-* **Mechanism:** When you call userRepository.save(user), Spring internally calls 
+* **Mechanism:** When you call `userRepository.save(user)`, Spring internally calls 
   `entityManager.persist(user)` for you.
 * **Magic:** It supports Query Methods (e.g., `findByEmail(String email)`), where 
   Spring parses the method name and generates the JPQL automatically.
