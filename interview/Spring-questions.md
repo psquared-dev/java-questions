@@ -273,9 +273,24 @@
     * [STEP 10. Destruction (on shutdown)](#step-10-destruction-on-shutdown)
   * [✅ LIFECYCLE ORDER](#-lifecycle-order)
   * [🔑 Key points (lock these in)](#-key-points-lock-these-in)
-* [Q-45 What is DispatcherServlet and how does request flow work?](#q-what-is-dispatcherservlet-and-how-does-request-flow-work)
-* [Q-46 Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?](#q-difference-between-crudrepository-jparepository-and-pagingandsortingrepository)
-* [Q-47 What is EntityManager vs Repository abstraction?](#q-what-is-entitymanager-vs-repository-abstraction)
+* [Q-45 What is DispatcherServlet and how does request flow work?](#q-45-what-is-dispatcherservlet-and-how-does-request-flow-work)
+  * [What is DispatcherServlet?](#what-is-dispatcherservlet)
+  * [Why DispatcherServlet is needed](#why-dispatcherservlet-is-needed)
+  * [High-level request flow](#high-level-request-flow)
+  * [Step-by-step request flow (core interview answer)](#step-by-step-request-flow-core-interview-answer)
+    * [1. Client sends HTTP request](#1-client-sends-http-request)
+    * [2. DispatcherServlet receives the request](#2-dispatcherservlet-receives-the-request)
+    * [3. HandlerMapping – "Who should handle this?"](#3-handlermapping--who-should-handle-this)
+    * [4. HandlerAdapter – "How do I call it?"](#4-handleradapter--how-do-i-call-it)
+    * [5. Controller execution](#5-controller-execution)
+    * [6. Return value processing](#6-return-value-processing)
+    * [7. Response sent to client](#7-response-sent-to-client)
+  * [Key supporting components (quick clarity)](#key-supporting-components-quick-clarity)
+  * [Filters vs Interceptors (short and clear)](#filters-vs-interceptors-short-and-clear)
+  * [DispatcherServlet and async requests](#dispatcherservlet-and-async-requests)
+  * [Thread-safety](#thread-safety)
+* [Q-46 Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?](#q-46-difference-between-crudrepository-jparepository-and-pagingandsortingrepository)
+* [Q-47 What is EntityManager vs Repository abstraction?](#q-47-what-is-entitymanager-vs-repository-abstraction)
 <!-- TOC -->
 
 # Q-1 What are two essentials feature of Spring Core?
@@ -5037,6 +5052,191 @@ Beans are destroyed in reverse order.
 
 
 # Q-45 What is DispatcherServlet and how does request flow work?
+
+## What is DispatcherServlet?
+
+DispatcherServlet is the front controller of Spring MVC.
+It receives all incoming HTTP requests, decides which controller should handle
+them, invokes that controller, and manages the entire request–response flow.
+
+It implements the Front Controller design pattern.
+
+ELI5:
+
+Think of DispatcherServlet as a traffic controller that tells every part of Spring MVC
+when and what to do.
+
+
+## Why DispatcherServlet is needed
+
+Without DispatcherServlet, each controller would need to handle:
+
+* URL matching
+* HTTP method checks
+* Request parsing
+* Response formatting
+* Error handling
+
+Spring centralizes all this logic in **one place**, making controllers simple 
+and focused on business logic.
+
+
+## High-level request flow
+
+```text
+Client
+  ↓
+Servlet Container (Tomcat)
+  ↓
+DispatcherServlet
+  ↓
+Controller
+  ↓
+DispatcherServlet
+  ↓
+Response
+```
+
+Every Spring MVC request passes through DispatcherServlet.
+
+## Step-by-step request flow (core interview answer)
+
+### 1. Client sends HTTP request
+
+Example:
+
+```text
+GET /users/1
+```
+
+The servlet container receives the request and forwards it to DispatcherServlet.
+
+### 2. DispatcherServlet receives the request
+
+DispatcherServlet becomes the central coordinator.
+It does not process business logic itself - it delegates.
+
+
+### 3. HandlerMapping – "Who should handle this?"
+
+DispatcherServlet asks HandlerMappings:
+
+> "Which controller method matches this request?"
+
+Based on:
+
+* URL
+* HTTP method
+* Path variables
+
+Result:
+
+```java
+UserController.getUser()
+```
+
+ELI5:
+
+HandlerMapping answers _"Which controller should handle this request?"_
+
+
+### 4. HandlerAdapter – "How do I call it?"
+
+DispatcherServlet then asks a HandlerAdapter:
+
+> "How do I invoke this controller?"
+
+Why this exists:
+
+* Spring supports different handler types
+* Invocation logic is abstracted
+
+ELI5:
+
+HandlerAdapter knows "how to call that controller method."
+
+
+### 5. Controller execution
+
+The controller method runs and executes business logic.
+
+It may return:
+
+* Object (for REST)
+* View name (for MVC)
+* `ResponseEntity`
+* Async type (`CompletableFuture`, etc.)
+
+
+### 6. Return value processing
+
+DispatcherServlet processes the return value using:
+
+* HttpMessageConverters (Java ↔ JSON/XML)
+* ViewResolvers (view name ↔ HTML)
+
+ELI5:
+
+Spring translates Java output into an HTTP response.
+
+
+### 7. Response sent to client
+
+* Response written to HttpServletResponse
+* Servlet container sends it back
+* Request completes
+
+
+## Key supporting components (quick clarity)
+
+| Component            | Role (ELI5)                |
+|----------------------|----------------------------|
+| DispatcherServlet    | Boss / coordinator         |
+| HandlerMapping       | Finds **which controller** |
+| HandlerAdapter       | Knows **how to call it**   |
+| Filter               | Gate before Spring         |
+| Interceptor          | Checkpoints inside Spring  |
+| HttpMessageConverter | Java ↔ JSON translator     |
+| ExceptionResolver    | Handles errors gracefully  |
+
+
+## Filters vs Interceptors (short and clear)
+
+Filters
+
+* Servlet-level
+* Run before DispatcherServlet
+* Used for security, CORS, logging
+
+Interceptors
+
+* Spring-level
+* Run around controller execution
+* Used for auth, auditing, metrics
+
+
+## DispatcherServlet and async requests
+
+* DispatcherServlet may run more than once for the same request
+* First dispatch starts async work
+* Request is paused
+* On completion, request is redispatched
+* DispatcherServlet resumes and writes the response
+
+ELI5:
+
+Same receptionist, request comes back later to finish.
+
+
+## Thread-safety
+
+* DispatcherServlet is a singleton
+* Does not store request state in fields
+* Uses request-scoped objects
+* Safe for concurrent requests
+
+
+
 
 # Q-46 Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?
 
