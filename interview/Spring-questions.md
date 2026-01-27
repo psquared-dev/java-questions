@@ -5252,8 +5252,11 @@ Same receptionist, request comes back later to finish.
 
 Short answer:
 > All three are Spring Data repository interfaces.
+> 
 > CrudRepository provides basic CRUD operations,
+> 
 > PagingAndSortingRepository adds pagination and sorting,
+> 
 > and JpaRepository adds JPA-specific features and is the most powerful.
 >
 
