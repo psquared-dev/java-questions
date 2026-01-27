@@ -4277,7 +4277,7 @@ public void sendEmail() { }
 
 ## Common gotchas (interview favorites)
 
-1. ⚠️ Self-invocation
+**1. ⚠️ Self-invocation**
 
 ```java
 this.asyncMethod(); // NOT async
@@ -4292,20 +4292,20 @@ Fix:
 * Call from another bean
 
 
-2. ⚠️ @Async on private methods
+**2. ⚠️ @Async on private methods**
 
 * ❌ Does not work
 * Proxies cannot intercept private methods
 
 
-3. ⚠️ Transactions and @Async
+**3. ⚠️ Transactions and @Async**
 
 * Async method runs in a different thread
 * Transaction context is NOT propagated
 * Requires a new transaction if needed
 
 
-4. ⚠️ Ordering and consistency
+**4. ⚠️ Ordering and consistency**
 
 * Async execution is non-deterministic
 * Not suitable for strict ordering requirements
