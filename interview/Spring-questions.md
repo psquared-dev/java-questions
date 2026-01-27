@@ -5282,14 +5282,15 @@ Each level adds more capabilities.
 
 Basic CRUD methods:
 
-```text
-save()
-findById()
-findAll()
-deleteById()
-delete()
-count()
-existsById()
+```java
+<S extends T> S save(S entity);
+Optional<T> findById(ID id);
+Iterable<T> findAll();
+void deleteById(ID id);
+void delete(T entity);
+void deleteAll();
+long count();
+boolean existsById(ID id);
 ```
 
 **Example**
@@ -5311,8 +5312,8 @@ public interface UserRepository
 **What it adds**
 
 ```java
-findAll(Pageable pageable)
-findAll(Sort sort)
+Iterable<T> findAll(Sort sort);
+Page<T> findAll(Pageable pageable);
 ```
 
 **Example**
@@ -5337,10 +5338,17 @@ public interface UserRepository
 From `JpaRepository` you get:
 
 ```java
-flush()
-saveAndFlush()
-deleteAllInBatch()
-findAll()
+// refines / enhances return types
+List<T> findAll();
+List<T> findAll(Sort sort);
+
+// JPA-specific methods
+void flush();
+<S extends T> S saveAndFlush(S entity);
+void deleteAllInBatch();
+void deleteAllByIdInBatch(Iterable<ID> ids);
+void deleteInBatch(Iterable<T> entities);
+T getReferenceById(ID id);
 ```
 
 Plus:
