@@ -2824,6 +2824,35 @@ A filter may execute twice **even without multiple dispatches if**:
 
 This is a **registration issue**, not a dispatch issue.
 
+We can prevent this situation by defining a bean of type `FilterRegistrationBean`:
+
+```java
+@Bean
+public FilterRegistrationBean staticKeyAuth() {
+    FilterRegistrationBean registration = new FilterRegistrationBean();
+    registration.setFilter(new SomeFilter());
+    registration.setEnabled(false);
+    return registration;
+}
+```
+
+Here `registration.setEnabled(false)` 
+tells Spring Boot: "I am giving you this Filter bean, but DO NOT automatically 
+register it in the Servlet filter chain."
+
+Now:
+
+* **Servlet Container:** Ignores the filter (it won't run automatically).
+* **Spring Context:** Still holds the Bean (so you can `@Autowired` it).
+* **Spring Security:** You can manually inject it and place it exactly 
+  where you want using `http.addFilterBefore()`.
+
+
+**Note:** Simply annotating a filter with `@Component` registers it in the global 
+**Servlet Filter Chain**. It does not automatically add it to the 
+Spring Security Filter Chain, even if Spring Security is on the classpath.
+Filter gets added to the spring security only when you call `http.addFilter()`.
+
 
 ## 12. Summary Table (Interview Gold)
 
