@@ -166,6 +166,7 @@
   * [12. Summary Table (Interview Gold)](#12-summary-table-interview-gold)
 * [Q-32 What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems](#q-32-what-is-an-idempotent-api-which-http-methods-are-idempotent-and-why-does-idempotency-matter-in-restful-systems)
   * [1. What does idempotent mean? (Very basics)](#1-what-does-idempotent-mean-very-basics)
+    * [The "Retry Test" (Interview Explanation)](#the-retry-test-interview-explanation)
   * [2. Why idempotency matters](#2-why-idempotency-matters)
   * [3. Idempotent ≠ Safe (important distinction)](#3-idempotent--safe-important-distinction)
   * [4. HTTP Methods — Idempotency Overview](#4-http-methods--idempotency-overview)
@@ -301,6 +302,26 @@
   * [2. The Repository (The "Automatic Mode")](#2-the-repository-the-automatic-mode)
   * [Key differences (interview-critical table)](#key-differences-interview-critical-table)
   * [Senior Engineer Nuance (When to use which?)](#senior-engineer-nuance-when-to-use-which)
+* [Q-48 What is AOP and why is it used?](#q-48-what-is-aop-and-why-is-it-used)
+  * [Important AOP Terminology](#important-aop-terminology)
+  * [How Spring AOP works (high-level)](#how-spring-aop-works-high-level)
+  * [AOP in Action — Full Working Example](#aop-in-action--full-working-example)
+    * [1. Business Requirement (the problem)](#1-business-requirement-the-problem)
+    * [2. Business Code (Clean, no logging)](#2-business-code-clean-no-logging)
+    * [3. Aspect (AOP logic)](#3-aspect-aop-logic)
+    * [4. Important AOP terms in THIS example](#4-important-aop-terms-in-this-example)
+    * [5. What Spring does at startup (CRITICAL)](#5-what-spring-does-at-startup-critical)
+  * [6. Runtime execution flow (THIS IS THE KEY PART)](#6-runtime-execution-flow-this-is-the-key-part)
+  * [7. Console output (proof AOP is working)](#7-console-output-proof-aop-is-working)
+  * [8. Where is this implemented internally?](#8-where-is-this-implemented-internally)
+* [Q-49 Difference between JDK dynamic proxies and CGLIB](#q-49-difference-between-jdk-dynamic-proxies-and-cglib)
+  * [1. JDK Dynamic Proxies](#1-jdk-dynamic-proxies)
+    * [How it works](#how-it-works)
+  * [2. CGLIB Proxies](#2-cglib-proxies)
+  * [Key Differences (Interview Core)](#key-differences-interview-core)
+  * [How Spring decides which one to use](#how-spring-decides-which-one-to-use)
+* [Q-50 Why does AOP not work on private methods?](#q-50-why-does-aop-not-work-on-private-methods)
+  * [Senior Engineer Nuance: "Is it impossible?"](#senior-engineer-nuance-is-it-impossible)
 <!-- TOC -->
 
 # Q-1 What are two essentials feature of Spring Core?
@@ -5532,7 +5553,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 ## Senior Engineer Nuance (When to use which?)
 
-"I use `JpaRepository` for 95% of my work. However, I drop down to `EntityManager` in two specific scenarios:"
+"I use `JpaRepository` for 95% of my work. However, I drop down to `EntityManager` 
+in two specific scenarios:"
 
 * **Complex Dynamic Queries:** When I need to build a query with 10 optional search filters. 
   Writing a messy "Specification" or `@Query` string is hard. Using `CriteriaBuilder` with the 
@@ -5542,4 +5564,428 @@ public interface UserRepository extends JpaRepository<User, Long> {
   It keeps them all in memory. I use `EntityManager` directly to `flush()` and `clear()` the context 
   every 50 records to prevent `OutOfMemoryError`.
 
+
+
+
+# Q-48 What is AOP and why is it used?
+
+AOP (Aspect-Oriented Programming) is a programming paradigm that aims to 
+increase modularity by allowing the separation of cross-cutting concerns.
+
+In simple terms, it is a way to pull out the "infrastructure code" (logging, 
+security, transaction management) that usually **gets tangled up in your "business code"**
+and put it into a separate, centralized class called an **Aspect**.
+
+
+## Important AOP Terminology
+
+**1. Aspect**
+
+An Aspect is a class that contains cross-cutting logic.
+
+Examples:
+
+* Logging aspect
+* Transaction aspect
+* Security aspect
+
+```java
+@Aspect
+@Component
+class LoggingAspect { }
+```
+
+ELI5: An aspect is a rulebook for extra behavior.
+
+---
+
+**2. Join Point**
+
+A Join Point is a point during program execution where advice can be applied.
+
+In Spring AOP:
+* Method execution is the main join point
+
+ELI5: A join point is "a place where I can hook in".
+
+---
+
+**3. Pointcut**
+
+A Pointcut defines which join points are selected.
+
+Example:
+
+```text
+execution(* com.example.service.*.*(..))
+```
+
+ELI5: Pointcut answers: "Exactly where should this aspect apply?"
+
+---
+
+**4. Advice**
+
+Advice is the actual code that runs at a join point.
+
+Types:
+
+* `@Before`
+* `@After`
+* `@AfterReturning`
+* `@AfterThrowing`
+* `@Around`
+
+
+ELI5: Advice answers: "What should run, and when?"
+
+---
+
+**5. Target**
+
+The Target is the actual business object being advised.
+
+Example:
+
+```text
+UserService
+```
+
+---
+
+**6. Proxy (VERY IMPORTANT)**
+
+Spring AOP works by creating a proxy around the target object.
+
+Calls go like this:
+
+```text
+Client → Proxy → Aspect logic → Target method
+```
+
+ELI5: Spring secretly puts a wrapper around your object.
+
+
+## How Spring AOP works (high-level)
+
+* Spring creates your bean
+* Spring sees an applicable aspect
+* Spring creates a proxy
+* The proxy intercepts method calls
+* Advice runs before/after the real method
+
+
+## AOP in Action — Full Working Example
+
+We'll build one real use case:
+
+Logging method execution time
+
+
+### 1. Business Requirement (the problem)
+
+We want to:
+
+* Measure execution time of service methods
+* WITHOUT writing logging code inside every method
+
+❌ Bad (no AOP):
+
+```java
+public void placeOrder() {
+    long start = System.currentTimeMillis();
+    // business logic
+    long end = System.currentTimeMillis();
+    log(end - start);
+}
+```
+
+This pollutes business logic.
+
+
+### 2. Business Code (Clean, no logging)
+
+```java
+@Service
+public class OrderService {
+
+    public String placeOrder(String orderId) {
+        try {
+            Thread.sleep(200); // simulate work
+        } catch (InterruptedException e) {
+        }
+        return "Order placed: " + orderId;
+    }
+}
+```
+
+* ✔ Pure business logic
+* ✔ No logging code
+* ✔ Easy to read and test
+
+
+### 3. Aspect (AOP logic)
+
+This is where AOP comes in.
+
+```java
+@Aspect
+@Component
+public class LoggingAspect {
+
+    @Around("execution(* com.example.service.*.*(..))")
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        long start = System.currentTimeMillis();
+
+        Object result = joinPoint.proceed(); // call real method
+
+        long end = System.currentTimeMillis();
+
+        System.out.println(
+            joinPoint.getSignature() + " executed in " + (end - start) + " ms"
+        );
+
+        return result;
+    }
+}
+```
+
+### 4. Important AOP terms in THIS example
+
+Let's map theory → code.
+
+| AOP Term    | In this example                            |
+|-------------|--------------------------------------------|
+| Aspect      | `LoggingAspect`                            |
+| Advice      | `logExecutionTime()`                       |
+| Advice type | `@Around`                                  |
+| Pointcut    | `execution(* com.example.service.*.*(..))` |
+| Join Point  | Execution of `placeOrder()`                |
+| Target      | `OrderService`                             |
+| Proxy       | `OrderService$$SpringCGLIB$$…`             |
+
+
+### 5. What Spring does at startup (CRITICAL)
+
+When Spring starts:
+
+1. Creates OrderService bean
+2. Sees an `@Aspect` that applies to it
+3. Creates a proxy
+
+So what gets stored in the container is:
+
+```text
+OrderServiceProxy
+   |
+   +-- LoggingAspect logic
+   +-- real OrderService
+```
+
+You **never see this proxy explicitly**.
+
+
+## 6. Runtime execution flow (THIS IS THE KEY PART)
+
+When some code calls:
+
+```java
+orderService.placeOrder("ORD-1");
+```
+
+What ACTUALLY happens:
+
+```text
+Caller
+  ↓
+OrderServiceProxy
+  ↓
+LoggingAspect.logExecutionTime()   ← @Around advice
+  ↓
+joinPoint.proceed()
+  ↓
+OrderService.placeOrder()          ← real method
+  ↓
+LoggingAspect resumes
+  ↓
+Return result to caller
+```
+
+## 7. Console output (proof AOP is working)
+
+```text
+String com.example.service.OrderService.placeOrder(String) executed in 203 ms
+```
+
+* ✔ Logging happened
+* ✔ Business code unchanged
+* ✔ AOP worked transparently
+
+
+## 8. Where is this implemented internally?
+
+This happens in:
+
+* `BeanPostProcessor.afterInitialization()`
+* Spring creates a proxy:
+    * JDK Dynamic Proxy (interfaces)
+    * or CGLIB Proxy (classes)
+
+That's why AOP is runtime-based.
+
+
+
+
+# Q-49 Difference between JDK dynamic proxies and CGLIB
+
+## 1. JDK Dynamic Proxies
+
+JDK Dynamic Proxy is a proxy mechanism provided by the Java standard library (java.lang.reflect.Proxy)
+that creates a proxy for interfaces.
+
+Spring uses JDK proxies **when the target bean implements at least one interface**.
+
+### How it works
+
+* Spring creates a class at runtime that:
+   * Implements the same interface(s)
+   * Delegates method calls to the target object
+* Method calls are intercepted using an `InvocationHandler`
+
+```java
+public interface PaymentService {
+    void pay();
+}
+
+@Service
+public class PaymentServiceImpl implements PaymentService {
+    public void pay() { }
+}
+```
+
+Spring creates:
+
+```text
+Proxy implements PaymentService
+   → intercepts pay()
+   → calls PaymentServiceImpl.pay()
+```
+
+**Key characteristics**
+
+* Interface-based
+* Uses Java reflection
+* Part of core JDK (no extra libraries)
+* Lightweight and fast to create
+
+
+## 2. CGLIB Proxies
+
+CGLIB (Code Generation Library) creates proxies by subclassing the target class at runtime.
+
+Spring uses CGLIB **when no interface is present**, or when explicitly forced.
+
+**How it works**
+
+* Spring generates a subclass of the target class
+* Overrides methods to add interception logic
+* Calls `super.method()` internally
+
+```java
+@Service
+public class OrderService {
+    public void placeOrder() { }
+}
+```
+
+Spring creates:
+
+```text
+OrderService$$SpringCGLIB$$...
+   extends OrderService
+   overrides placeOrder()
+```
+
+**Key characteristics**
+
+* Class-based (no interface needed)
+* Uses bytecode generation
+* Requires CGLIB (bundled with Spring)
+* Slightly heavier than JDK proxies
+
+
+## Key Differences (Interview Core)
+
+| Aspect                     | JDK Dynamic Proxy         | CGLIB Proxy                |
+|----------------------------|---------------------------|----------------------------|
+| Based on                   | Interface                 | Class                      |
+| Requires interface         | ✅ Yes                     | ❌ No                       |
+| How proxy is created       | Implements interface      | Extends class              |
+| Can proxy concrete classes | ❌ No                      | ✅ Yes                      |
+| Can proxy final classes    | ❌                         | ❌                          |
+| Can proxy final methods    | ❌                         | ❌                          |
+| Performance                | Slightly faster to create | Slightly slower to create  |
+| Dependency                 | JDK only                  | CGLIB (included in Spring) |
+| Default in Spring          | Yes (if interface exists) | Used if no interface       |
+
+
+## How Spring decides which one to use
+
+Spring logic (simplified):
+
+```text
+If (bean implements interface)
+    → use JDK Dynamic Proxy
+Else
+    → use CGLIB Proxy
+```
+
+You can override this:
+
+```text
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+```
+
+Forces CGLIB even if interface exists.
+
+
+
+
+# Q-50 Why does AOP not work on private methods?
+
+Spring AOP is Proxy-based. It works by creating a wrapper (Proxy) around your 
+bean that intercepts method calls.
+
+Private methods are invisible to this proxy mechanism.
+
+The Technical Reason (Why Proxies fail here)
+
+It depends on which proxy type you use, but both fail for standard Java reasons:
+
+1. CGLIB Proxies (Subclassing)
+
+* **How it works:** CGLIB generates a Child Class of your bean and overrides the methods
+  to add the AOP logic.
+* **The Blocker:** In Java, you cannot override a private method in a subclass. Since the 
+  proxy (child) cannot override the method, it cannot inject the "Before/After" logic.
+
+
+2. JDK Dynamic Proxies (Interfaces)
+
+* **How it works:** The proxy implements the Interface of your bean.
+* **The Blocker:** Interfaces in Java only define public methods. Private methods are 
+  implementation details hidden inside the class, so they are not part of the interface
+  contract and the proxy cannot intercept them.
+
+
+## Senior Engineer Nuance: "Is it impossible?"
+
+"It is impossible with standard Spring AOP. However, it IS possible if you use 
+AspectJ (specifically Load-Time Weaving or Compile-Time Weaving).
+
+AspectJ doesn't use proxies; it modifies the actual bytecode of your class file directly.
+Because it changes the actual class code (weaving logic directly into your private method), 
+it can intercept anything—private methods, static methods, and even constructors. 
+But that is a different technology stack than standard Spring AOP."
 
