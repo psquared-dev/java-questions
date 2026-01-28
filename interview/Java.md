@@ -1097,9 +1097,9 @@ This is why **double-checked locking** is needed.
 
 The line `instance = new Config(1, "Default");` looks like one instruction, but at the bytecode level, it is actually three:
 
-* `memory = allocate()` (Allocate memory for the object)
-* `ctorInstance(memory)` (Initialize the object / Run constructor)
-* `instance = memory` (Assign the reference to the static field)
+1. `memory = allocate()` (Allocate memory for the object)
+2. `ctorInstance(memory)` (Initialize the object / Run constructor)
+3. `instance = memory` (Assign the reference to the static field)
 
 Without volatile, the JIT compiler or CPU is allowed to reorder 
 instructions 2 and 3 for optimization (Instruction Reordering).
