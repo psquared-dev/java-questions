@@ -457,7 +457,7 @@ into native machine code on the fly. This allows Java to run nearly as fast as C
 
 # Q-2 What is class Loader?
 
-* Part of the JRE that dynamically loads Java classes into the JVM memory (Metaspace).
+* Part of the JVM that dynamically loads Java classes into the JVM memory (Metaspace).
 * **Lazy Loading:** It does not load all classes at startup; it loads them only when the application needs them.
 * **Delegation Hierarchy:** When asked to load a class, a ClassLoader first delegates the request to its Parent. 
   It only tries to load it itself if the Parent cannot find it.
