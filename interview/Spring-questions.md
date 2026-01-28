@@ -4396,25 +4396,6 @@ Fix:
 * The task is CPU-bound without proper limits
 
 
-1. transaction
-2. async
-3. gateway filters
-1. Docker vs Jar
-1. Datasouce vs driver
-1. Explain application architecture.
-1. What are filters and interceptors?
-1. How to use transactions across services
-1. How to implement file download
-1. Explain how you would implement spring security?
-1. What is 2-phase commit?
-1. What are different levels of logging?
-1. What are Non functional requirements (NFR)?
-1. What are design patterns in microservices?
-1. Explain types of design patterns and when they are used
-1. Explain the request flow in spring application
-
-
-
 
 # Q-38 What is Data Source?
 
@@ -5989,3 +5970,12 @@ Because it changes the actual class code (weaving logic directly into your priva
 it can intercept anything—private methods, static methods, and even constructors. 
 But that is a different technology stack than standard Spring AOP."
 
+
+---
+
+1. gateway filters
+1. How to use transactions across services
+1. Explain how you would implement spring security?
+1. What is 2-phase commit?
+1. What are design patterns in microservices?
+1. Explain the request flow in spring application
