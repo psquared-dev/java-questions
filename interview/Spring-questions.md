@@ -2872,7 +2872,8 @@ Filter gets added to the spring security only when you call `http.addFilter()`.
 ## 1. What does idempotent mean? (Very basics)
 
 Idempotence is a fancy mathematical word that means: 
-"Making the same request multiple times has the same effect as making it just once."
+
+**"Making the same request multiple times has the same effect as making it just once."**
 
 In the context of REST APIs, an idempotent method is one where, if the client sends 
 the exact same request 100 times, the state of the server after the 100th request is
