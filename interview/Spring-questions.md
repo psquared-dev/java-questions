@@ -2871,8 +2871,12 @@ Filter gets added to the spring security only when you call `http.addFilter()`.
 
 ## 1. What does idempotent mean? (Very basics)
 
-> An API operation is idempotent if making the same request multiple times results 
-> in the same meaningful final state on the server.
+Idempotence is a fancy mathematical word that means: 
+"Making the same request multiple times has the same effect as making it just once."
+
+In the context of REST APIs, an idempotent method is one where, if the client sends 
+the exact same request 100 times, the state of the server after the 100th request is
+exactly the same as it was after the 1st request.
 
 Key clarifications:
 
@@ -2880,6 +2884,18 @@ Key clarifications:
 * Internal side effects (logs, timestamps) are ignored
 * Idempotency is about **safe retries**
 
+### The "Retry Test" (Interview Explanation)
+
+The best way to explain this to an interviewer is the Network Timeout Scenario:
+
+Imagine a client sends a request to pay $10. The network drops the 
+connection before the client gets a response. The client doesn't know 
+if the server processed the payment or not.
+
+* If the method is Idempotent, the client can safely retry the request. 
+  Even if the server processed the first one, the second one won't double-charge.
+
+* If the method is Non-Idempotent, retrying is dangerous. It might charge the user twice.
 
 ## 2. Why idempotency matters
 
@@ -2945,6 +2961,9 @@ PUT /users/10
   "name": "Alice"
 }
 ```
+
+With PUT, the client specifies the exact URL. PUT `/users/10`. 
+**If you don't have any id then use POST**.
 
 * First call: creates or replaces resource
 * Subsequent calls: same final state
