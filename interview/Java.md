@@ -508,7 +508,8 @@ In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them us
     * **Cleanup:** Automatically cleaned when the method finishes.
 
 * Method area (permgen/metaspace)
-    * **What:** Stores Class Structures (metadata), static variables, and the bytecode itself.
+    * **What:** Class metadata (which includes class structure, method and 
+      field definitions, runtime constant pool, annotations, and JVM bytecode).
     * **Note:** In modern Java, this uses native memory (outside the Heap).
 
 * PC Register (Program Counter)
