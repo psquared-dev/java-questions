@@ -1219,7 +1219,9 @@ Dynamic Method Dispatch is the mechanism by which the JVM decides **at runtime w
 overridden instance method implementation** (parent or child) to invoke, **based on the
 actual object type**, not the reference type.
 
-Method resolution is based on the object, not the reference.
+**Key rule:**
+> Method resolution is based on the object, not the reference.
+> 
 
 -----------------------------
 
