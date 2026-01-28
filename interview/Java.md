@@ -886,17 +886,19 @@ Deep clone must be implemented manually.
 
 # Q-11 Why Java is not completely Object-Oriented?
 
-Ans: Because of primitive types like `int`, `char`, `float` etc.
+Because of primitive types like `int`, `char`, `float` etc.
 
 -----------------------------
 
 
 # Q-12 What are Wrapper classes
 
-Ans: In Java, when you declare primitive datatypes, then
-Wrapper classes are responsible for converting them into
-objects (Reference types). It was introduced so primitive types can play 
-nicely with the collections framework.
+In Java, when you declare primitive datatypes, then Wrapper classes are responsible 
+for converting them into objects (Reference types). It was introduced so primitive types
+can play nicely with the collections framework.
+
+Wrapper classes have existed since Java 1.0; Java 5 later added autoboxing and unboxing
+to make their usage seamless.
 
 Every primitive has a corresponding Wrapper class.
 
