@@ -1215,10 +1215,11 @@ a class. We have four access specifiers.
 
 # Q-19 What is Dynamic Method Dispatch?
 
-The Dynamic method dispatch is a process where the
-method call is executed during the run-time. The overridden
-method is called through a reference variable of super class.
-This process is also known as Run-Time Polymorphism
+Dynamic Method Dispatch is the mechanism by which the JVM decides **at runtime which 
+overridden instance method implementation** (parent or child) to invoke, **based on the
+actual object type**, not the reference type.
+
+Method resolution is based on the object, not the reference.
 
 -----------------------------
 
