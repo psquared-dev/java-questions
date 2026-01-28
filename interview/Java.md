@@ -702,6 +702,36 @@ This is dangerous because:
 **Copy Constructor:** It uses the `new` keyword, so it forces the standard object creation 
 lifecycle, ensuring your object is always valid.
 
+Here is an example:
+
+```java
+class User {
+    private final int age;
+    private final UUID id;
+
+    // Main constructor (single source of truth)
+    public User(int age) {
+        if (age < 0) {
+            throw new IllegalArgumentException("Age cannot be negative");
+        }
+        this.age = age;
+        this.id = UUID.randomUUID(); // initialization logic
+    }
+
+    // Copy constructor
+    public User(User other) {
+        this(other.age); // ✅ validation + initialization both run
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+}
+```
 
 ### 2. The Type Casting Tax
 
