@@ -2137,7 +2137,7 @@ called a "Fat JAR" or "Uber JAR").
 
 ## 1. The Problem: Standard Maven Builds
 
-By default, when you run mvn package, Maven creates a **"Skinny JAR"**.
+By default, when you run `mvn package`, Maven creates a **"Skinny JAR"**.
 
 * It contains only your compiled classes (`.class` files).
 * It does not contain your dependencies (like Spring Web, Jackson, Hibernate, Tomcat).
