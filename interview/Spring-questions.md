@@ -25,7 +25,7 @@
 * [Q-7 What is Dependency Injection (DI) in spring?](#q-7-what-is-dependency-injection-di-in-spring)
   * [Simple Example (Method Parameter Injection)](#simple-example-method-parameter-injection)
   * [What happens here](#what-happens-here)
-* [Q-8 What are the different Ways of Using @Autowired annotation](#q-8-what-are-the-different-ways-of-using-autowired-annotation)
+* [Q-8 Different ways of injecting dependencies using Spring's DI mechanism (with or without @Autowired).](#q-8-different-ways-of-injecting-dependencies-using-springs-di-mechanism-with-or-without-autowired)
   * [Constructor Injection (Recommended)](#constructor-injection-recommended)
   * [Field Injection](#field-injection)
   * [Setter Injection](#setter-injection)
@@ -660,7 +660,7 @@ class ProjectConfig {
 
 
 
-# Q-8 What are the different Ways of Using @Autowired annotation
+# Q-8 Different ways of injecting dependencies using Spring's DI mechanism (with or without @Autowired).
 
 Spring can inject dependencies in three primary ways.
 
