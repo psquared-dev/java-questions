@@ -1269,12 +1269,9 @@ cleanup.start();
 
 # Q-22 Can you run the code before executing main methods?
 
-Yes, we can execute any code, even before the main
-method. We will be using a **static block** of code in the class
-when creating the objects at load time of the class. Any
-statements within this static block of code will get executed
-at once while loading the class, even before the creation of
-objects in the main method.
+Yes, Java allows execution of code before the main method using a **static initializer**.
+A **static initializer** runs when the class is loaded and initialized by the JVM, before
+any objects are created and before the main method is executed.
 
 **How it works:**
 
