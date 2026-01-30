@@ -1215,8 +1215,8 @@ a class. We have four access specifiers.
 
 # Q-19 What is Dynamic Method Dispatch?
 
-Dynamic Method Dispatch is the mechanism by which the JVM decides **at runtime which 
-overridden instance method implementation** (parent or child) to invoke, **based on the
+Dynamic Method Dispatch is the mechanism by which the JVM decides at runtime **whether 
+to invoke a superclass method or its overriding subclass implementation, based on the
 actual object type**, not the reference type.
 
 **Key rule:**
