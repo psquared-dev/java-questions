@@ -2276,7 +2276,7 @@ The `ExecutorService` framework was introduced (in Java 5) to solve three major 
 with manual `new Thread()` management:
 
 1. **Resource Management (Pooling):**
-    * **Problem:** Creating a new Thread (new Thread()) is expensive. It requires OS resources 
+    * **Problem:** Creating a new Thread (`new Thread()`) is expensive. It requires OS resources 
     and memory stack allocation. Creating 1,000 threads for 1,000 short tasks will crash the JVM.
      
     * **Solution:** `ExecutorService` uses a Thread Pool. It creates a fixed number of 
