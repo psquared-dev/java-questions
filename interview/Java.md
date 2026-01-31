@@ -2369,7 +2369,7 @@ List<Runnable> pending = executor.shutdownNow();
 **What it does**
 
 * Blocks the calling thread
-* Waits until:
+* Waits until (one of them satisfies):
     * All tasks finish
     * Timeout expires
     * Thread is interrupted
