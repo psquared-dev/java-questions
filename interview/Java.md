@@ -2750,11 +2750,13 @@ class A {
 }
 ```
 
-* Metaspace:
-`Class A` has a static field `x` and an instance field `y`
+**Metaspace:**
 
-* Heap:
-Actual value of `x` and objects containing `y`
+* `Class A` has a static field `x` and an instance field `y`
+
+**Heap:**
+
+* Actual value of `x` and objects containing `y`
 
 
 ## Key clarification (interview-critical)
