@@ -2820,7 +2820,8 @@ Atomic Read/Write Operations
     * Guarantees atomicity plus visibility
 
 3. Reads and writes of object references
-    * Assignment and access to references are atomic
+    * Reading or writing the reference value itself (i.e., assigning or accessing a reference) is 
+     atomic; object creation and initialization are not.
 
 4. Reads and writes of volatile variables (any type)
     * Atomic read/write with visibility and ordering guarantees
