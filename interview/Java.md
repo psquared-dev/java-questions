@@ -2285,12 +2285,6 @@ There are 5 main ways to compare Strings, depending on your goal:
 The `ExecutorService` framework was introduced (in Java 5) to solve three major problems 
 with manual `new Thread()` management:
 
-That is a perfect summary. You have correctly identified 
-the three pillars: **Efficiency**, **Simplicity**, and **Functionality**.
-
-Here is a slightly deeper technical breakdown to help you visualize *why* these were such 
-massive pain points before Java 5.
-
 ## 1. Resource Management (The "Thread Explosion" Problem)
 
 Your note about creating 1,000 threads is spot on.
