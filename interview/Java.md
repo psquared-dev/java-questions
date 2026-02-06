@@ -1230,8 +1230,8 @@ actual object type**, not the reference type.
 
 ![thread states](../images/thread-lifecycle.png)
 
-* when `sleep()` is called, it goes to timed waiting (but the lock is not released)
-* when `wait()` / `join()` is called, thread goes to waiting state
+* when `sleep()` is called, it goes to `TIMED_WAITING` **but the lock is not released**
+* when `wait()` / `join()` is called, thread goes to `WAITING` or `TIMED_WAITING` and **releases the lock**
 * when thread is waiting for lock it goes to blocked state
 
 -----------------------------
