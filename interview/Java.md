@@ -193,9 +193,9 @@
 * [Q-69 What is the difference b/w `isEmpty()` and `isBlank()` method of String object?](#q-69-what-is-the-difference-bw-isempty-and-isblank-method-of-string-object)
 * [Q-70 Diff b/w `String`, `StringBuilder` and `StringBuffer`](#q-70-diff-bw-string-stringbuilder-and-stringbuffer)
 * [Q-71 What is hashCode() and how It's related to equals()?](#q-71-what-is-hashcode-and-how-its-related-to-equals)
-  * [The Analogy: The Library](#the-analogy-the-library)
-  * [How it works in a HashMap](#how-it-works-in-a-hashmap)
-  * [Contract b/w hashCode() and equals()](#contract-bw-hashcode-and-equals)
+  * [The Analogy: The Sectioned Library](#the-analogy-the-sectioned-library)
+  * [How it works in a HashMap (The 3 Steps)](#how-it-works-in-a-hashmap-the-3-steps)
+  * [The Contract: The "Law" of HashCode](#the-contract-the-law-of-hashcode)
 * [Q-72 When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?](#q-72-when-should-i-use-an-interface-vs-an-abstract-class-while-designing-a-file-uploader-with-multiple-implementations-eg-s3-gcp)
   * [Use an INTERFACE when the goal is “capability” or “contract”](#use-an-interface-when-the-goal-is-capability-or-contract)
   * [When to use ABSTRACT CLASS instead](#when-to-use-abstract-class-instead)
@@ -3712,51 +3712,54 @@ The primary difference is case sensitivity.
 
 # Q-71 What is hashCode() and how It's related to equals()?
 
-The `hashCode()` method is an integer number that acts like an  "Index" for an object. 
-It is primarily used by hash-based collections like `HashMap`, `HashSet`, and `Hashtable` to find objects quickly.
+The `hashCode()` method returns an integer that acts as a **category label** or 
+"bucket address" for an object. It is designed to speed up lookups in 
+hash-based collections (`HashMap`, `HashSet`, `Hashtable`).
 
-## The Analogy: The Library
+## The Analogy: The Sectioned Library
 
-Imagine you have a library with 1,000,000 books.
+Imagine a library with 1,000,000 books.
 
-* Without `hashCode`: To find "Harry Potter," you have to start at the first book on the first shelf
-and check every single book until you find it. (Slow!)
-
-* With `hashCode`: The library is divided into numbered sections (Section 1 to 100).
-  * The `hashCode()` formula tells you: "Harry Potter belongs in **Section 42**."
-  * You walk straight to Section 42 and only look through the books in that small section to find the exact copy. (Fast!)
-
-
-## How it works in a HashMap
-
-When you save `map.put(key, value)`, Java does this:
-
-1. **Calculate Hash:** It calls `key.hashCode()` to get a number (e.g., 12345).
-2. **Find Bucket:** It converts that number into a small "bucket index" (e.g., bucket #5).
-3. **Store:** It drops your data into Bucket #5.
-
-When you retrieve `map.get(key)`:
-
-1. Java calls `key.hashCode()` again.
-2. It sees the result is 12345 (Bucket #5).
-3. It goes directly to Bucket #5 and retrieves the value.
+* **Without `hashCode`:** To find "Harry Potter," you must start at the entrance 
+  and check every single book one by one until you find it. (**O(N) - Very Slow**)
+* **With `hashCode`:** The library is divided into numbered zones (Zone 1 to Zone 100).
+    * You compute the hash: *"Harry Potter"*  **Zone 42**.
+    * You walk straight to Zone 42 and ignore the other 99 zones. You only search the small 
+      pile of books in that specific zone. (**O(1) - Very Fast**)
 
 
-## Contract b/w hashCode() and equals()
 
-If you override `equals()`, you MUST override `hashCode()`.
+## How it works in a HashMap (The 3 Steps)
 
-1\. If `a.equals(b)` is `true`: Then `a.hashCode() == b.hashCode()` MUST be `true`.
-  * Why? If they are "equal," they must live in the same bucket. If they were in different 
-  buckets, the HashMap would never find the second one.
+When you call `map.put(key, value)`, the JVM follows this precise sequence:
 
-2\. If `a.hashCode() == b.hashCode()`: `a.equals(b)` may be `true` or `false`.
-  * Why? This is called a Collision. Two different objects (like "Aa" and "BB") might accidentally produce 
- the same math result. They end up in the same bucket, sitting next to each other. 
- The HashMap then uses `equals()` to tell them apart.
+1. **Generate Hash:** Call `key.hashCode()` to get a unique integer (e.g., `859403`).
+2. **Calculate Index:** Convert that hash into a valid array index using modulo (e.g., `859403 % 16 = Index 11`).
+3. **Handle Collisions:**
+    * If Bucket #11 is empty, store the object there.
+    * If Bucket #11 is occupied, use `equals()` to check if the key already exists. 
+     If not, add it to the chain (Linked List or Tree). 
+    * Crucial Java 8+ Detail: The chain starts as a Linked List. However, if the number of items in
+     that single bucket exceeds 8 (the TREEIFY_THRESHOLD), the JVM automatically morphs that list into
+     a Red-Black Tree. This improves performance from O(n) to O(log n) during high collisions.
 
-3\. `hashCode()` must return the same value every time during the object's lifetime, as long as 
-  its data doesn't change.
+
+## The Contract: The "Law" of HashCode
+
+If you override `equals()`, you **MUST** override `hashCode()`. Breaking this contract leads to "Lost Objects."
+
+| The Rule                                                                                | The Logic                                                                                                                                                                                                              |
+|-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Rule 1: If `a.equals(b)` is TRUE, then `a.hashCode() == b.hashCode()` MUST be true.** | **Why?** If two equal keys have different hash codes, they will land in **different buckets**. When you try to `get(key)`, the Map will look in the wrong bucket and return `null`, effectively losing your data.      |
+| **Rule 2: If `a.hashCode() == b.hashCode()`, `a.equals(b)` does NOT have to be true.**  | **Why?** This is a **Collision**. Different words (like "Aa" and "BB") can mathematically result in the same hash. They land in the same bucket, and the Map uses `equals()` to differentiate them within that bucket. |
+| **Rule 3: Consistency**                                                                 | `hashCode()` must return the same value throughout the object's life (unless the object is modified).                                                                                                                  |
+
+**Summary for Interviews:**
+
+> `hashCode()` determines **where** the object is stored (the bucket). `equals()` determines **what** the 
+> object is (identity). If you break the link between them, your HashMap essentially 
+> becomes a black hole where you can put objects in but never get them out.
+> 
 
 
 # Q-72 When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?
