@@ -2621,7 +2621,7 @@ Execution order (important)
     ```
 3. `main` method finishes
 4. JVM does NOT exit yet
-5. JVM waits until all **non-daemon threads finish**
+5. **JVM waits until all non-daemon threads finish**
 6. `t1` wakes up after 1 second
 7. `t1` prints:
     ```text
