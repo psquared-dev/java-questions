@@ -812,7 +812,7 @@ class Employee implements Cloneable {
 }
 ```
 
-Without this badge, `clone()` throws an exception.
+Without this badge, `clone()` throws `CloneNotSupportedException`.
 
 ## Resources
 
