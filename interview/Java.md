@@ -3720,9 +3720,10 @@ hash-based collections (`HashMap`, `HashSet`, `Hashtable`).
 
 Imagine a library with 1,000,000 books.
 
-* **Without `hashCode`:** To find "Harry Potter," you must start at the entrance 
+* Without `hashCode`: To find "Harry Potter," you must start at the entrance 
   and check every single book one by one until you find it. (**O(N) - Very Slow**)
-* **With `hashCode`:** The library is divided into numbered zones (Zone 1 to Zone 100).
+
+* With `hashCode`: The library is divided into numbered zones (Zone 1 to Zone 100).
     * You compute the hash: *"Harry Potter"*  **Zone 42**.
     * You walk straight to Zone 42 and ignore the other 99 zones. You only search the small 
       pile of books in that specific zone. (**O(1) - Very Fast**)
@@ -3739,9 +3740,9 @@ When you call `map.put(key, value)`, the JVM follows this precise sequence:
     * If Bucket #11 is empty, store the object there.
     * If Bucket #11 is occupied, use `equals()` to check if the key already exists. 
      If not, add it to the chain (Linked List or Tree). 
-    * Crucial Java 8+ Detail: The chain starts as a Linked List. However, if the number of items in
-     that single bucket exceeds 8 (the TREEIFY_THRESHOLD), the JVM automatically morphs that list into
-     a Red-Black Tree. This improves performance from O(n) to O(log n) during high collisions.
+    * **Crucial Java 8+ Detail:** The chain starts as a Linked List. However, if the number of items in
+     that single bucket exceeds 8 (the `TREEIFY_THRESHOLD`), the JVM automatically morphs that list into
+     a Red-Black Tree. This improves performance from `O(n)` to `O(log n)` during high collisions.
 
 
 ## The Contract: The "Law" of HashCode
@@ -3761,6 +3762,7 @@ If you override `equals()`, you **MUST** override `hashCode()`. Breaking this co
 > becomes a black hole where you can put objects in but never get them out.
 > 
 
+---
 
 # Q-72 When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?
 
