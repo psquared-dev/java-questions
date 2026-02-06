@@ -2261,6 +2261,12 @@ There are 5 main ways to compare Strings, depending on your goal:
 3. `compareTo()`: Returns an integer (negative, zero, positive) for sorting (Lexicographical order).
     * **Use case:** Sorting a list of names alphabetically.
 
+    | Result              | Meaning        | Order                          |
+    |---------------------|----------------|--------------------------------|
+    | **Negative** (`-1`) | `a` is smaller | **`a` comes first** (`a`, `b`) |
+    | **Zero** (`0`)      | They are equal | Order doesn't change           |
+    | **Positive** (`+1`) | `a` is larger  | **`b` comes first** (`b`, `a`) |
+
 4. `compareToIgnoreCase()`: Same as `compareTo()` but case-insensitive.
     * **Use case:** Sorting names where `"Apple"` and `"apple"` should be treated effectively the same.
 
