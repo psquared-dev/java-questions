@@ -3555,8 +3555,8 @@ String s2 = s1 + " world";   // this adds the string to the string pool?
 
 The Explanation:
 
-1. **Compile-Time (String Pool):** If you write "hello" + " world", the Java compiler sees that 
-   both are literals (constants). It combines them into "hello world" during compilation and 
+1. **Compile-Time (String Pool):** If you write `"hello" + " world"`, the Java compiler sees that 
+   both are literals (constants). It combines them into `"hello world"` during compilation and 
    places that single string in the pool.
 
 2. **Run-Time (Heap):** In your code, `s1` is a variable. The compiler cannot know for 
