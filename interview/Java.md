@@ -4342,7 +4342,8 @@ backward compatibility. `TreeSet` was then updated to implement `NavigableSet`.
 # Q-77 What is Exception chaining?
 
 Exception chaining is a mechanism in Java where one exception is wrapped inside another exception.
-This allows a method to translate a low-level exception into a higher-level exception while preserving the original cause.
+This allows a method to translate a low-level exception into a higher-level exception while 
+preserving the original cause.
 
 In simple words:
 > You throw a new exception but also attach the original exception so nothing is lost.
