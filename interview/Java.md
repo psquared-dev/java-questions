@@ -6373,9 +6373,9 @@ Here is the breakdown of the confusion:
 When people talk about the Default Access Modifier (also called Package-Private), 
 they are talking about the absence of a keyword.
 
-* How you write it: You literally write nothing.
-* Behavior: Visible only within the same package.
-* Keyword used: None.
+* **How you write it:** You literally write nothing.
+* **Behavior:** Visible only within the same package.
+* **Keyword used:** None.
 
 Example:
 
@@ -6391,7 +6391,7 @@ class Student {
 2\. The `default` Keyword (The Actual Keyword)
 
 The word `default` does exist as a keyword in Java, but it is used for completely 
-different things, as mentioned in your image:
+ different things:
 
 **Usage A: Interface Methods (Java 8+)** To provide a fallback implementation in an 
 interface so you don't break existing code
