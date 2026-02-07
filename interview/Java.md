@@ -2840,14 +2840,8 @@ separately in Metaspace.
 
 # Q-48 What is an atomic operation?
 
-Atomic means "all or nothing".
-
-An atomic operation is something that:
-
-* Cannot be broken in the middle
-* Cannot be seen half-done by others
-
-To everyone else, it looks like it **happened in one single step**.
+Atomicity means an operation is indivisible — it either happens completely or not 
+at all, and no other thread can observe it in an intermediate state.
 
 -----------------------------
 
