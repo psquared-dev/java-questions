@@ -1405,7 +1405,7 @@ Because JVM guarantees:
 > finalize() is called only once for each object.
 >
 
-Note: `finalize()` has been deprecated since Java 9 and is marked for removal. 
+**Note:** `finalize()` has been deprecated since Java 9 and is marked for removal. 
 Alternative is to use `AutoCloseable` or `Cleaner` API. 
 
 -----------------------------
