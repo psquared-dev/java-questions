@@ -297,7 +297,7 @@
   * [Secondary Benefit: "Optional" Methods](#secondary-benefit-optional-methods)
     * [The Classic "Mouse Listener" Problem](#the-classic-mouse-listener-problem)
     * [1. The "Old Way" (Painful)](#1-the-old-way-painful)
-    * [2\. The "New Way" (With Default Methods)](#2-the-new-way-with-default-methods)
+    * [2. The "New Way" (With Default Methods)](#2-the-new-way-with-default-methods)
 * [Q-93 How to create immutable collections in Java?](#q-93-how-to-create-immutable-collections-in-java)
 * [Q-94 Can a class implement two interface with the same default method?](#q-94-can-a-class-implement-two-interface-with-the-same-default-method)
   * [The Conflict Visualization](#the-conflict-visualization)
@@ -1403,6 +1403,10 @@ Later, if it becomes garbage again, GC will not call `finalize()` again.
 
 Because JVM guarantees:
 > finalize() is called only once for each object.
+>
+
+Note: `finalize()` has been deprecated since Java 9 and is marked for removal. 
+Alternative is to use `AutoCloseable` or `Cleaner` API. 
 
 -----------------------------
 
@@ -5861,7 +5865,7 @@ class MyButtonHandler implements MouseListener {
 }
 ```
 
-### 2\. The "New Way" (With Default Methods)
+### 2. The "New Way" (With Default Methods)
 
 With Java 8, the interface creator can mark those less-common methods as default with an empty body `{}`. 
 This tells the compiler: "If the class doesn't implement this, just do nothing. Don't throw an error."
