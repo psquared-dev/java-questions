@@ -4973,12 +4973,17 @@ The `compareTo()` method returns:
 3\. Zero `(obj1 == obj2)`
   * Meaning: both objects are considered equal in sorting order.
 
+
+---
+
+
 # Q-89 What is class level lock?
 
 A class-level lock is a lock associated with the **Class object** (the `.class` object in the JVM), 
 not with any instance of the class.
 
-Every loaded class in Java has exactly one `Class` object, and therefore it has **exactly one class-level lock**.
+Every loaded class in Java has exactly one `java.lang.Class` object, and therefore 
+it has **exactly one class-level lock**.
 
 So when you synchronize on:
 
@@ -8444,3 +8449,19 @@ Result:
 
 
 # Q-126 Give a walk-thorugh of the new features introduced since Java 8? 
+
+# Q-128 What is CAS (Compare-And-Swap)?
+
+# Q-132 Explain Soft vs. Weak vs. Phantom References?
+
+# Q-131 What is Escape Analysis?
+
+# Q-51 What is StampedLock and how is it different from ReentrantReadWriteLock?
+
+# Q-52 What is LongAdder and why is it faster than AtomicInteger?
+
+# Q-53 What is Structured Concurrency (Java 21 Preview)?
+
+# Q-133 How has Java 8 changed the Strategy Pattern?
+
+# Q-134 How do you implement the Singleton Pattern safely? (Enum vs Double-Check)
