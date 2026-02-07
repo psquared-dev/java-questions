@@ -4979,7 +4979,7 @@ The `compareTo()` method returns:
 
 # Q-89 What is class level lock?
 
-A class-level lock is a lock associated with the **Class object** (the `.class` object in the JVM), 
+A class-level lock is a lock associated with the `java.lang.Class` object, 
 not with any instance of the class.
 
 Every loaded class in Java has exactly one `java.lang.Class` object, and therefore 
