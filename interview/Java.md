@@ -4491,8 +4491,7 @@ Here is the golden rule of software design: **You want Low Coupling and High Coh
 
 # Q-79 What is CharSequence?
 
-`CharSequence` is a Java interface that represents a readable sequence of characters.
-It provides a common type for different kinds of text containers.
+`CharSequence` is the root interface that defines a readable sequence of characters.
 
 
 ## Key Methods
