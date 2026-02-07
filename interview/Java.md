@@ -1573,6 +1573,14 @@ Streams are not collections. They do NOT store data - they process data.
 
 `Vector` is thread-safe but `ArrayList` is not.
 
+While the primary difference is thread safety, there are 4 key distinctions you should know for an interview.
+
+| Feature           | Vector                                                                                                 | ArrayList                                                                  |
+|-------------------|--------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| **Thread Safety** | **Synchronized.** It is thread-safe.                                                                   | **Not Synchronized.** It is NOT thread-safe.                               |
+| **Performance**   | **Slower.** Every operation (`add`, `get`) must acquire a lock, even in a single-threaded environment. | **Faster.** No synchronization overhead.                                   |
+| **Growth Rate**   | Doubles in size (**100% increase**) when full.                                                         | Increases by **~50%** `(oldCapacity * 1.5)` when full.                     |
+| **Legacy Status** | Legacy class (Java 1.0). Retained for backward compatibility.                                          | Part of Collections Framework (Java 1.2). Standard for modern development. |
 
 -----------------------------
 
