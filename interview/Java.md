@@ -336,6 +336,8 @@
 * [Q-106 What is Covariant return type?](#q-106-what-is-covariant-return-type)
 * [Q-107 Is default keyword one of the access modifier?](#q-107-is-default-keyword-one-of-the-access-modifier)
 * [Q-108 Can you provide default hashcode() implementation in the interface?](#q-108-can-you-provide-default-hashcode-implementation-in-the-interface)
+  * [1. The Conflict Resolution Rule](#1-the-conflict-resolution-rule)
+  * [2. The Problem](#2-the-problem)
 * [Q-109 How default methods in the interface cope up with the diamond problem?](#q-109-how-default-methods-in-the-interface-cope-up-with-the-diamond-problem)
   * [The solution](#the-solution)
 * [Q-110 Why static methods inside interface were introduced in Java?](#q-110-why-static-methods-inside-interface-were-introduced-in-java)
@@ -6415,6 +6417,7 @@ switch(day) {
 }
 ```
 
+---
 
 # Q-108 Can you provide default hashcode() implementation in the interface?
 
@@ -6428,7 +6431,7 @@ The "Why" behind this rule
 It might seem useful to provide a standard `toString()` for all your objects, 
 but Java forbids it for a very specific architectural reason: "Class Wins."
 
-1\. The Conflict Resolution Rule
+## 1. The Conflict Resolution Rule
 
 In Java, a class can inherit behavior from two places:
 
@@ -6437,7 +6440,7 @@ In Java, a class can inherit behavior from two places:
 
 The Rule: If a method exists in both a parent class and an interface, the **parent class's version always wins**.
 
-2\. The Problem
+## 2. The Problem
 
 Since every Java class automatically extends Object, every single class 
 you ever create already has a version of `hashCode()` inherited from `Object`.
@@ -6466,6 +6469,9 @@ interface MyInterface {
     }
 }
 ```
+
+----
+
 
 # Q-109 How default methods in the interface cope up with the diamond problem?
 
@@ -7283,6 +7289,8 @@ public void process() {
 ## Resources
 
 * [Garbage collection in Java, with Animation and discussion of G1 GC](https://www.youtube.com/watch?v=UnaNQgzw4zY)
+
+--
 
 # Q-119 Explain Minor GC vs Major GC vs Full GC
 
