@@ -449,7 +449,50 @@
   * [Why classic collectors were slower](#why-classic-collectors-were-slower)
   * [Final interview-ready summary (perfect answer)](#final-interview-ready-summary-perfect-answer)
 * [Q-125 What new features were introduced](#q-125-what-new-features-were-introduced)
-* [Q-126 Give a walk-thorugh of the new features introduced since Java 8?](#q-126-give-a-walk-thorugh-of-the-new-features-introduced-since-java-8-)
+* [Q-126 Give a walk-through of the new features introduced since Java 8?](#q-126-give-a-walk-through-of-the-new-features-introduced-since-java-8-)
+* [Q-128 What is CAS (Compare-And-Swap)?](#q-128-what-is-cas-compare-and-swap)
+* [Q-132 Explain Soft vs. Weak vs. Phantom References?](#q-132-explain-soft-vs-weak-vs-phantom-references)
+* [Q-131 What is Escape Analysis?](#q-131-what-is-escape-analysis)
+* [Q-51 What is StampedLock and how is it different from ReentrantReadWriteLock?](#q-51-what-is-stampedlock-and-how-is-it-different-from-reentrantreadwritelock)
+* [Q-52 What is LongAdder and why is it faster than AtomicInteger?](#q-52-what-is-longadder-and-why-is-it-faster-than-atomicinteger)
+* [Q-53 What is Structured Concurrency (Java 21 Preview)?](#q-53-what-is-structured-concurrency-java-21-preview)
+* [Q-133 How has Java 8 changed the Strategy Pattern?](#q-133-how-has-java-8-changed-the-strategy-pattern)
+* [Q-134 How do you implement the Singleton Pattern safely? (Enum vs Double-Check)](#q-134-how-do-you-implement-the-singleton-pattern-safely-enum-vs-double-check)
+* [Q - Java has automatic Garbage Collection, which is supposed to manage memory for us. However, Memory Leaks are still a very real problem in Java applications.](#q---java-has-automatic-garbage-collection-which-is-supposed-to-manage-memory-for-us-however-memory-leaks-are-still-a-very-real-problem-in-java-applications)
+* [Q - What is the exact difference between ClassNotFoundException and NoClassDefFoundError?](#q---what-is-the-exact-difference-between-classnotfoundexception-and-noclassdeffounderror)
+  * [1. ClassNotFoundException (The "Typo")](#1-classnotfoundexception-the-typo)
+  * [2. NoClassDefFoundError (The "Ghost")](#2-noclassdeffounderror-the-ghost)
+  * [Summary Table (Memorize This)](#summary-table-memorize-this)
+* [Q - In the following single line of code, exactly how many String objects are created in memory?](#q---in-the-following-single-line-of-code-exactly-how-many-string-objects-are-created-in-memory)
+  * [1. The Literal (`"abc"`) — Object #1](#1-the-literal-abc--object-1)
+  * [2. The Constructor (`new String(...)`) — Object #2](#2-the-constructor-new-string--object-2)
+  * [Visual Representation](#visual-representation)
+* [Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?](#q---in-java-what-is-the-exact-difference-between-a-variable-declared-as-final-and-an-object-that-is-immutable)
+* [Q - You have an ExecutorService configured with a fixed thread pool of 10 threads and a bounded queue of size 100.](#q---you-have-an-executorservice-configured-with-a-fixed-thread-pool-of-10-threads-and-a-bounded-queue-of-size-100)
+  * [The Specific Exception: `RejectedExecutionException`](#the-specific-exception-rejectedexecutionexception)
+  * [The "Silent Killer" (Default Policy)](#the-silent-killer-default-policy)
+  * [Senior Dev Follow-Up: "How do we fix this?"](#senior-dev-follow-up-how-do-we-fix-this)
+* [Q - Explain how AtomicInteger works?](#q---explain-how-atomicinteger-works)
+  * [1. The Core Concept: "Optimistic Locking"](#1-the-core-concept-optimistic-locking)
+  * [2. The Hardware Magic: CAS (Compare-And-Swap)](#2-the-hardware-magic-cas-compare-and-swap)
+  * [3. The "Retry Loop" (Spin Lock)](#3-the-retry-loop-spin-lock)
+  * [4. The Code (Under the Hood)](#4-the-code-under-the-hood)
+  * [5. Pros & Cons (Interview Gold)](#5-pros--cons-interview-gold)
+* [Q-Explain WeakHashMap](#q-explain-weakhashmap)
+  * [The Problem: The "Sticky" Metadata](#the-problem-the-sticky-metadata)
+  * [The Solution: `WeakHashMap`](#the-solution-weakhashmap)
+  * [When to use this? (The "Metadata" Use Case)](#when-to-use-this-the-metadata-use-case)
+* [Q- Explain SoftReference](#q--explain-softreference)
+  * [1. The Use Case: Building an In-Memory Cache](#1-the-use-case-building-an-in-memory-cache)
+  * [2. The Mechanics (Ground Level)](#2-the-mechanics-ground-level)
+  * [3. The Coding Pattern (The "Check-Check-Reload")](#3-the-coding-pattern-the-check-check-reload)
+  * [Summary](#summary)
+* [Q - Java 8 Streams (Lazy Evaluation)](#q---java-8-streams-lazy-evaluation)
+  * [The "Vertical" Execution Flow](#the-vertical-execution-flow)
+* [Q- Map vs. FlatMap](#q--map-vs-flatmap)
+* [Q-Class Loaders](#q-class-loaders)
+  * [1. The Hierarchy (The Chain of Command)](#1-the-hierarchy-the-chain-of-command)
+  * [2. The Security Twist (The "Sandboxing" Exception)](#2-the-security-twist-the-sandboxing-exception)
 <!-- TOC -->
 
 # Q-1 What is JIT?
@@ -8448,7 +8491,7 @@ Result:
 # Q-125 What new features were introduced
 
 
-# Q-126 Give a walk-thorugh of the new features introduced since Java 8? 
+# Q-126 Give a walk-through of the new features introduced since Java 8? 
 
 # Q-128 What is CAS (Compare-And-Swap)?
 
@@ -8465,3 +8508,604 @@ Result:
 # Q-133 How has Java 8 changed the Strategy Pattern?
 
 # Q-134 How do you implement the Singleton Pattern safely? (Enum vs Double-Check)
+
+# Q - Java has automatic Garbage Collection, which is supposed to manage memory for us. However, Memory Leaks are still a very real problem in Java applications.
+
+> Can you explain how a memory leak technically occurs in Java, even when the Garbage Collector
+> is working perfectly? Please provide one specific coding example (a pattern) where this happens silently.
+>
+
+In C++, a memory leak means you forgot to call delete. In Java, a memory leak means 
+you are holding onto an object you no longer need.
+
+The Garbage Collector (GC) is smart, but it follows one strict rule: 
+> "If a live object references it, I cannot touch it."
+>
+
+**The Classic Example: The Static Cache**
+
+```java
+public class LeakyApp {
+    // This list lives forever because it is STATIC
+    private static final List<Object> cache = new ArrayList<>();
+
+    public void processData() {
+        Object hugeData = new byte[10_000_000]; // 10MB
+        cache.add(hugeData); // Added to cache
+        
+        // ... do work ...
+        
+        // BUG: We forgot to remove it!
+        // The method ends, but 'cache' still holds the reference.
+        // GC sees 'cache' is reachable, so it keeps 'hugeData' in memory forever.
+    }
+}
+```
+
+**Fix:** Use `WeakHashMap` or explicitly remove objects when done.
+
+---
+
+# Q - What is the exact difference between ClassNotFoundException and NoClassDefFoundError?
+
+This is one of the most classic "gotcha" questions in Java interviews. 
+They sound identical, but the **root cause** is completely different.
+
+Here is the breakdown:
+
+## 1. ClassNotFoundException (The "Typo")
+
+* **What it is:** A **Checked Exception**. You (the developer) explicitly asked the JVM 
+  to load a class by its string name, and the JVM said, "I can't find anything with that name."
+* **When it happens:** When using **Reflection** or loading dynamic classes.
+* **Common Causes:**
+    * `Class.forName("com.mysql.jdbc.Drivr")` <- Typo in the string?
+    * `ClassLoader.loadClass("MissingClass")`
+    * Missing JAR file in the classpath.
+
+
+**Code Example:**
+
+```java
+try {
+    // You try to load a class using a String
+    Class.forName("com.fake.MissingClass"); 
+} catch (ClassNotFoundException e) {
+    // The JVM politely tells you it failed
+    System.out.println("Typo! That class doesn't exist.");
+}
+```
+
+## 2. NoClassDefFoundError (The "Ghost")
+
+* **What it is:** An **Error** (Critical Failure). This is much nastier. It means the 
+  class **was present** when you compiled your code, but it is **missing** now 
+  that you are trying to run it.
+
+* **When it happens:** At Runtime, usually during linking or static initialization.
+
+* **Common Causes:**
+    * **The "JAR Hell":** You compiled your code with `library-v1.jar` (which has `CoolClass.class`), but 
+      you deployed it to the server with `library-v2.jar` (which deleted `CoolClass`).
+    * **Static Block Failure:** If a class has a `static { ... }` block that throws an exception, the 
+      class fails to load. Any future attempt to use that class triggers this error.
+
+
+**Code Example:**
+
+```java
+public class GhostDemo {
+    public static void main(String[] args) {
+        // This line compiles fine because 'Worker' exists right now.
+        // BUT, if you delete Worker.class before running this...
+        Worker w = new Worker(); 
+        
+        // BOOM! Java crashes with NoClassDefFoundError.
+        // "I swear I saw this class when I compiled! Where did it go??"
+    }
+}
+
+```
+
+## Summary Table (Memorize This)
+
+| Feature     | `ClassNotFoundException`                          | `NoClassDefFoundError`                                                      |
+|-------------|---------------------------------------------------|-----------------------------------------------------------------------------|
+| **Type**    | **Exception** (Checked)                           | **Error** (Unchecked / Fatal)                                               |
+| **Trigger** | Explicit loading (`Class.forName`, `ClassLoader`) | Implicit loading (variable declaration, `new` keyword)                      |
+| **Meaning** | "I cannot find the class name you gave me."       | "I expected this class to be here (it was at compile time), but it's gone!" |
+| **Fix**     | Check the string spelling or classpath.           | Check for mismatched JAR versions or static initializer errors.             |
+
+---
+
+
+# Q - In the following single line of code, exactly how many String objects are created in memory?
+
+```java
+String s = new String("abc");
+```
+
+The Answer is 2.
+
+Here is exactly why:
+
+## 1. The Literal (`"abc"`) — Object #1
+
+The moment the JVM sees the string literal `"abc"` in your code, it 
+checks the **String Constant Pool** (a special area in the Heap).
+
+* **If "abc" is not there:** It creates a new String object with the value "abc" and places it in the Pool.
+* **If "abc" is there:** It just returns a reference to the existing one.
+* **In this case (first time):** It creates **Object #1** in the Pool.
+
+## 2. The Constructor (`new String(...)`) — Object #2
+
+The keyword `new` **always** forces the creation of a new object in 
+the main **Heap** memory (outside the Pool).
+
+* It takes the value "abc" from the Pool object.
+* It creates a *copy* of that data into a brand new memory location.
+* **In this case:** It creates **Object #2** in the Heap.
+
+## Visual Representation
+
+```text
+Heap Memory
+ ├── String Constant Pool
+ │    └── "abc"  (Object #1: The Literal)
+ │
+ └── Main Heap Area
+      └── String @Address100  (Object #2: The 'new' Object)
+           └── value: "abc"
+
+```
+
+So, the variable `s` points to **Object #2**.
+
+--
+
+# Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?
+
+`final` means once a variable is assigned a reference it can't be changed but 
+**immutable** means the state of the object can't be changed once its created.
+
+---
+
+# Q - You have an ExecutorService configured with a fixed thread pool of 10 threads and a bounded queue of size 100.
+
+```java
+new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(100));
+```
+
+Scenario:
+
+1. Traffic spikes.
+2. 10 tasks are running (Threads are busy).
+3. 100 tasks are waiting (Queue is full).
+4. Task #111 arrives.
+
+What happens to Task #111? Does the application crash? Does it hang? Or does something else happen? 
+Please name the specific concept/mechanism involved.
+
+You are correct! By default, the application does **not** crash or hang - it throws a runtime exception.
+
+## The Specific Exception: `RejectedExecutionException`
+
+Here is the flow:
+
+1. **Core Threads (10):** Busy.
+2. **Queue (100):** Full.
+3. **Task #111:** The Executor says, "I have no threads and no space."
+4. **Action:** It triggers the **Rejection Policy**.
+
+## The "Silent Killer" (Default Policy)
+
+The default policy is **`AbortPolicy`**.
+
+* **Behavior:** It throws `RejectedExecutionException`.
+* **Impact:** If you don't catch this exception in your code, that specific 
+  task (Task #111) is **lost forever**. The user gets a 500 error, and the request is dropped.
+
+## Senior Dev Follow-Up: "How do we fix this?"
+
+In a production system, you almost never want to just crash on overload. You change the policy:
+
+* **`CallerRunsPolicy` (The Throttle):**
+* **Behavior:** The thread that *submitted* the task (usually the main HTTP thread) is forced 
+  to execute the task itself.
+* **Result:** This slows down the input rate naturally because the submitter is busy working. 
+  It prevents data loss and provides automatic "backpressure."
+
+
+---
+
+
+# Q - Explain how AtomicInteger works?
+
+## 1. The Core Concept: "Optimistic Locking"
+
+* **Synchronized (Pessimistic):** "I assume someone else is going to mess with this 
+  variable, so I will lock the door before I even touch it. No one enters 
+  until I'm done." (Safe, but slow due to blocking/context switching).
+* **AtomicInteger (Optimistic):** "I assume no one is messing with it. I'll read the 
+  value, do my math, and then quickly try to update it. If someone *did* change it 
+  while I wasn't looking, I'll just retry." (Fast, non-blocking).
+
+---
+
+## 2. The Hardware Magic: CAS (Compare-And-Swap)
+
+`AtomicInteger` does not use Java locks. It uses a specific **CPU instruction** called
+**CAS** (Compare-And-Swap).
+
+**The Logic:**
+The CPU says: *"I will update this memory location ONLY if it currently holds the value I expect."*
+
+It takes 3 parameters:
+
+1. **V (Value):** The memory address where the variable lives.
+2. **E (Expected):** The value I *think* is there (what I read 1ms ago).
+3. **N (New):** The new value I want to write.
+
+**The CPU Operation:**
+
+```text
+if (V == E) {
+    V = N; // Update successful! Return true.
+} else {
+    // Someone else changed V before I could!
+    // Do NOT update. Return false.
+}
+
+```
+
+*Crucially, this `if-then-update` happens as a **single, indivisible hardware step**.*
+
+---
+
+## 3. The "Retry Loop" (Spin Lock)
+
+This is what happens inside `incrementAndGet()` when two threads compete.
+
+**Scenario:** `count = 10`.
+
+* **Thread A:** Wants to increment. Reads `10`. Calculates `11`.
+* **Thread B:** Wants to increment. Reads `10`. Calculates `11`.
+
+**The Race:**
+
+1. **Thread A** reaches the CPU first.
+    * **CAS(V=Addr, E=10, N=11)**
+    * Is current value 10? **YES.**
+    * Update memory to **11**. Return `true`.
+
+
+2. **Thread B** reaches the CPU 1 nanosecond later.
+    * **CAS(V=Addr, E=10, N=11)**
+    * Is current value 10? **NO.** (It is now 11).
+    * **FAIL.** Return `false`.
+
+
+
+**What does Thread B do?**
+It does **NOT** sleep or block. It enters a `while` loop:
+
+1. "Damn, I failed. Let me read the *new* value." (Reads 11).
+2. "Okay, let me try to increment 11 to 12."
+3. **CAS(V=Addr, E=11, N=12)**.
+4. Success!
+
+---
+
+## 4. The Code (Under the Hood)
+
+If you open the source code of `AtomicInteger` (Java 8 version for clarity), you see this pattern 
+using the infamous `Unsafe` class:
+
+```java
+public final int getAndIncrement() {
+    int current;
+    int next;
+    do {
+        // 1. Read the current value from volatile memory
+        current = get(); 
+        
+        // 2. Calculate new value (local CPU register)
+        next = current + 1; 
+        
+        // 3. ATTEMPT the update atomically
+        // "If memory at 'valueOffset' is still 'current', set it to 'next'"
+    } while (!compareAndSet(current, next)); // If false, LOOP AGAIN!
+    
+    return current;
+}
+
+```
+
+## 5. Pros & Cons (Interview Gold)
+
+| Feature             | Synchronized             | AtomicInteger (CAS)           |
+|---------------------|--------------------------|-------------------------------|
+| **Mechanism**       | OS Mutex / Monitor Lock  | CPU Instruction (lock-free)   |
+| **Thread State**    | BLOCKED (Context Switch) | RUNNABLE (Spinning)           |
+| **Low Contention**  | Slow (Lock overhead)     | **Extremely Fast**            |
+| **High Contention** | Better (Threads sleep)   | **Dangerous** (CPU spin burn) |
+
+**Senior Insight:**
+
+>
+> CAS is fantastic for low-to-medium contention. But if you have 1000 threads fighting for the 
+> same AtomicInteger, they will spin in that `while` loop, burning 100% CPU without doing useful 
+> work. In that specific extreme case, `LongAdder` or a lock might actually be better.
+> 
+
+---
+
+
+# Q-Explain WeakHashMap
+
+This is a great specific question. `WeakHashMap` is the "magic self-cleaning map."
+
+To understand it, let's look at the **Memory Leak** problem it solves.
+
+## The Problem: The "Sticky" Metadata
+
+Imagine you are using a third-party library that gives you `Socket` objects. 
+You want to associate some metadata (like a "User ID") with each socket, but you 
+cannot modify the `Socket` class itself.
+
+**The Naive Approach (Standard HashMap):**
+
+```java
+// Strong Reference Map
+Map<Socket, String> metadata = new HashMap<>();
+
+// You store metadata
+metadata.put(clientSocket, "User-123");
+```
+
+**The Leak:**
+
+1. The connection closes.
+2. Your application stops using `clientSocket` (sets it to `null`).
+3. **Garbage Collector runs:** It wants to delete the `Socket` object.
+4. **BUT IT CAN'T.** Why? Because your `metadata` HashMap is still holding 
+  a **Strong Reference** to that `Socket` as a key.
+5. **Result:** The `Socket` stays in memory forever (Memory Leak).
+
+---
+
+## The Solution: `WeakHashMap`
+
+`WeakHashMap` wraps the **Key** (the Socket) in a `WeakReference`.
+
+```java
+// Weak Reference Map
+Map<Socket, String> metadata = new WeakHashMap<>();
+
+metadata.put(clientSocket, "User-123");
+```
+
+**The Magic:**
+
+1. The connection closes.
+2. Your application stops using `clientSocket` (removes the strong reference).
+3. **Garbage Collector runs:** It sees the `Socket` is *only* held by the `WeakHashMap`.
+4. **GC Action:** Since it's a `WeakReference`, the GC says "I don't care about this map 
+  entry," and **deletes the Socket object**.
+5. **Cleanup:** The `WeakHashMap` notices the key is gone and automatically removes the entire 
+  entry (Key & Value) from the map.
+
+## When to use this? (The "Metadata" Use Case)
+
+You use `WeakHashMap` when you want to attach extra information to an 
+object, but **the lifespan of that information should be tied to the lifespan of the object itself.**
+
+* **Example 1: Caching Expensive Computations:**
+  `WeakHashMap<BigImage, Thumbnail>`
+  If the `BigImage` is no longer used by the app, we don't need the `Thumbnail` anymore. Let them both disappear.
+* **Example 2: ThreadLocal Storage:**
+  Internally, `ThreadLocal` uses a similar weak-reference mechanism so that when a Thread dies, its 
+  local variables are cleaned up.
+
+---
+
+# Q- Explain SoftReference
+
+This is the **"Smart Cache"** reference.
+
+If `StrongReference` is "Do not delete this under any circumstances," and `WeakReference` is
+"Delete this as soon as you see it," then **`SoftReference`** is:
+
+> **Keep this in memory as long as you can. But if you are about to run 
+> out of RAM (throw an OutOfMemoryError), then delete this first to save the application.**
+
+## 1. The Use Case: Building an In-Memory Cache
+
+Imagine you are building a **Photo Gallery App** (like Google Photos).
+
+* **Problem:** Loading a 10MB image from the hard drive takes 500ms. It's slow.
+* **Goal:** You want to keep the decoded images in RAM so scrolling is instant.
+* **Risk:** If you keep *every* image the user scrolls past, you will run out of RAM in 2 minutes and crash.
+
+**The Solution: SoftReference**
+You wrap your heavy images in `SoftReference`.
+
+```java
+// Strong Reference (The "Cache Map" itself)
+Map<String, SoftReference<Image>> cache = new HashMap<>();
+
+// 1. Wrap the heavy object
+Image bigImage = loadFromDisk("vacation.jpg");
+SoftReference<Image> softRef = new SoftReference<>(bigImage);
+
+// 2. Store it
+cache.put("vacation.jpg", softRef);
+
+// 3. REMOVE the strong reference (Critical!)
+bigImage = null; 
+// Now, the ONLY thing holding the image is the SoftReference.
+```
+
+## 2. The Mechanics (Ground Level)
+
+How does the Garbage Collector (GC) decide when to clear it?
+
+It uses a formula based on **Free Memory** vs. **Time Since Last Access**.
+
+* **Scenario A (Plenty of RAM):**
+  The GC runs. It sees your `SoftReference`. It checks free memory. "Oh, we have 2GB free. No need to panic."
+    * **Result:** The image stays in memory.
+    * **User Benefit:** When they scroll back, the image loads instantly.
+
+
+* **Scenario B (Low RAM):**
+  The user opens a 4K video editor in the background. Free memory drops to 10MB. The GC runs and
+  panics. "I need to allocate memory for this new video, but I'm full!"
+    * **Action:** The GC looks for `SoftReference` objects. It effectively says, *"Sorry, I need this space."*
+    * **Result:** It clears the reference (sets it to null) and reclaims the 10MB image memory. The app **does not crash**.
+
+
+
+## 3. The Coding Pattern (The "Check-Check-Reload")
+
+Because a `SoftReference` can disappear at any moment, you **must** check if it's still there before using it.
+
+```java
+public Image getImage(String key) {
+    // 1. Get the wrapper
+    SoftReference<Image> ref = cache.get(key);
+    
+    // 2. Try to get the real object
+    Image img = (ref != null) ? ref.get() : null;
+
+    // 3. CHECK: Did the GC delete it?
+    if (img == null) {
+        // Yes, it was cleared to save memory.
+        // We must reload it from disk (slower, but safe).
+        img = loadFromDisk(key);
+        
+        // Put it back in the cache
+        cache.put(key, new SoftReference<>(img));
+    }
+    
+    return img;
+}
+
+```
+
+## Summary
+
+* **Strong:** "I need this. Keep it or crash."
+* **Soft:** "I'd *like* to keep this (Cache). But delete it if you need space."
+* **Weak:** "I only care about this if someone else does (Metadata)."
+
+
+# Q - Java 8 Streams (Lazy Evaluation)
+
+Scenario: You have a list of 1,000,000 integers.
+
+```java
+List<Integer> numbers = // ... 1 million numbers ...
+
+Integer result = numbers.stream()
+    .map(n -> { 
+        System.out.println("Mapping: " + n); 
+        return n * 2; 
+    })
+    .filter(n -> { 
+        System.out.println("Filtering: " + n); 
+        return n > 10; 
+    })
+    .findFirst()
+    .orElse(null);
+```
+
+The Question: How many times will "Mapping: ..." be printed to the console?
+
+1. 1,000,000 times (All mapped first, then filtered).
+2. Just enough times until we find a match (Short-circuiting).
+3. Something else?
+
+Answer is 2.
+
+Unlike a traditional `for` loop that might process the entire collection horizontally (Row by Row), 
+Streams process **Vertically** (Element by Element).
+
+## The "Vertical" Execution Flow
+
+1. **Element 1:** Go through `map`  Go through `filter`  Check `findFirst`. (Fail? Next).
+2. **Element 2:** Go through `map`  Go through `filter`  Check `findFirst`. (Fail? Next).
+3. **Element 3:** Go through `map`  Go through `filter`  Check `findFirst`. (**Success!**  **STOP everything**).
+
+Even if you have 1,000,000 elements, if the *3rd* one matches, the stream pipeline **terminates immediately**. 
+The other 999,997 elements are never even touched.
+
+---
+
+
+# Q- Map vs. FlatMap
+
+You have a `List<Order>` where each Order contains a `List<LineItem>`
+
+```java
+List<Order> orders = database.getOrders();
+
+// 1. orders.stream().map(order -> order.getLineItems()) ...
+// 2. orders.stream().flatMap(order -> order.getLineItems().stream()) ...
+```
+
+What is the specific difference in the return type (Structure) between using `.map()` and `.flatMap()` here?
+
+
+1. `Stream<List<LineItem>>`
+2. `Stream<LineItem>`
+
+
+---
+
+# Q-Class Loaders
+
+Scenario: You create a class in your own project with the exact same name and package 
+as a core Java class: `package java.lang; public class String { ... }`.
+
+The Question: 1. When you run your application and use String, which class gets loaded?
+
+* A) Your custom `java.lang.String`.
+* B) The official JDK `java.lang.String`. 
+* C) The JVM crashes with a security error.
+
+2\. Why? (Name the specific mechanism that enforces this decision).
+
+(Hint: Think about the hierarchy of ClassLoaders: Bootstrap → Extension → Application).
+
+Answer is B
+
+## 1. The Hierarchy (The Chain of Command)
+
+Java ClassLoaders are hierarchical. When you ask for a class, the request goes **UP**, not down.
+
+1. **Application ClassLoader:** "I need `java.lang.String`." (Delegates to parent).
+2. **Platform (Extension) ClassLoader:** "I need `java.lang.String`." (Delegates to parent).
+3. **Bootstrap ClassLoader:** "I found it in the core JDK modules (java.base)!"
+    * **Loads the real String class.**
+    * **Returns it down the chain.**
+
+Your custom `java.lang.String` sitting in your classpath is effectively **invisible**. 
+The Application ClassLoader never even gets a chance to look for it because the parent already found it.
+
+## 2. The Security Twist (The "Sandboxing" Exception)
+
+What if you try to create a *new* class in that package, like `java.lang.MyString`?
+
+* The Bootstrap ClassLoader says: "I don't have this."
+* The Application ClassLoader tries to load it from your code.
+* **CRASH:** `java.lang.SecurityException: Prohibited package name: java.lang`.
+
+**Why?**
+The JVM protects the core `java.*` packages. If it didn't, you could write a 
+class called `java.lang.Integer` that steals data or breaks memory safety, and trick other parts of the system into using it.
+
+---
+
+
