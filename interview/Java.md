@@ -1210,9 +1210,11 @@ String s2 = "Hello";
 String s3 = new String("Hello");
 ```
 
-* **Action:** The `new` keyword forces the creation of a brand new object on the standard Heap, outside the
-  pool (even if `"Hello"` already exists in the pool).
-* **Result:** `s1 == s3` will be false because they are at different memory addresses, even 
+* **Action:** This actually creates two objects (if `"Hello"` is not already in the pool):
+    1. **The Literal:** The JVM sees `"Hello"` and creates an object in the String Pool.
+    2. **The Heap Object:** The `new` keyword forces the creation of a second, distinct object 
+        on the Heap that copies the value.
+* **Result:** `s1 == s3` will be `false` because they are at different memory addresses, even 
   though `s1.equals(s3)` is `true`.
 
 ## Why this works: Immutability
