@@ -3578,9 +3578,8 @@ String s2 = "java";
 String s3 = new String("java");
 ```
 
-* `s3` is a new object on the heap
-* `"java"` literal is still in the String Pool
-
+* If `"java"` isn't in the pool yet, this line add a new string to the pool 
+* a new object on the Heap.
 
 ### 3. Manual interning using intern()
 
