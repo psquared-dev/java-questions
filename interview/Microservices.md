@@ -37,13 +37,15 @@
   * [3. The Solution: The Bulkhead Pattern](#3-the-solution-the-bulkhead-pattern)
   * [4. Java Implementation (Resilience4j)](#4-java-implementation-resilience4j)
 * [Q-7 Explain Circuit Breaker pattern](#q-7-explain-circuit-breaker-pattern)
-  * [1. The Real-World Analogy: "The Fuse Box"](#1-the-real-world-analogy-the-fuse-box)
-  * [2. The Problem: "Cascading Failure" ( The Domino Effect)](#2-the-problem-cascading-failure--the-domino-effect)
-  * [3. The Solution: The State Machine](#3-the-solution-the-state-machine)
+  * [The Real-World Analogy: "The Fuse Box"](#the-real-world-analogy-the-fuse-box)
+  * [The Problem: "Cascading Failure" ( The Domino Effect)](#the-problem-cascading-failure--the-domino-effect)
+  * [The Solution: The State Machine](#the-solution-the-state-machine)
+  * [The Solution: The State Machine](#the-solution-the-state-machine-1)
     * [A. CLOSED (Normal Operation)](#a-closed-normal-operation)
     * [B. OPEN (The "Cut-Off")](#b-open-the-cut-off)
-    * [C. HALF-OPEN (The "Test")](#c-half-open-the-test)
-  * [4. Java Implementation (Resilience4j)](#4-java-implementation-resilience4j-1)
+    * [C. HALF-OPEN (The "Probing Phase")](#c-half-open-the-probing-phase)
+  * [Configuration (Resilience4j via `application.yml`)](#configuration-resilience4j-via-applicationyml)
+  * [Java Implementation (Resilience4j)](#java-implementation-resilience4j)
 * [Q-8 Explain Retry pattern](#q-8-explain-retry-pattern)
   * [1. The Real-World Analogy: "Bad Cell Reception"](#1-the-real-world-analogy-bad-cell-reception)
   * [2. The Solution: Automatic Retry](#2-the-solution-automatic-retry)
@@ -51,6 +53,10 @@
   * [4. The Fix: Exponential Backoff (The Smart Way)](#4-the-fix-exponential-backoff-the-smart-way)
     * [5. Java Implementation (Resilience4j)](#5-java-implementation-resilience4j)
 * [Q-9 What is N+1 problem?](#q-9-what-is-n1-problem)
+  * [1. The Scenario: "Authors and Books"](#1-the-scenario-authors-and-books)
+  * [2. The Bad Code (The Trap)](#2-the-bad-code-the-trap)
+  * [3. The Problem (The Math)](#3-the-problem-the-math)
+  * [4. The Solution: "JOIN FETCH"](#4-the-solution-join-fetch)
 <!-- TOC -->
 
 # Q-1 Types of caches
@@ -628,7 +634,7 @@ public class InvoiceService {
 
 Here is the **Circuit Breaker Pattern**, explained with the same structure.
 
-## 1. The Real-World Analogy: "The Fuse Box"
+## The Real-World Analogy: "The Fuse Box"
 
 In your house, if a toaster shorts out, the **Circuit Breaker** flips (trips).
 
@@ -641,7 +647,7 @@ is "shorting out" (failing constantly), you cut it off to save the system.
 
 ---
 
-## 2. The Problem: "Cascading Failure" ( The Domino Effect)
+## The Problem: "Cascading Failure" ( The Domino Effect)
 
 Imagine **Order Service** calls **Payment Service**.
 
@@ -656,30 +662,64 @@ Imagine **Order Service** calls **Payment Service**.
 
 ---
 
-## 3. The Solution: The State Machine
+## The Solution: The State Machine
 
 We wrap the dangerous call in a **Circuit Breaker** object. It monitors failures and has three distinct states:
 
+Here is the updated explanation for your notes, correcting the "Half-Open" behavior to match modern standards (Resilience4j) and including the necessary configuration.
+
+## The Solution: The State Machine
+
+We wrap the dangerous call in a **Circuit Breaker** object. It monitors failures and 
+transitions between three distinct states based on the health of the downstream service.
+
 ### A. CLOSED (Normal Operation)
 
-* **Behavior:** Requests flow through normally.
-* **Monitoring:** If 50% of requests fail (e.g., 5 errors in a row), the breaker **Trips**.
+* **Behavior:** Requests flow through normally to the external service.
+* **Monitoring:** The breaker counts failures. If the failure rate exceeds the 
+  threshold (e.g., 50%) within a specific window, the breaker **Trips** to OPEN.
 
 ### B. OPEN (The "Cut-Off")
 
-* **Behavior:** The breaker blocks **ALL** requests to the Payment Service immediately.
-* **Response:** It throws a `CallNotPermittedException` (or returns a fallback) instantly. **No waiting.**
-* **Duration:** It stays open for a set time (e.g., 10 seconds) to give the Payment Service time to recover.
+* **Behavior:** The breaker blocks **ALL** requests immediately. It does not even try to call the external service.
+* **Response:** It throws a `CallNotPermittedException` (or executes a fallback method) instantly. **No waiting.**
+* **Duration:** It stays open for a configurable time (e.g., 10 seconds) to give the struggling service time to recover.
 
-### C. HALF-OPEN (The "Test")
+### C. HALF-OPEN (The "Probing Phase")
 
-* **Behavior:** After 10 seconds, it lets **one** request through.
-    * **If Success:** It assumes the service is fixed. It switches back to **CLOSED**.
-    * **If Failure:** It assumes the service is still broken. It switches back to **OPEN** for another 10 seconds.
+* **Behavior:** After the wait duration expires, the breaker transitions to **HALF-OPEN**.
+* **The Test:** It allows a **limited, configurable number of requests** (e.g., 3 calls) to pass through to test 
+   if the service has recovered.
+    * **If Success:** If the failure rate of these 3 calls is below the threshold, it resets to **CLOSED**.
+    * **If Failure:** If the failure rate is still high, it trips back to **OPEN** for another wait duration.
+
 
 ---
 
-## 4. Java Implementation (Resilience4j)
+## Configuration (Resilience4j via `application.yml`)
+
+This configuration controls exactly when the state changes happen.
+
+```yaml
+resilience4j:
+  circuitbreaker:
+    instances:
+      paymentService:
+        # 1. CLOSED -> OPEN Rules
+        slidingWindowSize: 10          # Monitor the last 10 calls
+        failureRateThreshold: 50       # Trip if 50% (5 out of 10) fail
+        
+        # 2. OPEN -> HALF-OPEN Rules
+        waitDurationInOpenState: 10s   # Stay OPEN for 10 seconds before testing
+        
+        # 3. HALF-OPEN -> CLOSED Rules
+        permittedNumberOfCallsInHalfOpenState: 3  # Let 3 requests through to test
+
+```
+
+---
+
+## Java Implementation (Resilience4j)
 
 In Spring Boot, we use the `@CircuitBreaker` annotation.
 
@@ -698,10 +738,7 @@ public class PaymentService {
         return "Payment System is currently busy. Please try 'Cash on Delivery'.";
     }
 }
-
 ```
-
-This completes the "Big 3" Resilience patterns (Bulkhead, Circuit Breaker, Retry).
 
 
 ---
