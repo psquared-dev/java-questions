@@ -172,7 +172,7 @@
   * [Why `myChar = myByte` is not allowed](#why-mychar--mybyte-is-not-allowed)
   * [Why `myShort = myChar` is not allowed](#why-myshort--mychar-is-not-allowed)
   * [Why `myChar = myShort` is not allowed](#why-mychar--myshort-is-not-allowed)
-* [Q-60 Do `doubles` and `float` type overflow?](#q-60-do-doubles-and-float-type-overflow)
+* [Q-60 Do `double` and `float` type overflow?](#q-60-do-double-and-float-type-overflow)
 * [Q-61 What is shadowing?](#q-61-what-is-shadowing)
 * [Q-62 var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q-62-var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
 * [Q-63 Will the following code compile?](#q-63-will-the-following-code-compile)
@@ -3381,7 +3381,7 @@ Here is the general rule:
 
 -----------------------------
 
-# Q-60 Do `doubles` and `float` type overflow?
+# Q-60 Do `double` and `float` type overflow?
 
 Integers **wrap around**, while Floats **explode to Infinity**.
 
