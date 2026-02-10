@@ -1,12 +1,12 @@
 <!-- TOC -->
-* [Q-1 Types of caches](#q-1-types-of-caches)
+* [Q - Types of caches](#q---types-of-caches)
     * [Write through cache](#write-through-cache)
     * [Write around cache](#write-around-cache)
     * [Write back cache](#write-back-cache)
-* [Q-2 Difference between Coupling and Cohesion?](#q-2-difference-between-coupling-and-cohesion)
+* [Q - Difference between Coupling and Cohesion?](#q---difference-between-coupling-and-cohesion)
   * [COHESION](#cohesion)
   * [COUPLING](#coupling)
-* [Q-3 What are common microserivces design pattern?](#q-3-what-are-common-microserivces-design-pattern)
+* [Q - What are common microserivces design pattern?](#q---what-are-common-microserivces-design-pattern)
   * [1. Decomposition Patterns (How to break the Monolith)](#1-decomposition-patterns-how-to-break-the-monolith)
     * [A. Strangler Fig Pattern](#a-strangler-fig-pattern)
     * [B. Decompose by Subdomain (DDD)](#b-decompose-by-subdomain-ddd)
@@ -17,31 +17,40 @@
     * [A. Database per Service](#a-database-per-service)
     * [B. Saga Pattern (Distributed Transactions)](#b-saga-pattern-distributed-transactions)
     * [C. CQRS (Command Query Responsibility Segregation)](#c-cqrs-command-query-responsibility-segregation)
-  * [4. Resilience Patterns (Don't let one crash kill everything)](#4-resilience-patterns-dont-let-one-crash-kill-everything)
+  * [4. Cross-Cutting Concern Patterns](#4-cross-cutting-concern-patterns)
     * [A. Circuit Breaker](#a-circuit-breaker)
     * [B. Bulkhead Pattern](#b-bulkhead-pattern)
+  * [5. Observability Patterns (How to see inside the black box)](#5-observability-patterns-how-to-see-inside-the-black-box)
+    * [A. Distributed Tracing](#a-distributed-tracing)
+    * [B. Log Aggregation](#b-log-aggregation)
+    * [C. Health Check API](#c-health-check-api)
     * [Summary for the Interview (The "Must-Haves")](#summary-for-the-interview-the-must-haves)
-* [Q-4 When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?](#q-4-when-should-i-use-an-interface-vs-an-abstract-class-while-designing-a-file-uploader-with-multiple-implementations-eg-s3-gcp)
+* [Q - When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?](#q---when-should-i-use-an-interface-vs-an-abstract-class-while-designing-a-file-uploader-with-multiple-implementations-eg-s3-gcp)
   * [Use an INTERFACE when the goal is “capability” or “contract”](#use-an-interface-when-the-goal-is-capability-or-contract)
   * [When to use ABSTRACT CLASS instead](#when-to-use-abstract-class-instead)
-* [Q-5 Explain CQRS Pattern](#q-5-explain-cqrs-pattern)
+* [Q - Explain CQRS Pattern](#q---explain-cqrs-pattern)
   * [CQRS (Command Query Responsibility Segregation)](#cqrs-command-query-responsibility-segregation)
   * [The Scenario: "The PlayStation 5 Launch"](#the-scenario-the-playstation-5-launch)
     * [1. The "Insanity" of the Normal Approach (CRUD)](#1-the-insanity-of-the-normal-approach-crud)
     * [2. The "Sanity" of CQRS (The Fix)](#2-the-sanity-of-cqrs-the-fix)
   * [3. The Trade-off (The Glue)](#3-the-trade-off-the-glue)
   * [Summary](#summary)
-* [Q-6 Explain Saga pattern](#q-6-explain-saga-pattern)
+* [Q - Explain Saga pattern](#q---explain-saga-pattern)
   * [Saga Pattern: Distributed Transactions](#saga-pattern-distributed-transactions)
   * [**Approach 1: Choreography (The "Dance")**](#approach-1-choreography-the-dance)
   * [Approach 2: Orchestration (The "Conductor")](#approach-2-orchestration-the-conductor)
   * [**Comparison Cheat Sheet**](#comparison-cheat-sheet)
   * [**Summary for Interview**](#summary-for-interview)
-* [Q-7 Explain Bulkhead Pattern](#q-7-explain-bulkhead-pattern)
+* [Q - Explain Transactional outbox pattern](#q---explain-transactional-outbox-pattern)
+  * [The Problem: The "Dual Write" Dilemma](#the-problem-the-dual-write-dilemma)
+  * [The Solution: The Outbox Pattern](#the-solution-the-outbox-pattern)
+  * [Why use it? (Interview Key Points)](#why-use-it-interview-key-points)
+  * [Summary](#summary-1)
+* [Q - Explain Bulkhead Pattern](#q---explain-bulkhead-pattern)
   * [The Problem: "Resource Exhaustion" (The Sinking Ship)](#the-problem-resource-exhaustion-the-sinking-ship)
   * [The Solution: The Bulkhead Pattern](#the-solution-the-bulkhead-pattern)
   * [Java Implementation (Resilience4j)](#java-implementation-resilience4j)
-* [Q-8 Explain Circuit Breaker pattern](#q-8-explain-circuit-breaker-pattern)
+* [Q - Explain Circuit Breaker pattern](#q---explain-circuit-breaker-pattern)
   * [The core idea](#the-core-idea)
   * [The Problem: "Cascading Failure" ( The Domino Effect)](#the-problem-cascading-failure--the-domino-effect)
   * [The Solution: The State Machine](#the-solution-the-state-machine)
@@ -51,7 +60,7 @@
     * [C. HALF-OPEN (The "Probing Phase")](#c-half-open-the-probing-phase)
   * [Configuration (Resilience4j via `application.yml`)](#configuration-resilience4j-via-applicationyml)
   * [Java Implementation (Resilience4j)](#java-implementation-resilience4j-1)
-* [Q-9 Explain Retry pattern](#q-9-explain-retry-pattern)
+* [Q - Explain Retry pattern](#q---explain-retry-pattern)
   * [The core idea](#the-core-idea-1)
   * [When retries make sense (important)](#when-retries-make-sense-important)
   * [Retry strategies (from naive → correct)](#retry-strategies-from-naive--correct)
@@ -63,12 +72,12 @@
   * [Retry + Circuit Breaker (must be combined carefully)](#retry--circuit-breaker-must-be-combined-carefully)
   * [Retry vs Circuit Breaker vs Bulkhead](#retry-vs-circuit-breaker-vs-bulkhead)
   * [Java Implementation (Resilience4j)](#java-implementation-resilience4j-2)
-* [Q-10 What is N+1 problem?](#q-10-what-is-n1-problem)
+* [Q - What is N+1 problem?](#q---what-is-n1-problem)
   * [1. The Scenario: "Authors and Books"](#1-the-scenario-authors-and-books)
   * [2. The Bad Code (The Trap)](#2-the-bad-code-the-trap)
   * [3. The Problem (The Math)](#3-the-problem-the-math)
   * [4. The Solution: "JOIN FETCH"](#4-the-solution-join-fetch)
-* [Q-11 Explain SOLID](#q-11-explain-solid)
+* [Q - Explain SOLID](#q---explain-solid)
   * [S - Single Responsibility Principle (SRP)](#s---single-responsibility-principle-srp)
     * [The Bad Example (The "Swiss Army Knife")](#the-bad-example-the-swiss-army-knife)
     * [The Good Example (The Specialist)](#the-good-example-the-specialist)
@@ -85,23 +94,23 @@
     * [The Bad Example (Tightly Coupled)](#the-bad-example-tightly-coupled)
     * [The Good Example (Dependency Injection)](#the-good-example-dependency-injection)
   * [Summary Cheat Sheet](#summary-cheat-sheet)
-* [Q-12 What is Partition Tolerance?](#q-12-what-is-partition-tolerance)
-* [Q-13 What is CAP theorem?](#q-13-what-is-cap-theorem)
+* [Q - What is Partition Tolerance?](#q---what-is-partition-tolerance)
+* [Q - What is CAP theorem?](#q---what-is-cap-theorem)
   * [Why Partition Tolerance is mandatory](#why-partition-tolerance-is-mandatory)
   * [Let's see the choice (ELI5)](#lets-see-the-choice-eli5)
     * [Case 1: Choose Consistency](#case-1-choose-consistency)
     * [Case 2: Choose Availability](#case-2-choose-availability)
   * [Important correction (many people get this wrong)](#important-correction-many-people-get-this-wrong)
   * [Real-world mapping (intuition)](#real-world-mapping-intuition)
-* [Q-14 What are two common Replication Models?](#q-14-what-are-two-common-replication-models)
+* [Q - What are two common Replication Models?](#q---what-are-two-common-replication-models)
   * [Primary–Replica (Leader–Follower)](#primaryreplica-leaderfollower)
   * [Quorum-based Replication (Leaderless / Multi-Replica)](#quorum-based-replication-leaderless--multi-replica)
-* [Q-15 How to tune consistency in Leaderless Replication](#q-15-how-to-tune-consistency-in-leaderless-replication)
+* [Q - How to tune consistency in Leaderless Replication](#q---how-to-tune-consistency-in-leaderless-replication)
   * [1. The Variables](#1-the-variables)
   * [2. The Scenario: `R + W ≤ N`](#2-the-scenario-r--w--n)
   * [3. Why would anyone do this?](#3-why-would-anyone-do-this)
   * [4. The "Fixed" Formula (Strong Consistency)](#4-the-fixed-formula-strong-consistency)
-* [Q-16 What are Bloom Filters?](#q-16-what-are-bloom-filters)
+* [Q - What are Bloom Filters?](#q---what-are-bloom-filters)
   * [1. The problem (ELI5)](#1-the-problem-eli5)
   * [2. What a Bloom Filter is (ELI5)](#2-what-a-bloom-filter-is-eli5)
   * [3. The light-bulb board (visual example)](#3-the-light-bulb-board-visual-example)
@@ -111,7 +120,7 @@
   * [7. Checking something that is NOT there](#7-checking-something-that-is-not-there)
   * [8. The golden rule (important)](#8-the-golden-rule-important)
   * [9. Why false positives are okay](#9-why-false-positives-are-okay)
-* [Q-17 What are LSM Trees?](#q-17-what-are-lsm-trees)
+* [Q - What are LSM Trees?](#q---what-are-lsm-trees)
   * [Step 1: The problem LSM Trees solve (ELI5)](#step-1-the-problem-lsm-trees-solve-eli5)
   * [Step 2: The key rule (lock this in)](#step-2-the-key-rule-lock-this-in)
   * [Step 3: Start with memory (MemTable)](#step-3-start-with-memory-memtable)
@@ -127,7 +136,7 @@
   * [Step 12: Compaction (cleanup)](#step-12-compaction-cleanup)
   * [Step 13: Why LSM Trees are fast](#step-13-why-lsm-trees-are-fast)
   * [Step 14: One-sentence ELI5 summary (memorize this)](#step-14-one-sentence-eli5-summary-memorize-this)
-* [Q-18 MemTable and SSTable: Structure and Layout](#q-18-memtable-and-sstable-structure-and-layout)
+* [Q - MemTable and SSTable: Structure and Layout](#q---memtable-and-sstable-structure-and-layout)
   * [What a MemTable looks like (in memory)](#what-a-memtable-looks-like-in-memory)
     * [How it’s actually implemented](#how-its-actually-implemented)
     * [What happens on write](#what-happens-on-write)
@@ -142,7 +151,7 @@
   * [5. How reads actually happen (step-by-step)](#5-how-reads-actually-happen-step-by-step)
   * [6. Deletes (tombstones) in MemTable and SSTable](#6-deletes-tombstones-in-memtable-and-sstable)
   * [7. Key difference (very important)](#7-key-difference-very-important)
-* [Q-19 What is Consistent hashing?](#q-19-what-is-consistent-hashing)
+* [Q - What is Consistent hashing?](#q---what-is-consistent-hashing)
   * [Consistent hashing: the core idea](#consistent-hashing-the-core-idea)
   * [The hash space (horizontal line)](#the-hash-space-horizontal-line)
   * [Place shards on the line](#place-shards-on-the-line)
@@ -161,7 +170,7 @@
   * [What happens to B’s ranges?](#what-happens-to-bs-ranges)
   * [Why virtual nodes make this smooth](#why-virtual-nodes-make-this-smooth)
   * [Key insight (this is the “aha”)](#key-insight-this-is-the-aha)
-* [Q-20 What is Gossip Protocol (SWIM-style)?](#q-20-what-is-gossip-protocol-swim-style)
+* [Q - What is Gossip Protocol (SWIM-style)?](#q---what-is-gossip-protocol-swim-style)
   * [1. What problem Gossip solves](#1-what-problem-gossip-solves)
   * [2. Core data structures (very important)](#2-core-data-structures-very-important)
   * [3. Incarnation number — what it is and why it exists](#3-incarnation-number--what-it-is-and-why-it-exists)
@@ -201,9 +210,9 @@
   * [25. Why this design is correct](#25-why-this-design-is-correct)
   * [26. Perfect interview summary (one sentence)](#26-perfect-interview-summary-one-sentence)
   * [27. Ultra-short version (interrupt-safe)](#27-ultra-short-version-interrupt-safe)
-* [Q-21 What are Vector Clocks?](#q-21-what-are-vector-clocks)
-* [Q-22 What are different cache eviction policies?](#q-22-what-are-different-cache-eviction-policies)
-* [Q-23 What are different Rate Limiting Algorithms?](#q-23-what-are-different-rate-limiting-algorithms)
+* [Q - What are Vector Clocks?](#q---what-are-vector-clocks)
+* [Q - What are different cache eviction policies?](#q---what-are-different-cache-eviction-policies)
+* [Q - What are different Rate Limiting Algorithms?](#q---what-are-different-rate-limiting-algorithms)
   * [The Problem: Why do we need this?](#the-problem-why-do-we-need-this)
   * [Algorithm 1: Token Bucket](#algorithm-1-token-bucket)
     * [1. The ELI5 Metaphor](#1-the-eli5-metaphor)
@@ -249,9 +258,21 @@
     * [2. How it works (Step-by-Step)](#2-how-it-works-step-by-step-4)
     * [3. Deep Dive: Why this wins](#3-deep-dive-why-this-wins)
   * [Summary Table (Quick Reference)](#summary-table-quick-reference)
+* [Q - What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems](#q---what-is-an-idempotent-api-which-http-methods-are-idempotent-and-why-does-idempotency-matter-in-restful-systems)
+  * [1. What does idempotent mean? (Very basics)](#1-what-does-idempotent-mean-very-basics)
+    * [The "Retry Test" (Interview Explanation)](#the-retry-test-interview-explanation)
+  * [2. Why idempotency matters](#2-why-idempotency-matters)
+  * [3. Idempotent ≠ Safe (important distinction)](#3-idempotent--safe-important-distinction)
+  * [4. HTTP Methods — Idempotency Overview](#4-http-methods--idempotency-overview)
+  * [5. Method-by-method explanation](#5-method-by-method-explanation)
+    * [GET – Idempotent](#get--idempotent)
+    * [PUT – Idempotent](#put--idempotent)
+    * [DELETE – Idempotent](#delete--idempotent)
+    * [POST – Not idempotent](#post--not-idempotent)
+    * [PATCH – Conditionally idempotent](#patch--conditionally-idempotent)
 <!-- TOC -->
 
-# Q-1 Types of caches
+# Q - Types of caches
 
 ### Write through cache
 
@@ -270,7 +291,7 @@ is flushed (written back) to storage asynchronously.
 ---
 
 
-# Q-2 Difference between Coupling and Cohesion?
+# Q - Difference between Coupling and Cohesion?
 
 ## COHESION
 
@@ -369,7 +390,7 @@ Here is the golden rule of software design: **You want Low Coupling and High Coh
 ---
 
 
-# Q-3 What are common microserivces design pattern?
+# Q - What are common microserivces design pattern?
 
 This is a massive topic. To ace this in an interview, do not just list them. **Categorize them** 
 based on the problem they solve.
@@ -379,7 +400,8 @@ Here are the top 4 categories of patterns you must know, explained from the grou
 1. Decomposition Patterns
 2. Integration Patterns
 3. Database Patterns
-4. Resilience Patterns
+4. Cross-Cutting Concern Patterns
+5. Observability Patterns
 
 ---
 
@@ -478,7 +500,7 @@ read `CustomerService`'s tables directly. It must call the API.
 
 ---
 
-## 4. Resilience Patterns (Don't let one crash kill everything)
+## 4. Cross-Cutting Concern Patterns
 
 ### A. Circuit Breaker
 
@@ -504,6 +526,41 @@ the critical features (e.g., Login).
 
 ---
 
+## 5. Observability Patterns (How to see inside the black box)
+
+In a monolith, you just check one log file. In microservices, a single 
+request hits 10 services. Debugging is a nightmare without these.
+
+### A. Distributed Tracing
+
+**The Problem:** A user reports "The app is slow," but you have no idea which 
+of the 10 services in the chain is the bottleneck.
+
+**The Solution:** Assign a **Unique Trace ID** to the request at the entry point (Gateway).
+
+* This ID (`X-Trace-Id`) is passed in the headers to every internal service.
+* Tools like **Zipkin** or **Jaeger** visualize the entire "waterfall" of the request, showing exactly how many milliseconds each hop took.
+
+### B. Log Aggregation
+
+**The Problem:** You have 50 services running on different containers. SSH-ing into each one to `grep` logs is impossible.
+
+**The Solution:** Centralize your logs (e.g., ELK Stack - Elasticsearch, Logstash, Kibana).
+
+* Every service pushes logs to a central collector asynchronously.
+* You search "ErrorID: 123" in one dashboard and see the full story across all services.
+
+### C. Health Check API
+
+**The Problem:** The Orchestrator (Kubernetes) needs to know if a service is actually alive before sending traffic.
+
+**The Solution:** Every service exposes a specific endpoint (e.g., `/actuator/health`).
+
+* It checks DB connectivity and disk space.
+* If it returns `DOWN` (503), Kubernetes kills the pod and restarts it.
+
+---
+
 ### Summary for the Interview (The "Must-Haves")
 
 If asked **"What patterns have you used?"**, pick 3-4 you are comfortable with:
@@ -520,7 +577,7 @@ If asked **"What patterns have you used?"**, pick 3-4 you are comfortable with:
 ---
 
 
-# Q-4 When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?
+# Q - When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?
 
 ## Use an INTERFACE when the goal is “capability” or “contract”
 
@@ -604,7 +661,7 @@ then introduce an Abstract Class in the middle.
 ---
 
 
-# Q-5 Explain CQRS Pattern
+# Q - Explain CQRS Pattern
 
 Here is the concise, interview-ready introduction for your notes.
 
@@ -745,7 +802,7 @@ CQRS is "sane" when:
 
 ---
 
-# Q-6 Explain Saga pattern
+# Q - Explain Saga pattern
 
 ## Saga Pattern: Distributed Transactions
 
@@ -839,8 +896,82 @@ participant what to do.
 
 ---
 
+# Q - Explain Transactional outbox pattern
 
-# Q-7 Explain Bulkhead Pattern
+Here is the definitive guide to the **Transactional Outbox Pattern**.
+
+## The Problem: The "Dual Write" Dilemma
+
+In a microservice, you often need to do two things at once:
+
+1. **Save to Database:** Update your local data (e.g., `INSERT INTO Orders`).
+2. **Publish Event:** Notify other services via a Message Broker (e.g., Kafka/RabbitMQ).
+
+**The Trap:** If you try to do both in your code:
+
+```java
+transaction.begin();
+database.save(order); // 1. DB Success
+kafka.send("OrderCreated"); // 2. Network Fails!
+transaction.commit();
+```
+
+* **Result:** You have an order in your DB, but **no one else knows about it**. Your system is inconsistent.
+* **Reverse Scenario:** You send the message first, but the DB commit fails. Now shipping is trying to ship a phantom order.
+
+---
+
+## The Solution: The Outbox Pattern
+
+Instead of sending the message directly to the broker, you save the 
+message **inside the same database transaction** as your business data.
+
+**Step 1: The Local Transaction (Atomic)**
+You insert the business data *and* the event record 
+into a special `OUTBOX` table in the **same** database transaction.
+
+```sql
+BEGIN TRANSACTION;
+  INSERT INTO Orders (id, status) VALUES (1, 'PENDING');
+  INSERT INTO Outbox (id, event_type, payload) VALUES (uuid, 'OrderCreated', '{"id":1...}');
+COMMIT;
+```
+
+* **Guarantee:** Either *both* happen, or *neither* happens. ACID guarantees this.
+
+**Step 2: The Relay (The Mover)**
+A separate process (The "Relay") reads the `OUTBOX` table and pushes the 
+messages to the Message Broker (Kafka).
+
+* **Method A (Polling):** A scheduled job queries `SELECT * FROM Outbox WHERE processed = false`, sends 
+   the message, and then updates the row to `processed = true`.
+* **Method B (Log Tailing / CDC):** Tools like **Debezium** read the database transaction log 
+   directly and stream changes to Kafka. This is more performant.
+
+---
+
+## Why use it? (Interview Key Points)
+
+1. **Guaranteed Delivery:** You never lose a message, even if the Message Broker 
+   is down when the user clicks "Buy".
+2. **At-Least-Once Delivery:** The Relay might crash after sending to Kafka but *before* marking 
+   the row as processed. When it restarts, it sends the message again.
+    * *Constraint:* The consumers **must be Idempotent** (handle duplicates).
+
+
+## Summary
+
+> "The Outbox Pattern solves the distributed data consistency problem. 
+> Instead of writing to the database and the network (broker) simultaneously, we write 
+> to the database and an 'Outbox' table atomically. A background process then reliably 
+> pushes those outbox records to the broker."
+> 
+
+
+---
+
+
+# Q - Explain Bulkhead Pattern
 
 The Bulkhead Pattern isolates parts of a system so that failure or overload in one part does 
 not cascade and take down everything else - analogous to watertight compartments in a ship.
@@ -917,7 +1048,7 @@ public class InvoiceService {
 ---
 
 
-# Q-8 Explain Circuit Breaker pattern
+# Q - Explain Circuit Breaker pattern
 
 The Circuit Breaker Pattern prevents a system from repeatedly 
 calling a failing or slow dependency. Instead of waiting for 
@@ -1030,7 +1161,7 @@ public class PaymentService {
 ---
 
 
-# Q-9 Explain Retry pattern
+# Q - Explain Retry pattern
 
 
 The **Retry Pattern** automatically **re-attempts a failed operation** when 
@@ -1188,7 +1319,7 @@ resilience4j:
 ---
 
 
-# Q-10 What is N+1 problem?
+# Q - What is N+1 problem?
 
 
 This is the most famous performance issue in ORMs (like Hibernate/JPA).
@@ -1256,7 +1387,7 @@ Hibernate runs **1 single query**:
 
 ---
 
-# Q-11 Explain SOLID
+# Q - Explain SOLID
 
 Here is the **SOLID** breakdown with "Bad" vs. "Good" Java examples.
 
@@ -1556,7 +1687,7 @@ class Store {
 ---
 
 
-# Q-12 What is Partition Tolerance?
+# Q - What is Partition Tolerance?
 
 Partition Tolerance is the ability of a distributed system to survive a communications
 breakdown between its internal servers.
@@ -1564,7 +1695,7 @@ breakdown between its internal servers.
 ---
 
 
-# Q-13 What is CAP theorem?
+# Q - What is CAP theorem?
 
 When a network partition happens, you must choose:
 
@@ -1666,7 +1797,7 @@ Neither is "better". They solve different problems.
 ---
 
 
-# Q-14 What are two common Replication Models?
+# Q - What are two common Replication Models?
 
 1. Primary–Replica (Leader–Follower)
 2. Quorum-based Replication (Leaderless / Multi-Replica)
@@ -1732,7 +1863,7 @@ Consistency story
 
 
 
-# Q-15 How to tune consistency in Leaderless Replication
+# Q - How to tune consistency in Leaderless Replication
 
 In distributed systems (like Cassandra or DynamoDB), this specific formula (`R + W ≤ N`) means you
 are **NOT guaranteed to see the latest data**.
@@ -1788,7 +1919,7 @@ If you want to guarantee that your friend always sees "The sky is Green," you mu
 ---
 
 
-# Q-16 What are Bloom Filters?
+# Q - What are Bloom Filters?
 
 ## 1. The problem (ELI5)
 
@@ -1954,7 +2085,7 @@ So Bloom Filters trade:
 
 
 
-# Q-17 What are LSM Trees?
+# Q - What are LSM Trees?
 
 ## Step 1: The problem LSM Trees solve (ELI5)
 
@@ -2187,7 +2318,7 @@ LSM trades:
 
 
 
-# Q-18 MemTable and SSTable: Structure and Layout
+# Q - MemTable and SSTable: Structure and Layout
 
 ## What a MemTable looks like (in memory)
 
@@ -2440,7 +2571,7 @@ During compaction:
 
 
 
-# Q-19 What is Consistent hashing?
+# Q - What is Consistent hashing?
 
 Imagine you have 10,000 users and 3 servers.
 
@@ -2785,7 +2916,7 @@ They are what makes consistent hashing usable in production.
 
 
 
-# Q-20 What is Gossip Protocol (SWIM-style)?
+# Q - What is Gossip Protocol (SWIM-style)?
 
 ---
 
@@ -3292,11 +3423,11 @@ DEAD
 
 
 
-# Q-21 What are Vector Clocks?
+# Q - What are Vector Clocks?
 
-# Q-22 What are different cache eviction policies?
+# Q - What are different cache eviction policies?
 
-# Q-23 What are different Rate Limiting Algorithms?
+# Q - What are different Rate Limiting Algorithms?
 
 ## The Problem: Why do we need this?
 
@@ -3776,3 +3907,198 @@ We want to estimate how many requests happened in the *last rolling 60 seconds*.
 | **Sliding Counter** | Balanced accuracy & efficiency  | Slightly complex math                   | **High-scale APIs** (Cloudflare)       |
 
 
+---
+
+# Q - What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems
+
+## 1. What does idempotent mean? (Very basics)
+
+Idempotence is a fancy mathematical word that means:
+
+**"Making the same request multiple times has the same effect as making it just once."**
+
+In the context of REST APIs, an idempotent method is one where, if the client sends
+the exact same request 100 times, the state of the server after the 100th request is
+exactly the same as it was after the 1st request.
+
+Key clarifications:
+
+* We care about the **final state**, not how many times it ran
+* Internal side effects (logs, timestamps) are ignored
+* Idempotency is about **safe retries**
+
+### The "Retry Test" (Interview Explanation)
+
+The best way to explain this to an interviewer is the Network Timeout Scenario:
+
+Imagine a client sends a request to pay $10. The network drops the
+connection before the client gets a response. The client doesn't know
+if the server processed the payment or not.
+
+* If the method is Idempotent, the client can safely retry the request.
+  Even if the server processed the first one, the second one won't double-charge.
+
+* If the method is Non-Idempotent, retrying is dangerous. It might charge the user twice.
+
+## 2. Why idempotency matters
+
+Idempotency is critical because retries are unavoidable:
+
+* Network timeouts
+* Client crashes
+* Load balancers
+* Mobile networks
+* At-least-once delivery
+
+Without idempotency:
+
+* Retries can corrupt data
+* Duplicate records or actions occur
+
+
+## 3. Idempotent ≠ Safe (important distinction)
+
+| Term       | Meaning                        |
+|------------|--------------------------------|
+| Safe       | Does not modify server state   |
+| Idempotent | Same final state after retries |
+
+
+Examples:
+
+* GET → safe and idempotent
+* PUT → idempotent but not safe
+
+
+## 4. HTTP Methods — Idempotency Overview
+
+| HTTP Method | Idempotent?        | Why                  |
+|-------------|--------------------|----------------------|
+| GET         | ✅ Yes              | Read-only            |
+| HEAD        | ✅ Yes              | Metadata only        |
+| OPTIONS     | ✅ Yes              | Capability query     |
+| PUT         | ✅ Yes              | Replaces resource    |
+| DELETE      | ✅ Yes              | Deletes resource     |
+| POST        | ❌ No               | Creates new resource |
+| PATCH       | ❌ *Not guaranteed* | Applies a change     |
+
+
+
+## 5. Method-by-method explanation
+
+### GET – Idempotent
+
+```text
+GET /users/10
+```
+
+* Repeating does not change server state
+* Safe and idempotent
+
+
+### PUT – Idempotent
+
+```text
+PUT /users/10
+{
+  "name": "Alice"
+}
+```
+
+With PUT, the client specifies the exact URL. PUT `/users/10`.
+**If you don't have any id then use POST**.
+
+* First call: creates or replaces resource
+* Subsequent calls: same final state
+
+**Important clarification**
+
+Even if the server updates metadata like `updatedOn`, PUT is still considered idempotent
+at the API semantic level. Idempotency is defined by client-meaningful state, not internal
+bookkeeping.
+
+
+### DELETE – Idempotent
+
+```text
+DELETE /users/10
+```
+
+* First call: deletes resource
+* Subsequent calls: resource already deleted
+* Final state remains deleted
+
+
+### POST – Not idempotent
+
+```text
+POST /users
+{
+  "name": "Alice"
+}
+```
+
+* Each call creates a new user
+* Multiple calls → multiple resources
+
+### PATCH – Conditionally idempotent
+
+
+**PATCH with append semantics**
+
+```text
+PATCH /users/10
+{
+  "roles": ["ADMIN"]
+}
+```
+
+Repeating:
+
+* Adds ADMIN again
+* Duplicates accumulate
+
+❌ Not idempotent
+
+----
+
+**PATCH with JSON Patch (RFC 6902)**
+
+JSON Patch defines operations like add, remove, replace.
+
+Example (RFC 6902)
+
+```text
+PATCH /users/10
+[
+  { "op": "add", "path": "/tags/-", "value": "vip" }
+]
+```
+
+Each retry:
+* Adds another `"vip"`
+
+❌ Not idempotent by design
+
+---
+
+**The confusing case — PATCH can be idempotent**
+
+```text
+PATCH /users/10
+{
+  "email": "a@b.com"
+}
+```
+
+If server logic is:
+
+```java
+user.setEmail("a@b.com");
+```
+
+Repeating:
+
+* email remains `a@b.com`
+
+✔ This specific PATCH is idempotent
