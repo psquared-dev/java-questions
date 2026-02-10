@@ -31,10 +31,12 @@
   * [Why volatile is required?](#why-volatile-is-required)
 * [Q-14 What are packages?](#q-14-what-are-packages)
 * [Q-15 Do we have pointers in Java?](#q-15-do-we-have-pointers-in-java)
-* [Q-16 What is Java String Pool?](#q-16-what-is-java-string-pool)
-  * [1. String Literal (The Efficient Way)](#1-string-literal-the-efficient-way)
-  * [2. The new Keyword (The Forceful Way)](#2-the-new-keyword-the-forceful-way)
-  * [Why this works: Immutability](#why-this-works-immutability)
+* [Q - What is Java String Pool & String Interning?](#q---what-is-java-string-pool--string-interning)
+* [Q-16 What is Java String Pool & String Interning?](#q-16-what-is-java-string-pool--string-interning)
+  * [1. String Literal (Automatic Interning)](#1-string-literal-automatic-interning)
+  * [2. The `new` Keyword (Forcing a New Object)](#2-the-new-keyword-forcing-a-new-object)
+  * [3. Manual Interning (`.intern()`)](#3-manual-interning-intern)
+  * [4. Why is this safe? (Immutability)](#4-why-is-this-safe-immutability)
 * [Q-17 What is JDK?](#q-17-what-is-jdk)
 * [Q-18 What are access specifiers?](#q-18-what-are-access-specifiers)
 * [Q-19 What is Dynamic Method Dispatch?](#q-19-what-is-dynamic-method-dispatch)
@@ -177,12 +179,6 @@
 * [Q-62 var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q-62-var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
 * [Q-63 Will the following code compile?](#q-63-will-the-following-code-compile)
 * [Q-64 Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword](#q-64-mentions-some-other-possible-scenarios-where-we-cant-use-the-var-lvti-keyword)
-* [Q-65 What is string interning?](#q-65-what-is-string-interning)
-  * [Key Points to Mention](#key-points-to-mention)
-    * [1. String literals are automatically interned](#1-string-literals-are-automatically-interned)
-    * [2. new String() always creates a new object](#2-new-string-always-creates-a-new-object)
-    * [3. Manual interning using intern()](#3-manual-interning-using-intern)
-  * [Purpose of interning](#purpose-of-interning)
 * [Q-66 Will the following statement adds string to the string pool?](#q-66-will-the-following-statement-adds-string-to-the-string-pool)
   * [The Nuance: The final Keyword](#the-nuance-the-final-keyword)
 * [Q-67 What happens when we concatenate string with different type?](#q-67-what-happens-when-we-concatenate-string-with-different-type)
@@ -196,9 +192,6 @@
   * [The Analogy: The Sectioned Library](#the-analogy-the-sectioned-library)
   * [How it works in a HashMap (The 3 Steps)](#how-it-works-in-a-hashmap-the-3-steps)
   * [The Contract: The "Law" of HashCode](#the-contract-the-law-of-hashcode)
-* [Q-72 When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?](#q-72-when-should-i-use-an-interface-vs-an-abstract-class-while-designing-a-file-uploader-with-multiple-implementations-eg-s3-gcp)
-  * [Use an INTERFACE when the goal is “capability” or “contract”](#use-an-interface-when-the-goal-is-capability-or-contract)
-  * [When to use ABSTRACT CLASS instead](#when-to-use-abstract-class-instead)
 * [Q-73 Does the finally block execute if there is a return statement inside try or catch?](#q-73-does-the-finally-block-execute-if-there-is-a-return-statement-inside-try-or-catch)
 * [Q-74 Explain the hierarchy of exceptions in Java?](#q-74-explain-the-hierarchy-of-exceptions-in-java)
   * [Checked Exceptions (Compile-Time)](#checked-exceptions-compile-time)
@@ -219,9 +212,6 @@
   * [Why is Exception Chaining needed?](#why-is-exception-chaining-needed)
   * [Real-World Example (ELI5)](#real-world-example-eli5)
   * [Practical Example](#practical-example)
-* [Q-78 Difference between Coupling and Cohesion?](#q-78-difference-between-coupling-and-cohesion)
-  * [COHESION](#cohesion)
-  * [COUPLING](#coupling)
 * [Q-79 What is CharSequence?](#q-79-what-is-charsequence)
   * [Key Methods](#key-methods)
   * [Why was CharSequence introduced?](#why-was-charsequence-introduced)
@@ -449,7 +439,24 @@
   * [Why classic collectors were slower](#why-classic-collectors-were-slower)
   * [Final interview-ready summary (perfect answer)](#final-interview-ready-summary-perfect-answer)
 * [Q-125 What new features were introduced](#q-125-what-new-features-were-introduced)
-* [Q-126 Give a walk-through of the new features introduced since Java 8?](#q-126-give-a-walk-through-of-the-new-features-introduced-since-java-8-)
+* [Q-126 Give a walk-through of the new features introduced since Java 8?](#q-126-give-a-walk-through-of-the-new-features-introduced-since-java-8)
+  * [Phase 1: Java 9 - 11 (The "Modernization" Era)](#phase-1-java-9---11-the-modernization-era)
+    * [1. Local Variable Type Inference (`var`)](#1-local-variable-type-inference-var)
+    * [2. New HttpClient (Standardized)](#2-new-httpclient-standardized)
+    * [3. String Methods (Life Savers)](#3-string-methods-life-savers)
+    * [4. Running Single-File Source Code](#4-running-single-file-source-code)
+  * [Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era)](#phase-2-java-12---17-the-syntactic-sugar-era)
+    * [1. Records (Data Classes)](#1-records-data-classes)
+    * [2. Text Blocks (Multi-line Strings)](#2-text-blocks-multi-line-strings)
+    * [3. Switch Expressions](#3-switch-expressions)
+    * [4. Pattern Matching for `instanceof`](#4-pattern-matching-for-instanceof)
+    * [5. Sealed Classes](#5-sealed-classes)
+    * [6. Helpful NullPointerExceptions](#6-helpful-nullpointerexceptions)
+  * [Phase 3: Java 18 - 21 (The "Concurrency Revolution")](#phase-3-java-18---21-the-concurrency-revolution)
+    * [1. Virtual Threads (Project Loom) - **The Game Changer**](#1-virtual-threads-project-loom---the-game-changer)
+    * [2. Sequenced Collections](#2-sequenced-collections)
+    * [3. Record Patterns](#3-record-patterns)
+  * [Summary Cheat Sheet for Interview](#summary-cheat-sheet-for-interview)
 * [Q-128 What is CAS (Compare-And-Swap)?](#q-128-what-is-cas-compare-and-swap)
 * [Q-132 Explain Soft vs. Weak vs. Phantom References?](#q-132-explain-soft-vs-weak-vs-phantom-references)
 * [Q-131 What is Escape Analysis?](#q-131-what-is-escape-analysis)
@@ -487,15 +494,79 @@
   * [2. The Mechanics (Ground Level)](#2-the-mechanics-ground-level)
   * [3. The Coding Pattern (The "Check-Check-Reload")](#3-the-coding-pattern-the-check-check-reload)
   * [Summary](#summary)
-* [Q - Java 8 Streams (Lazy Evaluation)](#q---java-8-streams-lazy-evaluation)
-  * [The "Vertical" Execution Flow](#the-vertical-execution-flow)
-* [Q- Map vs. FlatMap](#q--map-vs-flatmap)
-* [Q-Class Loaders](#q-class-loaders)
-  * [1. The Hierarchy (The Chain of Command)](#1-the-hierarchy-the-chain-of-command)
-  * [2. The Security Twist (The "Sandboxing" Exception)](#2-the-security-twist-the-sandboxing-exception)
+* [Q-Can you explain the architectural change from PermGen to Metaspace in Java 8? Specifically, where are Class definitions and static variables stored in the modern memory model, and what happens at the OS and JVM level if Metaspace reaches its limit?](#q-can-you-explain-the-architectural-change-from-permgen-to-metaspace-in-java-8-specifically-where-are-class-definitions-and-static-variables-stored-in-the-modern-memory-model-and-what-happens-at-the-os-and-jvm-level-if-metaspace-reaches-its-limit)
+  * [1. The Old World: PermGen (Java 7 and older)](#1-the-old-world-permgen-java-7-and-older)
+  * [2. The New World: Metaspace (Java 8+)](#2-the-new-world-metaspace-java-8)
+    * [Key Difference: Location](#key-difference-location)
+  * [3. Answering Your Specific Questions](#3-answering-your-specific-questions)
+    * ["Where do Class Definitions live?"](#where-do-class-definitions-live)
+    * ["Where do Static Variables live?"](#where-do-static-variables-live)
+  * [Comparison: PermGen vs. Metaspace](#comparison-permgen-vs-metaspace)
+  * [4. What happens if Metaspace fills up?](#4-what-happens-if-metaspace-fills-up)
+    * [Common Causes of Metaspace OOM:](#common-causes-of-metaspace-oom)
+    * [Summary for the Interview](#summary-for-the-interview)
+* [Q-Explain Serial GC](#q-explain-serial-gc)
+  * [1. What is Serial GC?](#1-what-is-serial-gc)
+  * [2. How it Works: The "Stop-The-World" Event](#2-how-it-works-the-stop-the-world-event)
+  * [3. The Memory Structure (Young vs. Old)](#3-the-memory-structure-young-vs-old)
+    * [A. Young Generation (Minor GC)](#a-young-generation-minor-gc)
+      * [B. Old Generation (Major GC)](#b-old-generation-major-gc)
+  * [4. Pros and Cons (Interview Material)](#4-pros-and-cons-interview-material)
+  * [5. When should you use it?](#5-when-should-you-use-it)
+* [Q-Explain Parallel GC](#q-explain-parallel-gc)
+  * [1. The Core Concept: "Strength in Numbers"](#1-the-core-concept-strength-in-numbers)
+  * [2. How it Works (Under the Hood)](#2-how-it-works-under-the-hood)
+    * [The "Stop-The-World" Sequence:](#the-stop-the-world-sequence)
+  * [3. The Algorithms (Young vs. Old)](#3-the-algorithms-young-vs-old)
+    * [A. Young Generation (Parallel Scavenge)](#a-young-generation-parallel-scavenge)
+    * [B. Old Generation (Parallel Old)](#b-old-generation-parallel-old)
+  * [4. The "Throughput" Focus (Important for Interviews)](#4-the-throughput-focus-important-for-interviews)
+  * [5. Pros and Cons](#5-pros-and-cons)
+  * [6. Summary Comparison](#6-summary-comparison)
+* [Q-Explain Concurrent Mark Sweep(CMS) GC](#q-explain-concurrent-mark-sweepcms-gc)
+  * [1. The Core Concept: "Concurrent"](#1-the-core-concept-concurrent)
+  * [2. How it Works: The 4 Phases](#2-how-it-works-the-4-phases)
+    * [Phase 1: Initial Mark (Stop-The-World)](#phase-1-initial-mark-stop-the-world)
+    * [Phase 2: Concurrent Mark (App Running)](#phase-2-concurrent-mark-app-running)
+    * [Phase 3: Remark (Stop-The-World)](#phase-3-remark-stop-the-world)
+    * [Phase 4: Concurrent Sweep (App Running)](#phase-4-concurrent-sweep-app-running)
+  * [3. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem)](#3-the-fatal-flaw-fragmentation-the-swiss-cheese-problem)
+  * [4. The "Concurrent Mode Failure"](#4-the-concurrent-mode-failure)
+  * [5. Summary for Interview](#5-summary-for-interview)
+* [Explain G1 GC](#explain-g1-gc)
+  * [G1GC (Garbage First) – The "Predictable" Collector](#g1gc-garbage-first--the-predictable-collector)
+  * [1. The Architecture: "Regions"](#1-the-architecture-regions)
+  * [2. The Lifecycle (How it Runs)](#2-the-lifecycle-how-it-runs)
+    * [Phase A: Young Only Phase (Normal Mode)](#phase-a-young-only-phase-normal-mode)
+    * [Phase B: The Concurrent Marking Cycle (The Proactive Trigger)](#phase-b-the-concurrent-marking-cycle-the-proactive-trigger)
+    * [Phase C: The Mixed GC (The "Magic")](#phase-c-the-mixed-gc-the-magic)
+  * [3. The Killer Feature: "Predictable Pauses"](#3-the-killer-feature-predictable-pauses)
+  * [4. Summary for the Interview](#4-summary-for-the-interview)
+* [Q-9 What is a heap dump? Why do we use it? Have you ever taken a heap dump?](#q-9-what-is-a-heap-dump-why-do-we-use-it-have-you-ever-taken-a-heap-dump)
+  * [1. What is a Heap Dump? (The "Crime Scene Photo")](#1-what-is-a-heap-dump-the-crime-scene-photo)
+  * [2. Why do we use it?](#2-why-do-we-use-it)
+    * [A. The `OutOfMemoryError` (OOM)](#a-the-outofmemoryerror-oom)
+    * [B. Memory Leaks](#b-memory-leaks)
+  * [3. "Have you ever taken a heap dump?" (The Interview Answer)](#3-have-you-ever-taken-a-heap-dump-the-interview-answer)
+    * [Scenario A: The Proactive Setup (Best Practice)](#scenario-a-the-proactive-setup-best-practice)
+    * [Scenario B: The Manual Inspection (Debugging a Slow App)](#scenario-b-the-manual-inspection-debugging-a-slow-app)
+  * [4. How do you analyze it? (The "Eclipse MAT" Tool)](#4-how-do-you-analyze-it-the-eclipse-mat-tool)
+  * [Summary for the Interview](#summary-for-the-interview-1)
+* [Q-What is memory management in Java?](#q-what-is-memory-management-in-java)
+* [Q-What are the types of Heap memory?](#q-what-are-the-types-of-heap-memory)
+  * [1. Young Generation (The Nursery)](#1-young-generation-the-nursery)
+  * [2. Old Generation (The Retirement Home)](#2-old-generation-the-retirement-home)
+    * [Summary Table for Interview](#summary-table-for-interview)
+* [Q-How do you optimize JVM memory?](#q-how-do-you-optimize-jvm-memory)
+  * [Step 1: Right-Sizing the Heap ( The Foundation)](#step-1-right-sizing-the-heap--the-foundation)
+  * [Step 2: Choosing the Right Collector](#step-2-choosing-the-right-collector)
+  * [Step 3: Tuning the "Pause Goal" (The Magic Knob)](#step-3-tuning-the-pause-goal-the-magic-knob)
+  * [Step 4: Handling "Metaspace" (The Hidden Memory)](#step-4-handling-metaspace-the-hidden-memory)
+    * [Step 5: Enable GC Logging (The Black Box)](#step-5-enable-gc-logging-the-black-box)
+    * [Summary for the Interview](#summary-for-the-interview-2)
 <!-- TOC -->
 
-# Q-1 What is JIT?
+# Q - What is JIT?
 
 JIT (Just-In-Time) Compiler is a component of the JVM that optimizes performance. While the Interpreter 
 executes bytecode line-by-line, the JIT identifies frequently used methods (Hotspots) and compiles them 
@@ -504,7 +575,7 @@ into native machine code on the fly. This allows Java to run nearly as fast as C
 -----------------------------
 
 
-# Q-2 What is class Loader?
+# Q - What is class Loader?
 
 * Part of the JVM that dynamically loads Java classes into the JVM memory (Metaspace).
 * **Lazy Loading:** It does not load all classes at startup; it loads them only when the application needs them.
@@ -517,7 +588,7 @@ In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them us
 
 -----------------------------
 
-# Q-3 What are different types of classloaders?
+# Q - What are different types of classloaders?
 
 
 **Bootstrap ClassLoader**
@@ -545,7 +616,7 @@ In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them us
 
 -----------------------------
 
-# Q-4 What are the diff memory area allocated by JVM?
+# Q - What are the diff memory area allocated by JVM?
 
 * Heap Space
     * **What:** Where all Objects live (e.g., `new Employee()`).
@@ -575,7 +646,7 @@ In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them us
 
 -----------------------------
 
-# Q-5 Is the following program correct?
+# Q - Is the following program correct?
 
 ```java
 class Head{
@@ -590,7 +661,7 @@ Yes. Notice that `public` and `static` keywords can be in any order.
 
 -----------------------------
 
-# Q-6 Do local variables in Java have default values?
+# Q - Do local variables in Java have default values?
 
 Local variables **do not have a default value**. Unlike instance variables (fields), they are not 
 automatically initialized. You must explicitly initialize them before use; otherwise, you will get 
@@ -599,7 +670,7 @@ a compile-time error.
 -----------------------------
 
 
-# Q-7 What is association, aggregation and composition?
+# Q - What is association, aggregation and composition?
 
 ## Association
 
@@ -697,7 +768,7 @@ Association (has-a)
 
 -----------------------------
 
-# Q-8 What is copy constructor?
+# Q - What is copy constructor?
 
 A copy constructor is a constructor that creates a new object by copying the state of 
 another object of the same class.
@@ -821,7 +892,7 @@ The design of `clone()` is weird.
 -----------------------------
 
 
-# Q-9 What is marker interface?
+# Q - What is marker interface?
 
 A marker interface is an interface with **no methods**. It's like putting a sticker on a class.
 
@@ -870,7 +941,7 @@ Without this badge, `clone()` throws `CloneNotSupportedException`.
 
 -----------------------------
 
-# Q-10 What object cloning?
+# Q - What object cloning?
 
 Object cloning is the process of creating a copy of an existing object by directly 
 duplicating its memory state, without invoking any constructors.
@@ -933,14 +1004,14 @@ Deep clone must be implemented manually.
 -----------------------------
 
 
-# Q-11 Why Java is not completely Object-Oriented?
+# Q - Why Java is not completely Object-Oriented?
 
 Because of primitive types like `int`, `char`, `float` etc.
 
 -----------------------------
 
 
-# Q-12 What are Wrapper classes
+# Q - What are Wrapper classes
 
 In Java, when you declare primitive datatypes, then Wrapper classes are responsible 
 for converting them into objects (Reference types). It was introduced so primitive types
@@ -964,7 +1035,7 @@ Every primitive has a corresponding Wrapper class.
 -----------------------------
 
 
-# Q-13 Define Singleton class 
+# Q - Define Singleton class 
 
 A Singleton class is a design pattern in object-oriented programming in which only one 
 instance of the class can ever exist during the lifetime of an application.
@@ -1168,68 +1239,108 @@ It ensures the write to memory is visible to all other threads only after the co
 -----------------------------
 
 
-# Q-14 What are packages?
+# Q - What are packages?
 
 Just a collection of related classes. The use of packages helps in code reusability and name clash.
 
 
 -----------------------------
 
-# Q-15 Do we have pointers in Java?
+# Q - Do we have pointers in Java?
 
 No
 
 -----------------------------
 
-# Q-16 What is Java String Pool?
+# Q - What is Java String Pool & String Interning?
 
-Java String Pool (String Constant Pool) is a special memory region inside the heap that 
-stores interned strings to **enable reuse and save memory**.
+Here is the consolidated, interview-ready answer that merges **String Pool** (the storage) and **String Interning** (the mechanism).
 
-Since String is the most widely used class in Java, creating a new object for 
-every single `"Hello"` or `"Error"` string in an application would waste 
-a massive amount of RAM.
+This single answer covers both concepts seamlessly.
 
-To fully understand the nuance, it helps to visualize the difference between creating a String with 
-a literal versus the `new` keyword, as they behave differently regarding the pool.
 
-## 1. String Literal (The Efficient Way)
+---
+
+
+# Q - What is Java String Pool & String Interning?
+
+**String Interning** is a JVM optimization where only one copy of each distinct 
+string value is stored in a special memory region called the **String Constant Pool**.
+
+Since `String` is the most widely used class in Java, creating a new object 
+for every single `"Hello"` or `"Error"` would waste massive amounts of RAM. 
+The Pool solves this by reusing instances.
+
+To fully understand this, you must distinguish between creating a String 
+with a **Literal** versus the **`new` keyword**.
+
+## 1. String Literal (Automatic Interning)
+
+When you create a string using double quotes, Java automatically checks the pool.
 
 ```java
 String s1 = "Hello";
-String s2 = "Hello";
+String s2 = "Hello"; 
+
+// s1 == s2 is TRUE
+
 ```
 
-* **Action:** JVM checks the pool.
-* **Result:** It finds `"Hello"` created by `s1`.
-* **Outcome:** `s2` simply points to the same reference as `s1`. No new object is created.
+* **Action:** JVM checks if `"Hello"` exists in the Pool.
+* **Result:** It finds the existing `"Hello"` created by `s1`.
+* **Outcome:** `s2` points to the exact same memory address as `s1`. No new object is created.
 
-## 2. The new Keyword (The Forceful Way)
+---
+
+## 2. The `new` Keyword (Forcing a New Object)
+
+Using `new` bypasses the pool check for the returned reference.
 
 ```java
 String s3 = new String("Hello");
+
+// s1 == s3 is FALSE (Different addresses)
+// s1.equals(s3) is TRUE (Same value)
 ```
 
-* **Action:** This actually creates two objects (if `"Hello"` is not already in the pool):
-    1. **The Literal:** The JVM sees `"Hello"` and creates an object in the String Pool.
-    2. **The Heap Object:** The `new` keyword forces the creation of a second, distinct object 
-        on the Heap that copies the value.
-* **Result:** `s1 == s3` will be `false` because they are at different memory addresses, even 
-  though `s1.equals(s3)` is `true`.
+---
 
-## Why this works: Immutability
-
-The only reason Java can safely share one `"Hello"` object among 100 different 
-variables is because **Strings are Immutable**.
-
-If `s1` could change the content from `"Hello"` to `"Help"`, it would corrupt `s2` and 
-every other variable pointing to that shared object. Because they cannot be changed, they can be 
-safely shared.
-
------------------------------
+* **Action:** This forces the creation of a **new object on the Heap**, even 
+   if `"Hello"` already exists in the pool.
+* **Interview Tip:** This technically involves two objects:
+    1. The **Literal** `"Hello"` (interned in the pool, if not present).
+    2. The **New Object** (on the heap, which `s3` refers to).
 
 
-# Q-17 What is JDK?
+
+## 3. Manual Interning (`.intern()`)
+
+You can manually move a heap string into the pool (or retrieve its pool reference) using `.intern()`.
+
+```java
+String s3 = new String("Hello"); // Heap object
+String s4 = s3.intern();         // Returns the Pool object
+
+// s1 == s4 is TRUE
+```
+
+* **Use Case:** Useful when receiving massive amounts of duplicate strings 
+  from external sources (like a DB or CSV file) where you want to deduplicate memory.
+
+## 4. Why is this safe? (Immutability)
+
+The only reason Java can safely share one `"Hello"` object among 100 different variables 
+is because **Strings are Immutable**.
+
+If `s1` could change its content from `"Hello"` to `"Help"`, it would corrupt `s2` and 
+every other variable pointing to that shared object. Because they cannot be changed, they 
+can be safely shared without thread-safety issues.
+
+
+---
+
+
+# Q - What is JDK?
 
 JDK (Java Development Kit) is a software development environment used to develop Java applications.
 
@@ -1239,7 +1350,7 @@ JDK (Java Development Kit) is a software development environment used to develop
 -----------------------------
 
 
-# Q-18 What are access specifiers?
+# Q - What are access specifiers?
 
 Access Specifiers are predefined keywords used to help
 JVM with understanding the scope of a variable, method, and
@@ -1264,7 +1375,7 @@ a class. We have four access specifiers.
 -----------------------------
 
 
-# Q-19 What is Dynamic Method Dispatch?
+# Q - What is Dynamic Method Dispatch?
 
 Dynamic Method Dispatch is the mechanism by which the JVM decides at runtime **whether 
 to invoke a superclass method or its overriding subclass implementation, based on the
@@ -1277,7 +1388,7 @@ actual object type**, not the reference type.
 -----------------------------
 
 
-# Q-20 What are different thread states?
+# Q - What are different thread states?
 
 ![thread states](../images/thread-lifecycle.png)
 
@@ -1288,7 +1399,7 @@ actual object type**, not the reference type.
 -----------------------------
 
 
-# Q-21 What is daemon thread?
+# Q - What is daemon thread?
 
 A Daemon Thread is a low-priority thread that runs in the background to provide services 
 to other threads (User Threads).
@@ -1318,7 +1429,7 @@ cleanup.start();
 
 
 
-# Q-22 Can you run the code before executing main methods?
+# Q - Can you run the code before executing main methods?
 
 Yes, Java allows execution of code before the main method using a **static initializer**.
 A **static initializer** runs when the class is loaded and initialized by the JVM, before
@@ -1359,7 +1470,7 @@ I am running INSIDE main.
 -----------------------------
 
 
-# Q-23  How many times is the finalize() method called in Java?
+# Q -  How many times is the finalize() method called in Java?
 
 ## What is finalize()?
 
@@ -1456,14 +1567,14 @@ Alternative is to use `AutoCloseable` or `Cleaner` API.
 -----------------------------
 
 
-# Q-24 Which class is thread-safe: StringBuilder or StringBuffer?
+# Q - Which class is thread-safe: StringBuilder or StringBuffer?
 
 `StringBuffer` is thread safe.
 
 -----------------------------
 
 
-# Q-25 What is Serializable interface? List some real-world use-cases for it.
+# Q - What is Serializable interface? List some real-world use-cases for it.
 
 `Serializable` is a marker interface in Java that indicates an object can be converted 
 into a byte stream and later reconstructed back into an object.
@@ -1549,7 +1660,7 @@ for (Field f : fields) {
 -----------------------------
 
 
-# Q-26 What is functional interface.
+# Q - What is functional interface.
 
 A Functional Interface is an interface that contains **exactly one abstract method**.
 It can have:
@@ -1576,7 +1687,7 @@ Functional Interfaces are the foundation of lambda expressions and method refere
 -----------------------------
 
 
-# Q-27 Can you tell few functional interface which is already there before java 8?
+# Q - Can you tell few functional interface which is already there before java 8?
 
 * Runnable
 * Callable
@@ -1585,7 +1696,7 @@ Functional Interfaces are the foundation of lambda expressions and method refere
 -----------------------------
 
 
-# Q-28 What are all functional interface introduced in java 8?
+# Q - What are all functional interface introduced in java 8?
 
 * Function
 * Predicate
@@ -1595,7 +1706,7 @@ Functional Interfaces are the foundation of lambda expressions and method refere
 -----------------------------
 
 
-# Q-29 What is lambda expression?
+# Q - What is lambda expression?
 
 A lambda expression is a compact syntax for implementing the single abstract method 
 of a functional interface.
@@ -1603,7 +1714,7 @@ of a functional interface.
 
 -----------------------------
 
-# Q-30 What is Stream in java 8?
+# Q - What is Stream in java 8?
 
 A Stream is a sequence of data elements that supports functional-style operations such as 
 filtering, mapping, and reducing - without modifying the original data source.
@@ -1614,7 +1725,7 @@ Streams are not collections. They do NOT store data - they process data.
 
 -----------------------------
 
-# Q-31 What is diff b/w Vector and ArrayList?
+# Q - What is diff b/w Vector and ArrayList?
 
 `Vector` is thread-safe but `ArrayList` is not.
 
@@ -1630,14 +1741,14 @@ While the primary difference is thread safety, there are 4 key distinctions you 
 -----------------------------
 
 
-# Q-32 Collection framework hierarchy
+# Q - Collection framework hierarchy
 
 ![collection-framework](/images/collection-framework.webp)
 
 
 -----------------------------
 
-# Q-33 Diff b/w Hashtable and HashMap
+# Q - Diff b/w Hashtable and HashMap
 
 * `Hashtable` is thread-safe but `HashMap` is not.
 * `HashMap` allows key with `null` value but `Hashtable` doesn't.
@@ -1648,7 +1759,7 @@ uses segment locking/CAS instead of locking the entire object).
 
 -----------------------------
 
-# Q-34 What is BlockingQueue?
+# Q - What is BlockingQueue?
 
 A `BlockingQueue` is a thread-safe queue that automatically coordinates producer and consumer threads
 by handling waiting and notification when the queue is empty or full.
@@ -1949,7 +2060,7 @@ public class PizzaShop {
 
 -----------------------------
 
-# Q-35 What are some use cases of reflection
+# Q - What are some use cases of reflection
 
 1. **Dependency Injection Frameworks (Spring Context)**
     * **How:** When you use `@Autowired`, Spring scans your classes, finds the dependencies, and 
@@ -1973,7 +2084,7 @@ public class PizzaShop {
 
 -----------------------------
 
-# Q-36 When would you use parallelStream()
+# Q - When would you use parallelStream()
 
 ## Parallel Stream — Three Examples Explained (Good vs Bad vs Dangerous)
 
@@ -2153,7 +2264,7 @@ Result:
 
 -----------------------------
 
-# Q-37 List diff types of Executorservice
+# Q - List diff types of Executorservice
 
 1. Fixed thread pool executor
 1. Single thread executor
@@ -2165,7 +2276,7 @@ Result:
 -----------------------------
 
 
-# Q-38 How to make a class immutable?
+# Q - How to make a class immutable?
 
 Rules to make object Immutable:
 
@@ -2229,7 +2340,7 @@ Video: https://www.youtube.com/watch?v=PYJrFi4Hzsg
 -----------------------------
 
 
-# Q-39 What are core principles of OOP?
+# Q - What are core principles of OOP?
 
 To remember the core principles of Object-Oriented Programming (OOP), you can use the acronym `A PIE`:
 
@@ -2311,7 +2422,7 @@ This is encapsulation.
 
 -----------------------------
 
-# Q-40 How many methods are there compare strings in Java?
+# Q - How many methods are there compare strings in Java?
 
 There are 5 main ways to compare Strings, depending on your goal:
 
@@ -2339,7 +2450,7 @@ There are 5 main ways to compare Strings, depending on your goal:
 
 -----------------------------
 
-# Q-41 What are the motivations for ExecutorService?
+# Q - What are the motivations for ExecutorService?
 
 The `ExecutorService` framework was introduced (in Java 5) to solve three major problems 
 with manual `new Thread()` management:
@@ -2390,7 +2501,7 @@ This is often the most appreciated feature for day-to-day coding.
 
 -----------------------------
 
-# Q-42 — How do you properly shut down an ExecutorService?
+# Q - — How do you properly shut down an ExecutorService?
 
 ## Why shutdown is required
 
@@ -2500,7 +2611,7 @@ try {
 
 -----------------------------
 
-# Q-43 What's the diff b/w process and threads?
+# Q - What's the diff b/w process and threads?
 
 **A Process** is an independent instance of a program in execution, possessing its own
 private memory address space - partitioned into the Code Section, Data Section, Heap, and 
@@ -2640,7 +2751,7 @@ registers, and a Thread Control Block, making creation and context switching muc
 
 -----------------------------
 
-# Q-44 Is it true that main thread doesn't terminate until the child threads are done?
+# Q - Is it true that main thread doesn't terminate until the child threads are done?
 
 No, `main` does NOT wait for the child thread. Consider the following example:
 
@@ -2691,7 +2802,7 @@ Execution order (important)
 
 -----------------------------
 
-# Q-45 What is the diff b/w objects and references?
+# Q - What is the diff b/w objects and references?
 
 **1. Object**
 
@@ -2741,7 +2852,7 @@ Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-p
 
 -----------------------------
 
-# Q-46 Explain stack and heap memory regions in the context of threads?
+# Q - Explain stack and heap memory regions in the context of threads?
 
 ## 1. Stack Memory (Thread-specific)
 
@@ -2876,21 +2987,21 @@ separately in Metaspace.
 
 -----------------------------
 
-# Q-47 What is latency and throughput?
+# Q - What is latency and throughput?
 
 * Latency - Latency is the time taken to complete a single request or task.
 * Throughput - Throughput is the number of tasks completed in a given time period.
 
 -----------------------------
 
-# Q-48 What is an atomic operation?
+# Q - What is an atomic operation?
 
 Atomicity means an operation is indivisible — it either happens completely or not 
 at all, and no other thread can observe it in an intermediate state.
 
 -----------------------------
 
-# Q-49 Which read and write operations are atomic in Java?
+# Q - Which read and write operations are atomic in Java?
 
 Atomic Read/Write Operations
 
@@ -2921,7 +3032,7 @@ Atomic Read/Write Operations
 
 -----------------------------
 
-# Q-50 What is deadlock?
+# Q - What is deadlock?
 
 Deadlock is a situation where two or more threads are stuck forever, because each 
 one is waiting for the other to release something.
@@ -2933,7 +3044,7 @@ one is waiting for the other to release something.
 
 -----------------------------
 
-# Q-51 Explain synchronized keyword
+# Q - Explain synchronized keyword
 
 The `synchronized` keyword provides **Mutual Exclusion and Visibility for critical sections of code**. 
 It ensures that only one thread can execute a protected block of code at a time, preventing race conditions.
@@ -2944,7 +3055,7 @@ It ensures that only one thread can execute a protected block of code at a time,
 
 -----------------------------
 
-# Q-52 Explain synchronization problem
+# Q - Explain synchronization problem
 
 The synchronization problem arises in concurrent systems when multiple threads or processes 
 access shared mutable resources without proper coordination, leading to incorrect, inconsistent, 
@@ -2959,7 +3070,7 @@ integrity and correctness are preserved.
 
 -----------------------------
 
-# Q-53 Explain different ways of inter-thread communication
+# Q - Explain different ways of inter-thread communication
 
 Inter-thread communication refers to mechanisms that allow threads to coordinate execution, share data 
 safely, and signal events without busy-waiting or race conditions.
@@ -3137,7 +3248,7 @@ t.join();
 
 -----------------------------
 
-# Q-54 What are some key points to remember when using virtual threads
+# Q - What are some key points to remember when using virtual threads
 
 **Key Points:**
 
@@ -3199,13 +3310,13 @@ This is the most common "gotcha" in Virtual Threads.
 
 -----------------------------
 
-# Q-55 Explain the evolution of concurrency API in Java
+# Q - Explain the evolution of concurrency API in Java
 
 ![alt text](../images/evolution-of-concurrency-API-java.png)
 
 -----------------------------
 
-# Q-56 What is CopyOnWriteArrayList and Why is it named CopyOnWriteArrayList, why don't they use something like Collections.synchronizedList()?
+# Q - What is CopyOnWriteArrayList and Why is it named CopyOnWriteArrayList, why don't they use something like Collections.synchronizedList()?
 
 ## CopyOnWriteArrayList
 
@@ -3267,7 +3378,7 @@ synchronized (syncList) {
 
 -----------------------------
 
-# Q-57 Which threads are guaranteed to be created when a Java program starts?
+# Q - Which threads are guaranteed to be created when a Java program starts?
 
 The only thread that is guaranteed to be created when a Java program starts is the `main` thread.
 
@@ -3296,7 +3407,7 @@ Therefore, they are **not guaranteed**.
 
 -----------------------------
 
-# Q-58 What is the diff b/w JDK and JRE?
+# Q - What is the diff b/w JDK and JRE?
 
 The Hierarchy
 
@@ -3308,7 +3419,7 @@ The Hierarchy
 
 -----------------------------
 
-# Q-59 Will the following code compile?
+# Q - Will the following code compile?
 
 ```java
 byte myByte = 'a';
@@ -3381,7 +3492,7 @@ Here is the general rule:
 
 -----------------------------
 
-# Q-60 Do `double` and `float` type overflow?
+# Q - Do `double` and `float` type overflow?
 
 Integers **wrap around**, while Floats **explode to Infinity**.
 
@@ -3411,7 +3522,7 @@ double result = max * 1.1;
 
 -----------------------------
 
-# Q-61 What is shadowing?
+# Q - What is shadowing?
 
 Shadowing happens when a variable declared in a inner scope has the same name as a variable in an outer scope.
 
@@ -3460,7 +3571,7 @@ So inside the loop:
 
 -----------------------------
 
-# Q-62 var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?
+# Q - var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?
 
 Since Java 10, you can use `var` to let the compiler infer the type:
 
@@ -3491,7 +3602,7 @@ as a normal name.
 
 -----------------------------
 
-# Q-63 Will the following code compile?
+# Q - Will the following code compile?
 
 ```java
 var name = null;
@@ -3501,7 +3612,7 @@ No. because the type of the `name` variable can't be inferred.
 
 -----------------------------
 
-# Q-64 Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword
+# Q - Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword
 
 ```java
 // cannot use var declaration in a compound statement
@@ -3551,54 +3662,11 @@ class var{
 
 We can use **LVTI only for local variables in methods, code blocks and loop variables**.
 
------------------------------
 
-# Q-65 What is string interning?
-
-String interning is a JVM optimization in which identical String values are stored only once in 
-a special pool called the String Pool. When a string literal is created, the JVM checks the pool; 
-if an equivalent string already exists, a reference to the existing string is returned instead of 
-creating a new object.
-
-## Key Points to Mention
-
-### 1. String literals are automatically interned
-
-```java
-String s1 = "java";
-String s2 = "java";
-```
-
-* Both `s1` and `s2` reference the same object from the String Pool.
+---
 
 
-### 2. new String() always creates a new object
-
-```java
-String s3 = new String("java");
-```
-
-* If `"java"` isn't in the pool yet, this line add a new string to the pool 
-* a new object on the Heap.
-
-### 3. Manual interning using intern()
-
-```java
-String s4 = s3.intern();
-```
-
-* Returns the canonical (pooled) instance of the string
-
-
-## Purpose of interning
-
-* Saves memory
-* Enables fast reference comparisons (`==`)
-* Useful for frequently repeated strings
-
------------------------------
-
-# Q-66 Will the following statement adds string to the string pool?
+# Q - Will the following statement adds string to the string pool?
 
 ```java
 String s1 = "hello";
@@ -3638,7 +3706,7 @@ String s2 = s1 + " world";  // Compiler treats s1 as "hello"
 
 -----------------------------
 
-# Q-67 What happens when we concatenate string with different type?
+# Q - What happens when we concatenate string with different type?
 
 When a String is concatenated with another operand using `+`, Java converts the 
 other operand to a String. 
@@ -3717,7 +3785,7 @@ No `NullPointerException`
 
 -----------------------------
 
-# Q-68 What is the difference b/w `equals()` and `equalsIgnoreCase()` method?
+# Q - What is the difference b/w `equals()` and `equalsIgnoreCase()` method?
 
 The primary difference is case sensitivity.
 
@@ -3737,7 +3805,7 @@ The primary difference is case sensitivity.
 
 -----------------------------
 
-# Q-69 What is the difference b/w `isEmpty()` and `isBlank()` method of String object?
+# Q - What is the difference b/w `isEmpty()` and `isBlank()` method of String object?
 
 | Feature / Condition                      | isEmpty()            | isBlank()           |
 |:-----------------------------------------|:---------------------|:--------------------|
@@ -3747,7 +3815,7 @@ The primary difference is case sensitivity.
 
 -----------------------------
 
-# Q-70 Diff b/w `String`, `StringBuilder` and `StringBuffer`
+# Q - Diff b/w `String`, `StringBuilder` and `StringBuffer`
 
 | Feature         | String                            | StringBuilder                       | StringBuffer                       |
 |-----------------|-----------------------------------|-------------------------------------|------------------------------------|
@@ -3762,7 +3830,7 @@ The primary difference is case sensitivity.
 
 -----------------------------
 
-# Q-71 What is hashCode() and how It's related to equals()?
+# Q - What is hashCode() and how It's related to equals()?
 
 The `hashCode()` method returns an integer that acts as a **category label** or 
 "bucket address" for an object. It is designed to speed up lookups in 
@@ -3818,7 +3886,7 @@ If you override `equals()`, you **MUST** override `hashCode()`. Breaking this co
 
 
 
-# Q-73 Does the finally block execute if there is a return statement inside try or catch?
+# Q - Does the finally block execute if there is a return statement inside try or catch?
 
 Consider the following example:
 
@@ -3865,7 +3933,7 @@ Yes. Regardless of whether the try or catch block completes normally, throws an 
 or executes a `return` statement, the finally block always executes before the method returns.
 It is typically used for cleanup tasks like closing connections.
 
-# Q-74 Explain the hierarchy of exceptions in Java?
+# Q - Explain the hierarchy of exceptions in Java?
 
 ```text
 java.lang.Throwable
@@ -3952,7 +4020,7 @@ you should fix your code so they don't happen.
   * `ArithmeticException` (Dividing by zero).
   * `ArrayIndexOutOfBoundsException`.
 
-# Q-75 Explain collection framework hierarchy?
+# Q - Explain collection framework hierarchy?
 
 **1\. Top-Level Hierarchy**
 
@@ -4131,7 +4199,7 @@ Legend:
 * I = Interface
 * C = Concrete Implementation
 
-# Q-76 Explain the evolution from SortedSet (Java 1.2) to NavigableSet (Java 6). Why was a new interface introduced instead of extending SortedSet, given that TreeSet already existed?
+# Q - Explain the evolution from SortedSet (Java 1.2) to NavigableSet (Java 6). Why was a new interface introduced instead of extending SortedSet, given that TreeSet already existed?
 
 ## 1. SortedSet
 
@@ -4305,7 +4373,7 @@ backward compatibility. `TreeSet` was then updated to implement `NavigableSet`.
 
 
 
-# Q-77 What is Exception chaining?
+# Q - What is Exception chaining?
 
 Exception chaining is a mechanism in Java where one exception is wrapped inside another exception.
 This allows a method to translate a low-level exception into a higher-level exception while 
@@ -4362,7 +4430,7 @@ Caused by: java.sql.SQLException: Connection failure
 ```
 
 
-# Q-79 What is CharSequence?
+# Q - What is CharSequence?
 
 `CharSequence` is the root interface that defines a readable sequence of characters.
 
@@ -4401,7 +4469,7 @@ print(CharBuffer.wrap("Hey"));  // CharBuffer
 
 All of these work because they implement CharSequence.
 
-# Q-80 What is serialVersionUID?
+# Q - What is serialVersionUID?
 
 `serialVersionUID` is a unique identifier used during Java serialization and deserialization to ensure that the 
 sender and receiver of a serialized object have compatible class definitions.
@@ -4498,7 +4566,7 @@ No issue - methods are not serialized.
 
 
 
-# Q-81 How to prevent serialization of a field?
+# Q - How to prevent serialization of a field?
 
 To prevent a field from being serialized in Java, you have two primary options
 depending on the nature of the field.
@@ -4531,7 +4599,7 @@ class User implements Serializable {
 
 
 
-# Q-82 How Java resolves method conflicts from multiple interfaces?
+# Q - How Java resolves method conflicts from multiple interfaces?
 
 Java resolves method conflicts from multiple interfaces using well-defined rules 
 introduced primarily with default methods (Java 8).
@@ -4706,7 +4774,7 @@ Interface
 
 
 
-# Q-83 Why `Object.clone()` is defined as protected?
+# Q - Why `Object.clone()` is defined as protected?
 
 Java designers did not want cloning to be available for all classes automatically.
 
@@ -4752,14 +4820,14 @@ class A implements Cloneable {
 
 
 
-# Q-84 What are the advantages of String being immutable?
+# Q - What are the advantages of String being immutable?
 
 1. Thread safety
 2. Memory re-use
 
 
 
-# Q-85 What's the default implementation of `Object.equals()` method?
+# Q - What's the default implementation of `Object.equals()` method?
 
 The default implementation of `equals()` in `Object` performs a reference comparison, meaning:
 
@@ -4776,7 +4844,7 @@ Both check identity, not content.
 
 
 
-# Q-86 What are Fail Fast and Fail Safe Iterators?
+# Q - What are Fail Fast and Fail Safe Iterators?
 
 ## Fail-Fast Iterators
 
@@ -4817,7 +4885,7 @@ Key points:
 
 
 
-# Q-87 What is Spurious Wakeup?
+# Q - What is Spurious Wakeup?
 
 A spurious wakeup occurs when a thread waiting on `wait()` or `await()` wakes up without any 
 corresponding `notify`, `notifyAll`, or `signal` call. It happens due to JVM and OS-level scheduling 
@@ -4826,7 +4894,7 @@ and synchronization optimizations, which is why waiting conditions must always b
 
 
 
-# Q-88 What is Comparable interface?
+# Q - What is Comparable interface?
 
 A class implements Comparable when it wants to define its **natural ordering**.
 
@@ -4849,7 +4917,7 @@ The `compareTo()` method returns:
 ---
 
 
-# Q-89 What is class level lock?
+# Q - What is class level lock?
 
 A class-level lock is a lock associated with the `java.lang.Class` object, 
 not with any instance of the class.
@@ -4904,7 +4972,7 @@ Now:
 
 Only one thread in the entire JVM can execute `increment()` at a time.
 
-# Q-90 How threads communicate using wait() and notify()?
+# Q - How threads communicate using wait() and notify()?
 
 Here is an example:
 
@@ -5631,7 +5699,7 @@ This ensures:
 
 This solves the starvation issue you observed earlier.
 
-# Q-91 What is shutdown hook?
+# Q - What is shutdown hook?
 
 A Shutdown Hook is a special thread that you register with the Java Virtual Machine (JVM). 
 The JVM promises to run this thread just before it shuts down.
@@ -5682,7 +5750,7 @@ If the JVM is killed violently, the hook is skipped.
 2. `kill -9` (Force Kill): The OS rips the process from memory immediately.
 3. Power Failure: Obviously.
 
-# Q-92 Why default methods were introduced in interfaces?
+# Q - Why default methods were introduced in interfaces?
 
 The primary reason default methods were introduced in Java 8 was Backward Compatibility.
 
@@ -5776,10 +5844,10 @@ class MyButtonHandler implements MouseListener {
 }
 ```
 
-# Q-93 How to create immutable collections in Java?
+# Q - How to create immutable collections in Java?
     Collections.toUnmodifieableList()
 
-# Q-94 Can a class implement two interface with the same default method?
+# Q - Can a class implement two interface with the same default method?
 
 Yes, a class can implement two interfaces with the same default method.
 
@@ -5846,7 +5914,7 @@ ignored, and there is no ambiguity error.
 
 
 
-# Q-95 What is AutoCloseable interface?
+# Q - What is AutoCloseable interface?
 
 `AutoCloseable` is a functional interface introduced in Java 7 that allows an object to be 
 used in the try-with-resources statement.
@@ -5915,7 +5983,7 @@ The Solution (`AutoCloseable` way): If both the `try` block and the `close()` me
 
 
 
-# Q-96 Difference between Optional.of() and Optional.ofNullable()?
+# Q - Difference between Optional.of() and Optional.ofNullable()?
 
 The difference lies in how they handle `null` values.
 
@@ -5975,13 +6043,13 @@ Summary: When to use what?
 
 
 
-# Q-97 How to manually trigger the garbage collection process?
+# Q - How to manually trigger the garbage collection process?
 
 Call `System.gc()`
 
 
 
-# Q-98 What are some Garbage collection algorithms?
+# Q - What are some Garbage collection algorithms?
 
 Here are the main Garbage Collection algorithms in Java, categorized by their 
 primary goal (Throughput vs. Latency).
@@ -6056,7 +6124,7 @@ in Java 14**. Do not recommend it for new projects.
 
 
 
-# Q-99 What are sealed classes?
+# Q - What are sealed classes?
 
 Sealed Classes (introduced in Java 17) allow a class or interface to strictly restrict which 
 other classes may extend or implement it.
@@ -6108,7 +6176,7 @@ String result = switch (shape) {
 
 
 
-# Q-100 Why can't we override private and static methods?
+# Q - Why can't we override private and static methods?
 
 ## Why you cannot override private methods
 
@@ -6143,7 +6211,7 @@ called Method Hiding.
 If you look at the parent reference, you still see the parent's method.
 
 
-# Q-101 Does finally always execute in Java?
+# Q - Does finally always execute in Java?
 
 Not in the following cases:
 
@@ -6153,7 +6221,7 @@ Not in the following cases:
 
 
 
-# Q-102 What are methods provided by the Object class?
+# Q - What are methods provided by the Object class?
 
 `Object` is the root class of all Java classes. Every class implicitly inherits its methods.
 
@@ -6174,13 +6242,13 @@ Not in the following cases:
 
 
 
-# Q-103 Difference between fail-fast and fail-safe iterators?
+# Q - Difference between fail-fast and fail-safe iterators?
 
-# Q-104 Is Java Pass by Value or Pass by Reference?
+# Q - Is Java Pass by Value or Pass by Reference?
 
 Pass by value
 
-# Q-105 What if a method in child class is more restricted than a parent class?
+# Q - What if a method in child class is more restricted than a parent class?
 
 It causes a **Compile Time Error**.
 
@@ -6195,7 +6263,7 @@ When you override a method, you cannot make the access modifier more restrictive
 * ✅ You CAN make it less restrictive (more visible).
 * ❌ You CANNOT make it more restrictive (less visible).
 
-# Q-106 What is Covariant return type?
+# Q - What is Covariant return type?
 
 Covariant Return Type is a feature (introduced in Java 5) that allows an overriding method to return 
 a subclass (narrower type) of the return type declared in the parent method.
@@ -6247,7 +6315,7 @@ It saves you from doing annoying type-casting.
 This relates directly to the Liskov Substitution Principle: 
 > The Child can provide more specific guarantees than the Parent, but never less.
 
-# Q-107 Is default keyword one of the access modifier?
+# Q - Is default keyword one of the access modifier?
 
 No, the `default` keyword is NOT an access modifier keyword.
 
@@ -6302,7 +6370,7 @@ switch(day) {
 
 ---
 
-# Q-108 Can you provide default hashcode() implementation in the interface?
+# Q - Can you provide default hashcode() implementation in the interface?
 
 No, you cannot provide a default implementation for methods from the 
 `Object` class (like `hashCode()`, `toString()`, or `equals()`) inside an interface.
@@ -6356,7 +6424,7 @@ interface MyInterface {
 ----
 
 
-# Q-109 How default methods in the interface cope up with the diamond problem?
+# Q - How default methods in the interface cope up with the diamond problem?
 
 The Diamond Problem occurs when a class implements two interfaces that both 
 have a `default` method with the exact same name and signature.
@@ -6408,7 +6476,7 @@ class MyClass implements A, B {
 }
 ```
 
-# Q-110 Why static methods inside interface were introduced in Java?
+# Q - Why static methods inside interface were introduced in Java?
 
 The primary reason static methods were introduced in Java 8 interfaces was to allow 
 utility methods to live directly inside the interface, eliminating the need for separate helper classes.
@@ -6501,7 +6569,7 @@ public class Main {
 }
 ```
 
-# Q-111 What is Predicate joining?
+# Q - What is Predicate joining?
 
 Predicate Joining (often called Predicate Chaining) is a technique in Java 8 used 
 to combine multiple Predicate conditions into a single, complex logical test.
@@ -6558,7 +6626,7 @@ public class PredicateJoinExample {
 }
 ```
 
-# Q-112 What is Functional joining?
+# Q - What is Functional joining?
 
 Functional Joining (or Function Chaining) is a feature of the `Function<T, R>` interface
 in Java 8. It allows you to combine multiple functions into a single processing pipeline.
@@ -6614,7 +6682,7 @@ public class FunctionJoinExample {
 | compose | 	f1.compose(f2) | 	f2 → f1         | 	f1(f2(x))       |
 
 
-# Q-113 What is Consumer chaining?
+# Q - What is Consumer chaining?
 
 Consumer Chaining is the ability to combine multiple Consumer operations 
 so they run one after another on the same input.
@@ -6671,12 +6739,12 @@ public class ConsumerChainExample {
 }
 ```
 
-# Q-114 How to use chaining with Supplier?
+# Q - How to use chaining with Supplier?
 
 Supplier can't be  chained as it takes no input.
 
 
-# Q-115 Is runtime polymorphism is applicable for fields also?
+# Q - Is runtime polymorphism is applicable for fields also?
 
 No, Runtime Polymorphism does NOT apply to fields (variables). It only applies to methods.
 
@@ -6742,10 +6810,10 @@ public class FieldTest {
 }
 ```
 
-# Q-116 Do we have access to `this` the lambda?
+# Q - Do we have access to `this` the lambda?
 
 
-# Q-117 Explain JVM Architecture?
+# Q - Explain JVM Architecture?
 
 ![jvm-architecture](../images/jvm-architecture.png)
 <br>
@@ -6968,7 +7036,7 @@ What it does
 8. Program finishes 🎉
 
 
-# Q-118 - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.
+# Q - - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.
 
 ```text
 Heap
@@ -7175,7 +7243,7 @@ public void process() {
 
 --
 
-# Q-119 Explain Minor GC vs Major GC vs Full GC
+# Q - Explain Minor GC vs Major GC vs Full GC
 
 First: one mental picture (lock this in). Think of the Heap as a house:
 
@@ -7374,7 +7442,7 @@ public static void main(String[] args) {
 | Full GC  | Entire Heap | Very Slow | Longest | High   |
 
 
-# Q-120 What is Stop-The-World(STW) problem?
+# Q - What is Stop-The-World(STW) problem?
 
 **What STW really means (no jargon)**
 > STW means: the JVM temporarily pauses ALL your application code so it can safely check memory.
@@ -7445,7 +7513,7 @@ STW = "Everyone freeze for 5 ms"
 * Full GC → long STW (bad)
 
 
-# Q-121 What is Allocation Failure?
+# Q - What is Allocation Failure?
 
 What it means (plain English)
 
@@ -7486,7 +7554,7 @@ public static void main(String[] args) {
 👉 This is normal and expected
 
 
-# Q-122 What is Promotion Failure?
+# Q - What is Promotion Failure?
 
 JVM tried to move surviving objects from Young Gen to Old Gen, but Old Gen had no space. 
 That's a Promotion Failure.
@@ -7694,7 +7762,7 @@ So after Full GC:
 > 
 
 
-# Q-123 Explain working of GC Roots?
+# Q - Explain working of GC Roots?
 
 GC Roots are the starting points from which the Garbage Collector decides what is alive.
 
@@ -7996,7 +8064,7 @@ Anything it cannot reach goes.
 That's all.
 
 
-# Q-124 Explain the working of G1 Garbage Collector
+# Q - Explain the working of G1 Garbage Collector
 
 ## What is G1 GC?
 
@@ -8317,10 +8385,10 @@ Result:
 > 
 
 
-# Q-125 What new features were introduced
+# Q - What new features were introduced
 
 
-# Q-126 Give a walk-through of the new features introduced since Java 8?
+# Q - Give a walk-through of the new features introduced since Java 8?
 
 This is a massive topic. To ace this in an interview, do **not** list every minor 
 change. Instead, group them by the major **LTS (Long Term Support)** versions that 
@@ -8500,21 +8568,21 @@ if (obj instanceof Point(int x, int y)) {
 3. **Java 21** is revolutionizing concurrency with **Virtual Threads**, which allows us to 
    write high-throughput applications without the complexity of Reactive programming."
 
-# Q-128 What is CAS (Compare-And-Swap)?
+# Q - What is CAS (Compare-And-Swap)?
 
-# Q-132 Explain Soft vs. Weak vs. Phantom References?
+# Q - Explain Soft vs. Weak vs. Phantom References?
 
-# Q-131 What is Escape Analysis?
+# Q - What is Escape Analysis?
 
-# Q-51 What is StampedLock and how is it different from ReentrantReadWriteLock?
+# Q - What is StampedLock and how is it different from ReentrantReadWriteLock?
 
-# Q-52 What is LongAdder and why is it faster than AtomicInteger?
+# Q - What is LongAdder and why is it faster than AtomicInteger?
 
-# Q-53 What is Structured Concurrency (Java 21 Preview)?
+# Q - What is Structured Concurrency (Java 21 Preview)?
 
-# Q-133 How has Java 8 changed the Strategy Pattern?
+# Q - How has Java 8 changed the Strategy Pattern?
 
-# Q-134 How do you implement the Singleton Pattern safely? (Enum vs Double-Check)
+# Q - How do you implement the Singleton Pattern safely? (Enum vs Double-Check)
 
 # Q - Java has automatic Garbage Collection, which is supposed to manage memory for us. However, Memory Leaks are still a very real problem in Java applications.
 
@@ -9509,7 +9577,7 @@ If asked to explain G1GC, use this structure:
 ---
 
 
-# Q-9 What is a heap dump? Why do we use it? Have you ever taken a heap dump?
+# Q - What is a heap dump? Why do we use it? Have you ever taken a heap dump?
 
 This is a quintessential production troubleshooting question.
 
