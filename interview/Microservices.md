@@ -1187,7 +1187,7 @@ class PaymentProcessor {
 
 **Definition:** Subtypes must be **substitutable** for their base types without breaking the program.
 
-* _"If the parent class can do X, the child class MUST also be able to do X."_
+* _"If the parent class can do X, the child class MUST also be able to do X and much more"_
 
 ### The Bad Example (The "Fake" Implementation)
 
