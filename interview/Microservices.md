@@ -25,6 +25,7 @@
     * [B. Log Aggregation](#b-log-aggregation)
     * [C. Health Check API](#c-health-check-api)
     * [Summary for the Interview (The "Must-Haves")](#summary-for-the-interview-the-must-haves)
+  * [References](#references)
 * [Q - When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?](#q---when-should-i-use-an-interface-vs-an-abstract-class-while-designing-a-file-uploader-with-multiple-implementations-eg-s3-gcp)
   * [Use an INTERFACE when the goal is “capability” or “contract”](#use-an-interface-when-the-goal-is-capability-or-contract)
   * [When to use ABSTRACT CLASS instead](#when-to-use-abstract-class-instead)
@@ -270,6 +271,24 @@
     * [DELETE – Idempotent](#delete--idempotent)
     * [POST – Not idempotent](#post--not-idempotent)
     * [PATCH – Conditionally idempotent](#patch--conditionally-idempotent)
+* [Q - Mention a few Deployment strategies](#q---mention-a-few-deployment-strategies)
+  * [1. Blue-Green Deployment (The "Instant Switch")](#1-blue-green-deployment-the-instant-switch)
+  * [2. Canary Deployment (The "Risk Averse")](#2-canary-deployment-the-risk-averse)
+  * [3. Rolling Deployment (The "K8s Default")](#3-rolling-deployment-the-k8s-default)
+  * [4. Feature Toggles (The "Senior Dev" Strategy)](#4-feature-toggles-the-senior-dev-strategy)
+  * [Summary Table for Interview](#summary-table-for-interview)
+* [Q - Explain the deployment process you use in the previous project](#q---explain-the-deployment-process-you-use-in-the-previous-project)
+  * [**The Interview Answer: "The Release Train Strategy"**](#the-interview-answer-the-release-train-strategy)
+  * [1. The Architecture Stack](#1-the-architecture-stack)
+  * [2. The Logic: "The Three-Phase Build"](#2-the-logic-the-three-phase-build)
+    * [Phase 1: The Foundation (Sequential & Parallel)](#phase-1-the-foundation-sequential--parallel)
+    * [Phase 2: The Fan-Out (Parallel)](#phase-2-the-fan-out-parallel)
+    * [Phase 3: The Deployment (Kubernetes & Helm)](#phase-3-the-deployment-kubernetes--helm)
+  * [3. Why we chose AWS CodeArtifact over Nexus](#3-why-we-chose-aws-codeartifact-over-nexus)
+  * [4. Summary Checklist (For the Interviewer)](#4-summary-checklist-for-the-interviewer)
+* [Q - Follow-up question from the interviewer -  What if some logs into the k8s cluster and manually scaled replica?](#q---follow-up-question-from-the-interviewer---what-if-some-logs-into-the-k8s-cluster-and-manually-scaled-replica)
+  * [The Problem: The "Push" Model (Jenkins)](#the-problem-the-push-model-jenkins)
+  * [The Solution: The "Pull" Model (GitOps with ArgoCD)](#the-solution-the-pull-model-gitops-with-argocd)
 <!-- TOC -->
 
 # Q - Types of caches
@@ -573,6 +592,10 @@ If asked **"What patterns have you used?"**, pick 3-4 you are comfortable with:
 >
 >
 
+
+## References
+
+* https://www.openlegacy.com/blog/microservices-architecture-patterns/
 
 ---
 
@@ -4102,3 +4125,232 @@ Repeating:
 * email remains `a@b.com`
 
 ✔ This specific PATCH is idempotent
+
+---
+
+# Q - Mention a few Deployment strategies
+
+---
+
+## 1. Blue-Green Deployment (The "Instant Switch")
+
+**Concept:** You have two identical environments: **Blue** (Live/Prod) and **Green** (Idle/Staging).
+
+1. Current users are on **Blue**.
+2. You deploy the new version (V2) to **Green**. You test it thoroughly.
+3. **The Switch:** You flip the Load Balancer/Router to point to **Green**.
+4. **Rollback:** If Green crashes, you instantly flip the switch back to **Blue**.
+
+
+* **Pros:** Instant rollback, zero downtime, testing in actual prod environment.
+* **Cons:** **Double Cost** (you need 2x the servers/pods).
+* **Best For:** Critical systems where downtime is unacceptable (e.g., Banking).
+
+---
+
+## 2. Canary Deployment (The "Risk Averse")
+
+**Concept:** Like a "canary in a coal mine." You expose the new version to a small subset of users to test safety.
+
+1. Deploy V2 to a small % of traffic (e.g., **5%**).
+2. **Monitor:** Check logs/metrics. Are error rates rising?
+3. **Ramp Up:** If safe, increase to 10%  25%  50%  100%.
+4. **Rollback:** If errors spike at 5%, you kill V2 immediately, affecting only a few users.
+
+
+* **Pros:** Lowest risk of breaking the system for everyone. Cheaper than Blue-Green.
+* **Cons:** Complex to set up (needs advanced Load Balancer like Istio/Linkerd).
+* **Best For:** High-traffic B2C apps (Facebook, Netflix).
+
+---
+
+## 3. Rolling Deployment (The "K8s Default")
+
+**Concept:** You replace instances (Pods) one by one.
+
+1. You have 3 Pods running V1.
+2. K8s starts **one** Pod of V2.
+3. Once V2 is "Ready", K8s kills **one** Pod of V1.
+4. Repeat until all are V2.
+
+
+* **Pros:** **Zero downtime**, no extra infrastructure cost (cheap).
+* **Cons:** **Slow Rollback.** If V2 has a bug, it takes time to redeploy V1. During the deployment, some users see V1 and some see V2 (inconsistency).
+* **Best For:** Standard microservices where instant rollback isn't critical. **(This is likely what your previous project used if you just ran `helm upgrade`).**
+
+---
+
+## 4. Feature Toggles (The "Senior Dev" Strategy)
+
+**Concept:** You deploy the code, but you hide it behind a standard `if/else` block.
+
+* **Code:** `if (featureFlags.isOn("new-ui")) { return newUI(); } else { return oldUI(); }`
+* **Strategy:** You deploy V2 to **100% of servers**, but the feature is "Off" in the database.
+* **Release:** You log into a dashboard (e.g., LaunchDarkly) and turn the flag "On" for specific users or everyone.
+* **Pros:** Decouples **Deployment** (moving code) from **Release** (showing features).
+* **Cons:** Technical debt (you have to go back and remove the `if/else` later).
+
+---
+
+## Summary Table for Interview
+
+| Strategy          | Cost      | Rollback Speed | Complexity    | Best Use Case               |
+|-------------------|-----------|----------------|---------------|-----------------------------|
+| **Rolling**       | Low       | Slow           | Low (Default) | Standard Apps               |
+| **Blue-Green**    | High (2x) | **Instant**    | Medium        | Critical Banking/Finance    |
+| **Canary**        | Low       | Fast           | **High**      | High-Scale User Apps        |
+| **Feature Flags** | Low       | Instant        | Medium        | Testing new features safely |
+
+**Recommendation:**
+
+If they ask what you used, stick to **Rolling Deployment** (via Helm/K8s) because 
+it fits your "Release Train" story perfectly.
+
+> *"We primarily used the standard **Rolling Update** strategy provided natively by 
+> Kubernetes Deployment objects to ensure zero downtime without the cost overhead of Blue-Green."*
+> 
+> 
+> 
+
+
+---
+
+
+# Q - Explain the deployment process you use in the previous project
+
+
+## **The Interview Answer: "The Release Train Strategy"**
+
+**The Hook:**
+
+"In my previous project, we managed about 10 interdependent microservices. 
+To avoid compatibility issues—where Service A works but Service B fails because 
+of a mismatched library—we moved away from ad-hoc deployments to a **Centralized Release Train Strategy**."
+
+---
+
+## 1. The Architecture Stack
+
+"We designed a cloud-native CI/CD ecosystem to support this:"
+
+* **Orchestration:** Jenkins (Master-Slave architecture).
+* **Build Agents:** Ephemeral **Docker Containers** (ensuring a clean Java 21 environment every time).
+* **Artifact Management:**
+    * **JARs:** Stored in **AWS CodeArtifact** (Fully managed Maven repo).
+    * **Docker Images:** Stored in **AWS ECR** (Elastic Container Registry).
+
+* **Deployment:** **AWS EKS** (Kubernetes) managed via **Helm Charts**.
+
+--
+
+## 2. The Logic: "The Three-Phase Build"
+
+"The core of our strategy was a Master Pipeline (internal nickname: *'Bob the Builder'*) that 
+orchestrated the release in distinct phases to handle shared dependencies and deployment."
+
+### Phase 1: The Foundation (Sequential & Parallel)
+
+"We had **multiple shared libraries** (`common-dto`, `common-security`, `common-utils`) that 
+contained our core logic. All other services depended on these."
+
+* **The Trigger:** The Release Manager triggers the Master Pipeline, which 
+   generates a **Global Version Number** (e.g., `REL-2.5.0`).
+* **The Parallel Build:** The pipeline used a `parallel` block to build and publish all shared libraries simultaneously.
+    * *Example:* `common-dto` and `common-security` are built at the same time.
+
+* **The Publish:** It runs `mvn deploy` to push the JARs to **AWS CodeArtifact**.
+* **The Gate:** Crucially, we used `wait: true` after this block. The pipeline **pauses** here. It does not 
+  proceed until **ALL** base artifacts are successfully available in CodeArtifact.
+
+---
+
+### Phase 2: The Fan-Out (Parallel)
+
+"Once the foundation was solid, we triggered the microservices."
+
+* **Parallel Execution:** The Master Pipeline used a second `parallel` block to trigger the 
+   build jobs for all 10 microservices (Order, Payment, Inventory, etc.) simultaneously.
+* **Dependency Resolution:** Each service pulled the specific `common-dto:2.5.0` and `common-security:2.5.0` JARs 
+  from **AWS CodeArtifact**. Because we waited in Phase 1, we never had 'Missing Dependency' errors.
+* **Containerization:**
+    * We built the Spring Boot Docker image.
+    * We tagged it with the same Global Version (`myapp:REL-2.5.0`).
+    * We pushed it to **AWS ECR** with **Immutable Tags** enabled (to prevent overwrites).
+
+---
+
+### Phase 3: The Deployment (Kubernetes & Helm)
+
+"This is where we moved from 'Building' to 'Running'. We treated our Kubernetes manifests as code."
+
+* **Helm Strategy:** We used **Helm** to template our K8s manifests.
+* **Tag Injection:** The pipeline ran a command to update the `image.tag` in our Helm `values.yaml` with 
+  the new version (`REL-2.5.0`).
+* **The Rollout:** It executed `helm upgrade --install` against our **AWS EKS** cluster.
+    * *Command:* `helm upgrade order-service ./charts/order-service --set image.tag=REL-2.5.0`
+
+* **Verification:** The pipeline waited for the `kubectl rollout status` to return "Success". 
+  If the Liveness Probes failed, it automatically issued a `helm rollback`.
+
+---
+
+## 3. Why we chose AWS CodeArtifact over Nexus
+
+"We specifically chose **AWS CodeArtifact** instead of a self-hosted Nexus because
+we wanted a serverless solution. It integrated seamlessly with our IAM roles, meaning 
+our Jenkins agents didn't need hardcoded credentials—they just used their AWS instance 
+profile to pull/push artifacts."
+
+---
+
+## 4. Summary Checklist (For the Interviewer)
+
+If they ask for a summary, give them these 5 bullet points:
+
+1. **Orchestration:** A Master Jenkins Pipeline using the **Release Train** pattern.
+2. **Dependency Management:** A **Layered Build** (Multiple Shared Libs first  Microservices second) to
+    guarantee consistency.
+3. **Artifacts:** We used **AWS CodeArtifact** for Maven dependencies and **ECR** for Docker images.
+4. **Deployment:** We used **Helm** to deploy to **EKS**, injecting the version tag dynamically.
+5. **Consistency:** A **Global Version ID** passed to all jobs ensured that the entire platform 
+    was synchronized on the same release tag.
+
+
+---
+
+
+# Q - Follow-up question from the interviewer -  What if some logs into the k8s cluster and manually scaled replica?
+
+This is a fantastic "Senior-Level" follow-up question. It touches on the core weakness 
+of CI/CD pipelines (Jenkins) versus **GitOps**.
+
+Here is the answer: **"Yes, that creates Configuration Drift, and 
+Jenkins cannot fix it until the next deployment."**
+
+## The Problem: The "Push" Model (Jenkins)
+
+In the architecture we just designed, Jenkins **pushes** changes to Kubernetes using `helm upgrade`.
+
+* **Scenario:** You deploy 3 replicas.
+* **The Drift:** A developer SSHs in and runs `kubectl scale --replicas=10`.
+* **The Gap:** Jenkins has no idea this happened. It is asleep. The cluster is now 
+   running 10 pods, but Git says 3.
+* **The Fix:** The drift persists **until the next time someone triggers the pipeline**. When the 
+   pipeline runs `helm upgrade` again, it will force the count back to 3.
+
+---
+
+## The Solution: The "Pull" Model (GitOps with ArgoCD)
+
+To solve this permanently, modern architectures use **ArgoCD** (or Flux).
+
+**How it works:**
+
+1. **The Agent:** You install ArgoCD inside your EKS cluster.
+2. **The Watcher:** It constantly compares the **Live State** (Cluster) against the **Desired State** (Git Repo).
+3. **Self-Healing:** If it detects a drift (e.g., someone manually scaled replicas), ArgoCD immediately 
+    sees the mismatch and **automatically reverts it** back to the Git configuration.
+
+---
+
+
