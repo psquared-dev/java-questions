@@ -578,14 +578,12 @@ CQRS is "sane" when:
 
 # Q-6 Explain Saga pattern
 
-Here is the tightened, interview-ready explanation of the **Saga Pattern**, mapped end-to-end.
-
 ## Saga Pattern: Distributed Transactions
 
 **The Problem:**
 
-In a Microservices architecture (Database-per-Service), you cannot use a single 
-ACID database transaction that spans multiple services. If a business 
+In a Microservices architecture we often use database-per-service model. 
+Hence, a single transaction cannot span multiple services. If a business 
 process (like "Book Trip") spans 3 services, and the last one fails, you cannot 
 simply `ROLLBACK` the first two.
 
@@ -595,6 +593,7 @@ A **Saga** is a sequence of **local transactions**. Each service updates its
 own database and publishes an event/message to trigger the next step.
 
 **The Undo Button (Compensating Transactions):**
+
 If a step fails, the Saga executes **Compensating Transactions** to undo the 
 changes made by the previous steps.
 
