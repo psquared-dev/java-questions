@@ -199,16 +199,14 @@ Here is the golden rule of software design: **You want Low Coupling and High Coh
 This is a massive topic. To ace this in an interview, do not just list them. **Categorize them** 
 based on the problem they solve.
 
-Here are the top 5 categories of patterns you must know, explained from the ground up.
+Here are the top 4 categories of patterns you must know, explained from the ground up.
 
 1. Decomposition Patterns
 2. Integration Patterns
 3. Database Patterns
 4. Resilience Patterns
 
-
 ---
-
 
 ## 1. Decomposition Patterns (How to break the Monolith)
 
