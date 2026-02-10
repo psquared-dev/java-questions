@@ -57,6 +57,23 @@
   * [2. The Bad Code (The Trap)](#2-the-bad-code-the-trap)
   * [3. The Problem (The Math)](#3-the-problem-the-math)
   * [4. The Solution: "JOIN FETCH"](#4-the-solution-join-fetch)
+* [Q-10 Explain SOLID](#q-10-explain-solid)
+  * [S - Single Responsibility Principle (SRP)](#s---single-responsibility-principle-srp)
+    * [The Bad Example (The "Swiss Army Knife")](#the-bad-example-the-swiss-army-knife)
+    * [The Good Example (The Specialist)](#the-good-example-the-specialist)
+  * [O - Open/Closed Principle (OCP)](#o---openclosed-principle-ocp)
+    * [The Bad Example (The "If-Else" Hell)](#the-bad-example-the-if-else-hell)
+    * [The Good Example (Polymorphism)](#the-good-example-polymorphism)
+  * [L - Liskov Substitution Principle (LSP)](#l---liskov-substitution-principle-lsp)
+    * [The Bad Example (The "Fake" Implementation)](#the-bad-example-the-fake-implementation)
+    * [The Good Example](#the-good-example)
+  * [I - Interface Segregation Principle (ISP)](#i---interface-segregation-principle-isp)
+    * [The Bad Example (The "Fat" Interface)](#the-bad-example-the-fat-interface)
+    * [The Good Example (Segregated Interfaces)](#the-good-example-segregated-interfaces)
+  * [D - Dependency Inversion Principle (DIP)](#d---dependency-inversion-principle-dip)
+    * [The Bad Example (Tightly Coupled)](#the-bad-example-tightly-coupled)
+    * [The Good Example (Dependency Injection)](#the-good-example-dependency-injection)
+  * [Summary Cheat Sheet](#summary-cheat-sheet)
 <!-- TOC -->
 
 # Q-1 Types of caches
@@ -552,9 +569,14 @@ CQRS is "sane" when:
 2. **Reads** are fundamentally different shapes than **Writes** (e.g., Writes are SQL rows, Reads are JSON documents).
 3. You can afford **Eventual Consistency** (a 1-second delay is acceptable).
 
+
 ---
 
+
 # Q-6 Explain Bulkhead Pattern
+
+One heavy feature (e.g., Image Processing) uses up all threads/connections, starving the
+critical features (e.g., Login).
 
 This is one of the most intuitive patterns because it comes directly from **Shipbuilding**.
 
@@ -603,7 +625,8 @@ We split the 100 Tomcat threads into distinct pools:
 * The first 40 get a thread from **Pool B**.
 * The other 60 are immediately rejected (Fast Fail). **Pool B is full.**
 * **Meanwhile:** A user requests "Get Product Details."
-* **Result:** **Success!** Pool A still has 60 threads completely free. The "ship" (app) is still floating, even though one compartment (PDFs) is flooded.
+* **Result:** **Success!** Pool A still has 60 threads completely free. The "ship" (app) is still 
+  floating, even though one compartment (PDFs) is flooded.
 
 ---
 
@@ -628,9 +651,15 @@ public class InvoiceService {
 * If a 6th thread tries to call `generateInvoice`, it gets a `BulkheadFullException` immediately. It does not wait.
 * Your other services (`ProductService`) are completely unaffected.
 
+
 ---
 
+
 # Q-7 Explain Circuit Breaker pattern
+
+A design pattern that prevents an application from repeatedly trying to 
+execute an operation that's likely to fail. It acts as a proxy that monitors 
+for failures and "trips" (stops traffic) when a failure threshold is reached.
 
 Here is the **Circuit Breaker Pattern**, explained with the same structure.
 
@@ -745,6 +774,9 @@ public class PaymentService {
 
 
 # Q-8 Explain Retry pattern
+
+A design pattern that automatically re-executes a failed operation (like a network call) in 
+the hope that the failure was temporary (transient).
 
 This is the simplest pattern, but also the most **dangerous** if used incorrectly.
 
@@ -912,4 +944,303 @@ List<Author> findAllWithBooks();
 **The Result:**
 Hibernate runs **1 single query**:
 `SELECT * FROM Author a INNER JOIN Book b ON a.id = b.author_id`
+
+
+---
+
+# Q-10 Explain SOLID
+
+Here is the **SOLID** breakdown with "Bad" vs. "Good" Java examples.
+
+## S - Single Responsibility Principle (SRP)
+
+**Definition:** A class should have **one, and only one, reason to change.**
+
+* *Don't create "God Classes" that do everything.*
+
+### The Bad Example (The "Swiss Army Knife")
+
+Here, the `Invoice` class handles math, database logic, and printing. If 
+the **Database** changes, this class changes. If the **Print Format** changes, this class changes.
+
+```java
+class Invoice {
+    public void calculateTotal() { /* ... */ }
+    public void saveToDB() { /* JDBC Code ... */ }  // Violation
+    public void print() { /* System.out.println ... */ } // Violation
+}
+
+```
+
+### The Good Example (The Specialist)
+
+Split the responsibilities into focused classes.
+
+```java
+class Invoice {
+    public void calculateTotal() { /* logic */ }
+}
+
+class InvoiceRepository {
+    public void save(Invoice invoice) { /* DB logic */ }
+}
+
+class InvoicePrinter {
+    public void print(Invoice invoice) { /* Print logic */ }
+}
+
+```
+
+---
+
+## O - Open/Closed Principle (OCP)
+
+**Definition:** Software entities should be **Open for Extension, but Closed for Modification.**
+
+* *You should be able to add new features without touching existing, tested code.*
+
+### The Bad Example (The "If-Else" Hell)
+
+Every time you add a new payment method (e.g., Bitcoin), you have to modify 
+this class and risk breaking existing logic.
+
+```java
+class PaymentProcessor {
+    public void process(String type) {
+        if (type.equals("PayPal")) {
+            // process PayPal
+        } else if (type.equals("CreditCard")) {
+            // process CreditCard
+        }
+        // Changing this file for every new type violates OCP
+    }
+}
+```
+
+### The Good Example (Polymorphism)
+
+Use an interface. To add Bitcoin, you just create a *new* class. You never touch `PaymentProcessor`.
+
+```java
+interface PaymentMethod {
+    void pay();
+}
+
+class PayPal implements PaymentMethod {
+    public void pay() { /* ... */ }
+}
+
+class PaymentProcessor {
+    public void process(PaymentMethod method) {
+        method.pay(); // Works for PayPal, CreditCard, Bitcoin...
+    }
+}
+```
+
+---
+
+## L - Liskov Substitution Principle (LSP)
+
+**Definition:** Subtypes must be **substitutable** for their base types without breaking the program.
+
+* _"If the parent class can do X, the child class MUST also be able to do X."_
+
+### The Bad Example (The "Fake" Implementation)
+
+Here is a **practical, real-world scenario** that happens in almost every legacy codebase: **Read-Only Files.**
+
+You are building a system to manage documents.
+You have a base class `Document` that assumes all documents can be **Opened** and **Saved**.
+
+You create a base class with a `save()` method.
+Then, you introduce a `ReadOnlyDocument` (like a PDF report or a historical archive) that **cannot be modified**.
+
+```java
+// Parent Class
+class Document {
+    public void open() { /* logic */ }
+    public void save() { 
+        System.out.println("Saving to disk..."); 
+    }
+}
+
+// Child Class (Violates LSP)
+class ReadOnlyDocument extends Document {
+    @Override
+    public void save() {
+        // BREAKS THE TRUST!
+        // The parent said "I can save", but the child says "I crash if you try".
+        throw new UnsupportedOperationException("Cannot save read-only file!");
+    }
+}
+```
+
+
+You have a `ProjectManager` class that saves all open documents when the app closes. 
+It expects every `Document` to behave like the parent.
+
+```java
+public void saveAllProjects(List<Document> docs) {
+    for (Document doc : docs) {
+        doc.save(); 
+    }
+}
+```
+
+* **If the list contains standard Documents:** It works perfectly.
+* **If the list contains ONE Read-Only Document:** The entire application **crashes** with 
+  an Exception. The auto-save fails, and the user might lose data from the *other* valid 
+  documents because the loop stopped halfway.
+
+---
+
+### The Good Example
+
+The problem is that `Document` assumed **everything** is writable. That was a lie.
+We fix this by splitting the capabilities.
+
+**Step 1: Create Specific Interfaces**
+
+```java
+interface Openable {
+    void open();
+}
+
+interface Savable extends Openable {
+    void save();
+}
+
+```
+
+**Step 2: Implement Honestly**
+
+```java
+// Standard Doc can do both
+class StandardDocument implements Savable {
+    public void open() { /*...*/ }
+    public void save() { /*...*/ }
+}
+
+// Read-Only Doc only implements Openable
+class ReadOnlyDocument implements Openable {
+    public void open() { /*...*/ }
+    // It physically DOES NOT HAVE a save() method.
+}
+
+```
+
+**Step 3: Update the Manager**
+
+Now, the `saveAllProjects` method can only accept `Savable` objects.
+
+```java
+public void saveAllProjects(List<Savable> docs) {
+    for (Savable doc : docs) {
+        doc.save(); // 100% safe. No crashes possible.
+    }
+}
+
+```
+
+**The Compilation Safety:**
+If you try to add a `ReadOnlyDocument` to that list, the **compiler** will stop you 
+immediately: *"Error: ReadOnlyDocument is not Savable."*
+
+---
+
+## I - Interface Segregation Principle (ISP)
+
+**Definition:** Clients should not be forced to depend on methods they do not use.
+
+* *Make fine-grained interfaces, not huge "Fat" interfaces.*
+
+### The Bad Example (The "Fat" Interface)
+
+A `Robot` worker implements `Worker`, but it has to implement `eat()` even though robots don't eat.
+
+```java
+interface Worker {
+    void work();
+    void eat();
+}
+
+class Robot implements Worker {
+    public void work() { /* ... */ }
+    public void eat() { 
+        // Forced to implement dummy code
+        throw new RuntimeException("I don't eat"); 
+    }
+}
+```
+
+### The Good Example (Segregated Interfaces)
+
+Break it down.
+
+```java
+interface Workable { void work(); }
+interface Eatable { void eat(); }
+
+class Robot implements Workable {
+    public void work() { /* ... */ }
+}
+
+class Human implements Workable, Eatable {
+    public void work() { /* ... */ }
+    public void eat() { /* ... */ }
+}
+```
+
+---
+
+## D - Dependency Inversion Principle (DIP)
+
+**Definition:** High-level modules should not depend on low-level modules. 
+Both should depend on **Abstractions**.
+
+* *Don't use `new` to create dependencies inside your class. Ask for them in the constructor.*
+
+### The Bad Example (Tightly Coupled)
+
+The `Store` is hard-coded to use `Stripe`. You cannot easily switch to PayPal or test 
+this class without a real Stripe API.
+
+```java
+class Store {
+    private StripePaymentService stripe;
+
+    public Store() {
+        this.stripe = new StripePaymentService(); // Hard dependency!
+    }
+}
+
+```
+
+### The Good Example (Dependency Injection)
+
+The `Store` doesn't care *what* payment service you use, as long as it follows the contract.
+
+```java
+class Store {
+    private PaymentService paymentService;
+
+    // Inject via Constructor
+    public Store(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+}
+// Usage: new Store(new PayPalService());
+```
+
+---
+
+## Summary Cheat Sheet
+
+| Principle | Meaning               | The Fix                                                           |
+|-----------|-----------------------|-------------------------------------------------------------------|
+| **SRP**   | Single Responsibility | **Split classes** that do too much.                               |
+| **OCP**   | Open/Closed           | Use **Interfaces/Polymorphism** instead of `if/else`.             |
+| **LSP**   | Liskov Substitution   | Subclasses should not **throw exceptions** for parent methods.    |
+| **ISP**   | Interface Segregation | Split **fat interfaces** into smaller ones.                       |
+| **DIP**   | Dependency Inversion  | **Inject dependencies** (Constructor Injection) instead of `new`. |
 
