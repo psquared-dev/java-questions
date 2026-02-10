@@ -31,12 +31,18 @@
     * [2. The "Sanity" of CQRS (The Fix)](#2-the-sanity-of-cqrs-the-fix)
   * [3. The Trade-off (The Glue)](#3-the-trade-off-the-glue)
   * [Summary](#summary)
-* [Q-6 Explain Bulkhead Pattern](#q-6-explain-bulkhead-pattern)
+* [Q-6 Explain Saga pattern](#q-6-explain-saga-pattern)
+  * [Saga Pattern: Distributed Transactions](#saga-pattern-distributed-transactions)
+  * [**Approach 1: Choreography (The "Dance")**](#approach-1-choreography-the-dance)
+  * [Approach 2: Orchestration (The "Conductor")](#approach-2-orchestration-the-conductor)
+  * [**Comparison Cheat Sheet**](#comparison-cheat-sheet)
+  * [**Summary for Interview**](#summary-for-interview)
+* [Q-7 Explain Bulkhead Pattern](#q-7-explain-bulkhead-pattern)
   * [1. The Real-World Analogy: "The Unsinkable Ship"](#1-the-real-world-analogy-the-unsinkable-ship)
   * [2. The Problem: "Resource Exhaustion" (The Sinking Ship)](#2-the-problem-resource-exhaustion-the-sinking-ship)
   * [3. The Solution: The Bulkhead Pattern](#3-the-solution-the-bulkhead-pattern)
   * [4. Java Implementation (Resilience4j)](#4-java-implementation-resilience4j)
-* [Q-7 Explain Circuit Breaker pattern](#q-7-explain-circuit-breaker-pattern)
+* [Q-8 Explain Circuit Breaker pattern](#q-8-explain-circuit-breaker-pattern)
   * [The Real-World Analogy: "The Fuse Box"](#the-real-world-analogy-the-fuse-box)
   * [The Problem: "Cascading Failure" ( The Domino Effect)](#the-problem-cascading-failure--the-domino-effect)
   * [The Solution: The State Machine](#the-solution-the-state-machine)
@@ -46,18 +52,18 @@
     * [C. HALF-OPEN (The "Probing Phase")](#c-half-open-the-probing-phase)
   * [Configuration (Resilience4j via `application.yml`)](#configuration-resilience4j-via-applicationyml)
   * [Java Implementation (Resilience4j)](#java-implementation-resilience4j)
-* [Q-8 Explain Retry pattern](#q-8-explain-retry-pattern)
+* [Q-9 Explain Retry pattern](#q-9-explain-retry-pattern)
   * [1. The Real-World Analogy: "Bad Cell Reception"](#1-the-real-world-analogy-bad-cell-reception)
   * [2. The Solution: Automatic Retry](#2-the-solution-automatic-retry)
   * [3. The Danger: "The Thundering Herd" (Self-Inflicted DDoS)](#3-the-danger-the-thundering-herd-self-inflicted-ddos)
   * [4. The Fix: Exponential Backoff (The Smart Way)](#4-the-fix-exponential-backoff-the-smart-way)
     * [5. Java Implementation (Resilience4j)](#5-java-implementation-resilience4j)
-* [Q-9 What is N+1 problem?](#q-9-what-is-n1-problem)
+* [Q-10 What is N+1 problem?](#q-10-what-is-n1-problem)
   * [1. The Scenario: "Authors and Books"](#1-the-scenario-authors-and-books)
   * [2. The Bad Code (The Trap)](#2-the-bad-code-the-trap)
   * [3. The Problem (The Math)](#3-the-problem-the-math)
   * [4. The Solution: "JOIN FETCH"](#4-the-solution-join-fetch)
-* [Q-10 Explain SOLID](#q-10-explain-solid)
+* [Q-11 Explain SOLID](#q-11-explain-solid)
   * [S - Single Responsibility Principle (SRP)](#s---single-responsibility-principle-srp)
     * [The Bad Example (The "Swiss Army Knife")](#the-bad-example-the-swiss-army-knife)
     * [The Good Example (The Specialist)](#the-good-example-the-specialist)
@@ -570,8 +576,103 @@ CQRS is "sane" when:
 
 ---
 
+# Q-6 Explain Saga pattern
 
-# Q-6 Explain Bulkhead Pattern
+Here is the tightened, interview-ready explanation of the **Saga Pattern**, mapped end-to-end.
+
+## Saga Pattern: Distributed Transactions
+
+**The Problem:**
+
+In a Microservices architecture (Database-per-Service), you cannot use a single 
+ACID database transaction that spans multiple services. If a business 
+process (like "Book Trip") spans 3 services, and the last one fails, you cannot 
+simply `ROLLBACK` the first two.
+
+**The Solution:**
+
+A **Saga** is a sequence of **local transactions**. Each service updates its 
+own database and publishes an event/message to trigger the next step.
+
+**The Undo Button (Compensating Transactions):**
+If a step fails, the Saga executes **Compensating Transactions** to undo the 
+changes made by the previous steps.
+
+* **Transaction:** `reserveCredit()`  **Compensation:** `refundCredit()`
+* **Transaction:** `bookSeat()`  **Compensation:** `releaseSeat()`
+
+---
+
+## **Approach 1: Choreography (The "Dance")**
+
+**Concept:** Decentralized. No central manager. Services listen for events and decide what to do.
+
+**The Happy Path (Success):**
+
+1. **Order Service:** Creates Order  Publishes `OrderCreated`.
+2. **Payment Service:** Listens to `OrderCreated`  Charges Card  Publishes `PaymentProcessed`.
+3. **Inventory Service:** Listens to `PaymentProcessed`  Reserves Stock  Publishes `StockReserved`.
+4. **Order Service:** Listens to `StockReserved`  Updates Order to `COMPLETED`.
+
+**The Failure Path (Rollback):**
+
+*Scenario: Inventory is Out of Stock.*
+
+1. **Inventory Service:** Fails to reserve stock  Publishes `StockFailed`.
+2. **Payment Service:** Listens to `StockFailed`  **Executes Refund**  Publishes `RefundProcessed`.
+3. **Order Service:** Listens to `StockFailed`  Updates Order to `CANCELLED`.
+
+---
+
+## Approach 2: Orchestration (The "Conductor")
+
+**Concept:** Centralized. An **Orchestrator** (e.g., a specific Class or Service) tells every 
+participant what to do.
+
+**The Happy Path (Success):**
+
+1. **Orchestrator:** Sends command `ExecutePayment` to **Payment Service**.
+2. **Payment Service:** Replies `Success`.
+3. **Orchestrator:** Sends command `ReserveStock` to **Inventory Service**.
+4. **Inventory Service:** Replies `Success`.
+5. **Orchestrator:** Ends Saga  Updates Order to `COMPLETED`.
+
+**The Failure Path (Rollback):**
+
+*Scenario: Inventory is Out of Stock.*
+
+1. **Orchestrator:** Sends command `ReserveStock` to **Inventory Service**.
+2. **Inventory Service:** Replies `Failed`.
+3. **Orchestrator:** Detects failure. Immediately sends command `RefundPayment` to **Payment Service**.
+4. **Payment Service:** Replies `RefundSuccess`.
+5. **Orchestrator:** Updates Order to `CANCELLED`.
+
+---
+
+## **Comparison Cheat Sheet**
+
+| Feature        | Choreography (Events)                     | Orchestration (Command)                   |
+|----------------|-------------------------------------------|-------------------------------------------|
+| **Coupling**   | **Low** (Services don't know each other). | **Higher** (Orchestrator knows everyone). |
+| **Complexity** | Becomes "Spaghetti" at scale.             | Clean, centralized logic.                 |
+| **Debugging**  | Hard (Must trace events across logs).     | Easy (Check Orchestrator state).          |
+| **Best For**   | Simple flows (2-3 steps).                 | Complex flows (4+ steps).                 |
+
+
+## **Summary for Interview**
+
+>
+> "The Saga pattern manages distributed transactions by breaking them into local steps. 
+> If a step fails, we execute **Compensating Transactions** to undo previous work.
+> I prefer **Orchestration** for complex business logic (like Order Fulfillment) because
+> it centralizes the state and makes error handling/timeouts much easier to manage than 
+> the event-chain of Choreography."
+>
+
+---
+
+
+# Q-7 Explain Bulkhead Pattern
 
 One heavy feature (e.g., Image Processing) uses up all threads/connections, starving the
 critical features (e.g., Login).
@@ -653,7 +754,7 @@ public class InvoiceService {
 ---
 
 
-# Q-7 Explain Circuit Breaker pattern
+# Q-8 Explain Circuit Breaker pattern
 
 A design pattern that prevents an application from repeatedly trying to 
 execute an operation that's likely to fail. It acts as a proxy that monitors 
@@ -771,7 +872,7 @@ public class PaymentService {
 ---
 
 
-# Q-8 Explain Retry pattern
+# Q-9 Explain Retry pattern
 
 A design pattern that automatically re-executes a failed operation (like a network call) in 
 the hope that the failure was temporary (transient).
@@ -878,7 +979,7 @@ resilience4j:
 ---
 
 
-# Q-9 What is N+1 problem?
+# Q-10 What is N+1 problem?
 
 
 This is the most famous performance issue in ORMs (like Hibernate/JPA).
@@ -946,7 +1047,7 @@ Hibernate runs **1 single query**:
 
 ---
 
-# Q-10 Explain SOLID
+# Q-11 Explain SOLID
 
 Here is the **SOLID** breakdown with "Bad" vs. "Good" Java examples.
 
