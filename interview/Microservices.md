@@ -57,8 +57,8 @@
   * [Retry strategies (from naive → correct)](#retry-strategies-from-naive--correct)
     * [1. Immediate retry (bad)](#1-immediate-retry-bad)
     * [2. Fixed delay](#2-fixed-delay)
-    * [3️. Exponential backoff (recommended)](#3-exponential-backoff-recommended)
-    * [4️. Exponential backoff + jitter (best)](#4-exponential-backoff--jitter-best)
+    * [3. Exponential backoff (recommended)](#3-exponential-backoff-recommended)
+    * [4. Exponential backoff + jitter (best)](#4-exponential-backoff--jitter-best)
   * [Key configuration knobs](#key-configuration-knobs)
   * [Retry + Circuit Breaker (must be combined carefully)](#retry--circuit-breaker-must-be-combined-carefully)
   * [Retry vs Circuit Breaker vs Bulkhead](#retry-vs-circuit-breaker-vs-bulkhead)
@@ -920,7 +920,7 @@ retry after 100ms, 100ms, 100ms
 
 ---
 
-### 3️. Exponential backoff (recommended)
+### 3. Exponential backoff (recommended)
 
 ```text
 100ms → 200ms → 400ms → 800ms
@@ -931,7 +931,7 @@ retry after 100ms, 100ms, 100ms
 
 ---
 
-### 4️. Exponential backoff + jitter (best)
+### 4. Exponential backoff + jitter (best)
 
 ```text
 random(0, base * 2^n)
