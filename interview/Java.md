@@ -37,7 +37,7 @@
   * [2. The `new` Keyword (Forcing a New Object)](#2-the-new-keyword-forcing-a-new-object)
   * [3. Manual Interning (`.intern()`)](#3-manual-interning-intern)
   * [4. Why is this safe? (Immutability)](#4-why-is-this-safe-immutability)
-* [Q - What is JDK?](#q---what-is-jdk)
+* [Q - What is JDK? What is the diff b/w JDK and JRE?](#q---what-is-jdk-what-is-the-diff-bw-jdk-and-jre)
 * [Q - What are access specifiers?](#q---what-are-access-specifiers)
 * [Q - What is Dynamic Method Dispatch?](#q---what-is-dynamic-method-dispatch)
 * [Q - What are different thread states?](#q---what-are-different-thread-states)
@@ -60,7 +60,6 @@
 * [Q - What is lambda expression?](#q---what-is-lambda-expression)
 * [Q - What is Stream in java 8?](#q---what-is-stream-in-java-8)
 * [Q - What is diff b/w Vector and ArrayList?](#q---what-is-diff-bw-vector-and-arraylist)
-* [Q - Collection framework hierarchy](#q---collection-framework-hierarchy)
 * [Q - Diff b/w Hashtable and HashMap](#q---diff-bw-hashtable-and-hashmap)
 * [Q - What is BlockingQueue?](#q---what-is-blockingqueue)
   * [Why was BlockingQueue introduced?](#why-was-blockingqueue-introduced)
@@ -104,7 +103,7 @@
   * [2. Abstraction (The "Producer-Consumer" Problem)](#2-abstraction-the-producer-consumer-problem)
   * [3. Returning Results (The "Void" Problem)](#3-returning-results-the-void-problem)
   * [Summary Table](#summary-table)
-* [Q - — How do you properly shut down an ExecutorService?](#q----how-do-you-properly-shut-down-an-executorservice)
+* [Q - How do you properly shut down an ExecutorService?](#q---how-do-you-properly-shut-down-an-executorservice)
   * [Why shutdown is required](#why-shutdown-is-required)
   * [shutdown() — Graceful shutdown](#shutdown--graceful-shutdown)
   * [shutdownNow() — Immediate shutdown](#shutdownnow--immediate-shutdown)
@@ -127,6 +126,9 @@
 * [Q - Is it true that main thread doesn't terminate until the child threads are done?](#q---is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
 * [Q - What is the diff b/w objects and references?](#q---what-is-the-diff-bw-objects-and-references)
   * [Objects vs References](#objects-vs-references)
+  * [What is allocated where?](#what-is-allocated-where)
+  * [Memory Regions - Summary](#memory-regions---summary)
+  * [References](#references)
 * [Q - Explain stack and heap memory regions in the context of threads?](#q---explain-stack-and-heap-memory-regions-in-the-context-of-threads)
   * [1. Stack Memory (Thread-specific)](#1-stack-memory-thread-specific)
   * [2. Heap Memory (Shared across threads)](#2-heap-memory-shared-across-threads)
@@ -134,7 +136,6 @@
   * [Key clarification (interview-critical)](#key-clarification-interview-critical)
   * [4. Why this matters for threads](#4-why-this-matters-for-threads)
   * [Interview-perfect closing line (memorize)](#interview-perfect-closing-line-memorize-1)
-* [Q - What is latency and throughput?](#q---what-is-latency-and-throughput)
 * [Q - What is an atomic operation?](#q---what-is-an-atomic-operation)
 * [Q - Which read and write operations are atomic in Java?](#q---which-read-and-write-operations-are-atomic-in-java)
   * [Resources](#resources-3)
@@ -167,7 +168,6 @@
   * [CopyOnWriteArrayList](#copyonwritearraylist)
   * [Collections.synchronizedList](#collectionssynchronizedlist)
 * [Q - Which threads are guaranteed to be created when a Java program starts?](#q---which-threads-are-guaranteed-to-be-created-when-a-java-program-starts)
-* [Q - What is the diff b/w JDK and JRE?](#q---what-is-the-diff-bw-jdk-and-jre)
 * [Q - Will the following code compile?](#q---will-the-following-code-compile)
   * [1. Widening = implicit (safe)](#1-widening--implicit-safe)
   * [2. Narrowing = explicit cast required (unsafe)](#2-narrowing--explicit-cast-required-unsafe)
@@ -1340,10 +1340,11 @@ can be safely shared without thread-safety issues.
 ---
 
 
-# Q - What is JDK?
+# Q - What is JDK? What is the diff b/w JDK and JRE?
 
 JDK (Java Development Kit) is a software development environment used to develop Java applications.
 
+* JVM (Java Virtual Machine): The engine that actually runs the code.
 * JRE = JVM + Library Classes (`java.lang`, `java.util`, etc.)
 * JDK = JRE + Development Tools (compilers like `javac`, `javap`, debuggers, documentation generator etc.)
 
@@ -1738,15 +1739,9 @@ While the primary difference is thread safety, there are 4 key distinctions you 
 | **Growth Rate**   | Doubles in size (**100% increase**) when full.                                                         | Increases by **~50%** `(oldCapacity * 1.5)` when full.                     |
 | **Legacy Status** | Legacy class (Java 1.0). Retained for backward compatibility.                                          | Part of Collections Framework (Java 1.2). Standard for modern development. |
 
------------------------------
-
-
-# Q - Collection framework hierarchy
-
-![collection-framework](/images/collection-framework.webp)
-
 
 -----------------------------
+
 
 # Q - Diff b/w Hashtable and HashMap
 
@@ -2501,7 +2496,7 @@ This is often the most appreciated feature for day-to-day coding.
 
 -----------------------------
 
-# Q - — How do you properly shut down an ExecutorService?
+# Q - How do you properly shut down an ExecutorService?
 
 ## Why shutdown is required
 
@@ -2842,15 +2837,55 @@ Here:
 
 References != Objects
 
-![alt text](../images/obejct-vs-references.png)
+```mermaid
+graph LR
+  %% Centered title
+  title["Objects vs References"]
 
-![alt text](../images/what-is-allocated-where.png)
+  subgraph Stack [Stack Memory]
+    direction TB
+    ref1[referenceVar1]
+    ref2[referenceVar2]
+  end
 
-![alt text](../images/memory-regions-summary.png)
+  subgraph Heap [Heap Memory]
+    obj((Object Instance))
+  end
 
-Source: https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199598#notes
+  ref1 --> obj
+  ref2 --> obj
+
+  style title fill:#ffffff,stroke:#ffffff,color:black,font-size:18px,font-weight:bold
+```
+
+## What is allocated where?
+
+* References:
+    * Can be allocated on the stack (e.g., as local variables).
+    * Can be allocated on the heap if they are members (fields) of a class.
+  
+* Objects:
+    * Are always allocated on the heap.
+
+
+## Memory Regions - Summary
+
+| **Heap (Shared)**                           | **Stack (Exclusive)**                                  |
+|---------------------------------------------|--------------------------------------------------------|
+| • **Objects** (The actual instances)        | • **Local primitive types** (int, double, etc.)        |
+| • **Class members** (Fields inside objects) | • **Local references** (Variables pointing to objects) |
+| • **Static variables**                      |                                                        |
+
+
+## References
+
+* https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199598#notes
+
+
 
 -----------------------------
+
+
 
 # Q - Explain stack and heap memory regions in the context of threads?
 
@@ -2987,12 +3022,7 @@ separately in Metaspace.
 
 -----------------------------
 
-# Q - What is latency and throughput?
 
-* Latency - Latency is the time taken to complete a single request or task.
-* Throughput - Throughput is the number of tasks completed in a given time period.
-
------------------------------
 
 # Q - What is an atomic operation?
 
@@ -3405,19 +3435,11 @@ are **JVM implementation–dependent**:
 
 Therefore, they are **not guaranteed**.
 
------------------------------
 
-# Q - What is the diff b/w JDK and JRE?
-
-The Hierarchy
-
-* JVM (Java Virtual Machine): The engine that actually runs the code.
-
-* JRE (Java Runtime Environment): The JVM + Core Libraries (the "standard library" classes you mentioned, like java.lang, java.util, etc.). This is what you need to run a program.
-
-* JDK (Java Development Kit): The JRE + Development Tools (compilers like javac, javap, debuggers, documentation generator etc.). This is what you need to write a program.
 
 -----------------------------
+
+
 
 # Q - Will the following code compile?
 
