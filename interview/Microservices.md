@@ -3,6 +3,7 @@
     * [Write through cache](#write-through-cache)
     * [Write around cache](#write-around-cache)
     * [Write back cache](#write-back-cache)
+* [Q - What is latency and throughput?](#q---what-is-latency-and-throughput)
 * [Q - Difference between Coupling and Cohesion?](#q---difference-between-coupling-and-cohesion)
   * [COHESION](#cohesion)
   * [COUPLING](#coupling)
@@ -305,6 +306,15 @@ Writes go directly to the storage (skipping the cache). Cache is only updated on
 
 Writes go to the cache only at first, and are marked as "dirty". Later, the dirty data 
 is flushed (written back) to storage asynchronously.
+
+
+---
+
+
+# Q - What is latency and throughput?
+
+* Latency - Latency is the time taken to complete a single request or task.
+* Throughput - Throughput is the number of tasks completed in a given time period.
 
 
 ---
