@@ -294,15 +294,6 @@
   * [3. Senior Engineer Nuance: Exception Suppression](#3-senior-engineer-nuance-exception-suppression)
 * [Q - Difference between Optional.of() and Optional.ofNullable()?](#q---difference-between-optionalof-and-optionalofnullable)
 * [Q - How to manually trigger the garbage collection process?](#q---how-to-manually-trigger-the-garbage-collection-process)
-* [Q - What are some Garbage collection algorithms?](#q---what-are-some-garbage-collection-algorithms)
-  * [1. The Classics (Throughput Focused)](#1-the-classics-throughput-focused)
-    * [1. Serial GC (-XX:+UseSerialGC)](#1-serial-gc--xxuseserialgc)
-    * [2. Parallel GC (-XX:+UseParallelGC)](#2-parallel-gc--xxuseparallelgc)
-  * [2. The Modern Standard (Balanced)](#2-the-modern-standard-balanced)
-    * [3. G1 GC (Garbage First) (-XX:+UseG1GC)](#3-g1-gc-garbage-first--xxuseg1gc)
-  * [3. The Low-Latency (Future)](#3-the-low-latency-future)
-    * [4. ZGC (Z Garbage Collector) (-XX:+UseZGC)](#4-zgc-z-garbage-collector--xxusezgc)
-  * [Senior Engineer Note: What happened to CMS?](#senior-engineer-note-what-happened-to-cms)
 * [Q - What are sealed classes?](#q---what-are-sealed-classes)
   * [1. The Syntax](#1-the-syntax)
   * [2. The Three Rules for Subclasses](#2-the-three-rules-for-subclasses)
@@ -532,6 +523,9 @@
   * [3. The Killer Feature: "Predictable Pauses"](#3-the-killer-feature-predictable-pauses)
   * [4. The Failure Mode: "Evacuation Failure"](#4-the-failure-mode-evacuation-failure)
   * [5. Summary for the Interview](#5-summary-for-the-interview)
+* [Q - Can you compare the different Garbage Collectors in Java and explain when to use each one?](#q---can-you-compare-the-different-garbage-collectors-in-java-and-explain-when-to-use-each-one)
+  * [The Ultimate Java GC Cheat Sheet](#the-ultimate-java-gc-cheat-sheet)
+  * [Notes (Accuracy Improvements)](#notes-accuracy-improvements)
 * [Q - What is a heap dump? Why do we use it? Have you ever taken a heap dump?](#q---what-is-a-heap-dump-why-do-we-use-it-have-you-ever-taken-a-heap-dump)
   * [1. What is a Heap Dump? (The "Crime Scene Photo")](#1-what-is-a-heap-dump-the-crime-scene-photo)
   * [2. Why do we use it?](#2-why-do-we-use-it)
@@ -5996,6 +5990,7 @@ Summary: When to use what?
 * `Optional.of()`: "I just created this object 2 lines ago. It SHOULD be there. If it's null, something is terrifyingly wrong." (Logic assertion).
 
 
+----------------
 
 
 # Q - How to manually trigger the garbage collection process?
@@ -6003,79 +5998,7 @@ Summary: When to use what?
 Call `System.gc()`
 
 
-
-# Q - What are some Garbage collection algorithms?
-
-Here are the main Garbage Collection algorithms in Java, categorized by their 
-primary goal (Throughput vs. Latency).
-
-## 1. The Classics (Throughput Focused)
-
-### 1. Serial GC (-XX:+UseSerialGC)
-
-* **How it works:** Uses a single thread for both Young and Old generation cleaning. 
-  It pauses the entire application (Stop-The-World) while running.
-
-* **Best Use Case:** Single-threaded environments (like simple command-line tools) or 
-  small heaps (under 100MB). It has the smallest memory footprint.
-
-
-### 2. Parallel GC (-XX:+UseParallelGC)
-
-* **How it works:** Also known as the "Throughput Collector." It freezes the app (STW) but uses multiple 
-  threads to clean the heap very quickly.
-
-* **Status:** This was the **default in Java 8**.
-
-* **Best Use Case:** Batch processing, Number crunching, or internal backend jobs where you care about
-  Throughput (jobs per hour) more than long pause times.
-
-
-## 2. The Modern Standard (Balanced)
-
-### 3. G1 GC (Garbage First) (-XX:+UseG1GC)
-
-* **How it works:** Splits the heap into small regions (1MB–32MB). It tracks which regions have 
-  the most garbage and cleans those first (hence the name).
-
-* **Status:** This is the default in Java 9+.
-
-* **Key Feature:** It allows you to set a Max Pause Time Target (e.g., "Try not to pause 
-  for more than 200ms"), and it attempts to meet that goal.
-
-* **Best Use Case:** General-purpose backend services (Web Servers, REST APIs) running on hardware 
-  with 4GB+ RAM.
-
-
-## 3. The Low-Latency (Future)
-
-### 4. ZGC (Z Garbage Collector) (-XX:+UseZGC)
-
-* **How it works:** A scalable low-latency collector. It performs expensive work concurrently (while 
-  your app is running) using "Colored Pointers" and "Load Barriers."
-
-* **Performance:** It guarantees pause times under 1ms (in latest versions), regardless of 
-  whether your heap is 2GB or 16TB.
-
-* **Best Use Case:** High-frequency trading, real-time bidding, or massive heaps where any pause 
-  is unacceptable.
-
-| Algorithm    | Goal                               | Threads  | Default In      |
-|:-------------|:-----------------------------------|:---------|:----------------|
-| **Serial**   | Low Overhead                       | 1        | Client machines |
-| **Parallel** | **Throughput**                     | Multiple | Java 8          |
-| **G1**       | **Balance** (Throughput + Latency) | Multiple | **Java 9+**     |
-| **ZGC**      | **Ultra-Low Latency** (<1ms)       | Multiple | Java 21 (LTS)   |
-
-
-## Senior Engineer Note: What happened to CMS?
-
-You might be asked about CMS (Concurrent Mark Sweep).
-
-Answer: It was the old "Low Latency" king. However, it suffered from **memory fragmentation**(Swiss 
-Cheese heap) and erratic "Concurrent Mode Failures" that caused long pauses. It was **removed
-in Java 14**. Do not recommend it for new projects.
-
+----------------
 
 
 
@@ -9578,6 +9501,29 @@ If asked to explain G1GC, use this structure:
 
 ----------------
 
+
+# Q - Can you compare the different Garbage Collectors in Java and explain when to use each one?
+
+## The Ultimate Java GC Cheat Sheet
+
+| Collector       | Young Gen *(Component & Algo)*                | Old Gen *(Component & Algo)*                               | Goal & Characteristic                                                                                  | When to Use?                                                                              | Default In                         | JVM Flag                  |
+|-----------------|-----------------------------------------------|------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|------------------------------------|---------------------------|
+| **Serial GC**   | **DefNew**<br>Serial Mark-Copy                | **Tenured**<br>Serial Mark-Sweep-Compact                   | **Minimal Overhead**<br>Single-threaded. Stops the world for everything.                               | • Small Heaps (<100MB)<br>• Single Core CPUs<br>• AWS Lambda / Microservices              | Client Class (Java 5–8)            | `-XX:+UseSerialGC`        |
+| **Parallel GC** | **PSYoungGen**<br>Parallel Mark-Copy          | **ParallelOld**<br>Parallel Mark-Compact                   | **Max Throughput**<br>Multi-threaded STW. Finishes work fast over pause times.                         | • Batch Processing <br/>• Video Encoding<br>• Number Crunching<br>• Logging/Audit Systems | Java 6, 7, 8 (Server Class)        | `-XX:+UseParallelGC`      |
+| **CMS GC**      | **ParNew**<br>Parallel Mark-Copy              | **CMS**<br>Concurrent Mark-Sweep                           | **Low Latency (Legacy)**<br>Concurrent Old Gen cleaning.<br>Does **NOT** compact (fragmentation risk). | • Do Not Use (Deprecated)<br>• Legacy Java 8 apps                                         | Removed in Java 14                 | `-XX:+UseConcMarkSweepGC` |
+| **G1 GC**       | **G1 (Young Regions)**<br>Parallel Evacuation | **G1 (Old Regions)**<br>Concurrent Mark + Mixed Evacuation | **Predictable Latency**<br>Balanced throughput & pause time. Compacting.                               | • Standard choice<br>• Web Servers (Spring Boot)<br>• Large Heaps (4GB–32GB)              | Java 9+ (11, 17, 21)               | `-XX:+UseG1GC`            |
+| **ZGC**         | **ZGC**<br>Colored Pointers                   | **ZGC**<br>Load Barriers                                   | **Ultra-Low Latency**<br>Pauses <1ms regardless of heap size (even multi-TB).                          | • Massive Heaps (>32GB)<br>• Real-time Systems<br>• Gaming / Trading                      | Java 15+ (Production ready in 17+) | `-XX:+UseZGC`             |
+
+
+## Notes (Accuracy Improvements)
+
+* ZGC is production-ready since **Java 17**, not “future only”.
+* CMS was removed in **Java 14**.
+* G1 is default since **Java 9**.
+* Parallel GC was default before Java 9 (server class machines).
+
+
+---
 
 
 # Q - What is a heap dump? Why do we use it? Have you ever taken a heap dump?
