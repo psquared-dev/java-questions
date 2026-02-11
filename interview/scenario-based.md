@@ -1,4 +1,26 @@
-# Q-1 You have 500 MB of memory, but the input data size is 2 GB. How would you sort this data and print it line by line in sorted order?
+<!-- TOC -->
+* [Q - You have 500 MB of memory, but the input data size is 2 GB. How would you sort this data and print it line by line in sorted order?](#q---you-have-500-mb-of-memory-but-the-input-data-size-is-2-gb-how-would-you-sort-this-data-and-print-it-line-by-line-in-sorted-order)
+  * [Phase 1: The "Divide and Sort" (Creating Runs)](#phase-1-the-divide-and-sort-creating-runs)
+  * [Phase 2: The "K-Way Merge" (The Tricky Part)](#phase-2-the-k-way-merge-the-tricky-part)
+    * [Why this works](#why-this-works)
+    * [Java Implementation Keywords (For the Interview)](#java-implementation-keywords-for-the-interview)
+* [Q - Java 8 Streams (Lazy Evaluation)](#q---java-8-streams-lazy-evaluation)
+  * [The "Vertical" Execution Flow](#the-vertical-execution-flow)
+* [Q- Map vs. FlatMap](#q--map-vs-flatmap)
+* [Q - Class Loaders](#q---class-loaders)
+  * [1. The Hierarchy (The Chain of Command)](#1-the-hierarchy-the-chain-of-command)
+  * [2. The Security Twist (The "Sandboxing" Exception)](#2-the-security-twist-the-sandboxing-exception)
+* [Q - In the following single line of code, exactly how many String objects are created in memory?](#q---in-the-following-single-line-of-code-exactly-how-many-string-objects-are-created-in-memory)
+  * [1. The Literal (`"abc"`) — Object #1](#1-the-literal-abc--object-1)
+  * [2. The Constructor (`new String(...)`) — Object #2](#2-the-constructor-new-string--object-2)
+  * [Visual Representation](#visual-representation)
+* [Q - You have an ExecutorService configured with a fixed thread pool of 10 threads and a bounded queue of size 100.](#q---you-have-an-executorservice-configured-with-a-fixed-thread-pool-of-10-threads-and-a-bounded-queue-of-size-100)
+  * [The Specific Exception: `RejectedExecutionException`](#the-specific-exception-rejectedexecutionexception)
+  * [The "Silent Killer" (Default Policy)](#the-silent-killer-default-policy)
+  * [Senior Dev Follow-Up: "How do we fix this?"](#senior-dev-follow-up-how-do-we-fix-this)
+<!-- TOC -->
+
+# Q - You have 500 MB of memory, but the input data size is 2 GB. How would you sort this data and print it line by line in sorted order?
 
 This is a classic system design and algorithms interview question. 
 The standard solution is called **External Merge Sort**.
@@ -124,7 +146,7 @@ What is the specific difference in the return type (Structure) between using `.m
 
 ---
 
-# Q-Class Loaders
+# Q - Class Loaders
 
 Scenario: You create a class in your own project with the exact same name and package
 as a core Java class: `package java.lang; public class String { ... }`.
@@ -168,4 +190,101 @@ class called `java.lang.Integer` that steals data or breaks memory safety, and t
 parts of the system into using it.
 
 ---
+
+# Q - In the following single line of code, exactly how many String objects are created in memory?
+
+```java
+String s = new String("abc");
+```
+
+The Answer is 2.
+
+Here is exactly why:
+
+## 1. The Literal (`"abc"`) — Object #1
+
+The moment the JVM sees the string literal `"abc"` in your code, it
+checks the **String Constant Pool** (a special area in the Heap).
+
+* **If "abc" is not there:** It creates a new String object with the value "abc" and places it in the Pool.
+* **If "abc" is there:** It just returns a reference to the existing one.
+* **In this case (first time):** It creates **Object #1** in the Pool.
+
+## 2. The Constructor (`new String(...)`) — Object #2
+
+The keyword `new` **always** forces the creation of a new object in
+the main **Heap** memory (outside the Pool).
+
+* It takes the value "abc" from the Pool object.
+* It creates a *copy* of that data into a brand new memory location.
+* **In this case:** It creates **Object #2** in the Heap.
+
+## Visual Representation
+
+```text
+Heap Memory
+ ├── String Constant Pool
+ │    └── "abc"  (Object #1: The Literal)
+ │
+ └── Main Heap Area
+      └── String @Address100  (Object #2: The 'new' Object)
+           └── value: "abc"
+
+```
+
+So, the variable `s` points to **Object #2**.
+
+
+---
+
+
+# Q - You have an ExecutorService configured with a fixed thread pool of 10 threads and a bounded queue of size 100.
+
+```java
+new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(100));
+```
+
+Scenario:
+
+1. Traffic spikes.
+2. 10 tasks are running (Threads are busy).
+3. 100 tasks are waiting (Queue is full).
+4. Task #111 arrives.
+
+What happens to Task #111? Does the application crash? Does it hang? Or does something else happen?
+Please name the specific concept/mechanism involved.
+
+You are correct! By default, the application does **not** crash or hang - it throws a runtime exception.
+
+## The Specific Exception: `RejectedExecutionException`
+
+Here is the flow:
+
+1. **Core Threads (10):** Busy.
+2. **Queue (100):** Full.
+3. **Task #111:** The Executor says, "I have no threads and no space."
+4. **Action:** It triggers the **Rejection Policy**.
+
+## The "Silent Killer" (Default Policy)
+
+The default policy is **`AbortPolicy`**.
+
+* **Behavior:** It throws `RejectedExecutionException`.
+* **Impact:** If you don't catch this exception in your code, that specific
+  task (Task #111) is **lost forever**. The user gets a 500 error, and the request is dropped.
+
+## Senior Dev Follow-Up: "How do we fix this?"
+
+In a production system, you almost never want to just crash on overload. You change the policy:
+
+* **`CallerRunsPolicy` (The Throttle):**
+* **Behavior:** The thread that *submitted* the task (usually the main HTTP thread) is forced
+  to execute the task itself.
+* **Result:** This slows down the input rate naturally because the submitter is busy working.
+  It prevents data loss and provides automatic "backpressure."
+
+
+---
+
+
 
