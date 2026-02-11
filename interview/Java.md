@@ -466,31 +466,23 @@
   * [1. ClassNotFoundException (The "Typo")](#1-classnotfoundexception-the-typo)
   * [2. NoClassDefFoundError (The "Ghost")](#2-noclassdeffounderror-the-ghost)
   * [Summary Table (Memorize This)](#summary-table-memorize-this)
-* [Q - In the following single line of code, exactly how many String objects are created in memory?](#q---in-the-following-single-line-of-code-exactly-how-many-string-objects-are-created-in-memory)
-  * [1. The Literal (`"abc"`) — Object #1](#1-the-literal-abc--object-1)
-  * [2. The Constructor (`new String(...)`) — Object #2](#2-the-constructor-new-string--object-2)
-  * [Visual Representation](#visual-representation)
 * [Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?](#q---in-java-what-is-the-exact-difference-between-a-variable-declared-as-final-and-an-object-that-is-immutable)
-* [Q - You have an ExecutorService configured with a fixed thread pool of 10 threads and a bounded queue of size 100.](#q---you-have-an-executorservice-configured-with-a-fixed-thread-pool-of-10-threads-and-a-bounded-queue-of-size-100)
-  * [The Specific Exception: `RejectedExecutionException`](#the-specific-exception-rejectedexecutionexception)
-  * [The "Silent Killer" (Default Policy)](#the-silent-killer-default-policy)
-  * [Senior Dev Follow-Up: "How do we fix this?"](#senior-dev-follow-up-how-do-we-fix-this)
 * [Q - Explain how AtomicInteger works?](#q---explain-how-atomicinteger-works)
   * [1. The Core Concept: "Optimistic Locking"](#1-the-core-concept-optimistic-locking)
   * [2. The Hardware Magic: CAS (Compare-And-Swap)](#2-the-hardware-magic-cas-compare-and-swap)
   * [3. The "Retry Loop" (Spin Lock)](#3-the-retry-loop-spin-lock)
   * [4. The Code (Under the Hood)](#4-the-code-under-the-hood)
   * [5. Pros & Cons (Interview Gold)](#5-pros--cons-interview-gold)
-* [Q-Explain WeakHashMap](#q-explain-weakhashmap)
+* [Q - Explain WeakHashMap](#q---explain-weakhashmap)
   * [The Problem: The "Sticky" Metadata](#the-problem-the-sticky-metadata)
   * [The Solution: `WeakHashMap`](#the-solution-weakhashmap)
   * [When to use this? (The "Metadata" Use Case)](#when-to-use-this-the-metadata-use-case)
-* [Q- Explain SoftReference](#q--explain-softreference)
+* [Q - Explain SoftReference](#q---explain-softreference)
   * [1. The Use Case: Building an In-Memory Cache](#1-the-use-case-building-an-in-memory-cache)
   * [2. The Mechanics (Ground Level)](#2-the-mechanics-ground-level)
   * [3. The Coding Pattern (The "Check-Check-Reload")](#3-the-coding-pattern-the-check-check-reload)
   * [Summary](#summary)
-* [Q-Can you explain the architectural change from PermGen to Metaspace in Java 8? Specifically, where are Class definitions and static variables stored in the modern memory model, and what happens at the OS and JVM level if Metaspace reaches its limit?](#q-can-you-explain-the-architectural-change-from-permgen-to-metaspace-in-java-8-specifically-where-are-class-definitions-and-static-variables-stored-in-the-modern-memory-model-and-what-happens-at-the-os-and-jvm-level-if-metaspace-reaches-its-limit)
+* [Q - Can you explain the architectural change from PermGen to Metaspace in Java 8? Specifically, where are Class definitions and static variables stored in the modern memory model, and what happens at the OS and JVM level if Metaspace reaches its limit?](#q---can-you-explain-the-architectural-change-from-permgen-to-metaspace-in-java-8-specifically-where-are-class-definitions-and-static-variables-stored-in-the-modern-memory-model-and-what-happens-at-the-os-and-jvm-level-if-metaspace-reaches-its-limit)
   * [1. The Old World: PermGen (Java 7 and older)](#1-the-old-world-permgen-java-7-and-older)
   * [2. The New World: Metaspace (Java 8+)](#2-the-new-world-metaspace-java-8)
     * [Key Difference: Location](#key-difference-location)
@@ -501,7 +493,7 @@
   * [4. What happens if Metaspace fills up?](#4-what-happens-if-metaspace-fills-up)
     * [Common Causes of Metaspace OOM:](#common-causes-of-metaspace-oom)
     * [Summary for the Interview](#summary-for-the-interview)
-* [Q-Explain Serial GC](#q-explain-serial-gc)
+* [Q - Explain Serial GC](#q---explain-serial-gc)
   * [1. What is Serial GC?](#1-what-is-serial-gc)
   * [2. How it Works: The "Stop-The-World" Event](#2-how-it-works-the-stop-the-world-event)
   * [3. The Memory Structure (Young vs. Old)](#3-the-memory-structure-young-vs-old)
@@ -509,7 +501,7 @@
       * [B. Old Generation (Major GC)](#b-old-generation-major-gc)
   * [4. Pros and Cons (Interview Material)](#4-pros-and-cons-interview-material)
   * [5. When should you use it?](#5-when-should-you-use-it)
-* [Q-Explain Parallel GC](#q-explain-parallel-gc)
+* [Q - Explain Parallel GC](#q---explain-parallel-gc)
   * [1. The Core Concept: "Strength in Numbers"](#1-the-core-concept-strength-in-numbers)
   * [2. How it Works (Under the Hood)](#2-how-it-works-under-the-hood)
     * [The "Stop-The-World" Sequence:](#the-stop-the-world-sequence)
@@ -519,7 +511,7 @@
   * [4. The "Throughput" Focus (Important for Interviews)](#4-the-throughput-focus-important-for-interviews)
   * [5. Pros and Cons](#5-pros-and-cons)
   * [6. Summary Comparison](#6-summary-comparison)
-* [Q-Explain Concurrent Mark Sweep(CMS) GC](#q-explain-concurrent-mark-sweepcms-gc)
+* [Q - Explain Concurrent Mark Sweep(CMS) GC](#q---explain-concurrent-mark-sweepcms-gc)
   * [1. The Core Concept: "Concurrent"](#1-the-core-concept-concurrent)
   * [2. How it Works: The 4 Phases](#2-how-it-works-the-4-phases)
     * [Phase 1: Initial Mark (Stop-The-World)](#phase-1-initial-mark-stop-the-world)
@@ -529,7 +521,7 @@
   * [3. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem)](#3-the-fatal-flaw-fragmentation-the-swiss-cheese-problem)
   * [4. The "Concurrent Mode Failure"](#4-the-concurrent-mode-failure)
   * [5. Summary for Interview](#5-summary-for-interview)
-* [Explain G1 GC](#explain-g1-gc)
+* [Q - Explain G1 GC](#q---explain-g1-gc)
   * [G1GC (Garbage First) – The "Predictable" Collector](#g1gc-garbage-first--the-predictable-collector)
   * [1. The Architecture: "Regions"](#1-the-architecture-regions)
   * [2. The Lifecycle (How it Runs)](#2-the-lifecycle-how-it-runs)
@@ -548,12 +540,12 @@
     * [Scenario B: The Manual Inspection (Debugging a Slow App)](#scenario-b-the-manual-inspection-debugging-a-slow-app)
   * [4. How do you analyze it? (The "Eclipse MAT" Tool)](#4-how-do-you-analyze-it-the-eclipse-mat-tool)
   * [Summary for the Interview](#summary-for-the-interview-1)
-* [Q-What is memory management in Java?](#q-what-is-memory-management-in-java)
-* [Q-What are the types of Heap memory?](#q-what-are-the-types-of-heap-memory)
+* [Q - What is memory management in Java?](#q---what-is-memory-management-in-java)
+* [Q - What are the types of Heap memory?](#q---what-are-the-types-of-heap-memory)
   * [1. Young Generation (The Nursery)](#1-young-generation-the-nursery)
   * [2. Old Generation (The Retirement Home)](#2-old-generation-the-retirement-home)
     * [Summary Table for Interview](#summary-table-for-interview)
-* [Q-How do you optimize JVM memory?](#q-how-do-you-optimize-jvm-memory)
+* [Q - How do you optimize JVM memory?](#q---how-do-you-optimize-jvm-memory)
   * [Step 1: Right-Sizing the Heap ( The Foundation)](#step-1-right-sizing-the-heap--the-foundation)
   * [Step 2: Choosing the Right Collector](#step-2-choosing-the-right-collector)
   * [Step 3: Tuning the "Pause Goal" (The Magic Knob)](#step-3-tuning-the-pause-goal-the-magic-knob)
@@ -8725,105 +8717,14 @@ public class GhostDemo {
 | **Meaning** | "I cannot find the class name you gave me."       | "I expected this class to be here (it was at compile time), but it's gone!" |
 | **Fix**     | Check the string spelling or classpath.           | Check for mismatched JAR versions or static initializer errors.             |
 
+
 ---
 
-
-# Q - In the following single line of code, exactly how many String objects are created in memory?
-
-```java
-String s = new String("abc");
-```
-
-The Answer is 2.
-
-Here is exactly why:
-
-## 1. The Literal (`"abc"`) — Object #1
-
-The moment the JVM sees the string literal `"abc"` in your code, it 
-checks the **String Constant Pool** (a special area in the Heap).
-
-* **If "abc" is not there:** It creates a new String object with the value "abc" and places it in the Pool.
-* **If "abc" is there:** It just returns a reference to the existing one.
-* **In this case (first time):** It creates **Object #1** in the Pool.
-
-## 2. The Constructor (`new String(...)`) — Object #2
-
-The keyword `new` **always** forces the creation of a new object in 
-the main **Heap** memory (outside the Pool).
-
-* It takes the value "abc" from the Pool object.
-* It creates a *copy* of that data into a brand new memory location.
-* **In this case:** It creates **Object #2** in the Heap.
-
-## Visual Representation
-
-```text
-Heap Memory
- ├── String Constant Pool
- │    └── "abc"  (Object #1: The Literal)
- │
- └── Main Heap Area
-      └── String @Address100  (Object #2: The 'new' Object)
-           └── value: "abc"
-
-```
-
-So, the variable `s` points to **Object #2**.
-
---
 
 # Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?
 
 `final` means once a variable is assigned a reference it can't be changed but 
 **immutable** means the state of the object can't be changed once its created.
-
----
-
-# Q - You have an ExecutorService configured with a fixed thread pool of 10 threads and a bounded queue of size 100.
-
-```java
-new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(100));
-```
-
-Scenario:
-
-1. Traffic spikes.
-2. 10 tasks are running (Threads are busy).
-3. 100 tasks are waiting (Queue is full).
-4. Task #111 arrives.
-
-What happens to Task #111? Does the application crash? Does it hang? Or does something else happen? 
-Please name the specific concept/mechanism involved.
-
-You are correct! By default, the application does **not** crash or hang - it throws a runtime exception.
-
-## The Specific Exception: `RejectedExecutionException`
-
-Here is the flow:
-
-1. **Core Threads (10):** Busy.
-2. **Queue (100):** Full.
-3. **Task #111:** The Executor says, "I have no threads and no space."
-4. **Action:** It triggers the **Rejection Policy**.
-
-## The "Silent Killer" (Default Policy)
-
-The default policy is **`AbortPolicy`**.
-
-* **Behavior:** It throws `RejectedExecutionException`.
-* **Impact:** If you don't catch this exception in your code, that specific 
-  task (Task #111) is **lost forever**. The user gets a 500 error, and the request is dropped.
-
-## Senior Dev Follow-Up: "How do we fix this?"
-
-In a production system, you almost never want to just crash on overload. You change the policy:
-
-* **`CallerRunsPolicy` (The Throttle):**
-* **Behavior:** The thread that *submitted* the task (usually the main HTTP thread) is forced 
-  to execute the task itself.
-* **Result:** This slows down the input rate naturally because the submitter is busy working. 
-  It prevents data loss and provides automatic "backpressure."
 
 
 ---
@@ -8951,7 +8852,7 @@ public final int getAndIncrement() {
 ---
 
 
-# Q-Explain WeakHashMap
+# Q - Explain WeakHashMap
 
 This is a great specific question. `WeakHashMap` is the "magic self-cleaning map."
 
@@ -9017,9 +8918,11 @@ object, but **the lifespan of that information should be tied to the lifespan of
   Internally, `ThreadLocal` uses a similar weak-reference mechanism so that when a Thread dies, its 
   local variables are cleaned up.
 
+
 ---
 
-# Q- Explain SoftReference
+
+# Q - Explain SoftReference
 
 This is the **"Smart Cache"** reference.
 
@@ -9109,10 +9012,11 @@ public Image getImage(String key) {
 * **Soft:** "I'd *like* to keep this (Cache). But delete it if you need space."
 * **Weak:** "I only care about this if someone else does (Metadata)."
 
+
 ---
 
 
-# Q-Can you explain the architectural change from PermGen to Metaspace in Java 8? Specifically, where are Class definitions and static variables stored in the modern memory model, and what happens at the OS and JVM level if Metaspace reaches its limit?
+# Q - Can you explain the architectural change from PermGen to Metaspace in Java 8? Specifically, where are Class definitions and static variables stored in the modern memory model, and what happens at the OS and JVM level if Metaspace reaches its limit?
 
 This is a classic "evolution of Java" interview question. To answer this effectively, we need 
 to look at how the JVM’s memory model changed significantly between Java 7 and Java 8.
@@ -9208,7 +9112,10 @@ Even though Metaspace is "dynamic," it is not infinite. Here is the chain of eve
   If it fails, you get an OOM Error.
 
 
-# Q-Explain Serial GC
+----------------
+
+
+# Q - Explain Serial GC
 
 
 ## 1. What is Serial GC?
@@ -9302,10 +9209,10 @@ You might think "Never," but that's wrong. It is still useful in specific cases:
 
 
 
----
+----------------
 
 
-# Q-Explain Parallel GC
+# Q - Explain Parallel GC
 
 This is the natural evolution of Serial GC. It was the default garbage collector 
 for a long time (up until Java 9) because it solves the biggest problem of Serial GC: **Speed.**
@@ -9398,10 +9305,10 @@ Parallel GC is often called the **"Throughput Collector."**
 **Command to enable:** `-XX:+UseParallelGC`
 
 
----
+----------------
 
 
-# Q-Explain Concurrent Mark Sweep(CMS) GC
+# Q - Explain Concurrent Mark Sweep(CMS) GC
 
 Now we enter the era of **"Low Latency."**
 
@@ -9502,12 +9409,11 @@ Many legacy systems still run on Java 8 with CMS. Knowing *why* it failed leads
 perfectly into why **G1GC** was invented (to solve fragmentation).
 
 
----
+----------------
 
 
-# Explain G1 GC
+# Q - Explain G1 GC
 
----
 
 ## G1GC (Garbage First) – The "Predictable" Collector
 
@@ -9608,7 +9514,8 @@ If asked to explain G1GC, use this structure:
 4. **Advantage:** "This allows it to be **Compact** (no fragmentation) and **Predictable** 
    (adhering to a `MaxGCPauseMillis` target)."
 
----
+
+----------------
 
 
 # Q - What is a heap dump? Why do we use it? Have you ever taken a heap dump?
@@ -9719,7 +9626,7 @@ Ready for the next question?
 ---
 
 
-# Q-What is memory management in Java?
+# Q - What is memory management in Java?
 
 Here is the short, interview-ready version of **Java Memory Management**.
 
@@ -9748,10 +9655,10 @@ goes onto the **Stack**. When the Stack reference is removed (method ends), the 
 the Heap becomes "Garbage" and is eventually cleaned up by the Garbage Collector.
 
 
----
+----------------
 
 
-# Q-What are the types of Heap memory?
+# Q - What are the types of Heap memory?
 
 When we talk about "Types of Heap Memory" in an interview, we are specifically 
 referring to the **Generational Layout**.
@@ -9805,10 +9712,10 @@ Also called **Tenured Space**.
 So if asked "Types of **Heap**," stick strictly to Young and Old.
 
 
----
+----------------
 
 
-# Q-How do you optimize JVM memory?
+# Q - How do you optimize JVM memory?
 
 This is a very broad question, so to answer it effectively in an interview, 
 you need a **strategy**, not just a list of flags.
@@ -9894,7 +9801,7 @@ You cannot optimize if you don't know what's happening. Always enable logging in
 
 This shows you understand the *process*, not just the syntax.
 
----
+----------------
 
 
 
