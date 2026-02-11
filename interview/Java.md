@@ -513,14 +513,15 @@
   * [6. Summary Comparison](#6-summary-comparison)
 * [Q - Explain Concurrent Mark Sweep(CMS) GC](#q---explain-concurrent-mark-sweepcms-gc)
   * [1. The Core Concept: "Concurrent"](#1-the-core-concept-concurrent)
-  * [2. How it Works: The 4 Phases](#2-how-it-works-the-4-phases)
+  * [2. The Two Components (Young vs. Old)](#2-the-two-components-young-vs-old)
+  * [3. How it Works: The 4 Phases](#3-how-it-works-the-4-phases)
     * [Phase 1: Initial Mark (Stop-The-World)](#phase-1-initial-mark-stop-the-world)
     * [Phase 2: Concurrent Mark (App Running)](#phase-2-concurrent-mark-app-running)
     * [Phase 3: Remark (Stop-The-World)](#phase-3-remark-stop-the-world)
     * [Phase 4: Concurrent Sweep (App Running)](#phase-4-concurrent-sweep-app-running)
-  * [3. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem)](#3-the-fatal-flaw-fragmentation-the-swiss-cheese-problem)
-  * [4. The "Concurrent Mode Failure"](#4-the-concurrent-mode-failure)
-  * [5. Summary for Interview](#5-summary-for-interview)
+  * [4. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem)](#4-the-fatal-flaw-fragmentation-the-swiss-cheese-problem)
+  * [5. The "Concurrent Mode Failure"](#5-the-concurrent-mode-failure)
+  * [6. Summary for Interview](#6-summary-for-interview)
 * [Q - Explain G1 GC](#q---explain-g1-gc)
   * [G1GC (Garbage First) – The "Predictable" Collector](#g1gc-garbage-first--the-predictable-collector)
   * [1. The Architecture: "Regions"](#1-the-architecture-regions)
@@ -9347,7 +9348,26 @@ This is the most important word in modern GC.
 
 ---
 
-## 2. How it Works: The 4 Phases
+## 2. The Two Components (Young vs. Old)
+
+**Crucial Detail:** CMS is strictly an Old Generation collector. **It cannot handle the 
+Young Generation alone**. When you enable -XX:+UseConcMarkSweepGC, the JVM activates this specific pair:
+
+| Generation    | Component Name                  | Algorithm                              |
+|---------------|---------------------------------|----------------------------------------|
+| **Young Gen** | **ParNew** (Parallel New)       | **Parallel Mark-Copy**                 |
+| **Old Gen**   | **CMS** (Concurrent Mark Sweep) | **Concurrent Mark-Sweep** (No Compact) |
+
+* **Young Gen (ParNew):** Works exactly like Parallel GC's Young Gen (it is Stop-The-World and uses multiple threads).
+    * **The Difference:** It has extra overhead ("hooks") to handle object promotion and header 
+      updates safely, because the Old Gen is being managed by a background concurrent thread (CMS).
+    * **Performance:** slightly slower than `PSYoungGen` because of this overhead, but necessary for CMS integration.
+
+* **Old Gen (CMS):** This is where the magic happens. It cleans the Old Gen without stopping the application.
+
+---
+
+## 3. How it Works: The 4 Phases
 
 CMS is more complex than Parallel GC. It breaks the job into 
 four distinct phases to minimize pausing.
@@ -9384,7 +9404,7 @@ four distinct phases to minimize pausing.
 
 ---
 
-## 3. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem)
+## 4. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem)
 
 You might notice something missing. **CMS does NOT Compact.**
 
@@ -9401,17 +9421,17 @@ Imagine your memory is a row of parking spots.
 If you try to park a **Bus** (allocate a large object) and there are only small "Car" spots 
 available scattered around, allocation fails.
 
-## 4. The "Concurrent Mode Failure"
+## 5. The "Concurrent Mode Failure"
 
 When fragmentation gets too bad, or if the Old Gen fills up faster than the 
 background thread can clean it, CMS panics.
 
 1. **The Panic:** "I have no space for this object!"
-2. **The Fallback:** It triggers a **Full Serial GC.**
+2. **The Fallback:** It triggers a **Full Serial GC** (using the **Serial Old** / `TenuredGeneration`) collector.
 3. **The Result:** A massive Stop-The-World pause (often 10+ seconds) to fully compact 
    the heap using a single thread.
 
-## 5. Summary for Interview
+## 6. Summary for Interview
 
 * **Goal:** Minimize pause times.
 * **Method:** Does marking and sweeping concurrently (while app runs).
