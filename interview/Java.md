@@ -497,17 +497,17 @@
   * [1. What is Serial GC?](#1-what-is-serial-gc)
   * [2. How it Works: The "Stop-The-World" Event](#2-how-it-works-the-stop-the-world-event)
   * [3. The Two Components (Young vs. Old)](#3-the-two-components-young-vs-old)
-    * [A. Young Generation (Minor GC)](#a-young-generation-minor-gc)
-      * [B. Old Generation (Major GC)](#b-old-generation-major-gc)
+    * [A. Young Generation (DefNew)](#a-young-generation-defnew)
+    * [B. Old Generation (TenuredGeneration)](#b-old-generation-tenuredgeneration)
   * [4. Pros and Cons (Interview Material)](#4-pros-and-cons-interview-material)
   * [5. When should you use it?](#5-when-should-you-use-it)
 * [Q - Explain Parallel GC](#q---explain-parallel-gc)
   * [1. The Core Concept: "Strength in Numbers"](#1-the-core-concept-strength-in-numbers)
   * [2. How it Works (Under the Hood)](#2-how-it-works-under-the-hood)
     * [The "Stop-The-World" Sequence:](#the-stop-the-world-sequence)
-  * [3. The Algorithms (Young vs. Old)](#3-the-algorithms-young-vs-old)
-    * [A. Young Generation (Parallel Scavenge)](#a-young-generation-parallel-scavenge)
-    * [B. Old Generation (Parallel Old)](#b-old-generation-parallel-old)
+  * [3. The Two Components (Young vs. Old)](#3-the-two-components-young-vs-old-1)
+    * [A. Young Generation (PSYoungGen)](#a-young-generation-psyounggen)
+    * [B. Old Generation (ParallelOld)](#b-old-generation-parallelold)
   * [4. The "Throughput" Focus (Important for Interviews)](#4-the-throughput-focus-important-for-interviews)
   * [5. Pros and Cons](#5-pros-and-cons)
   * [6. Summary Comparison](#6-summary-comparison)
@@ -9168,12 +9168,12 @@ When you enable -XX:+UseSerialGC, the JVM activates:
 | Generation    | Component Name           | Algorithm                     |
 |---------------|--------------------------|-------------------------------|
 | **Young Gen** | **DefNew** (Default New) | **Serial Mark-Copy**          |
-| **Old Gen**   | **Serial Old**           | **Serial Mark-Sweep-Compact** |
+| **Old Gen**   | **TenuredGeneration**    | **Serial Mark-Sweep-Compact** |
 
-### A. Young Generation (Minor GC)
+### A. Young Generation (DefNew)
 
 * **What lives here:** Newly created objects (e.g., `new String("hello")`, `new Customer()`).
-* **The Algorithm:** It uses a **"Serial Mark-Copy"**.
+* **The Algorithm: Serial Mark-Copy**.
     * It reserves a separate "Survivor Space".
     * It pauses the app, finds the live objects in Eden, and copies them to the Survivor space.
     * It wipes the rest of Eden clean.
@@ -9181,10 +9181,10 @@ When you enable -XX:+UseSerialGC, the JVM activates:
 * **Why?** Most new objects die young (like temp variables in a loop). 
  Copying the few survivors is faster than scanning all the dead ones.
 
-#### B. Old Generation (Major GC)
+### B. Old Generation (TenuredGeneration)
 
 * **What lives here:** Objects that survived many Minor GCs (long-lived data like Caches, DB connections).
-* **The Algorithm:** It uses **"Serial Mark-Sweep-Compact"**.
+* **The Algorithm: Serial Mark-Sweep-Compact**.
     1. **Mark:** The single thread scans the whole Old Gen to find live objects.
     2. **Sweep:** It identifies the empty spaces between live objects.
     3. **Compact:** This is the heavy lifting. It moves live objects together to the beginning of 
@@ -9264,26 +9264,34 @@ chunks and assigns them to different threads.
 
 ---
 
-## 3. The Algorithms (Young vs. Old)
+## 3. The Two Components (Young vs. Old)
 
 Just like Serial GC, Parallel GC treats Young and Old generations differently, but now with multi-threading.
+When you enable `-XX:+UseParallelGC`, the JVM activates:
 
-### A. Young Generation (Parallel Scavenge)
+| Generation    | Component Name                     | Algorithm                       |
+|---------------|------------------------------------|---------------------------------|
+| **Young Gen** | **PSYoungGen** (Parallel Scavenge) | **Parallel Mark-Copy**          |
+| **Old Gen**   | **ParallelOld**                    | **Parallel Mark-Sweep-Compact** |
+
+### A. Young Generation (PSYoungGen)
 
 * **Goal:** Speed. New objects die fast.
-* **Method:** It uses **Parallel Copying**.
-* **Action:** Multiple threads grab live objects from Eden and copy them into Survivor spaces simultaneously.
-* **Why it's fast:** Since most objects in Eden are dead, the threads only have to copy a 
-  tiny fraction of the memory.
+* **Algorithm: Parallel Mark-Copy**.
+    * Multiple threads scan Eden simultaneously.
+    * They coordinate to copy surviving objects into the Survivor Space.
+* **Why it's fast:** Copying is CPU-intensive. By splitting the work across 8 or 16 cores, we 
+   can clear Eden much faster than Serial GC.
 
-### B. Old Generation (Parallel Old)
+### B. Old Generation (ParallelOld)
 
 * **Goal:** Space efficiency.
-* **Method:** It uses **Parallel Mark-Compact**.
-* **Action:**
+* **Algorithm: Parallel Mark-Sweep-Compact.**
     1. **Mark:** All threads scan the Old Gen to find live objects.
     2. **Summary:** They calculate where each live object *should* go to make the memory compact.
     3. **Compaction:** They move the objects to their new locations in parallel.
+
+* **Why compact?** To eliminate fragmentation (Swiss Cheese memory) so we can allocate large objects later.
 
 ---
 
