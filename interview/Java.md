@@ -9163,7 +9163,7 @@ Only after it finishes do the application threads resume.
 Serial GC divides the Heap into two main physical areas (Generations). It handles them differently.
 
 **Important:** Serial GC is not just one algorithm; it is a pair of collectors that work together.
-When you enable -XX:+UseSerialGC, the JVM activates:
+When you enable `-XX:+UseSerialGC`, the JVM activates:
 
 | Generation    | Component Name           | Algorithm                     |
 |---------------|--------------------------|-------------------------------|
@@ -9289,7 +9289,7 @@ When you enable `-XX:+UseParallelGC`, the JVM activates:
 * **Algorithm: Parallel Mark-Sweep-Compact.**
     1. **Mark:** All threads scan the Old Gen to find live objects.
     2. **Summary:** They calculate where each live object *should* go to make the memory compact.
-    3. **Compaction:** They move the objects to their new locations in parallel.
+    3. **Compact:** They work together to slide objects to the start of the heap.
 
 * **Why compact?** To eliminate fragmentation (Swiss Cheese memory) so we can allocate large objects later.
 
