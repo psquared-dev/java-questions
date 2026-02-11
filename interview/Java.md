@@ -530,7 +530,8 @@
     * [Phase B: The Concurrent Marking Cycle (The Proactive Trigger)](#phase-b-the-concurrent-marking-cycle-the-proactive-trigger)
     * [Phase C: The Mixed GC (The "Magic")](#phase-c-the-mixed-gc-the-magic)
   * [3. The Killer Feature: "Predictable Pauses"](#3-the-killer-feature-predictable-pauses)
-  * [4. Summary for the Interview](#4-summary-for-the-interview)
+  * [4. The Failure Mode: "Evacuation Failure"](#4-the-failure-mode-evacuation-failure)
+  * [5. Summary for the Interview](#5-summary-for-the-interview)
 * [Q - What is a heap dump? Why do we use it? Have you ever taken a heap dump?](#q---what-is-a-heap-dump-why-do-we-use-it-have-you-ever-taken-a-heap-dump)
   * [1. What is a Heap Dump? (The "Crime Scene Photo")](#1-what-is-a-heap-dump-the-crime-scene-photo)
   * [2. Why do we use it?](#2-why-do-we-use-it)
@@ -9466,7 +9467,16 @@ for **Large Heaps (6GB+)** with a focus on **Low Latency** (short pauses).
 ## 1. The Architecture: "Regions"
 
 Instead of three massive, contiguous blocks (Eden, Survivor, Old), G1GC chops the 
-entire Heap into roughly **2,000 small, equal-sized chunks called "Regions"** (1MB - 32MB each).
+entire Heap into equal-sized chunks called "Regions"** (1MB - 32MB each).
+
+Unlike Serial, Parallel, and CMS, which use two separate engines (one for Young, one for Old), 
+G1GC is a single unified engine.
+
+| Generation    | Component Name  | Algorithm                                              |
+|---------------|-----------------|--------------------------------------------------------|
+| **Young Gen** | G1CollectedHeap | **Parallel Evacuation (Copying)**                      |
+| **Old Gen**   | G1CollectedHeap | **Concurrent Marking + Parallel Evacuation (Copying)** |
+
 
 * **Virtual Roles:** A region is not permanently fixed.
     * A region usually starts as **Free**.
@@ -9484,11 +9494,12 @@ G1GC operates in a loop consisting of three distinct phases.
 
 * **Trigger:** The set of Eden regions is full.
 * **Action:** A standard **Stop-The-World (STW)** pause.
+* **Algorithm: Parallel Evacuation (Copying).**
 * **What happens:**
     * G1GC pauses the app.
-    * It executes a **Parallel Copy**.
-    * Live objects from **Eden** regions are copied to **Survivor** regions.
-    * Objects that have survived enough cycles are promoted to **Old** regions.
+    * It picks all Eden regions and all Survivor regions.
+    * It copies (evacuates) live objects into new **Survivor** or **Old regions**.
+    * **Key Detail:** Because it copies objects to new regions, it is **compacting** memory by definition.
 
 * **Result:** Eden is empty. The application resumes.
 
@@ -9536,21 +9547,37 @@ You give the JVM a target: ` -XX:MaxGCPauseMillis=200` (Don't pause for more tha
 
 ---
 
-## 4. Summary for the Interview
+## 4. The Failure Mode: "Evacuation Failure"
+
+Just like CMS has "Concurrent Mode Failure," G1 has a failure mode.
+
+* **The Problem:** **Evacuation Failure**.
+    * G1 tries to copy live objects from Region A to Region B.
+    * But there are **no free regions left** in the heap.
+
+* **The Fallback:** It triggers a **Full GC**.
+    * *Historical Note:* Before Java 10, this fallback was **Single Threaded (Serial Old)**.
+    * *Modern Java (10+):* The fallback is **Parallel**, so it’s not as catastrophic, but still a long pause.
+
+
+---
+
+## 5. Summary for the Interview
 
 If asked to explain G1GC, use this structure:
 
-1. **Layout:** "G1GC divides the heap into thousands of small **Regions** rather than 
-   large contiguous generations."
-2. **Phases:** "It normally performs **Young GCs**. Once the heap hits **45% occupancy**, it 
-   triggers a concurrent mark to identify Old regions with the most garbage."
-3. **Efficiency:** "It then switches to **Mixed GCs**, where it cleans all Young regions plus 
-   a few chosen Old regions—specifically the ones that are mostly garbage (hence 'Garbage First')."
-4. **Advantage:** "This allows it to be **Compact** (no fragmentation) and **Predictable** 
-   (adhering to a `MaxGCPauseMillis` target)."
+1. **Layout:** "G1GC divides the heap into thousands of small **Regions**. It is a single component
+    handling both generations."
+2. **Algorithm:** "It uses **Parallel Evacuation** (Copying) for both Young and Old generations. 
+    This means it is always compacting; it never suffers from the fragmentation issues of CMS."
+3. **Strategy:** "It marks concurrently (while app runs) to find which Old regions are mostly garbage."
+4. **Mixed GC:** "It then performs 'Mixed GCs' where it cleans the Young Gen + the 'Garbage First' Old regions
+    to meet a strict **pause time target** (e.g., 200ms)."
+
 
 
 ----------------
+
 
 
 # Q - What is a heap dump? Why do we use it? Have you ever taken a heap dump?
