@@ -32,7 +32,6 @@
 * [Q - What are packages?](#q---what-are-packages)
 * [Q - Do we have pointers in Java?](#q---do-we-have-pointers-in-java)
 * [Q - What is Java String Pool & String Interning?](#q---what-is-java-string-pool--string-interning)
-* [Q - What is Java String Pool & String Interning?](#q---what-is-java-string-pool--string-interning-1)
   * [1. String Literal (Automatic Interning)](#1-string-literal-automatic-interning)
   * [2. The `new` Keyword (Forcing a New Object)](#2-the-new-keyword-forcing-a-new-object)
   * [3. Manual Interning (`.intern()`)](#3-manual-interning-intern)
@@ -1252,15 +1251,6 @@ No
 
 -----------------------------
 
-# Q - What is Java String Pool & String Interning?
-
-Here is the consolidated, interview-ready answer that merges **String Pool** (the storage) and **String Interning** (the mechanism).
-
-This single answer covers both concepts seamlessly.
-
-
----
-
 
 # Q - What is Java String Pool & String Interning?
 
@@ -1327,6 +1317,8 @@ String s4 = s3.intern();         // Returns the Pool object
 * **Use Case:** Useful when receiving massive amounts of duplicate strings 
   from external sources (like a DB or CSV file) where you want to deduplicate memory.
 
+---
+
 ## 4. Why is this safe? (Immutability)
 
 The only reason Java can safely share one `"Hello"` object among 100 different variables 
@@ -1337,7 +1329,9 @@ every other variable pointing to that shared object. Because they cannot be chan
 can be safely shared without thread-safety issues.
 
 
----
+
+---------------
+
 
 
 # Q - What is JDK? What is the diff b/w JDK and JRE?
