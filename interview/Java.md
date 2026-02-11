@@ -315,7 +315,6 @@
     * [3. What actually happens? (Method Hiding)](#3-what-actually-happens-method-hiding)
 * [Q - Does finally always execute in Java?](#q---does-finally-always-execute-in-java)
 * [Q - What are methods provided by the Object class?](#q---what-are-methods-provided-by-the-object-class)
-* [Q - Difference between fail-fast and fail-safe iterators?](#q---difference-between-fail-fast-and-fail-safe-iterators)
 * [Q - Is Java Pass by Value or Pass by Reference?](#q---is-java-pass-by-value-or-pass-by-reference)
 * [Q - What if a method in child class is more restricted than a parent class?](#q---what-if-a-method-in-child-class-is-more-restricted-than-a-parent-class)
 * [Q - What is Covariant return type?](#q---what-is-covariant-return-type)
@@ -6202,11 +6201,18 @@ Not in the following cases:
 
 
 
-# Q - Difference between fail-fast and fail-safe iterators?
+----------------
+
+
+
 
 # Q - Is Java Pass by Value or Pass by Reference?
 
 Pass by value
+
+
+----------------
+
 
 # Q - What if a method in child class is more restricted than a parent class?
 
@@ -6222,6 +6228,10 @@ When you override a method, you cannot make the access modifier more restrictive
 * ✅ You CAN keep it the same.
 * ✅ You CAN make it less restrictive (more visible).
 * ❌ You CANNOT make it more restrictive (less visible).
+
+
+----------------
+
 
 # Q - What is Covariant return type?
 
@@ -6274,6 +6284,12 @@ It saves you from doing annoying type-casting.
 
 This relates directly to the Liskov Substitution Principle: 
 > The Child can provide more specific guarantees than the Parent, but never less.
+
+
+
+----------------
+
+
 
 # Q - Is default keyword one of the access modifier?
 
@@ -6328,7 +6344,11 @@ switch(day) {
 }
 ```
 
----
+
+
+----------------
+
+
 
 # Q - Can you provide default hashcode() implementation in the interface?
 
