@@ -432,25 +432,27 @@
   * [When does G1 move to Full GC?](#when-does-g1-move-to-full-gc)
   * [Why classic collectors were slower](#why-classic-collectors-were-slower)
   * [Final interview-ready summary (perfect answer)](#final-interview-ready-summary-perfect-answer)
-* [Q - What new features were introduced](#q---what-new-features-were-introduced)
 * [Q - Give a walk-through of the new features introduced since Java 8?](#q---give-a-walk-through-of-the-new-features-introduced-since-java-8)
   * [Phase 1: Java 9 - 11 (The "Modernization" Era)](#phase-1-java-9---11-the-modernization-era)
-    * [1. Local Variable Type Inference (`var`)](#1-local-variable-type-inference-var)
-    * [2. New HttpClient (Standardized)](#2-new-httpclient-standardized)
-    * [3. String Methods (Life Savers)](#3-string-methods-life-savers)
-    * [4. Running Single-File Source Code](#4-running-single-file-source-code)
+    * [Modules (Jigsaw)](#modules-jigsaw)
+    * [Collection Factory Methods](#collection-factory-methods)
+    * [Local Variable Type Inference (`var`)](#local-variable-type-inference-var)
+    * [New HttpClient (Standardized)](#new-httpclient-standardized)
+    * [String Methods (Life Savers)](#string-methods-life-savers)
+    * [Running Single-File Source Code](#running-single-file-source-code)
   * [Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era)](#phase-2-java-12---17-the-syntactic-sugar-era)
-    * [1. Records (Data Classes)](#1-records-data-classes)
-    * [2. Text Blocks (Multi-line Strings)](#2-text-blocks-multi-line-strings)
-    * [3. Switch Expressions](#3-switch-expressions)
-    * [4. Pattern Matching for `instanceof`](#4-pattern-matching-for-instanceof)
-    * [5. Sealed Classes](#5-sealed-classes)
-    * [6. Helpful NullPointerExceptions](#6-helpful-nullpointerexceptions)
+    * [Records (Data Classes)](#records-data-classes)
+    * [Text Blocks (Multi-line Strings)](#text-blocks-multi-line-strings)
+    * [Switch Expressions](#switch-expressions)
+    * [Pattern Matching for `instanceof`](#pattern-matching-for-instanceof)
+    * [Sealed Classes](#sealed-classes)
+    * [Helpful NullPointerExceptions](#helpful-nullpointerexceptions)
   * [Phase 3: Java 18 - 21 (The "Concurrency Revolution")](#phase-3-java-18---21-the-concurrency-revolution)
-    * [1. Virtual Threads (Project Loom) - **The Game Changer**](#1-virtual-threads-project-loom---the-game-changer)
-    * [2. Sequenced Collections](#2-sequenced-collections)
-    * [3. Record Patterns](#3-record-patterns)
-  * [Summary Cheat Sheet for Interview](#summary-cheat-sheet-for-interview)
+    * [Virtual Threads (Project Loom) - **The Game Changer**](#virtual-threads-project-loom---the-game-changer)
+    * [Structured Concurrency](#structured-concurrency-)
+    * [Sequenced Collections](#sequenced-collections)
+    * [Record Patterns](#record-patterns)
+    * [Foreign Function & Memory API](#foreign-function--memory-api)
 * [Q - What is CAS (Compare-And-Swap)?](#q---what-is-cas-compare-and-swap)
 * [Q - Explain Soft vs. Weak vs. Phantom References?](#q---explain-soft-vs-weak-vs-phantom-references)
 * [Q - What is Escape Analysis?](#q---what-is-escape-analysis)
@@ -7655,7 +7657,7 @@ Two possibilities:
 No problem.
 
 
-**Case B: Old Gen does NOT have space ❌ **
+**Case B: Old Gen does NOT have space ❌**
 
 Why Old Gen is full:
 
@@ -7739,7 +7741,12 @@ So after Full GC:
 
 > Promotion failure happens when a Minor GC cannot free enough space because surviving objects need to be 
 > promoted, but the Old Generation does not have sufficient free space, forcing a Full GC.
-> 
+>
+
+
+
+----------------
+
 
 
 # Q - Explain working of GC Roots?
@@ -7753,7 +7760,7 @@ If not → it is garbage.
 The 3 main GC Roots:
 
 1. All live thread stacks
-2. Class metadata (static fields)
+2. Classes (specifically those loaded by the System ClassLoader, which hold the static fields)
 3. JNI / native references
 
 
@@ -8042,6 +8049,11 @@ Anything it can reach stays.
 Anything it cannot reach goes.
 
 That's all.
+
+
+
+----------------
+
 
 
 # Q - Explain the working of G1 Garbage Collector
@@ -8362,10 +8374,10 @@ Result:
 > G1 divides the heap into regions, marks live objects starting from GC roots, computes garbage per region, and 
 > performs Mixed GCs—Young GC plus selected garbage-heavy Old regions—using remembered sets for safety, escalating
 > to Full GC only if Mixed GCs cannot reclaim enough space.
-> 
+>
 
 
-# Q - What new features were introduced
+----------------
 
 
 # Q - Give a walk-through of the new features introduced since Java 8?
@@ -8382,7 +8394,35 @@ Here is the "Executive Summary" of the evolution from Java 8.
 
 *Focus: Removing boilerplate and modernizing APIs.*
 
-### 1. Local Variable Type Inference (`var`)
+### Modules (Jigsaw)
+
+The Change: Java 9 broke the massive monolithic JDK into small, manageable modules.
+
+* **Key Concept:** Strict encapsulation. You must explicitly declare what packages 
+   your module exports and what other modules it requires using `module-info.java`.
+
+* **Impact:**
+    1. **Security:** Internal JDK APIs (like `sun.misc.Unsafe`) are hidden.
+    2. **Scalability:** You can create custom, tiny Java runtimes (using jlink) that only contain 
+        the modules your app actually needs (e.g., a 30MB JRE instead of 200MB).
+
+### Collection Factory Methods
+
+The Change: Finally, a clean one-line syntax to create immutable lists, sets, and maps.
+
+* **Old Way:** `Arrays.asList("a", "b")` (Mutable wrapper, allows nulls) or
+   `Collections.unmodifiableList(...)` (Verbose).
+* New Way:
+    ```java
+    List<String> list = List.of("a", "b", "c");
+    Set<String> set = Set.of("a", "b", "c");
+    Map<String, Integer> map = Map.of("a", 1, "b", 2);
+    ```
+    
+* **Note:** These collections are Immutable. Calling `.add()` throws `UnsupportedOperationException`. 
+  They also reject null values.
+
+### Local Variable Type Inference (`var`)
 
 **The Change:** You don't need to repeat the type name on the left side.
 
@@ -8390,7 +8430,7 @@ Here is the "Executive Summary" of the evolution from Java 8.
 * **Java 11:** `var users = new HashMap<String, List<User>>();`
 * *Note:* Still strongly typed! The compiler just infers it.
 
-### 2. New HttpClient (Standardized)
+### New HttpClient (Standardized)
 
 **The Change:** Finally, a built-in, non-blocking HTTP client. No need for 
 Apache `HttpClient` or `OkHttp` for simple tasks.
@@ -8401,14 +8441,14 @@ HttpRequest request = HttpRequest.newBuilder().uri(URI.create("https://api.com")
 HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 ```
 
-### 3. String Methods (Life Savers)
+### String Methods (Life Savers)
 
 * `isBlank()`: Checks if a string is empty OR just whitespace.
 * `lines()`: Returns a Stream of lines from a multi-line string.
 * `strip()`: Unicode-aware `trim()`.
 * `repeat(n)`: Repeats the string n times.
 
-### 4. Running Single-File Source Code
+### Running Single-File Source Code
 
 You can now run a file without compiling it first!
 
@@ -8420,7 +8460,7 @@ You can now run a file without compiling it first!
 
 *Focus: Developer productivity and reducing code noise.*
 
-### 1. Records (Data Classes)
+### Records (Data Classes)
 
 Immutable data carriers without boilerplate (`getters`, `equals`, `hashCode`, `toString`).
 
@@ -8430,7 +8470,7 @@ public record User(String name, int id) {}
 
 ```
 
-### 2. Text Blocks (Multi-line Strings)
+### Text Blocks (Multi-line Strings)
 
 No more `\n` and `+` concatenation for JSON/SQL.
 
@@ -8444,7 +8484,7 @@ String json = """
 
 ```
 
-### 3. Switch Expressions
+### Switch Expressions
 
 Arrow syntax, no fall-through, can return values.
 
@@ -8457,7 +8497,7 @@ var result = switch(day) {
 
 ```
 
-### 4. Pattern Matching for `instanceof`
+### Pattern Matching for `instanceof`
 
 Smart casting.
 
@@ -8468,7 +8508,7 @@ if (obj instanceof String s) {
 
 ```
 
-### 5. Sealed Classes
+### Sealed Classes
 
 Control exactly who can extend your class (critical for domain modeling).
 
@@ -8477,7 +8517,7 @@ public sealed interface Shape permits Circle, Square {}
 
 ```
 
-### 6. Helpful NullPointerExceptions
+### Helpful NullPointerExceptions
 
 * **Old:** `NullPointerException at line 45` (Where? Who?)
 * **New:** `Cannot invoke "String.length()" because "user.name" is null`.
@@ -8488,7 +8528,7 @@ public sealed interface Shape permits Circle, Square {}
 
 *Focus: High-throughput concurrency and simplification.*
 
-### 1. Virtual Threads (Project Loom) - **The Game Changer**
+### Virtual Threads (Project Loom) - **The Game Changer**
 
 **The Problem:** Java threads map 1:1 to OS threads. OS threads are heavy (2MB RAM). 
 You can only have ~5,000 active threads before the server crashes.
@@ -8504,17 +8544,38 @@ You can write simple, blocking code that handles millions of connections.
 Thread.startVirtualThread(() -> {
     System.out.println("Running in a virtual thread!");
 });
-
 ```
 
-### 2. Sequenced Collections
+### Structured Concurrency 
+
+**The Problem:** In traditional concurrency, if you spawn 3 threads to do a task and 
+one fails, the others keep running (leaking resources), and handling errors across them is a nightmare.
+
+**The Solution:** Structured Concurrency treats multiple related tasks running in different 
+threads as a single unit of work.
+
+* **Impact:** If one sub-task fails, the others are automatically cancelled (cleaned up). 
+   It brings the simplicity of single-threaded error handling to multi-threaded code.
+* Key API: `StructuredTaskScope`
+
+```java
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+Supplier<String> user  = scope.fork(() -> findUser());
+Supplier<Integer> order = scope.fork(() -> fetchOrder());
+
+    scope.join().throwIfFailed(); // Wait for both, or fail if one fails
+// Both results are ready here
+}
+```
+
+### Sequenced Collections
 
 Java finally unified how we access the "first" and "last" elements of a list, set, or deque.
 
 * **Old:** `list.get(0)`, `deque.getFirst()`, `sortedSet.first()`. (Inconsistent).
 * **New:** `collection.getFirst()`, `collection.getLast()`, `collection.addFirst()`. (Uniform).
 
-### 3. Record Patterns
+### Record Patterns
 
 Deconstructs records directly in `instanceof` or `switch`.
 
@@ -8524,29 +8585,22 @@ if (obj instanceof Point(int x, int y)) {
 }
 ```
 
+
+### Foreign Function & Memory API
+
+Foreign Function & Memory API (Java 21)
+
+The Change: A safe, standard way to access memory outside of the Java heap (off-heap) and call native code (C libraries).
+
+* **The Old Way:** JNI (Java Native Interface). It was brittle, difficult to write, and could 
+   easily crash the entire JVM.
+* **The New Way:** The FFM API replaces JNI. It is pure Java API (no native wrapper code needed), 
+   safer, and much faster.
+* **Use Case:** High-performance applications interacting with hardware, heavy AI/ML 
+   libraries (TensorFlow/PyTorch), or processing massive data without Garbage Collection overhead.
+
 ---
 
-## Summary Cheat Sheet for Interview
-
-| Feature                | Version     | Purpose                                             |
-|------------------------|-------------|-----------------------------------------------------|
-| **Modules (Jigsaw)**   | Java 9      | Strict encapsulation, smaller runtimes.             |
-| **`var`**              | Java 10     | Type inference, cleaner code.                       |
-| **HttpClient**         | Java 11     | Built-in non-blocking HTTP requests.                |
-| **Switch Expressions** | Java 14     | Cleaner switch logic, returns values.               |
-| **Text Blocks**        | Java 15     | Multi-line strings (JSON/SQL).                      |
-| **Records**            | Java 16     | Boilerplate-free DTOs.                              |
-| **Pattern Matching**   | Java 16     | Smart casting (`instanceof`).                       |
-| **Sealed Classes**     | Java 17     | Restricted inheritance hierarchy.                   |
-| **Virtual Threads**    | **Java 21** | **Massive** concurrency scalability (Project Loom). |
-
-**Interview Strategy:**
-"Since Java 8, the language has become much less verbose.
-
-1. **Java 11** gave us operational improvements like `var` and `HttpClient`.
-2. **Java 17** improved our daily coding with **Records**, **Text Blocks**, and **Switch Expressions**.
-3. **Java 21** is revolutionizing concurrency with **Virtual Threads**, which allows us to 
-   write high-throughput applications without the complexity of Reactive programming."
 
 # Q - What is CAS (Compare-And-Swap)?
 
