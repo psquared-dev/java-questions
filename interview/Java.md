@@ -496,7 +496,7 @@
 * [Q - Explain Serial GC](#q---explain-serial-gc)
   * [1. What is Serial GC?](#1-what-is-serial-gc)
   * [2. How it Works: The "Stop-The-World" Event](#2-how-it-works-the-stop-the-world-event)
-  * [3. The Memory Structure (Young vs. Old)](#3-the-memory-structure-young-vs-old)
+  * [3. The Two Components (Young vs. Old)](#3-the-two-components-young-vs-old)
     * [A. Young Generation (Minor GC)](#a-young-generation-minor-gc)
       * [B. Old Generation (Major GC)](#b-old-generation-major-gc)
   * [4. Pros and Cons (Interview Material)](#4-pros-and-cons-interview-material)
@@ -9117,7 +9117,6 @@ Even though Metaspace is "dynamic," it is not infinite. Here is the chain of eve
 
 # Q - Explain Serial GC
 
-
 ## 1. What is Serial GC?
 
 **The Concept:**
@@ -9159,17 +9158,25 @@ Only after it finishes do the application threads resume.
 
 ---
 
-## 3. The Memory Structure (Young vs. Old)
+## 3. The Two Components (Young vs. Old)
 
 Serial GC divides the Heap into two main physical areas (Generations). It handles them differently.
+
+**Important:** Serial GC is not just one algorithm; it is a pair of collectors that work together.
+When you enable -XX:+UseSerialGC, the JVM activates:
+
+| Generation    | Component Name           | Algorithm                     |
+|---------------|--------------------------|-------------------------------|
+| **Young Gen** | **DefNew** (Default New) | **Serial Mark-Copy**          |
+| **Old Gen**   | **Serial Old**           | **Serial Mark-Sweep-Compact** |
 
 ### A. Young Generation (Minor GC)
 
 * **What lives here:** Newly created objects (e.g., `new String("hello")`, `new Customer()`).
-* **The Algorithm:** It uses a **"Copying"** collector.
-    * It has three spaces: **Eden**, **Survivor 1**, and **Survivor 2**.
-    * It copies live objects from Eden to a Survivor space.
-    * Dead objects in Eden are simply wiped out (overwritten).
+* **The Algorithm:** It uses a **"Serial Mark-Copy"**.
+    * It reserves a separate "Survivor Space".
+    * It pauses the app, finds the live objects in Eden, and copies them to the Survivor space.
+    * It wipes the rest of Eden clean.
 
 * **Why?** Most new objects die young (like temp variables in a loop). 
  Copying the few survivors is faster than scanning all the dead ones.
@@ -9177,13 +9184,13 @@ Serial GC divides the Heap into two main physical areas (Generations). It handle
 #### B. Old Generation (Major GC)
 
 * **What lives here:** Objects that survived many Minor GCs (long-lived data like Caches, DB connections).
-* **The Algorithm:** It uses **"Mark-Sweep-Compact"**.
+* **The Algorithm:** It uses **"Serial Mark-Sweep-Compact"**.
     1. **Mark:** The single thread scans the whole Old Gen to find live objects.
     2. **Sweep:** It identifies the empty spaces between live objects.
     3. **Compact:** This is the heavy lifting. It moves live objects together to the beginning of 
     the memory block so that there is one large chunk of free space at the end.
 
-    * *Why compact?* So we can allocate large objects later without hitting fragmentation errors.
+* **Why compact?** To ensure we have a large contiguous chunk of free space for future allocations.
 
 ---
 
