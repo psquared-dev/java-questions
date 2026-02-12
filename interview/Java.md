@@ -10,14 +10,14 @@
     * [Memory Regions - Summary](#memory-regions---summary)
     * [References](#references)
   * [Q - What is shadowing?](#q---what-is-shadowing)
-  * [Q - Will the following code compile?](#q---will-the-following-code-compile)
+  * [Q - Will the following code compile (Widening vs. Narrowing)?](#q---will-the-following-code-compile-widening-vs-narrowing)
     * [1. Widening = implicit (safe)](#1-widening--implicit-safe)
     * [2. Narrowing = explicit cast required (unsafe)](#2-narrowing--explicit-cast-required-unsafe)
     * [Why `myChar = myByte` is not allowed](#why-mychar--mybyte-is-not-allowed)
     * [Why `myShort = myChar` is not allowed](#why-myshort--mychar-is-not-allowed)
     * [Why `myChar = myShort` is not allowed](#why-mychar--myshort-is-not-allowed)
   * [Q - var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q---var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
-  * [Q - Will the following code compile?](#q---will-the-following-code-compile-1)
+  * [Q - Can you initialize a var variable with null?](#q---can-you-initialize-a-var-variable-with-null)
   * [Q - Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword](#q---mentions-some-other-possible-scenarios-where-we-cant-use-the-var-lvti-keyword)
   * [Q - Do `double` and `float` type overflow?](#q---do-double-and-float-type-overflow)
   * [Q - Is default keyword one of the access modifier?](#q---is-default-keyword-one-of-the-access-modifier)
@@ -748,7 +748,7 @@ So inside the loop:
 -----------------------------
 
 
-## Q - Will the following code compile?
+## Q - Will the following code compile (Widening vs. Narrowing)?
 
 ```java
 byte myByte = 'a';
@@ -854,7 +854,7 @@ as a normal name.
 
 -----------------------------
 
-## Q - Will the following code compile?
+## Q - Can you initialize a var variable with null?
 
 ```java
 var name = null;
