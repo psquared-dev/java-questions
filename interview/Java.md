@@ -1268,12 +1268,12 @@ When you call `map.put(key, value)`, the JVM follows this precise sequence:
 1. **Generate Hash:** Call `key.hashCode()` to get a unique integer (e.g., `859403`).
 2. **Calculate Index:** Convert that hash into a valid array index using modulo (e.g., `859403 % 16 = Index 11`).
 3. **Handle Collisions:**
-  * If Bucket #11 is empty, store the object there.
-  * If Bucket #11 is occupied, use `equals()` to check if the key already exists.
-    If not, add it to the chain (Linked List or Tree).
-  * **Crucial Java 8+ Detail:** The chain starts as a Linked List. However, if the number of items in
-    that single bucket exceeds 8 (the `TREEIFY_THRESHOLD`), the JVM automatically morphs that list into
-    a Red-Black Tree. This improves performance from `O(n)` to `O(log n)` during high collisions.
+    * If Bucket #11 is empty, store the object there.
+    * If Bucket #11 is occupied, use `equals()` to check if the key already exists.
+      If not, add it to the chain (Linked List or Tree).
+    * **Crucial Java 8+ Detail:** The chain starts as a Linked List. However, if the number of items in
+      that single bucket exceeds 8 (the `TREEIFY_THRESHOLD`), the JVM automatically morphs that list into
+      a Red-Black Tree. This improves performance from `O(n)` to `O(log n)` during high collisions.
 
 
 ### The Contract: The "Law" of HashCode
