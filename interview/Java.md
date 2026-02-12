@@ -2177,6 +2177,8 @@ Now Java uses your version number, not the automatically generated one.
 
 After this, you can
 
+---
+
 #### Add a new field
 
 No error.
@@ -2193,6 +2195,8 @@ int age;
 
 When deserialized → `age = 0`.
 
+---
+
 #### Remove a field
 
 No error.
@@ -2204,13 +2208,19 @@ New class doesn't.
 
 Deserialization → the old field is ignored.
 
+---
+
 #### Change field order
 
 No issue. Order does not matter.
 
+---
+
 #### Add methods
 
 No issue - methods are not serialized.
+
+---
 
 #### Changes that break compatibility
 
