@@ -290,6 +290,13 @@
 * [Q - Follow-up question from the interviewer -  What if some logs into the k8s cluster and manually scaled replica?](#q---follow-up-question-from-the-interviewer---what-if-some-logs-into-the-k8s-cluster-and-manually-scaled-replica)
   * [The Problem: The "Push" Model (Jenkins)](#the-problem-the-push-model-jenkins)
   * [The Solution: The "Pull" Model (GitOps with ArgoCD)](#the-solution-the-pull-model-gitops-with-argocd)
+* [Q - Explain the architecture of your previous project](#q---explain-the-architecture-of-your-previous-project)
+* [Q - In what scenario, you should prefer orchestration saga pattern over choreography pattern?](#q---in-what-scenario-you-should-prefer-orchestration-saga-pattern-over-choreography-pattern)
+  * [1. The Workflow is Complex (More than 4 steps)](#1-the-workflow-is-complex-more-than-4-steps)
+  * [2. You Need Centralized Monitoring & Control](#2-you-need-centralized-monitoring--control)
+  * [3. The Flow Has Cyclic Dependencies](#3-the-flow-has-cyclic-dependencies)
+  * [4. Compensation (Rollback) Logic is Critical](#4-compensation-rollback-logic-is-critical)
+  * [Summary Table](#summary-table)
 <!-- TOC -->
 
 # Q - Types of caches
@@ -308,7 +315,7 @@ Writes go to the cache only at first, and are marked as "dirty". Later, the dirt
 is flushed (written back) to storage asynchronously.
 
 
----
+----------------
 
 
 # Q - What is latency and throughput?
@@ -317,7 +324,7 @@ is flushed (written back) to storage asynchronously.
 * Throughput - Throughput is the number of tasks completed in a given time period.
 
 
----
+----------------
 
 
 # Q - Difference between Coupling and Cohesion?
@@ -416,7 +423,7 @@ Now `PaymentService` doesn’t care about the specific implementation.
 Here is the golden rule of software design: **You want Low Coupling and High Cohesion**.
 
 
----
+----------------
 
 
 # Q - What are common microserivces design pattern?
@@ -607,7 +614,8 @@ If asked **"What patterns have you used?"**, pick 3-4 you are comfortable with:
 
 * https://www.openlegacy.com/blog/microservices-architecture-patterns/
 
----
+
+----------------
 
 
 # Q - When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?
@@ -691,7 +699,7 @@ If you find yourself copying and pasting the same code (like logging or file val
 then introduce an Abstract Class in the middle.
 
 
----
+----------------
 
 
 # Q - Explain CQRS Pattern
@@ -833,7 +841,8 @@ CQRS is "sane" when:
 3. You can afford **Eventual Consistency** (a 1-second delay is acceptable).
 
 
----
+----------------
+
 
 # Q - Explain Saga pattern
 
@@ -927,7 +936,9 @@ participant what to do.
 > the event-chain of Choreography."
 >
 
----
+
+----------------
+
 
 # Q - Explain Transactional outbox pattern
 
@@ -1191,7 +1202,7 @@ public class PaymentService {
 ```
 
 
----
+----------------
 
 
 # Q - Explain Retry pattern
@@ -1349,7 +1360,7 @@ resilience4j:
         randomizedWaitFactor: 0.5        # Jitter factor (0.5 = +/- 50%)
 ```
 
----
+----------------
 
 
 # Q - What is N+1 problem?
@@ -1418,7 +1429,8 @@ Hibernate runs **1 single query**:
 `SELECT * FROM Author a INNER JOIN Book b ON a.id = b.author_id`
 
 
----
+----------------
+
 
 # Q - Explain SOLID
 
@@ -1463,7 +1475,9 @@ class InvoicePrinter {
 
 ```
 
----
+
+----------------
+
 
 ## O - Open/Closed Principle (OCP)
 
@@ -1717,7 +1731,7 @@ class Store {
 | **DIP**   | Dependency Inversion  | **Inject dependencies** (Constructor Injection) instead of `new`. |
 
 
----
+----------------
 
 
 # Q - What is Partition Tolerance?
@@ -1725,7 +1739,8 @@ class Store {
 Partition Tolerance is the ability of a distributed system to survive a communications
 breakdown between its internal servers.
 
----
+
+----------------
 
 
 # Q - What is CAP theorem?
@@ -1827,7 +1842,7 @@ When the network is healthy:
 Neither is "better". They solve different problems.
 
 
----
+----------------
 
 
 # Q - What are two common Replication Models?
@@ -1949,7 +1964,7 @@ If you want to guarantee that your friend always sees "The sky is Green," you mu
 | $R + W > N$   | Strong Consistency          | The Read group and Write group are guaranteed to overlap. Always fresh data. | Passwords, Payments, Inventory. |
 
 
----
+----------------
 
 
 # Q - What are Bloom Filters?
@@ -2115,7 +2130,7 @@ So Bloom Filters trade:
 * for huge speed gains
 
 
-
+----------------
 
 
 # Q - What are LSM Trees?
@@ -2601,7 +2616,7 @@ During compaction:
 | Temporary     | Long-lived            |
 
 
-
+----------------
 
 
 # Q - What is Consistent hashing?
@@ -3452,7 +3467,8 @@ DEAD
 
 > Nodes gossip membership, mark failures as SUSPECT, declare DEAD only after a timeout, and use incarnation numbers to resolve conflicts and allow safe recovery.
 
----
+
+----------------
 
 
 
@@ -3940,7 +3956,10 @@ We want to estimate how many requests happened in the *last rolling 60 seconds*.
 | **Sliding Counter** | Balanced accuracy & efficiency  | Slightly complex math                   | **High-scale APIs** (Cloudflare)       |
 
 
----
+
+----------------
+
+
 
 # Q - What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems
 
@@ -4136,7 +4155,9 @@ Repeating:
 
 ✔ This specific PATCH is idempotent
 
----
+
+----------------
+
 
 # Q - Mention a few Deployment strategies
 
@@ -4220,10 +4241,10 @@ it fits your "Release Train" story perfectly.
 > Kubernetes Deployment objects to ensure zero downtime without the cost overhead of Blue-Green."*
 > 
 > 
-> 
+>
 
 
----
+----------------
 
 
 # Q - Explain the deployment process you use in the previous project
@@ -4361,6 +4382,92 @@ To solve this permanently, modern architectures use **ArgoCD** (or Flux).
 3. **Self-Healing:** If it detects a drift (e.g., someone manually scaled replicas), ArgoCD immediately 
     sees the mismatch and **automatically reverts it** back to the Git configuration.
 
----
+
+----------------
 
 
+
+# Q - Explain the architecture of your previous project
+
+Our Identity Provider was designed as a stateless OAuth2-compliant authentication service. 
+It exposed REST endpoints for token issuance, authorization, and refresh flows.
+
+Authentication was handled via credential validation against a PostgreSQL 
+database, with passwords hashed using BCrypt.
+
+On successful authentication, we generated JWT tokens signed using RS256. 
+The private key was securely stored within the service, and the public key was exposed 
+via a JWKS endpoint for downstream verification.
+
+Authorization was implemented using role-based access control, and roles were embedded 
+as claims in the token to avoid additional database lookups.
+
+The service was stateless, which allowed horizontal scaling on Kubernetes. 
+Redis was used for caching user sessions and rate-limiting counters.
+
+Security considerations included short-lived access tokens, refresh token rotation, 
+HTTPS enforcement, brute-force protection, and audit logging.
+
+Overall, the system was designed for high availability, low latency, and secure 
+token issuance for multiple microservices.
+
+
+----------------
+
+
+# Q - In what scenario, you should prefer orchestration saga pattern over choreography pattern?
+
+This is a classic system design question. The choice between **Orchestration** (Central Conductor) 
+and **Choreography** (Dancers listening to music) defines how your microservices couple.
+
+You should prefer **Orchestration** in the following specific scenarios:
+
+## 1. The Workflow is Complex (More than 4 steps)
+
+If your transaction involves many services (e.g., Order  Inventory  Payment  Shipping 
+Rewards  Notification), **Choreography** becomes a "Distributed Spaghetti" mess.
+
+* **Choreography:** It is hard to visualize the flow just by looking at the code. You have to 
+   jump between 6 different repositories to understand who listens to what event.
+* **Orchestration:** You have a central class (or tool like Camunda/Temporal) that defines 
+   the flow: `Step 1 -> Step 2 -> Step 3`. It is readable and maintainable.
+
+## 2. You Need Centralized Monitoring & Control
+
+In a banking or e-commerce system, if a transaction is stuck, you need to know **exactly** where it stopped.
+
+* **Orchestration:** The Orchestrator holds the **State**. You can query it: *"Show me all Orders 
+    stuck at the 'Payment' stage."*
+* **Choreography:** The state is distributed. You have to query logs from 5 different services to 
+    piece together what happened.
+
+## 3. The Flow Has Cyclic Dependencies
+
+* **Scenario:** Service A triggers Service B, which might need to update something back in Service A.
+* **Choreography:** This creates an event loop (Ping-Pong) that is very dangerous and hard to debug.
+* **Orchestration:** The Orchestrator calls A, then B, then A again. It handles the cycle logic 
+   internally without creating infinite event loops.
+
+## 4. Compensation (Rollback) Logic is Critical
+
+* If the "Shipping" step fails, you must refund the "Payment" and release the "Inventory."
+* **Choreography:** Service D emits `ShippingFailed`. Service C listens and refunds. Service B listens and 
+    releases stock. If one of them misses the event, your data is corrupted.
+* **Orchestration:** The Orchestrator catches the error and actively **commands** the 
+    rollback: `paymentService.refund()`, `inventoryService.release()`. It guarantees the cleanup happens.
+
+## Summary Table
+
+| Feature        | **Choreography** (Events) | **Orchestration** (Controller) |
+|----------------|---------------------------|--------------------------------|
+| **Coupling**   | Loose (Good)              | Tighter (Bad)                  |
+| **Complexity** | Simple for 2-3 steps.     | Better for 4+ steps.           |
+| **Visibility** | Low (Hard to track).      | High (Central Dashboard).      |
+| **Rollback**   | Hard (Event chains).      | Easy (Command based).          |
+
+**The Senior Engineer Rule:**
+
+> "Start with Choreography for simple, linear flows. Switch to Orchestration (e.g., Temporal.io, 
+> Camunda, or a custom Saga Manager) as soon as the business logic spans more than 4 microservices 
+> or requires complex branching."
+> 
