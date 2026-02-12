@@ -319,6 +319,8 @@
     * [Why while is used instead of if](#why-while-is-used-instead-of-if)
     * [Why signalAll() is used instead of signal()](#why-signalall-is-used-instead-of-signal)
     * [Why fairness (new ReentrantLock(true)) matters](#why-fairness-new-reentrantlocktrue-matters)
+  * [Q - What is CAS (Compare-And-Swap)?](#q---what-is-cas-compare-and-swap)
+  * [Q - What is Structured Concurrency (Java 21 Preview)?](#q---what-is-structured-concurrency-java-21-preview)
 * [6. Modern Java (Java 8 to Java 21)](#6-modern-java-java-8-to-java-21)
   * [Q - What is functional interface.](#q---what-is-functional-interface)
     * [Examples of Functional Interfaces in Java](#examples-of-functional-interfaces-in-java)
@@ -357,6 +359,7 @@
     * [Visualizing andThen vs compose](#visualizing-andthen-vs-compose)
   * [Q - What is Consumer chaining?](#q---what-is-consumer-chaining)
   * [Q - How to use chaining with Supplier?](#q---how-to-use-chaining-with-supplier)
+  * [Q - Difference between Optional.of() and Optional.ofNullable()?](#q---difference-between-optionalof-and-optionalofnullable)
 * [7. JVM Architecture & Internals](#7-jvm-architecture--internals)
   * [Q - What is JIT?](#q---what-is-jit)
   * [Q - What is class Loader?](#q---what-is-class-loader)
@@ -373,10 +376,6 @@
     * [4. What happens if Metaspace fills up?](#4-what-happens-if-metaspace-fills-up)
       * [Common Causes of Metaspace OOM:](#common-causes-of-metaspace-oom)
       * [Summary for the Interview](#summary-for-the-interview)
-* [8. Garbage Collection & Performance Tuning](#8-garbage-collection--performance-tuning)
-  * [Q - Difference between Optional.of() and Optional.ofNullable()?](#q---difference-between-optionalof-and-optionalofnullable)
-  * [Q - How to manually trigger the garbage collection process?](#q---how-to-manually-trigger-the-garbage-collection-process)
-  * [Q - Do we have access to `this` the lambda?](#q---do-we-have-access-to-this-the-lambda)
   * [Q - Explain JVM Architecture?](#q---explain-jvm-architecture)
     * [1. JVM Language Class (.class file)](#1-jvm-language-class-class-file)
     * [2. Class Loader — “The Librarian”](#2-class-loader--the-librarian)
@@ -393,7 +392,7 @@
     * [5. Native Method Interface (JNI) — "Translator"](#5-native-method-interface-jni--translator)
     * [6 Native Method Libraries — "External Helpers"](#6-native-method-libraries--external-helpers)
     * [How Everything Works Together (Story)](#how-everything-works-together-story)
-  * [Q - - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.](#q-----explain-the-jvm-heap-structure-shown-in-this-diagram-and-describe-the-role-of-each-memory-region)
+  * [Q - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.](#q---explain-the-jvm-heap-structure-shown-in-this-diagram-and-describe-the-role-of-each-memory-region)
     * [Big Picture (ELI5)](#big-picture-eli5)
     * [1. Young Generation](#1-young-generation)
       * [1.1 Eden Space (Birthplace)](#11-eden-space-birthplace)
@@ -404,6 +403,17 @@
     * [4. Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
     * [5. End-to-End Example Flow](#5-end-to-end-example-flow)
     * [Resources](#resources-9)
+  * [Q - Explain WeakHashMap](#q---explain-weakhashmap)
+    * [The Problem: The "Sticky" Metadata](#the-problem-the-sticky-metadata)
+    * [The Solution: `WeakHashMap`](#the-solution-weakhashmap)
+    * [When to use this? (The "Metadata" Use Case)](#when-to-use-this-the-metadata-use-case)
+  * [Q - Explain SoftReference](#q---explain-softreference)
+    * [1. The Use Case: Building an In-Memory Cache](#1-the-use-case-building-an-in-memory-cache)
+    * [2. The Mechanics (Ground Level)](#2-the-mechanics-ground-level)
+    * [3. The Coding Pattern (The "Check-Check-Reload")](#3-the-coding-pattern-the-check-check-reload)
+    * [Summary](#summary)
+* [8. Garbage Collection & Performance Tuning](#8-garbage-collection--performance-tuning)
+  * [Q - How to manually trigger the garbage collection process?](#q---how-to-manually-trigger-the-garbage-collection-process)
   * [Q - Explain Minor GC vs Major GC vs Full GC](#q---explain-minor-gc-vs-major-gc-vs-full-gc)
     * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
       * [When does Minor GC happen?](#when-does-minor-gc-happen)
@@ -472,24 +482,7 @@
     * [When does G1 move to Full GC?](#when-does-g1-move-to-full-gc)
     * [Why classic collectors were slower](#why-classic-collectors-were-slower)
     * [Final interview-ready summary (perfect answer)](#final-interview-ready-summary-perfect-answer)
-  * [Q - What is CAS (Compare-And-Swap)?](#q---what-is-cas-compare-and-swap)
-  * [Q - Explain Soft vs. Weak vs. Phantom References?](#q---explain-soft-vs-weak-vs-phantom-references)
-  * [Q - What is Escape Analysis?](#q---what-is-escape-analysis)
-  * [Q - What is StampedLock and how is it different from ReentrantReadWriteLock?](#q---what-is-stampedlock-and-how-is-it-different-from-reentrantreadwritelock)
-  * [Q - What is LongAdder and why is it faster than AtomicInteger?](#q---what-is-longadder-and-why-is-it-faster-than-atomicinteger)
-  * [Q - What is Structured Concurrency (Java 21 Preview)?](#q---what-is-structured-concurrency-java-21-preview)
-  * [Q - How has Java 8 changed the Strategy Pattern?](#q---how-has-java-8-changed-the-strategy-pattern)
-  * [Q - How do you implement the Singleton Pattern safely? (Enum vs Double-Check)](#q---how-do-you-implement-the-singleton-pattern-safely-enum-vs-double-check)
   * [Q - Java has automatic Garbage Collection, which is supposed to manage memory for us. However, Memory Leaks are still a very real problem in Java applications.](#q---java-has-automatic-garbage-collection-which-is-supposed-to-manage-memory-for-us-however-memory-leaks-are-still-a-very-real-problem-in-java-applications)
-  * [Q - Explain WeakHashMap](#q---explain-weakhashmap)
-    * [The Problem: The "Sticky" Metadata](#the-problem-the-sticky-metadata)
-    * [The Solution: `WeakHashMap`](#the-solution-weakhashmap)
-    * [When to use this? (The "Metadata" Use Case)](#when-to-use-this-the-metadata-use-case)
-  * [Q - Explain SoftReference](#q---explain-softreference)
-    * [1. The Use Case: Building an In-Memory Cache](#1-the-use-case-building-an-in-memory-cache)
-    * [2. The Mechanics (Ground Level)](#2-the-mechanics-ground-level)
-    * [3. The Coding Pattern (The "Check-Check-Reload")](#3-the-coding-pattern-the-check-check-reload)
-    * [Summary](#summary)
   * [Q - Explain Serial GC](#q---explain-serial-gc)
     * [1. What is Serial GC?](#1-what-is-serial-gc)
     * [2. How it Works: The "Stop-The-World" Event](#2-how-it-works-the-stop-the-world-event)
@@ -6376,6 +6369,17 @@ This solves the starvation issue you observed earlier.
 -----------------------------
 
 
+## Q - What is CAS (Compare-And-Swap)?
+
+
+-----------------------------
+
+## Q - What is Structured Concurrency (Java 21 Preview)?
+
+
+-----------------------------
+
+
 # 6. Modern Java (Java 8 to Java 21)
 
 ## Q - What is functional interface.
@@ -7307,32 +7311,6 @@ Even though Metaspace is "dynamic," it is not infinite. Here is the chain of eve
 -------------------
 
 
-
-# 8. Garbage Collection & Performance Tuning
-
-
-
-
-
-
-
-
-
-## Q - How to manually trigger the garbage collection process?
-
-Call `System.gc()`
-
-
-----------------
-
-
-
-
-
-
-## Q - Do we have access to `this` the lambda?
-
-
 ## Q - Explain JVM Architecture?
 
 ![jvm-architecture](../images/jvm-architecture.png)
@@ -7556,7 +7534,11 @@ What it does
 8. Program finishes 🎉
 
 
-## Q - - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.
+-----------------------------
+
+
+
+## Q - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.
 
 ```text
 Heap
@@ -7567,7 +7549,7 @@ Heap
  └── Old Generation
 ```
 
-Below is an ELI5, step-by-step explanation of each heap area, using a single simple story so the behavior is 
+Below is an ELI5, step-by-step explanation of each heap area, using a single simple story so the behavior is
 intuitive rather than abstract.
 
 ### Big Picture (ELI5)
@@ -7761,7 +7743,185 @@ public void process() {
 
 * [Garbage collection in Java, with Animation and discussion of G1 GC](https://www.youtube.com/watch?v=UnaNQgzw4zY)
 
---
+
+-----------------------------
+
+
+## Q - Explain WeakHashMap
+
+This is a great specific question. `WeakHashMap` is the "magic self-cleaning map."
+
+To understand it, let's look at the **Memory Leak** problem it solves.
+
+### The Problem: The "Sticky" Metadata
+
+Imagine you are using a third-party library that gives you `Socket` objects.
+You want to associate some metadata (like a "User ID") with each socket, but you
+cannot modify the `Socket` class itself.
+
+**The Naive Approach (Standard HashMap):**
+
+```java
+// Strong Reference Map
+Map<Socket, String> metadata = new HashMap<>();
+
+// You store metadata
+metadata.put(clientSocket, "User-123");
+```
+
+**The Leak:**
+
+1. The connection closes.
+2. Your application stops using `clientSocket` (sets it to `null`).
+3. **Garbage Collector runs:** It wants to delete the `Socket` object.
+4. **BUT IT CAN'T.** Why? Because your `metadata` HashMap is still holding
+   a **Strong Reference** to that `Socket` as a key.
+5. **Result:** The `Socket` stays in memory forever (Memory Leak).
+
+---
+
+### The Solution: `WeakHashMap`
+
+`WeakHashMap` wraps the **Key** (the Socket) in a `WeakReference`.
+
+```java
+// Weak Reference Map
+Map<Socket, String> metadata = new WeakHashMap<>();
+
+metadata.put(clientSocket, "User-123");
+```
+
+**The Magic:**
+
+1. The connection closes.
+2. Your application stops using `clientSocket` (removes the strong reference).
+3. **Garbage Collector runs:** It sees the `Socket` is *only* held by the `WeakHashMap`.
+4. **GC Action:** Since it's a `WeakReference`, the GC says "I don't care about this map
+   entry," and **deletes the Socket object**.
+5. **Cleanup:** The `WeakHashMap` notices the key is gone and automatically removes the entire
+   entry (Key & Value) from the map.
+
+### When to use this? (The "Metadata" Use Case)
+
+You use `WeakHashMap` when you want to attach extra information to an
+object, but **the lifespan of that information should be tied to the lifespan of the object itself.**
+
+* **Example 1: Caching Expensive Computations:**
+  `WeakHashMap<BigImage, Thumbnail>`
+  If the `BigImage` is no longer used by the app, we don't need the `Thumbnail` anymore. Let them both disappear.
+* **Example 2: ThreadLocal Storage:**
+  Internally, `ThreadLocal` uses a similar weak-reference mechanism so that when a Thread dies, its
+  local variables are cleaned up.
+
+
+-----------------------------
+
+
+## Q - Explain SoftReference
+
+This is the **"Smart Cache"** reference.
+
+If `StrongReference` is "Do not delete this under any circumstances," and `WeakReference` is
+"Delete this as soon as you see it," then **`SoftReference`** is:
+
+> **Keep this in memory as long as you can. But if you are about to run
+> out of RAM (throw an OutOfMemoryError), then delete this first to save the application.**
+
+### 1. The Use Case: Building an In-Memory Cache
+
+Imagine you are building a **Photo Gallery App** (like Google Photos).
+
+* **Problem:** Loading a 10MB image from the hard drive takes 500ms. It's slow.
+* **Goal:** You want to keep the decoded images in RAM so scrolling is instant.
+* **Risk:** If you keep *every* image the user scrolls past, you will run out of RAM in 2 minutes and crash.
+
+**The Solution: SoftReference**
+You wrap your heavy images in `SoftReference`.
+
+```java
+// Strong Reference (The "Cache Map" itself)
+Map<String, SoftReference<Image>> cache = new HashMap<>();
+
+// 1. Wrap the heavy object
+Image bigImage = loadFromDisk("vacation.jpg");
+SoftReference<Image> softRef = new SoftReference<>(bigImage);
+
+// 2. Store it
+cache.put("vacation.jpg", softRef);
+
+// 3. REMOVE the strong reference (Critical!)
+bigImage = null; 
+// Now, the ONLY thing holding the image is the SoftReference.
+```
+
+### 2. The Mechanics (Ground Level)
+
+How does the Garbage Collector (GC) decide when to clear it?
+
+It uses a formula based on **Free Memory** vs. **Time Since Last Access**.
+
+* **Scenario A (Plenty of RAM):**
+  The GC runs. It sees your `SoftReference`. It checks free memory. "Oh, we have 2GB free. No need to panic."
+  * **Result:** The image stays in memory.
+  * **User Benefit:** When they scroll back, the image loads instantly.
+
+
+* **Scenario B (Low RAM):**
+  The user opens a 4K video editor in the background. Free memory drops to 10MB. The GC runs and
+  panics. "I need to allocate memory for this new video, but I'm full!"
+  * **Action:** The GC looks for `SoftReference` objects. It effectively says, *"Sorry, I need this space."*
+  * **Result:** It clears the reference (sets it to null) and reclaims the 10MB image memory. The app **does not crash**.
+
+
+
+### 3. The Coding Pattern (The "Check-Check-Reload")
+
+Because a `SoftReference` can disappear at any moment, you **must** check if it's still there before using it.
+
+```java
+public Image getImage(String key) {
+    // 1. Get the wrapper
+    SoftReference<Image> ref = cache.get(key);
+    
+    // 2. Try to get the real object
+    Image img = (ref != null) ? ref.get() : null;
+
+    // 3. CHECK: Did the GC delete it?
+    if (img == null) {
+        // Yes, it was cleared to save memory.
+        // We must reload it from disk (slower, but safe).
+        img = loadFromDisk(key);
+        
+        // Put it back in the cache
+        cache.put(key, new SoftReference<>(img));
+    }
+    
+    return img;
+}
+
+```
+
+### Summary
+
+* **Strong:** "I need this. Keep it or crash."
+* **Soft:** "I'd *like* to keep this (Cache). But delete it if you need space."
+* **Weak:** "I only care about this if someone else does (Metadata)."
+
+
+-----------------------------
+
+
+
+# 8. Garbage Collection & Performance Tuning
+
+
+## Q - How to manually trigger the garbage collection process?
+
+Call `System.gc()`
+
+
+----------------
+
 
 ## Q - Explain Minor GC vs Major GC vs Full GC
 
@@ -8918,24 +9078,6 @@ Result:
 ----------------
 
 
-
-
-## Q - What is CAS (Compare-And-Swap)?
-
-## Q - Explain Soft vs. Weak vs. Phantom References?
-
-## Q - What is Escape Analysis?
-
-## Q - What is StampedLock and how is it different from ReentrantReadWriteLock?
-
-## Q - What is LongAdder and why is it faster than AtomicInteger?
-
-## Q - What is Structured Concurrency (Java 21 Preview)?
-
-## Q - How has Java 8 changed the Strategy Pattern?
-
-## Q - How do you implement the Singleton Pattern safely? (Enum vs Double-Check)
-
 ## Q - Java has automatic Garbage Collection, which is supposed to manage memory for us. However, Memory Leaks are still a very real problem in Java applications.
 
 > Can you explain how a memory leak technically occurs in Java, even when the Garbage Collector
@@ -8971,174 +9113,9 @@ public class LeakyApp {
 
 **Fix:** Use `WeakHashMap` or explicitly remove objects when done.
 
----
 
 
-
-
-## Q - Explain WeakHashMap
-
-This is a great specific question. `WeakHashMap` is the "magic self-cleaning map."
-
-To understand it, let's look at the **Memory Leak** problem it solves.
-
-### The Problem: The "Sticky" Metadata
-
-Imagine you are using a third-party library that gives you `Socket` objects. 
-You want to associate some metadata (like a "User ID") with each socket, but you 
-cannot modify the `Socket` class itself.
-
-**The Naive Approach (Standard HashMap):**
-
-```java
-// Strong Reference Map
-Map<Socket, String> metadata = new HashMap<>();
-
-// You store metadata
-metadata.put(clientSocket, "User-123");
-```
-
-**The Leak:**
-
-1. The connection closes.
-2. Your application stops using `clientSocket` (sets it to `null`).
-3. **Garbage Collector runs:** It wants to delete the `Socket` object.
-4. **BUT IT CAN'T.** Why? Because your `metadata` HashMap is still holding 
-  a **Strong Reference** to that `Socket` as a key.
-5. **Result:** The `Socket` stays in memory forever (Memory Leak).
-
----
-
-### The Solution: `WeakHashMap`
-
-`WeakHashMap` wraps the **Key** (the Socket) in a `WeakReference`.
-
-```java
-// Weak Reference Map
-Map<Socket, String> metadata = new WeakHashMap<>();
-
-metadata.put(clientSocket, "User-123");
-```
-
-**The Magic:**
-
-1. The connection closes.
-2. Your application stops using `clientSocket` (removes the strong reference).
-3. **Garbage Collector runs:** It sees the `Socket` is *only* held by the `WeakHashMap`.
-4. **GC Action:** Since it's a `WeakReference`, the GC says "I don't care about this map 
-  entry," and **deletes the Socket object**.
-5. **Cleanup:** The `WeakHashMap` notices the key is gone and automatically removes the entire 
-  entry (Key & Value) from the map.
-
-### When to use this? (The "Metadata" Use Case)
-
-You use `WeakHashMap` when you want to attach extra information to an 
-object, but **the lifespan of that information should be tied to the lifespan of the object itself.**
-
-* **Example 1: Caching Expensive Computations:**
-  `WeakHashMap<BigImage, Thumbnail>`
-  If the `BigImage` is no longer used by the app, we don't need the `Thumbnail` anymore. Let them both disappear.
-* **Example 2: ThreadLocal Storage:**
-  Internally, `ThreadLocal` uses a similar weak-reference mechanism so that when a Thread dies, its 
-  local variables are cleaned up.
-
-
----
-
-
-## Q - Explain SoftReference
-
-This is the **"Smart Cache"** reference.
-
-If `StrongReference` is "Do not delete this under any circumstances," and `WeakReference` is
-"Delete this as soon as you see it," then **`SoftReference`** is:
-
-> **Keep this in memory as long as you can. But if you are about to run 
-> out of RAM (throw an OutOfMemoryError), then delete this first to save the application.**
-
-### 1. The Use Case: Building an In-Memory Cache
-
-Imagine you are building a **Photo Gallery App** (like Google Photos).
-
-* **Problem:** Loading a 10MB image from the hard drive takes 500ms. It's slow.
-* **Goal:** You want to keep the decoded images in RAM so scrolling is instant.
-* **Risk:** If you keep *every* image the user scrolls past, you will run out of RAM in 2 minutes and crash.
-
-**The Solution: SoftReference**
-You wrap your heavy images in `SoftReference`.
-
-```java
-// Strong Reference (The "Cache Map" itself)
-Map<String, SoftReference<Image>> cache = new HashMap<>();
-
-// 1. Wrap the heavy object
-Image bigImage = loadFromDisk("vacation.jpg");
-SoftReference<Image> softRef = new SoftReference<>(bigImage);
-
-// 2. Store it
-cache.put("vacation.jpg", softRef);
-
-// 3. REMOVE the strong reference (Critical!)
-bigImage = null; 
-// Now, the ONLY thing holding the image is the SoftReference.
-```
-
-### 2. The Mechanics (Ground Level)
-
-How does the Garbage Collector (GC) decide when to clear it?
-
-It uses a formula based on **Free Memory** vs. **Time Since Last Access**.
-
-* **Scenario A (Plenty of RAM):**
-  The GC runs. It sees your `SoftReference`. It checks free memory. "Oh, we have 2GB free. No need to panic."
-    * **Result:** The image stays in memory.
-    * **User Benefit:** When they scroll back, the image loads instantly.
-
-
-* **Scenario B (Low RAM):**
-  The user opens a 4K video editor in the background. Free memory drops to 10MB. The GC runs and
-  panics. "I need to allocate memory for this new video, but I'm full!"
-    * **Action:** The GC looks for `SoftReference` objects. It effectively says, *"Sorry, I need this space."*
-    * **Result:** It clears the reference (sets it to null) and reclaims the 10MB image memory. The app **does not crash**.
-
-
-
-### 3. The Coding Pattern (The "Check-Check-Reload")
-
-Because a `SoftReference` can disappear at any moment, you **must** check if it's still there before using it.
-
-```java
-public Image getImage(String key) {
-    // 1. Get the wrapper
-    SoftReference<Image> ref = cache.get(key);
-    
-    // 2. Try to get the real object
-    Image img = (ref != null) ? ref.get() : null;
-
-    // 3. CHECK: Did the GC delete it?
-    if (img == null) {
-        // Yes, it was cleared to save memory.
-        // We must reload it from disk (slower, but safe).
-        img = loadFromDisk(key);
-        
-        // Put it back in the cache
-        cache.put(key, new SoftReference<>(img));
-    }
-    
-    return img;
-}
-
-```
-
-### Summary
-
-* **Strong:** "I need this. Keep it or crash."
-* **Soft:** "I'd *like* to keep this (Cache). But delete it if you need space."
-* **Weak:** "I only care about this if someone else does (Metadata)."
-
-
----
-
+-----------------------------
 
 
 
