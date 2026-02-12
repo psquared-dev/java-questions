@@ -320,7 +320,21 @@
     * [Why signalAll() is used instead of signal()](#why-signalall-is-used-instead-of-signal)
     * [Why fairness (new ReentrantLock(true)) matters](#why-fairness-new-reentrantlocktrue-matters)
   * [Q - What is CAS (Compare-And-Swap)?](#q---what-is-cas-compare-and-swap)
+    * [1. The Mechanics (The 3 Operands)](#1-the-mechanics-the-3-operands)
+    * [2. The Atomic Operation](#2-the-atomic-operation)
+    * [3. The Retry Loop (Spin Lock)](#3-the-retry-loop-spin-lock-1)
+    * [4. Pros & Cons (Summary)](#4-pros--cons-summary)
   * [Q - What is Structured Concurrency (Java 21 Preview)?](#q---what-is-structured-concurrency-java-21-preview)
+    * [The Core Problem It Solves](#the-core-problem-it-solves)
+    * [The Structured Concurrency Principle](#the-structured-concurrency-principle)
+    * [The API: `StructuredTaskScope`](#the-api-structuredtaskscope)
+    * [What Just Happened?](#what-just-happened)
+    * [Why This Is Powerful](#why-this-is-powerful)
+    * [Relationship with Virtual Threads](#relationship-with-virtual-threads)
+    * [Two Common Policies](#two-common-policies)
+      * [1 ShutdownOnFailure](#1-shutdownonfailure)
+      * [2 ShutdownOnSuccess](#2-shutdownonsuccess)
+    * [🆚 Compared to CompletableFuture](#-compared-to-completablefuture)
   * [Q - How does ConcurrentHashMap work internally? (Java 7 vs Java 8)](#q---how-does-concurrenthashmap-work-internally-java-7-vs-java-8)
   * [Q - What were the limitations of the Future interface in Java 5, and how does CompletableFuture address them?](#q---what-were-the-limitations-of-the-future-interface-in-java-5-and-how-does-completablefuture-address-them)
     * [1. The Blocking Problem (`get()`)](#1-the-blocking-problem-get)
@@ -6389,10 +6403,220 @@ This solves the starvation issue you observed earlier.
 
 ## Q - What is CAS (Compare-And-Swap)?
 
+CAS is a low-level **CPU instruction** that allows for concurrency without 
+using heavy locks (synchronized). It is the foundation of **Optimistic Locking** in Java.
+
+It powers classes like `AtomicInteger`, `AtomicReference`, and `ConcurrentHashMap`.
+
+### 1. The Mechanics (The 3 Operands)
+
+The CPU instruction takes three arguments:
+
+1. **V (Memory Address):** Where the variable lives.
+2. **E (Expected Value):** What you *think* is currently there.
+3. **N (New Value):** What you want to write.
+
+### 2. The Atomic Operation
+
+The CPU performs this logic as a **single, indivisible step**:
+
+```text
+if (Value_at_Memory_V == Expected_E) {
+    Update Memory_V to New_N;
+    return true; // Success
+} else {
+    return false; // Failed, someone else updated it first
+}
+
+```
+
+### 3. The Retry Loop (Spin Lock)
+
+Because CAS is optimistic, it might fail if another thread modified the variable 
+while we were calculating. Therefore, Java wraps the CAS instruction in a `while` loop 
+to keep trying until it succeeds.
+
+**Example: How `AtomicInteger` increments:**
+
+```java
+public int incrementAndGet() {
+    int current, next;
+    do {
+        current = get();       // 1. Read latest value (e.g., 10)
+        next = current + 1;    // 2. Calculate new value (e.g., 11)
+        
+        // 3. ATTEMPT to swap 10 -> 11 atomically.
+        // If 'current' changed in the meantime, CAS returns false.
+        // The loop forces us to go back to Step 1 and try again.
+    } while (!compareAndSet(current, next)); 
+    
+    return next;
+}
+```
+
+### 4. Pros & Cons (Summary)
+
+| Feature          | CAS (Optimistic)                                       | Locking (Pessimistic)                   |
+|------------------|--------------------------------------------------------|-----------------------------------------|
+| **Best For**     | **Low to Medium Contention**                           | **Complex Logic / High Contention**     |
+| **Mechanism**    | Busy-Spinning (While Loop)                             | Context Switching (Sleep/Wake)          |
+| **Advantage**    | Extremely fast (No OS overhead)                        | Saves CPU (Thread sleeps while waiting) |
+| **Disadvantage** | **High CPU Usage** if threads fight over one variable. | Slow due to thread scheduling overhead. |
+
 
 -----------------------------
 
+
 ## Q - What is Structured Concurrency (Java 21 Preview)?
+
+Structured Concurrency is a modern concurrency model introduced as a preview 
+feature in **Java 21** (Project Loom).
+
+It enforces a simple rule:
+
+> Tasks started together should complete together — and be treated as a single logical unit.
+> 
+
+It brings structure to concurrent code the same way structured programming brought order to `goto`.
+
+---
+
+### The Core Problem It Solves
+
+Traditional Java concurrency (ExecutorService, CompletableFuture) allows you to:
+
+* Spawn background tasks
+* Forget to cancel them
+* Leak threads
+* Lose exceptions
+* Create orphaned work
+
+**Example (problematic):**
+
+```java
+ExecutorService executor = Executors.newFixedThreadPool(2);
+
+Future<User> user = executor.submit(() -> fetchUser());
+Future<Order> order = executor.submit(() -> fetchOrder());
+
+// What if fetchUser fails?
+// What if fetchOrder hangs?
+// Who cancels whom?
+```
+
+There is **no lifecycle boundary** tying these tasks together.
+
+---
+
+### The Structured Concurrency Principle
+
+A parent task:
+
+* Starts child tasks
+* Waits for them
+* Cancels them if one fails
+* Collects results
+* Ensures no task escapes the scope
+
+Just like method calls:
+
+* A method cannot outlive its caller
+* A child thread should not outlive its parent scope
+
+---
+
+###  The API: `StructuredTaskScope`
+
+Structured Concurrency is built around:
+
+```java
+StructuredTaskScope
+```
+
+**Example:**
+
+```java
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+
+    Future<User> user = scope.fork(() -> fetchUser());
+    Future<Order> order = scope.fork(() -> fetchOrder());
+
+    scope.join();           // wait for both
+    scope.throwIfFailed();  // propagate error
+
+    return new Response(user.resultNow(), order.resultNow());
+}
+```
+
+
+### What Just Happened?
+
+Inside that scope:
+
+1. Two tasks started.
+2. If one fails → the other is automatically cancelled.
+3. Exceptions propagate cleanly.
+4. All tasks finish before leaving the block.
+5. No orphan threads remain.
+
+This is lifecycle containment.
+
+---
+
+###  Why This Is Powerful
+
+Without structured concurrency:
+
+* Threads can leak
+* Exceptions get lost
+* Cancellation logic becomes manual
+* Observability becomes harder
+
+With structured concurrency:
+
+* Failure is centralized
+* Cancellation is automatic
+* Code reads like synchronous logic
+* Resource cleanup is deterministic
+
+---
+
+###  Relationship with Virtual Threads
+
+Structured concurrency  uses virtual threads by default
+
+---
+
+### Two Common Policies
+
+#### 1 ShutdownOnFailure
+
+If one task fails → cancel others.
+
+#### 2 ShutdownOnSuccess
+
+Return as soon as one succeeds → cancel rest.
+
+Useful for:
+
+* Fastest-response-wins queries
+* Redundant service calls
+
+---
+
+### 🆚 Compared to CompletableFuture
+
+| CompletableFuture        | Structured Concurrency |
+| ------------------------ | ---------------------- |
+| Unstructured graph       | Scoped block           |
+| Manual cancellation      | Automatic              |
+| Harder error handling    | Centralized            |
+| Tasks may outlive parent | Tasks bound to scope   |
+
+Structured Concurrency is about:
+
+> Managing task lifecycles, not just async execution.
+>
 
 
 -----------------------------
