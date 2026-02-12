@@ -100,6 +100,31 @@
     * [1. The Conflict Resolution Rule](#1-the-conflict-resolution-rule)
     * [2. The Problem](#2-the-problem)
   * [Q - What is Comparable interface?](#q---what-is-comparable-interface)
+  * [Q - Give a walk-through of the new features introduced since Java 8?](#q---give-a-walk-through-of-the-new-features-introduced-since-java-8)
+    * [Phase 1: Java 9 - 11 (The "Modernization" Era)](#phase-1-java-9---11-the-modernization-era)
+      * [Modules (Jigsaw)](#modules-jigsaw)
+      * [Collection Factory Methods](#collection-factory-methods)
+      * [Local Variable Type Inference (`var`)](#local-variable-type-inference-var)
+      * [New HttpClient (Standardized)](#new-httpclient-standardized)
+      * [String Methods (Life Savers)](#string-methods-life-savers)
+      * [Running Single-File Source Code](#running-single-file-source-code)
+    * [Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era)](#phase-2-java-12---17-the-syntactic-sugar-era)
+      * [Records (Data Classes)](#records-data-classes)
+      * [Text Blocks (Multi-line Strings)](#text-blocks-multi-line-strings)
+      * [Switch Expressions](#switch-expressions)
+      * [Pattern Matching for `instanceof`](#pattern-matching-for-instanceof)
+      * [Sealed Classes](#sealed-classes)
+      * [Helpful NullPointerExceptions](#helpful-nullpointerexceptions)
+    * [Phase 3: Java 18 - 21 (The "Concurrency Revolution")](#phase-3-java-18---21-the-concurrency-revolution)
+      * [Virtual Threads (Project Loom) - **The Game Changer**](#virtual-threads-project-loom---the-game-changer)
+      * [Structured Concurrency](#structured-concurrency)
+      * [Sequenced Collections](#sequenced-collections)
+      * [Record Patterns](#record-patterns)
+      * [Foreign Function & Memory API](#foreign-function--memory-api)
+  * [Q - What is shutdown hook?](#q---what-is-shutdown-hook)
+    * [How to implement it?](#how-to-implement-it)
+    * [When does it run?](#when-does-it-run)
+    * [When does it NOT run?](#when-does-it-not-run)
 * [2. OOP & Object Model](#2-oop--object-model)
   * [Q - What are core principles of OOP?](#q---what-are-core-principles-of-oop)
     * [Runtime Polymorphism](#runtime-polymorphism)
@@ -138,6 +163,10 @@
     * [1. ClassNotFoundException (The "Typo")](#1-classnotfoundexception-the-typo)
     * [2. NoClassDefFoundError (The "Ghost")](#2-noclassdeffounderror-the-ghost)
     * [Summary Table (Memorize This)](#summary-table-memorize-this)
+  * [Q - What is AutoCloseable interface?](#q---what-is-autocloseable-interface)
+    * [1. The Core Purpose: Try-With-Resources](#1-the-core-purpose-try-with-resources)
+    * [2. Code Example](#2-code-example)
+    * [3. Senior Engineer Nuance: Exception Suppression](#3-senior-engineer-nuance-exception-suppression)
 * [4. Collections Framework](#4-collections-framework)
   * [Q - What is diff b/w Vector and ArrayList?](#q---what-is-diff-bw-vector-and-arraylist)
   * [Q - Diff b/w Hashtable and HashMap](#q---diff-bw-hashtable-and-hashmap)
@@ -169,6 +198,7 @@
   * [Q - What are Fail Fast and Fail Safe Iterators?](#q---what-are-fail-fast-and-fail-safe-iterators)
     * [Fail-Fast Iterators](#fail-fast-iterators)
     * [Fail-Safe Iterators](#fail-safe-iterators)
+  * [Q - How to create immutable collections in Java?](#q---how-to-create-immutable-collections-in-java)
 * [5. Concurrency & Multithreading](#5-concurrency--multithreading)
   * [Q - What are different thread states?](#q---what-are-different-thread-states)
   * [Q - What is daemon thread?](#q---what-is-daemon-thread)
@@ -258,39 +288,6 @@
     * [4. The Code (Under the Hood)](#4-the-code-under-the-hood)
     * [5. Pros & Cons (Interview Gold)](#5-pros--cons-interview-gold)
   * [Q - What is Spurious Wakeup?](#q---what-is-spurious-wakeup)
-* [6. Modern Java (Java 8 to Java 21)](#6-modern-java-java-8-to-java-21)
-  * [Q - What is functional interface.](#q---what-is-functional-interface)
-    * [Examples of Functional Interfaces in Java](#examples-of-functional-interfaces-in-java)
-  * [Q - Can you tell few functional interface which is already there before java 8?](#q---can-you-tell-few-functional-interface-which-is-already-there-before-java-8)
-  * [Q - What are all functional interface introduced in java 8?](#q---what-are-all-functional-interface-introduced-in-java-8)
-  * [Q - What is lambda expression?](#q---what-is-lambda-expression)
-  * [Q - What is Stream in java 8?](#q---what-is-stream-in-java-8)
-  * [Q - How Java resolves method conflicts from multiple interfaces?](#q---how-java-resolves-method-conflicts-from-multiple-interfaces)
-    * [1. No Conflict for Abstract Methods (Pre–Java 8)](#1-no-conflict-for-abstract-methods-prejava-8)
-    * [2. Class Always Wins over Interface](#2-class-always-wins-over-interface)
-    * [3. Conflict Between Default Methods (Diamond Problem)](#3-conflict-between-default-methods-diamond-problem)
-    * [4. Interface Inheritance: Most Specific Default Wins](#4-interface-inheritance-most-specific-default-wins)
-    * [5. Abstract vs Default Method](#5-abstract-vs-default-method)
-    * [6. Static Methods in Interfaces](#6-static-methods-in-interfaces)
-    * [Conflict Resolution Priority (Memory Aid)](#conflict-resolution-priority-memory-aid)
-    * [Interview-Ready One-Liner](#interview-ready-one-liner)
-* [7. JVM Architecture & Internals](#7-jvm-architecture--internals)
-  * [Q - What is JIT?](#q---what-is-jit)
-  * [Q - What is class Loader?](#q---what-is-class-loader)
-  * [Q - What are different types of classloaders?](#q---what-are-different-types-of-classloaders)
-  * [Q - What are the diff memory area allocated by JVM?](#q---what-are-the-diff-memory-area-allocated-by-jvm)
-  * [Q - Can you explain the architectural change from PermGen to Metaspace in Java 8? Specifically, where are Class definitions and static variables stored in the modern memory model, and what happens at the OS and JVM level if Metaspace reaches its limit?](#q---can-you-explain-the-architectural-change-from-permgen-to-metaspace-in-java-8-specifically-where-are-class-definitions-and-static-variables-stored-in-the-modern-memory-model-and-what-happens-at-the-os-and-jvm-level-if-metaspace-reaches-its-limit)
-    * [1. The Old World: PermGen (Java 7 and older)](#1-the-old-world-permgen-java-7-and-older)
-    * [2. The New World: Metaspace (Java 8+)](#2-the-new-world-metaspace-java-8)
-      * [Key Difference: Location](#key-difference-location)
-    * [3. Answering Your Specific Questions](#3-answering-your-specific-questions)
-      * ["Where do Class Definitions live?"](#where-do-class-definitions-live)
-      * ["Where do Static Variables live?"](#where-do-static-variables-live)
-    * [Comparison: PermGen vs. Metaspace](#comparison-permgen-vs-metaspace)
-    * [4. What happens if Metaspace fills up?](#4-what-happens-if-metaspace-fills-up)
-      * [Common Causes of Metaspace OOM:](#common-causes-of-metaspace-oom)
-      * [Summary for the Interview](#summary-for-the-interview)
-* [8. Garbage Collection & Performance Tuning](#8-garbage-collection--performance-tuning)
   * [Q - What is class level lock?](#q---what-is-class-level-lock)
   * [Q - How threads communicate using wait() and notify()?](#q---how-threads-communicate-using-wait-and-notify)
     * [The problem we are solving using wait() and notify()](#the-problem-we-are-solving-using-wait-and-notify)
@@ -322,10 +319,22 @@
     * [Why while is used instead of if](#why-while-is-used-instead-of-if)
     * [Why signalAll() is used instead of signal()](#why-signalall-is-used-instead-of-signal)
     * [Why fairness (new ReentrantLock(true)) matters](#why-fairness-new-reentrantlocktrue-matters)
-  * [Q - What is shutdown hook?](#q---what-is-shutdown-hook)
-    * [How to implement it?](#how-to-implement-it)
-    * [When does it run?](#when-does-it-run)
-    * [When does it NOT run?](#when-does-it-not-run)
+* [6. Modern Java (Java 8 to Java 21)](#6-modern-java-java-8-to-java-21)
+  * [Q - What is functional interface.](#q---what-is-functional-interface)
+    * [Examples of Functional Interfaces in Java](#examples-of-functional-interfaces-in-java)
+  * [Q - Can you tell few functional interface which is already there before java 8?](#q---can-you-tell-few-functional-interface-which-is-already-there-before-java-8)
+  * [Q - What are all functional interface introduced in java 8?](#q---what-are-all-functional-interface-introduced-in-java-8)
+  * [Q - What is lambda expression?](#q---what-is-lambda-expression)
+  * [Q - What is Stream in java 8?](#q---what-is-stream-in-java-8)
+  * [Q - How Java resolves method conflicts from multiple interfaces?](#q---how-java-resolves-method-conflicts-from-multiple-interfaces)
+    * [1. No Conflict for Abstract Methods (Pre–Java 8)](#1-no-conflict-for-abstract-methods-prejava-8)
+    * [2. Class Always Wins over Interface](#2-class-always-wins-over-interface)
+    * [3. Conflict Between Default Methods (Diamond Problem)](#3-conflict-between-default-methods-diamond-problem)
+    * [4. Interface Inheritance: Most Specific Default Wins](#4-interface-inheritance-most-specific-default-wins)
+    * [5. Abstract vs Default Method](#5-abstract-vs-default-method)
+    * [6. Static Methods in Interfaces](#6-static-methods-in-interfaces)
+    * [Conflict Resolution Priority (Memory Aid)](#conflict-resolution-priority-memory-aid)
+    * [Interview-Ready One-Liner](#interview-ready-one-liner)
   * [Q - Why default methods were introduced in interfaces?](#q---why-default-methods-were-introduced-in-interfaces)
     * [The Problem (Before Java 8)](#the-problem-before-java-8)
     * [The Real-World Scenario](#the-real-world-scenario)
@@ -333,13 +342,6 @@
       * [The Classic "Mouse Listener" Problem](#the-classic-mouse-listener-problem)
       * [1. The "Old Way" (Painful)](#1-the-old-way-painful)
       * [2. The "New Way" (With Default Methods)](#2-the-new-way-with-default-methods)
-  * [Q - How to create immutable collections in Java?](#q---how-to-create-immutable-collections-in-java)
-  * [Q - What is AutoCloseable interface?](#q---what-is-autocloseable-interface)
-    * [1. The Core Purpose: Try-With-Resources](#1-the-core-purpose-try-with-resources)
-    * [2. Code Example](#2-code-example)
-    * [3. Senior Engineer Nuance: Exception Suppression](#3-senior-engineer-nuance-exception-suppression)
-  * [Q - Difference between Optional.of() and Optional.ofNullable()?](#q---difference-between-optionalof-and-optionalofnullable)
-  * [Q - How to manually trigger the garbage collection process?](#q---how-to-manually-trigger-the-garbage-collection-process)
   * [Q - What are sealed classes?](#q---what-are-sealed-classes)
     * [1. The Syntax](#1-the-syntax)
     * [2. The Three Rules for Subclasses](#2-the-three-rules-for-subclasses)
@@ -355,6 +357,25 @@
     * [Visualizing andThen vs compose](#visualizing-andthen-vs-compose)
   * [Q - What is Consumer chaining?](#q---what-is-consumer-chaining)
   * [Q - How to use chaining with Supplier?](#q---how-to-use-chaining-with-supplier)
+* [7. JVM Architecture & Internals](#7-jvm-architecture--internals)
+  * [Q - What is JIT?](#q---what-is-jit)
+  * [Q - What is class Loader?](#q---what-is-class-loader)
+  * [Q - What are different types of classloaders?](#q---what-are-different-types-of-classloaders)
+  * [Q - What are the diff memory area allocated by JVM?](#q---what-are-the-diff-memory-area-allocated-by-jvm)
+  * [Q - Can you explain the architectural change from PermGen to Metaspace in Java 8? Specifically, where are Class definitions and static variables stored in the modern memory model, and what happens at the OS and JVM level if Metaspace reaches its limit?](#q---can-you-explain-the-architectural-change-from-permgen-to-metaspace-in-java-8-specifically-where-are-class-definitions-and-static-variables-stored-in-the-modern-memory-model-and-what-happens-at-the-os-and-jvm-level-if-metaspace-reaches-its-limit)
+    * [1. The Old World: PermGen (Java 7 and older)](#1-the-old-world-permgen-java-7-and-older)
+    * [2. The New World: Metaspace (Java 8+)](#2-the-new-world-metaspace-java-8)
+      * [Key Difference: Location](#key-difference-location)
+    * [3. Answering Your Specific Questions](#3-answering-your-specific-questions)
+      * ["Where do Class Definitions live?"](#where-do-class-definitions-live)
+      * ["Where do Static Variables live?"](#where-do-static-variables-live)
+    * [Comparison: PermGen vs. Metaspace](#comparison-permgen-vs-metaspace)
+    * [4. What happens if Metaspace fills up?](#4-what-happens-if-metaspace-fills-up)
+      * [Common Causes of Metaspace OOM:](#common-causes-of-metaspace-oom)
+      * [Summary for the Interview](#summary-for-the-interview)
+* [8. Garbage Collection & Performance Tuning](#8-garbage-collection--performance-tuning)
+  * [Q - Difference between Optional.of() and Optional.ofNullable()?](#q---difference-between-optionalof-and-optionalofnullable)
+  * [Q - How to manually trigger the garbage collection process?](#q---how-to-manually-trigger-the-garbage-collection-process)
   * [Q - Do we have access to `this` the lambda?](#q---do-we-have-access-to-this-the-lambda)
   * [Q - Explain JVM Architecture?](#q---explain-jvm-architecture)
     * [1. JVM Language Class (.class file)](#1-jvm-language-class-class-file)
@@ -451,27 +472,6 @@
     * [When does G1 move to Full GC?](#when-does-g1-move-to-full-gc)
     * [Why classic collectors were slower](#why-classic-collectors-were-slower)
     * [Final interview-ready summary (perfect answer)](#final-interview-ready-summary-perfect-answer)
-  * [Q - Give a walk-through of the new features introduced since Java 8?](#q---give-a-walk-through-of-the-new-features-introduced-since-java-8)
-    * [Phase 1: Java 9 - 11 (The "Modernization" Era)](#phase-1-java-9---11-the-modernization-era)
-      * [Modules (Jigsaw)](#modules-jigsaw)
-      * [Collection Factory Methods](#collection-factory-methods)
-      * [Local Variable Type Inference (`var`)](#local-variable-type-inference-var)
-      * [New HttpClient (Standardized)](#new-httpclient-standardized)
-      * [String Methods (Life Savers)](#string-methods-life-savers)
-      * [Running Single-File Source Code](#running-single-file-source-code)
-    * [Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era)](#phase-2-java-12---17-the-syntactic-sugar-era)
-      * [Records (Data Classes)](#records-data-classes)
-      * [Text Blocks (Multi-line Strings)](#text-blocks-multi-line-strings)
-      * [Switch Expressions](#switch-expressions)
-      * [Pattern Matching for `instanceof`](#pattern-matching-for-instanceof)
-      * [Sealed Classes](#sealed-classes)
-      * [Helpful NullPointerExceptions](#helpful-nullpointerexceptions)
-    * [Phase 3: Java 18 - 21 (The "Concurrency Revolution")](#phase-3-java-18---21-the-concurrency-revolution)
-      * [Virtual Threads (Project Loom) - **The Game Changer**](#virtual-threads-project-loom---the-game-changer)
-      * [Structured Concurrency](#structured-concurrency-)
-      * [Sequenced Collections](#sequenced-collections)
-      * [Record Patterns](#record-patterns)
-      * [Foreign Function & Memory API](#foreign-function--memory-api)
   * [Q - What is CAS (Compare-And-Swap)?](#q---what-is-cas-compare-and-swap)
   * [Q - Explain Soft vs. Weak vs. Phantom References?](#q---explain-soft-vs-weak-vs-phantom-references)
   * [Q - What is Escape Analysis?](#q---what-is-escape-analysis)
@@ -2440,6 +2440,285 @@ The `compareTo()` method returns:
 -----------------------------
 
 
+## Q - Give a walk-through of the new features introduced since Java 8?
+
+This is a massive topic. To ace this in an interview, do **not** list every minor
+change. Instead, group them by the major **LTS (Long Term Support)** versions that
+companies actually use: **Java 11**, **Java 17**, and the new **Java 21**.
+
+Here is the "Executive Summary" of the evolution from Java 8.
+
+---
+
+### Phase 1: Java 9 - 11 (The "Modernization" Era)
+
+*Focus: Removing boilerplate and modernizing APIs.*
+
+#### Modules (Jigsaw)
+
+The Change: Java 9 broke the massive monolithic JDK into small, manageable modules.
+
+* **Key Concept:** Strict encapsulation. You must explicitly declare what packages
+  your module exports and what other modules it requires using `module-info.java`.
+
+* **Impact:**
+  1. **Security:** Internal JDK APIs (like `sun.misc.Unsafe`) are hidden.
+  2. **Scalability:** You can create custom, tiny Java runtimes (using jlink) that only contain
+     the modules your app actually needs (e.g., a 30MB JRE instead of 200MB).
+
+#### Collection Factory Methods
+
+The Change: Finally, a clean one-line syntax to create immutable lists, sets, and maps.
+
+* **Old Way:** `Arrays.asList("a", "b")` (Mutable wrapper, allows nulls) or
+  `Collections.unmodifiableList(...)` (Verbose).
+* New Way:
+    ```java
+    List<String> list = List.of("a", "b", "c");
+    Set<String> set = Set.of("a", "b", "c");
+    Map<String, Integer> map = Map.of("a", 1, "b", 2);
+    ```
+
+* **Note:** These collections are Immutable. Calling `.add()` throws `UnsupportedOperationException`.
+  They also reject null values.
+
+#### Local Variable Type Inference (`var`)
+
+**The Change:** You don't need to repeat the type name on the left side.
+
+* **Java 8:** `Map<String, List<User>> users = new HashMap<>();`
+* **Java 11:** `var users = new HashMap<String, List<User>>();`
+* *Note:* Still strongly typed! The compiler just infers it.
+
+#### New HttpClient (Standardized)
+
+**The Change:** Finally, a built-in, non-blocking HTTP client. No need for
+Apache `HttpClient` or `OkHttp` for simple tasks.
+
+```java
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder().uri(URI.create("https://api.com")).build();
+HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+```
+
+#### String Methods (Life Savers)
+
+* `isBlank()`: Checks if a string is empty OR just whitespace.
+* `lines()`: Returns a Stream of lines from a multi-line string.
+* `strip()`: Unicode-aware `trim()`.
+* `repeat(n)`: Repeats the string n times.
+
+#### Running Single-File Source Code
+
+You can now run a file without compiling it first!
+
+* **Terminal:** `java HelloWorld.java` (No `javac` needed).
+
+---
+
+### Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era)
+
+*Focus: Developer productivity and reducing code noise.*
+
+#### Records (Data Classes)
+
+Immutable data carriers without boilerplate (`getters`, `equals`, `hashCode`, `toString`).
+
+```java
+// Java 17
+public record User(String name, int id) {}
+
+```
+
+#### Text Blocks (Multi-line Strings)
+
+No more `\n` and `+` concatenation for JSON/SQL.
+
+```java
+String json = """
+              {
+                "name": "John",
+                "age": 30
+              }
+              """;
+
+```
+
+#### Switch Expressions
+
+Arrow syntax, no fall-through, can return values.
+
+```java
+var result = switch(day) {
+    case "MONDAY", "FRIDAY" -> "Work";
+    case "SUNDAY" -> "Sleep";
+    default -> "Unknown";
+};
+
+```
+
+#### Pattern Matching for `instanceof`
+
+Smart casting.
+
+```java
+if (obj instanceof String s) {
+    System.out.println(s.length()); // 's' is already cast to String
+}
+
+```
+
+#### Sealed Classes
+
+Control exactly who can extend your class (critical for domain modeling).
+
+```java
+public sealed interface Shape permits Circle, Square {}
+
+```
+
+#### Helpful NullPointerExceptions
+
+* **Old:** `NullPointerException at line 45` (Where? Who?)
+* **New:** `Cannot invoke "String.length()" because "user.name" is null`.
+
+---
+
+### Phase 3: Java 18 - 21 (The "Concurrency Revolution")
+
+*Focus: High-throughput concurrency and simplification.*
+
+#### Virtual Threads (Project Loom) - **The Game Changer**
+
+**The Problem:** Java threads map 1:1 to OS threads. OS threads are heavy (2MB RAM).
+You can only have ~5,000 active threads before the server crashes.
+
+**The Solution:** **Virtual Threads** are managed by the JVM, not the OS.
+They are essentially "free" (bytes of RAM). You can have **millions** of them.
+
+* **Impact:** You don't need complex "Reactive Programming" (WebFlux) anymore.
+  You can write simple, blocking code that handles millions of connections.
+
+```java
+// Creates a lightweight virtual thread
+Thread.startVirtualThread(() -> {
+    System.out.println("Running in a virtual thread!");
+});
+```
+
+#### Structured Concurrency
+
+**The Problem:** In traditional concurrency, if you spawn 3 threads to do a task and
+one fails, the others keep running (leaking resources), and handling errors across them is a nightmare.
+
+**The Solution:** Structured Concurrency treats multiple related tasks running in different
+threads as a single unit of work.
+
+* **Impact:** If one sub-task fails, the others are automatically cancelled (cleaned up).
+  It brings the simplicity of single-threaded error handling to multi-threaded code.
+* Key API: `StructuredTaskScope`
+
+```java
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+Supplier<String> user  = scope.fork(() -> findUser());
+Supplier<Integer> order = scope.fork(() -> fetchOrder());
+
+    scope.join().throwIfFailed(); // Wait for both, or fail if one fails
+// Both results are ready here
+}
+```
+
+#### Sequenced Collections
+
+Java finally unified how we access the "first" and "last" elements of a list, set, or deque.
+
+* **Old:** `list.get(0)`, `deque.getFirst()`, `sortedSet.first()`. (Inconsistent).
+* **New:** `collection.getFirst()`, `collection.getLast()`, `collection.addFirst()`. (Uniform).
+
+#### Record Patterns
+
+Deconstructs records directly in `instanceof` or `switch`.
+
+```java
+if (obj instanceof Point(int x, int y)) {
+    System.out.println(x + y); // Access x and y directly!
+}
+```
+
+
+#### Foreign Function & Memory API
+
+Foreign Function & Memory API (Java 21)
+
+The Change: A safe, standard way to access memory outside of the Java heap (off-heap) and call native code (C libraries).
+
+* **The Old Way:** JNI (Java Native Interface). It was brittle, difficult to write, and could
+  easily crash the entire JVM.
+* **The New Way:** The FFM API replaces JNI. It is pure Java API (no native wrapper code needed),
+  safer, and much faster.
+* **Use Case:** High-performance applications interacting with hardware, heavy AI/ML
+  libraries (TensorFlow/PyTorch), or processing massive data without Garbage Collection overhead.
+
+
+------------------
+
+
+## Q - What is shutdown hook?
+
+A Shutdown Hook is a special thread that you register with the Java Virtual Machine (JVM).
+The JVM promises to run this thread just before it shuts down.
+
+### How to implement it?
+
+You use the `Runtime` class to add a new Thread.
+
+```java
+public class ShutdownExample {
+    public static void main(String[] args) {
+        
+        // 1. Register the Shutdown Hook
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("🚨 SHUTDOWN HOOK: Saving data to disk...");
+            System.out.println("🚨 SHUTDOWN HOOK: Closing DB connections...");
+            System.out.println("✅ Cleanup Complete. Bye!");
+        }));
+
+        System.out.println("Application is running... (Press Ctrl+C to stop)");
+
+        // 2. Simulate heavy work
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Main thread is finishing normally.");
+    }
+}
+```
+
+### When does it run?
+
+The Shutdown Hook runs in these scenarios:
+
+1. **Normal Exit**: The last non-daemon thread finishes.
+2. **System.exit()**: You call `System.exit(0)`.
+3. **User Interrupt**: You press `Ctrl+C` in the terminal.
+4. OS Signal: The OS sends a `SIGTERM` (standard kill signal).
+
+### When does it NOT run?
+
+If the JVM is killed violently, the hook is skipped.
+
+1. `Runtime.halt()`: This is the violent version of `System.exit()`.
+2. `kill -9` (Force Kill): The OS rips the process from memory immediately.
+3. Power Failure: Obviously.
+
+
+
+----------------
+
+
 
 # 2. OOP & Object Model
 
@@ -3264,6 +3543,76 @@ public class GhostDemo {
 -----------------------------
 
 
+## Q - What is AutoCloseable interface?
+
+`AutoCloseable` is a functional interface introduced in Java 7 that allows an object to be
+used in the try-with-resources statement.
+
+Its single method, void `close() throws Exception`, is called automatically when the `try` block exits
+(whether normally or due to an exception).
+
+### 1. The Core Purpose: Try-With-Resources
+
+Before Java 7, you had to close resources (files, sockets, DB connections) manually in
+a finally block. This was verbose and error-prone.
+
+`AutoCloseable` automates this cleanup.
+
+The Interface Definition:
+
+```java
+public interface AutoCloseable {
+    void close() throws Exception;
+}
+```
+
+### 2. Code Example
+
+Here is how you implement it and use it.
+
+```java
+// 1. Create a Custom Resource
+class MyResource implements AutoCloseable {
+    @Override
+    public void close() {
+        System.out.println("Resource closed automatically!");
+    }
+    
+    public void doWork() {
+        System.out.println("Working...");
+    }
+}
+
+// 2. Use it in Try-With-Resources
+public class Main {
+    public static void main(String[] args) {
+        // Notice the parenthesis after 'try'
+        try (MyResource res = new MyResource()) {
+            res.doWork();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 'close()' is guaranteed to run here.
+    }
+}
+```
+
+### 3. Senior Engineer Nuance: Exception Suppression
+
+**The Problem (Old finally way):** If your code throws an exception (e.g., `RuntimeException`) AND
+your `finally` block throws an exception (e.g., `IOException` while closing), the original exception is lost.
+The caller only sees the closing error, which hides the real bug.
+
+The Solution (`AutoCloseable` way): If both the `try` block and the `close()` method throw exceptions:
+
+1. The try block exception is **propagated** (this is the one you want to see).
+2. The `close()` exception is **suppressed** and attached to the main exception.
+3. You can retrieve it using **mainException.getSuppressed()**.
+
+
+-----------------------------
+
+
 # 4. Collections Framework
 
 ## Q - What is diff b/w Vector and ArrayList?
@@ -3877,6 +4226,14 @@ Key points:
 
 
 -----------------------------
+
+
+## Q - How to create immutable collections in Java?
+
+`Collections.toUnmodifieableList()`
+
+
+----------------
 
 
 # 5. Concurrency & Multithreading
@@ -6266,6 +6623,502 @@ Interface
 -----------------------------
 
 
+## Q - Why default methods were introduced in interfaces?
+
+The primary reason default methods were introduced in Java 8 was Backward Compatibility.
+
+### The Problem (Before Java 8)
+
+In previous versions of Java, if you modified an interface (e.g., added a new method),
+you broke **every single class** that implemented that interface. All those classes would fail to
+compile until they implemented the new method.
+
+### The Real-World Scenario
+
+When Java 8 introduced Streams (`.stream()`), the architects wanted to add
+the `stream()` method to the standard Collection interface so that every
+`ArrayList`, `HashSet`, etc., could use it.
+
+* Without Default Methods: Every custom Collection library (like Apache Commons, Guava, or your own `MyCustomList`)
+  would have broken instantly upon upgrading to Java 8.
+* With Default Methods: The `Collection` interface could provide a default implementation
+  of `stream()`, so existing classes continued to work without any changes.
+
+### Secondary Benefit: "Optional" Methods
+
+Before Java 8, interfaces were strict: if an interface had 10 methods, you had to write code for
+all 10, even if you only needed one.
+
+#### The Classic "Mouse Listener" Problem
+
+Imagine you are writing a UI app and want to detect a mouse click. You use the `MouseListener` interface.
+
+**The Interface (Standard Java):**
+
+```java
+interface MouseListener {
+    void mouseClicked(MouseEvent e);  // You want this
+    void mousePressed(MouseEvent e);  // You don't care
+    void mouseReleased(MouseEvent e); // You don't care
+    void mouseEntered(MouseEvent e);  // You don't care
+    void mouseExited(MouseEvent e);   // You don't care
+}
+```
+
+#### 1. The "Old Way" (Painful)
+
+Because the interface rules were strict, your class became filled with "dummy" empty methods
+just to satisfy the compiler.
+
+```java
+// Java 7: I just want 'clicked', but I forced to write 4 empty methods!
+class MyButtonHandler implements MouseListener {
+    public void mouseClicked(MouseEvent e) {
+        System.out.println("Button Clicked!");
+    }
+
+    // --- Useless Boilerplate Below ---
+    public void mousePressed(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {}
+}
+```
+
+#### 2. The "New Way" (With Default Methods)
+
+With Java 8, the interface creator can mark those less-common methods as default with an empty body `{}`.
+This tells the compiler: "If the class doesn't implement this, just do nothing. Don't throw an error."
+
+**The Modern Interface:**
+
+```java
+interface MouseListener {
+    void mouseClicked(MouseEvent e); // Abstract: You MUST implement this
+
+    // Default: You CAN implement these, but you don't have to.
+    default void mousePressed(MouseEvent e) {} 
+    default void mouseReleased(MouseEvent e) {}
+    default void mouseEntered(MouseEvent e) {}
+    default void mouseExited(MouseEvent e) {}
+}
+```
+
+**Your Clean Code:**
+
+```java
+// Java 8+: Look how clean this is!
+class MyButtonHandler implements MouseListener {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        System.out.println("Button Clicked!");
+    }
+    // No other methods required. The defaults (empty bodies) are used automatically.
+}
+```
+
+
+------------------
+
+
+## Q - What are sealed classes?
+
+Sealed Classes (introduced in Java 17) allow a class or interface to strictly restrict which
+other classes may extend or implement it.
+
+In simple terms: A parent class decides exactly who its children are.
+
+### 1. The Syntax
+
+You use the `sealed` keyword to define the class and the `permits` keyword to list the allowed subclasses.
+
+```java
+// 1. Parent restricts children to ONLY Circle and Square
+public sealed class Shape permits Circle, Square { }
+
+// 2. Child 1: Must be final, sealed, or non-sealed
+public final class Circle extends Shape { }
+
+// 3. Child 2: Can be non-sealed to open inheritance back up
+public non-sealed class Square extends Shape { }
+```
+
+
+### 2. The Three Rules for Subclasses
+
+Every class that extends a sealed class must specify how it relates to inheritance.
+It must choose exactly one of these three modifiers:
+
+* `final`: "I am the end of the line." No one can extend this class.
+* `sealed`: "I have specific children." It continues the restriction.
+* `non-sealed`: "I am open." It breaks the seal and allows anyone to extend it from this point down.
+
+
+### 3. Why use them? (The "Killer Feature")
+
+The biggest advantage is Exhaustive Pattern Matching in switch statements.
+
+Because the compiler knows exactly which subclasses exist, it can ensure you cover every possible case.
+You do not need a default block.
+
+```java
+// Compile-time safety!
+String result = switch (shape) {
+    case Circle c -> "It is a circle with radius " + c.radius();
+    case Square s -> "It is a square with side " + s.side();
+    // No 'default' needed because Java knows no other shapes exist!
+};
+```
+
+
+-----------------------------
+
+
+## Q - Why static methods inside interface were introduced in Java?
+
+The primary reason static methods were introduced in Java 8 interfaces was to allow
+utility methods to live directly inside the interface, eliminating the need for separate helper classes.
+
+Here is the breakdown of why this matters:
+
+**1\. The "Utility Class" Problem (Before Java 8)**
+
+Before Java 8, interfaces could only define contracts (abstract methods).
+If you wanted to provide helpful tools or common logic related to that interface,
+you had to create a separate "plural" class.
+
+* Interface: Collection
+* Helper Class: Collections (Full of static methods like sort, reverse, etc.)
+
+This was messy because you had to keep track of two files for one concept.
+
+2\. The Solution (Java 8+)
+
+By allowing static methods in interfaces means you can call
+methods directly using the interface name without creating an object.
+
+This allows API designers to put the helper tools inside the interface itself, keeping everything in one place.
+
+* Old Way: `Collections.sort(list);` (Uses the helper class)
+* New Way: `Comparator.comparing(...)` (Uses the interface directly)
+
+3\. Why this is efficient:
+
+* Interfaces cannot have constructors or static blocks.
+* Static methods in interfaces are effectively just "global functions"
+  namespaced under the interface name. They do not hold state, making them
+  cheap in terms of memory and performance.
+
+### Important Distinction: No Inheritance
+
+Unlike `default` methods, static methods in interfaces are NOT inherited.
+
+* You cannot call them on an instance variable (`obj.staticMethod()`).
+* You cannot call them on a subclass (`ChildClass.staticMethod()`).
+* You must call them using the specific interface name (`MyInterface.staticMethod()`).
+
+Example:
+
+```java
+// 1. The Interface
+interface UserValidator {
+    
+    // Abstract Method (Contract for the class to implement)
+    boolean hasPermission(String username);
+
+    // Static Utility Method (Helper Tool)
+    // You can call this WITHOUT creating an instance of a class!
+    static boolean isValidEmail(String email) {
+        return email != null && email.contains("@") && email.contains(".");
+    }
+}
+
+// 2. The Implementation Class
+class EmployeeValidator implements UserValidator {
+    
+    @Override
+    public boolean hasPermission(String username) {
+        // Simple logic for demo
+        return "admin".equals(username);
+    }
+}
+
+// 3. The Main Class
+public class Main {
+    public static void main(String[] args) {
+        
+        // --- USAGE 1: Using the Static Method ---
+        // NOTICE: We call it directly on the Interface Name.
+        // We do NOT need to create an object.
+        boolean isEmailValid = UserValidator.isValidEmail("test@example.com");
+        System.out.println("Is Email Valid? " + isEmailValid);
+
+
+        // --- USAGE 2: Using the Abstract Method ---
+        EmployeeValidator emp = new EmployeeValidator();
+        System.out.println("Is Admin? " + emp.hasPermission("admin"));
+
+
+        // --- ❌ COMMON MISTAKE (Will Not Compile) ---
+        // Static methods are NOT inherited by the implementing class.
+        // emp.isValidEmail("test@example.com");  // ERROR
+        // EmployeeValidator.isValidEmail("..."); // ERROR
+    }
+}
+```
+
+
+-----------------------------
+
+
+## Q - What is Predicate joining?
+
+Predicate Joining (often called Predicate Chaining) is a technique in Java 8 used
+to combine multiple Predicate conditions into a single, complex logical test.
+
+It allows you to take small, simple logic units and "glue" them together using
+logical operators like `AND`, `OR`, and `NOT`.
+
+### How it works
+
+The Predicate interface contains default methods that let you join them:
+
+* `p1.and(p2)` - Returns a predicate that is true only if both are true.
+* `p1.or(p2)` - Returns a predicate that is true if either is true.
+* `p1.negate()` - Returns the opposite (inverse) of the predicate.
+
+### Code Example
+
+Imagine you want to filter a list of names. You have two rules:
+
+* Name must be longer than 3 characters.
+* Name must start with "A".
+
+Instead of writing one giant if statement, you can define them separately and join them.
+
+Example:
+
+```java
+import java.util.function.Predicate;
+
+public class PredicateJoinExample {
+    public static void main(String[] args) {
+        
+        // 1. Define Simple Predicates
+        Predicate<String> isLongEnough = s -> s.length() > 3;
+        Predicate<String> startsWithA  = s -> s.startsWith("A");
+
+        // 2. JOIN them using .and()
+        // Logic: (length > 3) && (startsWith "A")
+        Predicate<String> validName = isLongEnough.and(startsWithA);
+
+        // 3. JOIN them using .or()
+        // Logic: (length > 3) || (startsWith "A")
+        Predicate<String> looseRule = isLongEnough.or(startsWithA);
+
+        // 4. Test it
+        System.out.println(validName.test("Anna")); // True (Matches both)
+        System.out.println(validName.test("Bob"));  // False (Too short, no 'A')
+        
+        // 5. Negate (Reverse)
+        // Logic: !(length > 3)
+        Predicate<String> isShort = isLongEnough.negate();
+        System.out.println(isShort.test("Bob"));    // True
+    }
+}
+```
+
+
+-----------------------------
+
+
+
+## Q - What is Functional joining?
+
+Functional Joining (or Function Chaining) is a feature of the `Function<T, R>` interface
+in Java 8. It allows you to combine multiple functions into a single processing pipeline.
+
+This is widely used to create complex data transformations from small, reusable steps.
+
+### The Methods
+
+There are two default methods used for chaining:
+
+* `andThen(after)`: Runs the current function first, and then uses its result as input for the next function.
+* `compose(before)`: Runs the other function first, and then uses its result as input for the current function.
+
+### Code Example
+
+Imagine a data pipeline: Input → Multiply by 2 → Add 10 → Result.
+
+Example:
+
+```java
+import java.util.function.Function;
+
+public class FunctionJoinExample {
+    public static void main(String[] args) {
+
+        // 1. Define separate, simple functions
+        Function<Integer, Integer> multiplyBy2 = i -> i * 2;
+        Function<Integer, Integer> addTen      = i -> i + 10;
+
+        // 2. JOIN using .andThen() (Standard Chaining)
+        // Order: multiplyBy2 runs FIRST -> addTen runs SECOND
+        // Input 5: (5 * 2 = 10) -> (10 + 10 = 20)
+        Function<Integer, Integer> pipeline = multiplyBy2.andThen(addTen);
+        
+        System.out.println("andThen Result: " + pipeline.apply(5)); // Output: 20
+
+
+        // 3. JOIN using .compose() (Reverse Chaining)
+        // Order: addTen runs FIRST -> multiplyBy2 runs SECOND
+        // Input 5: (5 + 10 = 15) -> (15 * 2 = 30)
+        Function<Integer, Integer> reversePipeline = multiplyBy2.compose(addTen);
+        
+        System.out.println("compose Result: " + reversePipeline.apply(5)); // Output: 30
+    }
+}
+```
+
+### Visualizing andThen vs compose
+
+| Method  | 	Syntax         | 	Execution Order | 	Math Equivalent |
+|---------|-----------------|------------------|------------------|
+| andThen | 	f1.andThen(f2) | 	f1 → f2         | 	f2(f1(x))       |
+| compose | 	f1.compose(f2) | 	f2 → f1         | 	f1(f2(x))       |
+
+
+-----------------------------
+
+
+## Q - What is Consumer chaining?
+
+Consumer Chaining is the ability to combine multiple Consumer operations
+so they run one after another on the same input.
+
+Since a `Consumer` returns `void`, you cannot pass a result from one to the
+next (like you do with `Function`). Instead, you use chaining to perform a
+**sequence of independent side effects** (actions) on the same object.
+
+The Method: `andThen()`
+
+The `Consumer` interface has a default method called `andThen`.
+
+* **Syntax:** `firstConsumer.andThen(secondConsumer)`
+* **Behavior:** It runs the first consumer, then immediately runs the second consumer using the same input.
+
+Example:
+
+```java
+import java.util.function.Consumer;
+
+class Product {
+    String name = "Phone";
+    
+    @Override
+    public String toString() { return name; }
+}
+
+public class ConsumerChainExample {
+    public static void main(String[] args) {
+        
+        // 1. Define the separate actions (Consumers)
+        Consumer<Product> paintProduct = p -> {
+            System.out.println("1. Painting " + p.name + " Black");
+            p.name = "Black " + p.name; // Modifying the object
+        };
+
+        Consumer<Product> packageProduct = p -> {
+            System.out.println("2. Packaging " + p.name + " into box");
+        };
+
+        Consumer<Product> shipProduct = p -> {
+            System.out.println("3. Shipping " + p.name);
+        };
+
+        // 2. CHAIN them together
+        // Order: Paint -> Package -> Ship
+        Consumer<Product> assemblyLine = paintProduct
+                                            .andThen(packageProduct)
+                                            .andThen(shipProduct);
+
+        // 3. Run the chain
+        assemblyLine.accept(new Product());
+    }
+}
+```
+
+## Q - How to use chaining with Supplier?
+
+Supplier can't be  chained as it takes no input.
+
+
+-----------------------------
+
+
+## Q - Difference between Optional.of() and Optional.ofNullable()?
+
+The difference lies in how they handle `null` values.
+
+The Short Answer:
+
+* `Optional.of(value)`: Use this when you are 100% sure the value is NOT null. If it is null,
+  it crashes immediately (NPE).
+* `Optional.ofNullable(value)`: Use this when the value might be null. If it is null, it returns
+  an empty Optional instead of crashing.
+
+It feels redundant because `ofNullable()` handles everything, right?
+
+But `Optional.of()` has a very specific purpose: Defensive Programming.
+
+It is used to say: **"If this value is null, it is a BUG, not a valid state."**
+
+1\. The "Silent Failure" Problem
+
+If you always use `ofNullable()`, you might accidentally hide serious bugs.
+
+**Imagine this scenario:** You are building a checkout system. You load a tax rate configuration from a file.
+This configuration must exist for the app to work.
+
+Using `ofNullable()` (Bad Logic):
+
+```java
+// Logic: Load tax rate. If config is missing (null), wrap it safely.
+Optional<Double> taxRate = Optional.ofNullable(getTaxConfig()); 
+
+// Later in code...
+double totalTax = price * taxRate.orElse(0.0); 
+
+// RESULT: The customer pays $0 tax. No error is thrown. 
+// You lose money, and you don't know why.
+```
+
+2\. The `Optional.of()` Solution (Fail Fast)
+
+If you use `Optional.of()`, you force the program to crash immediately at the source of the error,
+rather than letting a `null` flow through your system as an "Empty Optional" and causing weird logic errors later.
+
+Using `Optional.of()` (Good Logic):
+
+```java
+// Logic: This MUST exist. If it's null, crash NOW so I can fix the config.
+Optional<Double> taxRate = Optional.of(getTaxConfig()); 
+
+// RESULT: Immediate NullPointerException. 
+// You see the log, realize the config file is missing, and fix it.
+```
+
+Summary: When to use what?
+
+* `Optional.ofNullable()`: "I don't know if the user entered a middle name. If not, that's fine." (Valid business logic).
+* `Optional.of()`: "I just created this object 2 lines ago. It SHOULD be there. If it's null, something is terrifyingly wrong." (Logic assertion).
+
+
+----------------
+
+
+
 # 7. JVM Architecture & Internals
 
 
@@ -6463,297 +7316,6 @@ Even though Metaspace is "dynamic," it is not infinite. Here is the chain of eve
 
 
 
-## Q - What is shutdown hook?
-
-A Shutdown Hook is a special thread that you register with the Java Virtual Machine (JVM). 
-The JVM promises to run this thread just before it shuts down.
-
-### How to implement it?
-
-You use the `Runtime` class to add a new Thread.
-
-```java
-public class ShutdownExample {
-    public static void main(String[] args) {
-        
-        // 1. Register the Shutdown Hook
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("🚨 SHUTDOWN HOOK: Saving data to disk...");
-            System.out.println("🚨 SHUTDOWN HOOK: Closing DB connections...");
-            System.out.println("✅ Cleanup Complete. Bye!");
-        }));
-
-        System.out.println("Application is running... (Press Ctrl+C to stop)");
-
-        // 2. Simulate heavy work
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("Main thread is finishing normally.");
-    }
-}
-```
-
-### When does it run?
-
-The Shutdown Hook runs in these scenarios:
-
-1. **Normal Exit**: The last non-daemon thread finishes.
-2. **System.exit()**: You call `System.exit(0)`.
-3. **User Interrupt**: You press `Ctrl+C` in the terminal.
-4. OS Signal: The OS sends a `SIGTERM` (standard kill signal).
-
-### When does it NOT run?
-
-If the JVM is killed violently, the hook is skipped.
-
-1. `Runtime.halt()`: This is the violent version of `System.exit()`.
-2. `kill -9` (Force Kill): The OS rips the process from memory immediately.
-3. Power Failure: Obviously.
-
-
-
-----------------
-
-
-
-## Q - Why default methods were introduced in interfaces?
-
-The primary reason default methods were introduced in Java 8 was Backward Compatibility.
-
-### The Problem (Before Java 8)
-
-In previous versions of Java, if you modified an interface (e.g., added a new method), 
-you broke **every single class** that implemented that interface. All those classes would fail to 
-compile until they implemented the new method.
-
-### The Real-World Scenario
-
-When Java 8 introduced Streams (`.stream()`), the architects wanted to add
-the `stream()` method to the standard Collection interface so that every
-`ArrayList`, `HashSet`, etc., could use it.
-
-* Without Default Methods: Every custom Collection library (like Apache Commons, Guava, or your own `MyCustomList`) 
-would have broken instantly upon upgrading to Java 8.
-* With Default Methods: The `Collection` interface could provide a default implementation 
-of `stream()`, so existing classes continued to work without any changes.
-
-### Secondary Benefit: "Optional" Methods
-
-Before Java 8, interfaces were strict: if an interface had 10 methods, you had to write code for 
-all 10, even if you only needed one.
-
-#### The Classic "Mouse Listener" Problem
-
-Imagine you are writing a UI app and want to detect a mouse click. You use the `MouseListener` interface.
-
-**The Interface (Standard Java):**
-
-```java
-interface MouseListener {
-    void mouseClicked(MouseEvent e);  // You want this
-    void mousePressed(MouseEvent e);  // You don't care
-    void mouseReleased(MouseEvent e); // You don't care
-    void mouseEntered(MouseEvent e);  // You don't care
-    void mouseExited(MouseEvent e);   // You don't care
-}
-```
-
-#### 1. The "Old Way" (Painful)
-
-Because the interface rules were strict, your class became filled with "dummy" empty methods 
-just to satisfy the compiler.
-
-```java
-// Java 7: I just want 'clicked', but I forced to write 4 empty methods!
-class MyButtonHandler implements MouseListener {
-    public void mouseClicked(MouseEvent e) {
-        System.out.println("Button Clicked!");
-    }
-
-    // --- Useless Boilerplate Below ---
-    public void mousePressed(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {}
-    public void mouseEntered(MouseEvent e) {}
-    public void mouseExited(MouseEvent e) {}
-}
-```
-
-#### 2. The "New Way" (With Default Methods)
-
-With Java 8, the interface creator can mark those less-common methods as default with an empty body `{}`. 
-This tells the compiler: "If the class doesn't implement this, just do nothing. Don't throw an error."
-
-**The Modern Interface:**
-
-```java
-interface MouseListener {
-    void mouseClicked(MouseEvent e); // Abstract: You MUST implement this
-
-    // Default: You CAN implement these, but you don't have to.
-    default void mousePressed(MouseEvent e) {} 
-    default void mouseReleased(MouseEvent e) {}
-    default void mouseEntered(MouseEvent e) {}
-    default void mouseExited(MouseEvent e) {}
-}
-```
-
-**Your Clean Code:**
-
-```java
-// Java 8+: Look how clean this is!
-class MyButtonHandler implements MouseListener {
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        System.out.println("Button Clicked!");
-    }
-    // No other methods required. The defaults (empty bodies) are used automatically.
-}
-```
-
-
-----------------
-
-
-## Q - How to create immutable collections in Java?
-    Collections.toUnmodifieableList()
-
-
-----------------
-
-
-
-## Q - What is AutoCloseable interface?
-
-`AutoCloseable` is a functional interface introduced in Java 7 that allows an object to be 
-used in the try-with-resources statement.
-
-Its single method, void `close() throws Exception`, is called automatically when the `try` block exits 
-(whether normally or due to an exception).
-
-### 1. The Core Purpose: Try-With-Resources
-
-Before Java 7, you had to close resources (files, sockets, DB connections) manually in 
-a finally block. This was verbose and error-prone.
-
-`AutoCloseable` automates this cleanup.
-
-The Interface Definition:
-
-```java
-public interface AutoCloseable {
-    void close() throws Exception;
-}
-```
-
-### 2. Code Example
-
-Here is how you implement it and use it.
-
-```java
-// 1. Create a Custom Resource
-class MyResource implements AutoCloseable {
-    @Override
-    public void close() {
-        System.out.println("Resource closed automatically!");
-    }
-    
-    public void doWork() {
-        System.out.println("Working...");
-    }
-}
-
-// 2. Use it in Try-With-Resources
-public class Main {
-    public static void main(String[] args) {
-        // Notice the parenthesis after 'try'
-        try (MyResource res = new MyResource()) {
-            res.doWork();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        // 'close()' is guaranteed to run here.
-    }
-}
-```
-
-### 3. Senior Engineer Nuance: Exception Suppression
-
-**The Problem (Old finally way):** If your code throws an exception (e.g., `RuntimeException`) AND 
-your `finally` block throws an exception (e.g., `IOException` while closing), the original exception is lost. 
-The caller only sees the closing error, which hides the real bug.
-
-The Solution (`AutoCloseable` way): If both the `try` block and the `close()` method throw exceptions:
-
-1. The try block exception is **propagated** (this is the one you want to see).
-2. The `close()` exception is **suppressed** and attached to the main exception.
-3. You can retrieve it using **mainException.getSuppressed()**.
-
-
-
-
-## Q - Difference between Optional.of() and Optional.ofNullable()?
-
-The difference lies in how they handle `null` values.
-
-The Short Answer:
-
-* `Optional.of(value)`: Use this when you are 100% sure the value is NOT null. If it is null, 
-it crashes immediately (NPE).
-* `Optional.ofNullable(value)`: Use this when the value might be null. If it is null, it returns 
-an empty Optional instead of crashing.
-
-It feels redundant because `ofNullable()` handles everything, right?
-
-But `Optional.of()` has a very specific purpose: Defensive Programming.
-
-It is used to say: **"If this value is null, it is a BUG, not a valid state."**
-
-1\. The "Silent Failure" Problem
-
-If you always use `ofNullable()`, you might accidentally hide serious bugs.
-
-**Imagine this scenario:** You are building a checkout system. You load a tax rate configuration from a file. 
-This configuration must exist for the app to work.
-
-Using `ofNullable()` (Bad Logic):
-
-```java
-// Logic: Load tax rate. If config is missing (null), wrap it safely.
-Optional<Double> taxRate = Optional.ofNullable(getTaxConfig()); 
-
-// Later in code...
-double totalTax = price * taxRate.orElse(0.0); 
-
-// RESULT: The customer pays $0 tax. No error is thrown. 
-// You lose money, and you don't know why.
-```
-
-2\. The `Optional.of()` Solution (Fail Fast)
-
-If you use `Optional.of()`, you force the program to crash immediately at the source of the error, 
-rather than letting a `null` flow through your system as an "Empty Optional" and causing weird logic errors later.
-
-Using `Optional.of()` (Good Logic):
-
-```java
-// Logic: This MUST exist. If it's null, crash NOW so I can fix the config.
-Optional<Double> taxRate = Optional.of(getTaxConfig()); 
-
-// RESULT: Immediate NullPointerException. 
-// You see the log, realize the config file is missing, and fix it.
-```
-
-Summary: When to use what?
-
-* `Optional.ofNullable()`: "I don't know if the user entered a middle name. If not, that's fine." (Valid business logic).
-* `Optional.of()`: "I just created this object 2 lines ago. It SHOULD be there. If it's null, something is terrifyingly wrong." (Logic assertion).
-
-
-----------------
 
 
 ## Q - How to manually trigger the garbage collection process?
@@ -6765,322 +7327,6 @@ Call `System.gc()`
 
 
 
-## Q - What are sealed classes?
-
-Sealed Classes (introduced in Java 17) allow a class or interface to strictly restrict which 
-other classes may extend or implement it.
-
-In simple terms: A parent class decides exactly who its children are.
-
-### 1. The Syntax
-
-You use the `sealed` keyword to define the class and the `permits` keyword to list the allowed subclasses.
-
-```java
-// 1. Parent restricts children to ONLY Circle and Square
-public sealed class Shape permits Circle, Square { }
-
-// 2. Child 1: Must be final, sealed, or non-sealed
-public final class Circle extends Shape { }
-
-// 3. Child 2: Can be non-sealed to open inheritance back up
-public non-sealed class Square extends Shape { }
-```
-
-
-### 2. The Three Rules for Subclasses
-
-Every class that extends a sealed class must specify how it relates to inheritance. 
-It must choose exactly one of these three modifiers:
-
-* `final`: "I am the end of the line." No one can extend this class.
-* `sealed`: "I have specific children." It continues the restriction.
-* `non-sealed`: "I am open." It breaks the seal and allows anyone to extend it from this point down.
-
-
-### 3. Why use them? (The "Killer Feature")
-
-The biggest advantage is Exhaustive Pattern Matching in switch statements.
-
-Because the compiler knows exactly which subclasses exist, it can ensure you cover every possible case. 
-You do not need a default block.
-
-```java
-// Compile-time safety!
-String result = switch (shape) {
-    case Circle c -> "It is a circle with radius " + c.radius();
-    case Square s -> "It is a square with side " + s.side();
-    // No 'default' needed because Java knows no other shapes exist!
-};
-```
-
-
-## Q - Why static methods inside interface were introduced in Java?
-
-The primary reason static methods were introduced in Java 8 interfaces was to allow 
-utility methods to live directly inside the interface, eliminating the need for separate helper classes.
-
-Here is the breakdown of why this matters:
-
-**1\. The "Utility Class" Problem (Before Java 8)**
-
-Before Java 8, interfaces could only define contracts (abstract methods). 
-If you wanted to provide helpful tools or common logic related to that interface, 
-you had to create a separate "plural" class.
-
-* Interface: Collection
-* Helper Class: Collections (Full of static methods like sort, reverse, etc.)
-
-This was messy because you had to keep track of two files for one concept.
-
-2\. The Solution (Java 8+)
-
-By allowing static methods in interfaces means you can call 
-methods directly using the interface name without creating an object.
-
-This allows API designers to put the helper tools inside the interface itself, keeping everything in one place.
-
-* Old Way: `Collections.sort(list);` (Uses the helper class)
-* New Way: `Comparator.comparing(...)` (Uses the interface directly)
-
-3\. Why this is efficient:
-
-* Interfaces cannot have constructors or static blocks.
-* Static methods in interfaces are effectively just "global functions" 
-namespaced under the interface name. They do not hold state, making them 
-cheap in terms of memory and performance.
-
-### Important Distinction: No Inheritance
-
-Unlike `default` methods, static methods in interfaces are NOT inherited.
-
-* You cannot call them on an instance variable (`obj.staticMethod()`).
-* You cannot call them on a subclass (`ChildClass.staticMethod()`).
-* You must call them using the specific interface name (`MyInterface.staticMethod()`).
-
-Example:
-
-```java
-// 1. The Interface
-interface UserValidator {
-    
-    // Abstract Method (Contract for the class to implement)
-    boolean hasPermission(String username);
-
-    // Static Utility Method (Helper Tool)
-    // You can call this WITHOUT creating an instance of a class!
-    static boolean isValidEmail(String email) {
-        return email != null && email.contains("@") && email.contains(".");
-    }
-}
-
-// 2. The Implementation Class
-class EmployeeValidator implements UserValidator {
-    
-    @Override
-    public boolean hasPermission(String username) {
-        // Simple logic for demo
-        return "admin".equals(username);
-    }
-}
-
-// 3. The Main Class
-public class Main {
-    public static void main(String[] args) {
-        
-        // --- USAGE 1: Using the Static Method ---
-        // NOTICE: We call it directly on the Interface Name.
-        // We do NOT need to create an object.
-        boolean isEmailValid = UserValidator.isValidEmail("test@example.com");
-        System.out.println("Is Email Valid? " + isEmailValid);
-
-
-        // --- USAGE 2: Using the Abstract Method ---
-        EmployeeValidator emp = new EmployeeValidator();
-        System.out.println("Is Admin? " + emp.hasPermission("admin"));
-
-
-        // --- ❌ COMMON MISTAKE (Will Not Compile) ---
-        // Static methods are NOT inherited by the implementing class.
-        // emp.isValidEmail("test@example.com");  // ERROR
-        // EmployeeValidator.isValidEmail("..."); // ERROR
-    }
-}
-```
-
-## Q - What is Predicate joining?
-
-Predicate Joining (often called Predicate Chaining) is a technique in Java 8 used 
-to combine multiple Predicate conditions into a single, complex logical test.
-
-It allows you to take small, simple logic units and "glue" them together using 
-logical operators like `AND`, `OR`, and `NOT`.
-
-### How it works
-
-The Predicate interface contains default methods that let you join them:
-
-* `p1.and(p2)` - Returns a predicate that is true only if both are true.
-* `p1.or(p2)` - Returns a predicate that is true if either is true.
-* `p1.negate()` - Returns the opposite (inverse) of the predicate.
-
-### Code Example
-
-Imagine you want to filter a list of names. You have two rules:
-
-* Name must be longer than 3 characters.
-* Name must start with "A".
-
-Instead of writing one giant if statement, you can define them separately and join them.
-
-Example:
-
-```java
-import java.util.function.Predicate;
-
-public class PredicateJoinExample {
-    public static void main(String[] args) {
-        
-        // 1. Define Simple Predicates
-        Predicate<String> isLongEnough = s -> s.length() > 3;
-        Predicate<String> startsWithA  = s -> s.startsWith("A");
-
-        // 2. JOIN them using .and()
-        // Logic: (length > 3) && (startsWith "A")
-        Predicate<String> validName = isLongEnough.and(startsWithA);
-
-        // 3. JOIN them using .or()
-        // Logic: (length > 3) || (startsWith "A")
-        Predicate<String> looseRule = isLongEnough.or(startsWithA);
-
-        // 4. Test it
-        System.out.println(validName.test("Anna")); // True (Matches both)
-        System.out.println(validName.test("Bob"));  // False (Too short, no 'A')
-        
-        // 5. Negate (Reverse)
-        // Logic: !(length > 3)
-        Predicate<String> isShort = isLongEnough.negate();
-        System.out.println(isShort.test("Bob"));    // True
-    }
-}
-```
-
-## Q - What is Functional joining?
-
-Functional Joining (or Function Chaining) is a feature of the `Function<T, R>` interface
-in Java 8. It allows you to combine multiple functions into a single processing pipeline.
-
-This is widely used to create complex data transformations from small, reusable steps.
-
-### The Methods
-
-There are two default methods used for chaining:
-
-* `andThen(after)`: Runs the current function first, and then uses its result as input for the next function.
-* `compose(before)`: Runs the other function first, and then uses its result as input for the current function.
-
-### Code Example
-
-Imagine a data pipeline: Input → Multiply by 2 → Add 10 → Result.
-
-Example:
-
-```java
-import java.util.function.Function;
-
-public class FunctionJoinExample {
-    public static void main(String[] args) {
-
-        // 1. Define separate, simple functions
-        Function<Integer, Integer> multiplyBy2 = i -> i * 2;
-        Function<Integer, Integer> addTen      = i -> i + 10;
-
-        // 2. JOIN using .andThen() (Standard Chaining)
-        // Order: multiplyBy2 runs FIRST -> addTen runs SECOND
-        // Input 5: (5 * 2 = 10) -> (10 + 10 = 20)
-        Function<Integer, Integer> pipeline = multiplyBy2.andThen(addTen);
-        
-        System.out.println("andThen Result: " + pipeline.apply(5)); // Output: 20
-
-
-        // 3. JOIN using .compose() (Reverse Chaining)
-        // Order: addTen runs FIRST -> multiplyBy2 runs SECOND
-        // Input 5: (5 + 10 = 15) -> (15 * 2 = 30)
-        Function<Integer, Integer> reversePipeline = multiplyBy2.compose(addTen);
-        
-        System.out.println("compose Result: " + reversePipeline.apply(5)); // Output: 30
-    }
-}
-```
-
-### Visualizing andThen vs compose
-
-| Method  | 	Syntax         | 	Execution Order | 	Math Equivalent |
-|---------|-----------------|------------------|------------------|
-| andThen | 	f1.andThen(f2) | 	f1 → f2         | 	f2(f1(x))       |
-| compose | 	f1.compose(f2) | 	f2 → f1         | 	f1(f2(x))       |
-
-
-## Q - What is Consumer chaining?
-
-Consumer Chaining is the ability to combine multiple Consumer operations 
-so they run one after another on the same input.
-
-Since a `Consumer` returns `void`, you cannot pass a result from one to the 
-next (like you do with `Function`). Instead, you use chaining to perform a 
-**sequence of independent side effects** (actions) on the same object.
-
-The Method: `andThen()`
-
-The `Consumer` interface has a default method called `andThen`.
-
-* **Syntax:** `firstConsumer.andThen(secondConsumer)`
-* **Behavior:** It runs the first consumer, then immediately runs the second consumer using the same input.
-
-Example:
-
-```java
-import java.util.function.Consumer;
-
-class Product {
-    String name = "Phone";
-    
-    @Override
-    public String toString() { return name; }
-}
-
-public class ConsumerChainExample {
-    public static void main(String[] args) {
-        
-        // 1. Define the separate actions (Consumers)
-        Consumer<Product> paintProduct = p -> {
-            System.out.println("1. Painting " + p.name + " Black");
-            p.name = "Black " + p.name; // Modifying the object
-        };
-
-        Consumer<Product> packageProduct = p -> {
-            System.out.println("2. Packaging " + p.name + " into box");
-        };
-
-        Consumer<Product> shipProduct = p -> {
-            System.out.println("3. Shipping " + p.name);
-        };
-
-        // 2. CHAIN them together
-        // Order: Paint -> Package -> Ship
-        Consumer<Product> assemblyLine = paintProduct
-                                            .andThen(packageProduct)
-                                            .andThen(shipProduct);
-
-        // 3. Run the chain
-        assemblyLine.accept(new Product());
-    }
-}
-```
-
-## Q - How to use chaining with Supplier?
-
-Supplier can't be  chained as it takes no input.
 
 
 
@@ -8672,226 +8918,6 @@ Result:
 ----------------
 
 
-## Q - Give a walk-through of the new features introduced since Java 8?
-
-This is a massive topic. To ace this in an interview, do **not** list every minor 
-change. Instead, group them by the major **LTS (Long Term Support)** versions that 
-companies actually use: **Java 11**, **Java 17**, and the new **Java 21**.
-
-Here is the "Executive Summary" of the evolution from Java 8.
-
----
-
-### Phase 1: Java 9 - 11 (The "Modernization" Era)
-
-*Focus: Removing boilerplate and modernizing APIs.*
-
-#### Modules (Jigsaw)
-
-The Change: Java 9 broke the massive monolithic JDK into small, manageable modules.
-
-* **Key Concept:** Strict encapsulation. You must explicitly declare what packages 
-   your module exports and what other modules it requires using `module-info.java`.
-
-* **Impact:**
-    1. **Security:** Internal JDK APIs (like `sun.misc.Unsafe`) are hidden.
-    2. **Scalability:** You can create custom, tiny Java runtimes (using jlink) that only contain 
-        the modules your app actually needs (e.g., a 30MB JRE instead of 200MB).
-
-#### Collection Factory Methods
-
-The Change: Finally, a clean one-line syntax to create immutable lists, sets, and maps.
-
-* **Old Way:** `Arrays.asList("a", "b")` (Mutable wrapper, allows nulls) or
-   `Collections.unmodifiableList(...)` (Verbose).
-* New Way:
-    ```java
-    List<String> list = List.of("a", "b", "c");
-    Set<String> set = Set.of("a", "b", "c");
-    Map<String, Integer> map = Map.of("a", 1, "b", 2);
-    ```
-    
-* **Note:** These collections are Immutable. Calling `.add()` throws `UnsupportedOperationException`. 
-  They also reject null values.
-
-#### Local Variable Type Inference (`var`)
-
-**The Change:** You don't need to repeat the type name on the left side.
-
-* **Java 8:** `Map<String, List<User>> users = new HashMap<>();`
-* **Java 11:** `var users = new HashMap<String, List<User>>();`
-* *Note:* Still strongly typed! The compiler just infers it.
-
-#### New HttpClient (Standardized)
-
-**The Change:** Finally, a built-in, non-blocking HTTP client. No need for 
-Apache `HttpClient` or `OkHttp` for simple tasks.
-
-```java
-HttpClient client = HttpClient.newHttpClient();
-HttpRequest request = HttpRequest.newBuilder().uri(URI.create("https://api.com")).build();
-HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-```
-
-#### String Methods (Life Savers)
-
-* `isBlank()`: Checks if a string is empty OR just whitespace.
-* `lines()`: Returns a Stream of lines from a multi-line string.
-* `strip()`: Unicode-aware `trim()`.
-* `repeat(n)`: Repeats the string n times.
-
-#### Running Single-File Source Code
-
-You can now run a file without compiling it first!
-
-* **Terminal:** `java HelloWorld.java` (No `javac` needed).
-
----
-
-### Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era)
-
-*Focus: Developer productivity and reducing code noise.*
-
-#### Records (Data Classes)
-
-Immutable data carriers without boilerplate (`getters`, `equals`, `hashCode`, `toString`).
-
-```java
-// Java 17
-public record User(String name, int id) {}
-
-```
-
-#### Text Blocks (Multi-line Strings)
-
-No more `\n` and `+` concatenation for JSON/SQL.
-
-```java
-String json = """
-              {
-                "name": "John",
-                "age": 30
-              }
-              """;
-
-```
-
-#### Switch Expressions
-
-Arrow syntax, no fall-through, can return values.
-
-```java
-var result = switch(day) {
-    case "MONDAY", "FRIDAY" -> "Work";
-    case "SUNDAY" -> "Sleep";
-    default -> "Unknown";
-};
-
-```
-
-#### Pattern Matching for `instanceof`
-
-Smart casting.
-
-```java
-if (obj instanceof String s) {
-    System.out.println(s.length()); // 's' is already cast to String
-}
-
-```
-
-#### Sealed Classes
-
-Control exactly who can extend your class (critical for domain modeling).
-
-```java
-public sealed interface Shape permits Circle, Square {}
-
-```
-
-#### Helpful NullPointerExceptions
-
-* **Old:** `NullPointerException at line 45` (Where? Who?)
-* **New:** `Cannot invoke "String.length()" because "user.name" is null`.
-
----
-
-### Phase 3: Java 18 - 21 (The "Concurrency Revolution")
-
-*Focus: High-throughput concurrency and simplification.*
-
-#### Virtual Threads (Project Loom) - **The Game Changer**
-
-**The Problem:** Java threads map 1:1 to OS threads. OS threads are heavy (2MB RAM). 
-You can only have ~5,000 active threads before the server crashes.
-
-**The Solution:** **Virtual Threads** are managed by the JVM, not the OS. 
-They are essentially "free" (bytes of RAM). You can have **millions** of them.
-
-* **Impact:** You don't need complex "Reactive Programming" (WebFlux) anymore. 
-You can write simple, blocking code that handles millions of connections.
-
-```java
-// Creates a lightweight virtual thread
-Thread.startVirtualThread(() -> {
-    System.out.println("Running in a virtual thread!");
-});
-```
-
-#### Structured Concurrency 
-
-**The Problem:** In traditional concurrency, if you spawn 3 threads to do a task and 
-one fails, the others keep running (leaking resources), and handling errors across them is a nightmare.
-
-**The Solution:** Structured Concurrency treats multiple related tasks running in different 
-threads as a single unit of work.
-
-* **Impact:** If one sub-task fails, the others are automatically cancelled (cleaned up). 
-   It brings the simplicity of single-threaded error handling to multi-threaded code.
-* Key API: `StructuredTaskScope`
-
-```java
-try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-Supplier<String> user  = scope.fork(() -> findUser());
-Supplier<Integer> order = scope.fork(() -> fetchOrder());
-
-    scope.join().throwIfFailed(); // Wait for both, or fail if one fails
-// Both results are ready here
-}
-```
-
-#### Sequenced Collections
-
-Java finally unified how we access the "first" and "last" elements of a list, set, or deque.
-
-* **Old:** `list.get(0)`, `deque.getFirst()`, `sortedSet.first()`. (Inconsistent).
-* **New:** `collection.getFirst()`, `collection.getLast()`, `collection.addFirst()`. (Uniform).
-
-#### Record Patterns
-
-Deconstructs records directly in `instanceof` or `switch`.
-
-```java
-if (obj instanceof Point(int x, int y)) {
-    System.out.println(x + y); // Access x and y directly!
-}
-```
-
-
-#### Foreign Function & Memory API
-
-Foreign Function & Memory API (Java 21)
-
-The Change: A safe, standard way to access memory outside of the Java heap (off-heap) and call native code (C libraries).
-
-* **The Old Way:** JNI (Java Native Interface). It was brittle, difficult to write, and could 
-   easily crash the entire JVM.
-* **The New Way:** The FFM API replaces JNI. It is pure Java API (no native wrapper code needed), 
-   safer, and much faster.
-* **Use Case:** High-performance applications interacting with hardware, heavy AI/ML 
-   libraries (TensorFlow/PyTorch), or processing massive data without Garbage Collection overhead.
-
----
 
 
 ## Q - What is CAS (Compare-And-Swap)?
