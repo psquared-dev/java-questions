@@ -1,15 +1,63 @@
 <!-- TOC -->
-* [Q - What is JIT?](#q---what-is-jit)
-* [Q - What is class Loader?](#q---what-is-class-loader)
-* [Q - What are different types of classloaders?](#q---what-are-different-types-of-classloaders)
-* [Q - What are the diff memory area allocated by JVM?](#q---what-are-the-diff-memory-area-allocated-by-jvm)
+* [Language Basics & Compilation](#language-basics--compilation)
+* [Q - What is JDK? What is the diff b/w JDK and JRE?](#q---what-is-jdk-what-is-the-diff-bw-jdk-and-jre)
+* [Q - What are access specifiers?](#q---what-are-access-specifiers)
+* [Q - What are packages?](#q---what-are-packages)
+* [Q - Is Java Pass by Value or Pass by Reference?](#q---is-java-pass-by-value-or-pass-by-reference)
+* [Q - What is the diff b/w objects and references?](#q---what-is-the-diff-bw-objects-and-references)
+  * [Objects vs References](#objects-vs-references)
+  * [What is allocated where?](#what-is-allocated-where)
+  * [Memory Regions - Summary](#memory-regions---summary)
+  * [References](#references)
+* [Q - What is shadowing?](#q---what-is-shadowing)
+* [Q - Will the following code compile?](#q---will-the-following-code-compile)
+  * [1. Widening = implicit (safe)](#1-widening--implicit-safe)
+  * [2. Narrowing = explicit cast required (unsafe)](#2-narrowing--explicit-cast-required-unsafe)
+  * [Why `myChar = myByte` is not allowed](#why-mychar--mybyte-is-not-allowed)
+  * [Why `myShort = myChar` is not allowed](#why-myshort--mychar-is-not-allowed)
+  * [Why `myChar = myShort` is not allowed](#why-mychar--myshort-is-not-allowed)
+* [Q - var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q---var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
+* [Q - Will the following code compile?](#q---will-the-following-code-compile-1)
+* [Q - Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword](#q---mentions-some-other-possible-scenarios-where-we-cant-use-the-var-lvti-keyword)
+* [Q - Do `double` and `float` type overflow?](#q---do-double-and-float-type-overflow)
+* [Q - Is default keyword one of the access modifier?](#q---is-default-keyword-one-of-the-access-modifier)
+* [Q - What is Covariant return type?](#q---what-is-covariant-return-type)
+* [Q - What if a method in child class is more restricted than a parent class?](#q---what-if-a-method-in-child-class-is-more-restricted-than-a-parent-class)
+* [Q - Does the finally block execute if there is a return statement inside try or catch?](#q---does-the-finally-block-execute-if-there-is-a-return-statement-inside-try-or-catch)
 * [Q - Is the following program correct?](#q---is-the-following-program-correct)
-* [Q - Do local variables in Java have default values?](#q---do-local-variables-in-java-have-default-values)
+* [Q - Can you run the code before executing main methods?](#q---can-you-run-the-code-before-executing-main-methods)
+* [Q - Is it true that main thread doesn't terminate until the child threads are done?](#q---is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
+* [2. OOP & Object Model](#2-oop--object-model)
+* [Q - What are core principles of OOP?](#q---what-are-core-principles-of-oop)
+  * [Runtime Polymorphism](#runtime-polymorphism)
+  * [Compile time Polymorphism](#compile-time-polymorphism)
+  * [Abstraction](#abstraction)
+  * [Encapsulation](#encapsulation)
+  * [Diff b/w Abstraction and Encapsulation](#diff-bw-abstraction-and-encapsulation)
 * [Q - What is association, aggregation and composition?](#q---what-is-association-aggregation-and-composition)
   * [Association](#association)
   * [Two forms of association](#two-forms-of-association)
   * [Aggregation (weak ownership)](#aggregation-weak-ownership)
   * [Composition (strong ownership)](#composition-strong-ownership)
+* [Q - Is runtime polymorphism is applicable for fields also?](#q---is-runtime-polymorphism-is-applicable-for-fields-also)
+* [Q - Define Singleton class](#q---define-singleton-class)
+  * [Sequence of events (step-by-step)](#sequence-of-events-step-by-step)
+  * [Why volatile is required?](#why-volatile-is-required)
+* [Q - How to make a class immutable?](#q---how-to-make-a-class-immutable)
+* [Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?](#q---in-java-what-is-the-exact-difference-between-a-variable-declared-as-final-and-an-object-that-is-immutable)
+* [Q - Why Java is not completely Object-Oriented?](#q---why-java-is-not-completely-object-oriented)
+* [Q - Why can't we override private and static methods?](#q---why-cant-we-override-private-and-static-methods)
+  * [Why you cannot override private methods](#why-you-cannot-override-private-methods)
+  * [Why you cannot override static methods](#why-you-cannot-override-static-methods)
+    * [1. The Binding Difference](#1-the-binding-difference)
+    * [2. They belong to the Class, not the Object](#2-they-belong-to-the-class-not-the-object)
+    * [3. What actually happens? (Method Hiding)](#3-what-actually-happens-method-hiding)
+* [3. String & Object Internals](#3-string--object-internals)
+  * [Q - What is JIT?](#q---what-is-jit)
+* [Q - What is class Loader?](#q---what-is-class-loader)
+* [Q - What are different types of classloaders?](#q---what-are-different-types-of-classloaders)
+* [Q - What are the diff memory area allocated by JVM?](#q---what-are-the-diff-memory-area-allocated-by-jvm)
+* [Q - Do local variables in Java have default values?](#q---do-local-variables-in-java-have-default-values)
 * [Q - What is copy constructor?](#q---what-is-copy-constructor)
   * [Copy Constructor vs clone() — Which is better?](#copy-constructor-vs-clone--which-is-better)
     * [1. The "Constructor Bypass" Problem (Critical)](#1-the-constructor-bypass-problem-critical)
@@ -24,24 +72,16 @@
     * [Shallow Clone (default)](#shallow-clone-default)
     * [Deep Clone](#deep-clone)
   * [Resources](#resources-1)
-* [Q - Why Java is not completely Object-Oriented?](#q---why-java-is-not-completely-object-oriented)
 * [Q - What are Wrapper classes](#q---what-are-wrapper-classes)
-* [Q - Define Singleton class](#q---define-singleton-class-)
-  * [Sequence of events (step-by-step)](#sequence-of-events-step-by-step)
-  * [Why volatile is required?](#why-volatile-is-required)
-* [Q - What are packages?](#q---what-are-packages)
 * [Q - Do we have pointers in Java?](#q---do-we-have-pointers-in-java)
 * [Q - What is Java String Pool & String Interning?](#q---what-is-java-string-pool--string-interning)
   * [1. String Literal (Automatic Interning)](#1-string-literal-automatic-interning)
   * [2. The `new` Keyword (Forcing a New Object)](#2-the-new-keyword-forcing-a-new-object)
   * [3. Manual Interning (`.intern()`)](#3-manual-interning-intern)
   * [4. Why is this safe? (Immutability)](#4-why-is-this-safe-immutability)
-* [Q - What is JDK? What is the diff b/w JDK and JRE?](#q---what-is-jdk-what-is-the-diff-bw-jdk-and-jre)
-* [Q - What are access specifiers?](#q---what-are-access-specifiers)
 * [Q - What is Dynamic Method Dispatch?](#q---what-is-dynamic-method-dispatch)
 * [Q - What are different thread states?](#q---what-are-different-thread-states)
 * [Q - What is daemon thread?](#q---what-is-daemon-thread)
-* [Q - Can you run the code before executing main methods?](#q---can-you-run-the-code-before-executing-main-methods)
 * [Q -  How many times is the finalize() method called in Java?](#q---how-many-times-is-the-finalize-method-called-in-java)
   * [What is finalize()?](#what-is-finalize)
   * [Key Idea 1: finalize() may run OR may not run](#key-idea-1-finalize-may-run-or-may-not-run)
@@ -89,13 +129,6 @@
   * [One-page Comparison (Interview Gold)](#one-page-comparison-interview-gold-)
   * [Final Rule to Say in Interview (Memorize This)](#final-rule-to-say-in-interview-memorize-this)
 * [Q - List diff types of Executorservice](#q---list-diff-types-of-executorservice)
-* [Q - How to make a class immutable?](#q---how-to-make-a-class-immutable)
-* [Q - What are core principles of OOP?](#q---what-are-core-principles-of-oop)
-  * [Runtime Polymorphism](#runtime-polymorphism)
-  * [Compile time Polymorphism](#compile-time-polymorphism)
-  * [Abstraction](#abstraction)
-  * [Encapsulation](#encapsulation)
-  * [Diff b/w Abstraction and Encapsulation](#diff-bw-abstraction-and-encapsulation)
 * [Q - How many methods are there compare strings in Java?](#q---how-many-methods-are-there-compare-strings-in-java)
 * [Q - What are the motivations for ExecutorService?](#q---what-are-the-motivations-for-executorservice)
   * [1. Resource Management (The "Thread Explosion" Problem)](#1-resource-management-the-thread-explosion-problem)
@@ -122,12 +155,6 @@
     * [4. Fast communication](#4-fast-communication)
   * [Interview-perfect closing line (memorize)](#interview-perfect-closing-line-memorize)
   * [Resources:](#resources-2)
-* [Q - Is it true that main thread doesn't terminate until the child threads are done?](#q---is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
-* [Q - What is the diff b/w objects and references?](#q---what-is-the-diff-bw-objects-and-references)
-  * [Objects vs References](#objects-vs-references)
-  * [What is allocated where?](#what-is-allocated-where)
-  * [Memory Regions - Summary](#memory-regions---summary)
-  * [References](#references)
 * [Q - Explain stack and heap memory regions in the context of threads?](#q---explain-stack-and-heap-memory-regions-in-the-context-of-threads)
   * [1. Stack Memory (Thread-specific)](#1-stack-memory-thread-specific)
   * [2. Heap Memory (Shared across threads)](#2-heap-memory-shared-across-threads)
@@ -167,17 +194,6 @@
   * [CopyOnWriteArrayList](#copyonwritearraylist)
   * [Collections.synchronizedList](#collectionssynchronizedlist)
 * [Q - Which threads are guaranteed to be created when a Java program starts?](#q---which-threads-are-guaranteed-to-be-created-when-a-java-program-starts)
-* [Q - Will the following code compile?](#q---will-the-following-code-compile)
-  * [1. Widening = implicit (safe)](#1-widening--implicit-safe)
-  * [2. Narrowing = explicit cast required (unsafe)](#2-narrowing--explicit-cast-required-unsafe)
-  * [Why `myChar = myByte` is not allowed](#why-mychar--mybyte-is-not-allowed)
-  * [Why `myShort = myChar` is not allowed](#why-myshort--mychar-is-not-allowed)
-  * [Why `myChar = myShort` is not allowed](#why-mychar--myshort-is-not-allowed)
-* [Q - Do `double` and `float` type overflow?](#q---do-double-and-float-type-overflow)
-* [Q - What is shadowing?](#q---what-is-shadowing)
-* [Q - var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q---var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
-* [Q - Will the following code compile?](#q---will-the-following-code-compile-1)
-* [Q - Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword](#q---mentions-some-other-possible-scenarios-where-we-cant-use-the-var-lvti-keyword)
 * [Q - Will the following statement adds string to the string pool?](#q---will-the-following-statement-adds-string-to-the-string-pool)
   * [The Nuance: The final Keyword](#the-nuance-the-final-keyword)
 * [Q - What happens when we concatenate string with different type?](#q---what-happens-when-we-concatenate-string-with-different-type)
@@ -191,7 +207,6 @@
   * [The Analogy: The Sectioned Library](#the-analogy-the-sectioned-library)
   * [How it works in a HashMap (The 3 Steps)](#how-it-works-in-a-hashmap-the-3-steps)
   * [The Contract: The "Law" of HashCode](#the-contract-the-law-of-hashcode)
-* [Q - Does the finally block execute if there is a return statement inside try or catch?](#q---does-the-finally-block-execute-if-there-is-a-return-statement-inside-try-or-catch)
 * [Q - Explain the hierarchy of exceptions in Java?](#q---explain-the-hierarchy-of-exceptions-in-java)
   * [Checked Exceptions (Compile-Time)](#checked-exceptions-compile-time)
   * [Unchecked Exceptions (Runtime)](#unchecked-exceptions-runtime)
@@ -298,18 +313,8 @@
   * [1. The Syntax](#1-the-syntax)
   * [2. The Three Rules for Subclasses](#2-the-three-rules-for-subclasses)
   * [3. Why use them? (The "Killer Feature")](#3-why-use-them-the-killer-feature)
-* [Q - Why can't we override private and static methods?](#q---why-cant-we-override-private-and-static-methods)
-  * [Why you cannot override private methods](#why-you-cannot-override-private-methods)
-  * [Why you cannot override static methods](#why-you-cannot-override-static-methods)
-    * [1. The Binding Difference](#1-the-binding-difference)
-    * [2. They belong to the Class, not the Object](#2-they-belong-to-the-class-not-the-object)
-    * [3. What actually happens? (Method Hiding)](#3-what-actually-happens-method-hiding)
 * [Q - Does finally always execute in Java?](#q---does-finally-always-execute-in-java)
 * [Q - What are methods provided by the Object class?](#q---what-are-methods-provided-by-the-object-class)
-* [Q - Is Java Pass by Value or Pass by Reference?](#q---is-java-pass-by-value-or-pass-by-reference)
-* [Q - What if a method in child class is more restricted than a parent class?](#q---what-if-a-method-in-child-class-is-more-restricted-than-a-parent-class)
-* [Q - What is Covariant return type?](#q---what-is-covariant-return-type)
-* [Q - Is default keyword one of the access modifier?](#q---is-default-keyword-one-of-the-access-modifier)
 * [Q - Can you provide default hashcode() implementation in the interface?](#q---can-you-provide-default-hashcode-implementation-in-the-interface)
   * [1. The Conflict Resolution Rule](#1-the-conflict-resolution-rule)
   * [2. The Problem](#2-the-problem)
@@ -326,7 +331,6 @@
   * [Visualizing andThen vs compose](#visualizing-andthen-vs-compose)
 * [Q - What is Consumer chaining?](#q---what-is-consumer-chaining)
 * [Q - How to use chaining with Supplier?](#q---how-to-use-chaining-with-supplier)
-* [Q - Is runtime polymorphism is applicable for fields also?](#q---is-runtime-polymorphism-is-applicable-for-fields-also)
 * [Q - Do we have access to `this` the lambda?](#q---do-we-have-access-to-this-the-lambda)
 * [Q - Explain JVM Architecture?](#q---explain-jvm-architecture)
   * [1. JVM Language Class (.class file)](#1-jvm-language-class-class-file)
@@ -457,7 +461,6 @@
   * [1. ClassNotFoundException (The "Typo")](#1-classnotfoundexception-the-typo)
   * [2. NoClassDefFoundError (The "Ghost")](#2-noclassdeffounderror-the-ghost)
   * [Summary Table (Memorize This)](#summary-table-memorize-this)
-* [Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?](#q---in-java-what-is-the-exact-difference-between-a-variable-declared-as-final-and-an-object-that-is-immutable)
 * [Q - Explain how AtomicInteger works?](#q---explain-how-atomicinteger-works)
   * [1. The Core Concept: "Optimistic Locking"](#1-the-core-concept-optimistic-locking)
   * [2. The Hardware Magic: CAS (Compare-And-Swap)](#2-the-hardware-magic-cas-compare-and-swap)
@@ -550,85 +553,580 @@
     * [Summary for the Interview](#summary-for-the-interview-2)
 <!-- TOC -->
 
-# Q - What is JIT?
+# Language Basics & Compilation
 
-JIT (Just-In-Time) Compiler is a component of the JVM that optimizes performance. While the Interpreter 
-executes bytecode line-by-line, the JIT identifies frequently used methods (Hotspots) and compiles them 
-into native machine code on the fly. This allows Java to run nearly as fast as C++ after a warm-up period.
+# Q - What is JDK? What is the diff b/w JDK and JRE?
+
+JDK (Java Development Kit) is a software development environment used to develop Java applications.
+
+* JVM (Java Virtual Machine): The engine that actually runs the code.
+* JRE = JVM + Library Classes (`java.lang`, `java.util`, etc.)
+* JDK = JRE + Development Tools (compilers like `javac`, `javap`, debuggers, documentation generator etc.)
+
+-----------------------------
+
+# Q - What are access specifiers?
+
+Access Specifiers are predefined keywords used to help
+JVM with understanding the scope of a variable, method, and
+a class. We have four access specifiers.
+
+1\. Private
+* Keyword: `private`
+* Scope: Only within the same class.
+
+2\. Default (Package-Private)
+* Keyword: (None - simply leave it blank)
+* Scope: Only within the same package.
+
+3\. Protected
+* Keyword: `protected`
+* Scope: Same package + Subclasses (even in different packages).
+
+4\. Public
+* Keyword: `public`
+* Scope: Everywhere.
 
 -----------------------------
 
 
-# Q - What is class Loader?
+# Q - What are packages?
 
-* Part of the JVM that dynamically loads Java classes into the JVM memory (Metaspace).
-* **Lazy Loading:** It does not load all classes at startup; it loads them only when the application needs them.
-* **Delegation Hierarchy:** When asked to load a class, a ClassLoader first delegates the request to its Parent. 
-  It only tries to load it itself if the Parent cannot find it.
-* **Visibility:** A child ClassLoader can see classes loaded by the parent, but the parent cannot see classes 
-  loaded by the child.
-
-In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them usable by the JVM.
-
------------------------------
-
-# Q - What are different types of classloaders?
-
-
-**Bootstrap ClassLoader**
-
-* **What it loads:** The bare minimum to run Java. Specifically, the `java.base` module.
-* **Classes:** `java.lang.String`, `java.util.List`, `java.lang.System` etc.
-
-**Platform ClassLoader (Java 9+; replaces Extension loader)**
-
-* Loads platform modules / non-core JDK modules (`java.sql`, `java.xml`, etc.).
-* Parent is the Bootstrap loader.
-
-**Application (System) ClassLoader**
-
-* Loads classes from the application classpath (`-cp`, `CLASSPATH`, `target/classes`, or the module path when 
-  running modular apps).
-* Parent is Platform loader.
-
-**Custom Class Loaders**
-
-* Load encrypted classes
-* Load classes from a database or network
-* Hot-reload modules
-* Plugin systems (e.g., IDEs, servers)
-
------------------------------
-
-# Q - What are the diff memory area allocated by JVM?
-
-* Heap Space
-    * **What:** Where all Objects live (e.g., `new Employee()`).
-    * **Scope:** Shared by all threads (Global).
-    * **Cleanup:** Managed by Garbage Collector.
-* Stack
-    * **What:** Stores method calls (Stack Frames), local variables, and partial results.
-    * **Scope:** One per thread (Thread-safe).
-    * **Cleanup:** Automatically cleaned when the method finishes.
-
-* Method area (permgen/metaspace)
-    * **What:** It stores:
-        * Class metadata (structure of the class)
-        * Method metadata
-        * Field metadata (name, type, modifiers)
-        * Method bytecode
-        * Runtime constant pool
-    * **Note:** In modern Java, this uses native memory (outside the Heap).
-
-* PC Register (Program Counter)
-    * **What:** Holds the address of the current instruction being executed.
-    * **Analogy:** The "bookmark" telling the CPU which line to read next.
-
-* Native Method Stack
-    * **What:** Used for native code (C/C++ libraries) called via JNI.
+Just a collection of related classes. The use of packages helps in code reusability and name clash.
 
 
 -----------------------------
+
+
+# Q - Is Java Pass by Value or Pass by Reference?
+
+Pass by value
+
+----------------
+
+
+# Q - What is the diff b/w objects and references?
+
+**1. Object**
+
+An object is the actual data stored in memory (on the heap).
+
+It contains:
+
+* Fields (values)
+* Methods (behavior)
+* Its own memory address
+
+You cannot directly access an object - you access it through a reference.
+
+**2. Reference**
+
+A reference is like a pointer or address that "points to" an object in memory.
+
+* It does NOT hold the object
+* It only holds the location of the object
+* Multiple references can point to the same object
+
+Example:
+
+```java
+Emp e1 = new Emp(10, "John");  // e1 is a reference, Emp(...) creates an object
+Emp e2 = e1;                   // e2 is another reference pointing to the same object
+```
+
+Here:
+
+* `new Emp(10, "John")` → creates an object on heap
+* `e1` → a reference pointing to that object
+* `e2` → another reference pointing to the same object
+
+
+## Objects vs References
+
+References != Objects
+
+```mermaid
+graph LR
+  %% Centered title
+  title["Objects vs References"]
+
+  subgraph Stack [Stack Memory]
+    direction TB
+    ref1[referenceVar1]
+    ref2[referenceVar2]
+  end
+
+  subgraph Heap [Heap Memory]
+    obj((Object Instance))
+  end
+
+  ref1 --> obj
+  ref2 --> obj
+
+  style title fill:#ffffff,stroke:#ffffff,color:black,font-size:18px,font-weight:bold
+```
+
+## What is allocated where?
+
+* References:
+  * Can be allocated on the stack (e.g., as local variables).
+  * Can be allocated on the heap if they are members (fields) of a class.
+
+* Objects:
+  * Are always allocated on the heap.
+
+
+## Memory Regions - Summary
+
+| **Heap (Shared)**                           | **Stack (Exclusive)**                                  |
+|---------------------------------------------|--------------------------------------------------------|
+| • **Objects** (The actual instances)        | • **Local primitive types** (int, double, etc.)        |
+| • **Class members** (Fields inside objects) | • **Local references** (Variables pointing to objects) |
+| • **Static variables**                      |                                                        |
+
+
+## References
+
+* https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199598#notes
+
+
+-----------------------------
+
+
+# Q - What is shadowing?
+
+Shadowing happens when a variable declared in a inner scope has the same name as a variable in an outer scope.
+
+The inner variable shadows (hides) the outer one - meaning the outer variable cannot be accessed in that inner scope.
+
+In simple words:
+> The closest variable with that name wins.
+
+Here is an example:
+
+```java
+public class Main19 {
+    public static void main(String[] args) {
+        int i = 10;
+        
+        class SomeClass {
+//            int i = 100;
+            {
+                 for (int i = 0; i < 10; i++) {
+                     System.out.println(i);
+                 }
+            }
+        }
+
+        SomeClass someClass = new SomeClass();
+        System.out.println(someClass);
+    }
+}
+```
+
+**What is happening?**
+
+* You declared `int i = 10` in the `main` method.
+* Inside the for loop, you declared another `int i`.
+* The inner `i` shadows the outer `i`.
+
+**Result:**
+
+Inside the for loop:
+* When you say `i`, Java uses the loop's `i`, not the main method's `i`.
+
+So inside the loop:
+
+* The outer `i = 10` becomes invisible.
+* Only the loop variable `i` exists.
+
+
+-----------------------------
+
+
+# Q - Will the following code compile?
+
+```java
+byte myByte = 'a';
+char myChar = 'a';
+short myShort;
+
+myChar = myByte;
+myShort = myChar;
+myChar = myShort; 
+```
+
+No.
+
+Here is the general rule:
+
+> Java allows implicit conversions only when the conversion is a widening primitive conversion
+> that cannot lose information or change the sign. All narrowing conversions require an
+> explicit cast, except when assigning a compile-time constant that fits in the target type.
+>
+
+## 1. Widening = implicit (safe)
+
+* Target type can represent all possible values of the source type
+* Sign is preserved
+* No overflow possible
+
+## 2. Narrowing = explicit cast required (unsafe)
+
+* Target type cannot represent all values
+* Sign may change
+* Overflow or truncation possible
+
+---
+
+## Why `myChar = myByte` is not allowed
+
+> Because byte → char is not a widening primitive conversion.
+>
+
+**Reason:**
+
+* `byte` is signed (`-128 to 127`)
+* `char` is unsigned (`0 to 65535`)
+* Some `byte` values (negative ones) cannot be represented by `char`
+
+
+## Why `myShort = myChar` is not allowed
+
+> Because char → short is not a widening primitive conversion.
+>
+>
+
+**Reason:**
+
+* `char` is unsigned (`0 to 65535`)
+* `short` is signed (`-32768 to 32767`)
+* Many valid `char` values cannot fit into `short`
+
+
+## Why `myChar = myShort` is not allowed
+
+> Because short → char is not a widening primitive conversion.
+>
+
+**Reason:**
+
+* `short` is signed (`-32768 to 32767`)
+* `char` is unsigned (`0 to 65535`)
+* Negative `short` values cannot be represented by `char`
+
+
+-----------------------------
+
+
+# Q - var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?
+
+Since Java 10, you can use `var` to let the compiler infer the type:
+
+```java
+var name = "John";   // inferred as String
+var age = 25;        // inferred as int
+```
+
+But this is allowed only for local variables, **not fields, not method parameters, and not return types**.
+
+Also note that, `var` is **not a reserved keyword**. It is a restricted type name.
+
+This means:
+
+* Java treats `var` specially only when used in variable declarations.
+* But outside that context, you can use `var` as an identifier.
+
+Example:
+
+```java
+int var = 10;        // valid
+String var = "Hi";   // valid
+class var { }        // valid class name (but discouraged)
+```
+
+If `var` appears where the compiler expects a type, it is treated as LVTI. Otherwise, it is treated
+as a normal name.
+
+-----------------------------
+
+# Q - Will the following code compile?
+
+```java
+var name = null;
+```
+
+No. because the type of the `name` variable can't be inferred.
+
+-----------------------------
+
+# Q - Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword
+
+```java
+// cannot use var declaration in a compound statement
+var j = 0, k = 0;
+
+// again, cannot use var declaration in a compound statement
+var m, n = 0;
+
+// Cannot declare a var variable without also initializing it
+var someObject;
+
+// Cannot assign null to var variable, type cannot be inferred
+var newvar = null;
+
+// Cannot use array initializer in var declaration/initialization
+var myArray = {"A", "B"};
+
+// Cannot have an array of var
+var[] newArray = new int[2];
+
+public class VarDonts {
+    // Invalid - Static class variables cannot be declared with var
+    static var classVariable = 10;
+
+    // Invalid - class instance variables cannot be declared with var
+    var instanceVariable = 20;
+
+    public static void main(String[] args) {
+    }
+
+    // Invalid, cannot have a method return type of var
+    public static var returnThis(String[] args) {
+        return args;
+    }
+
+    // Invalid, cannot have method parameter of var
+    public static String[] returnThat(var args) {
+        return args;
+    }
+}
+
+// var can't be used as className
+class var{
+
+}
+```
+
+We can use **LVTI only for local variables in methods, code blocks and loop variables**.
+
+
+-------------
+
+
+# Q - Do `double` and `float` type overflow?
+
+Integers **wrap around**, while Floats **explode to Infinity**.
+
+Here is the distinction:
+
+**1\. Integers (Wrap Around)**
+
+When an integer type (`int`, `long`, `byte`, `short`) overflows, it loops back to the minimum value (negative).
+This is often a silent bug.
+
+```java
+int max = Integer.MAX_VALUE; // 2,147,483,647
+int result = max + 1;
+// Result is -2,147,483,648 (Wraps to minimum)
+```
+
+**2\. Floating Point (Infinity)**
+
+When a `float` or `double` exceeds its maximum storage capacity, it does not wrap around. Instead, it hits a special
+value called `Infinity`.
+
+```java
+double max = Double.MAX_VALUE; // approx 1.8 x 10^308
+double result = max * 1.1;     
+// Result is Infinity
+```
+
+----------------------------
+
+
+# Q - Is default keyword one of the access modifier?
+
+No, the `default` keyword is NOT an access modifier keyword.
+
+Here is the breakdown of the confusion:
+
+1\. The "Default Access Modifier" (The Invisible One)
+
+When people talk about the Default Access Modifier (also called Package-Private),
+they are talking about the absence of a keyword.
+
+* **How you write it:** You literally write nothing.
+* **Behavior:** Visible only within the same package.
+* **Keyword used:** None.
+
+Example:
+
+```java
+class Student {
+    // No keyword used here! This is "Default Access".
+    void study() { 
+        System.out.println("Studying...");
+    }
+}
+```
+
+2\. The `default` Keyword (The Actual Keyword)
+
+The word `default` does exist as a keyword in Java, but it is used for completely
+different things:
+
+**Usage A: Interface Methods (Java 8+)** To provide a fallback implementation in an
+interface so you don't break existing code
+
+```java
+interface Vehicle {
+    // Here, 'default' is NOT about access control. 
+    // It means "Here is the default code body".
+    default void honk() {
+        System.out.println("Beep!");
+    }
+}
+```
+
+**Usage B: Switch Statements** To specify what happens if no other case matches.
+
+```java
+switch(day) {
+    case 1: print("Monday"); break;
+    default: print("Weekend"); // The "Else" case
+}
+```
+
+
+----------------
+
+
+# Q - What is Covariant return type?
+
+Covariant Return Type is a feature (introduced in Java 5) that allows an overriding method to return
+a subclass (narrower type) of the return type declared in the parent method.
+
+Example:
+
+```java
+class Burger {
+    // Generic Burger
+}
+
+class CheeseBurger extends Burger {
+    // Specific Burger
+}
+
+class BurgerShop {
+    // Parent promises to return a generic Burger
+    public Burger order() {
+        System.out.println("Here is a standard burger");
+        return new Burger();
+    }
+}
+
+class CheeseBurgerShop extends BurgerShop {
+    // OVERRIDING:
+    // We changed the return type from 'Burger' to 'CheeseBurger'.
+    // This is allowed because CheeseBurger IS-A Burger.
+    @Override
+    public CheeseBurger order() {
+        System.out.println("Here is a cheeseburger");
+        return new CheeseBurger();
+    }
+}
+
+public class Test {
+    public static void main(String[] args) {
+        CheeseBurgerShop shop = new CheeseBurgerShop();
+        
+        // No casting needed! We get the specific type directly.
+        CheeseBurger cb = shop.order(); 
+    }
+}
+```
+
+Why is this useful?
+
+It saves you from doing annoying type-casting.
+
+This relates directly to the Liskov Substitution Principle:
+> The Child can provide more specific guarantees than the Parent, but never less.
+
+
+----------------
+
+
+# Q - What if a method in child class is more restricted than a parent class?
+
+It causes a **Compile Time Error**.
+
+This rule exists to preserve the Contract of the Parent Class (related to the **Liskov Substitution Principle**).
+
+The Liskov Substitution Principle (LSP) states:
+> Whatever the Parent can do, the Child must also be able to do.
+
+When you override a method, you cannot make the access modifier more restrictive than the parent method.
+
+* ✅ You CAN keep it the same.
+* ✅ You CAN make it less restrictive (more visible).
+* ❌ You CANNOT make it more restrictive (less visible).
+
+
+----------------
+
+
+# Q - Does the finally block execute if there is a return statement inside try or catch?
+
+Consider the following example:
+
+```java
+public class MainExample {
+
+    static class Connection {
+        public void open() {
+            System.out.println("Connection opened");
+        }
+
+        public void close() {
+            System.out.println("Connection closed");
+        }
+    }
+
+    private static void method2() {
+        Connection connection = new Connection();
+        connection.open();
+
+        try {
+            // LOGIC
+            String str = null;
+            str.toString();   // This will throw NullPointerException
+            return;           // return inside try
+        }
+        catch (Exception e) {
+            // NOT PRINTING EXCEPTION TRACE (bad practice)
+            System.out.println("Exception Handled - Method 2");
+            return;           // return inside catch
+        }
+        finally {
+            connection.close();  // will execute?
+        }
+    }
+
+    public static void main(String[] args) {
+        method2();
+    }
+}
+```
+
+Yes. Regardless of whether the try or catch block completes normally, throws an exception,
+or executes a `return` statement, the finally block always executes before the method returns.
+It is typically used for cleanup tasks like closing connections.
+
+
+-----------------------
+
 
 # Q - Is the following program correct?
 
@@ -645,11 +1143,179 @@ Yes. Notice that `public` and `static` keywords can be in any order.
 
 -----------------------------
 
-# Q - Do local variables in Java have default values?
 
-Local variables **do not have a default value**. Unlike instance variables (fields), they are not 
-automatically initialized. You must explicitly initialize them before use; otherwise, you will get 
-a compile-time error.
+# Q - Can you run the code before executing main methods?
+
+Yes, Java allows execution of code before the main method using a **static initializer**.
+A **static initializer** runs when the class is loaded and initialized by the JVM, before
+any objects are created and before the main method is executed.
+
+**How it works:**
+
+When you run a Java program (e.g., `java MyClass`), the JVM performs the following steps:
+
+* **Load the Class:** It finds `MyClass.class` and loads it into memory.
+* **Execute Static Blocks:** During this loading phase, it runs all `static` blocks and initializes static variables.
+* **Call Main:** Only after the class is fully loaded does it look for and call `public static void main`.
+
+Example:
+
+```java
+public class PreMain {
+    
+    // 1. This runs FIRST (during class loading)
+    static {
+        System.out.println("I am running BEFORE main!");
+    }
+
+    // 2. This runs SECOND
+    public static void main(String[] args) {
+        System.out.println("I am running INSIDE main.");
+    }
+}
+```
+
+**Output:**
+
+```text
+I am running BEFORE main!
+I am running INSIDE main.
+```
+
+-----------------------------
+
+
+# Q - Is it true that main thread doesn't terminate until the child threads are done?
+
+No, `main` does NOT wait for the child thread. Consider the following example:
+
+```java
+public class Test06 {
+    public static void main(String[] args) {
+        Thread t1 = new Thread(() -> {
+
+            try {
+                Thread.sleep(1_000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            System.out.println("t1 - exit");
+        });
+
+        t1.start();
+        System.out.println("main - exit");
+    }
+}
+```
+
+**Output:**
+
+```text
+main - exit
+t1 - exit
+```
+
+Execution order (important)
+
+1. `t1.start()` → starts a new thread
+2. `main` immediately prints:
+    ```text
+    main - exit
+    ```
+3. `main` method finishes
+4. JVM does NOT exit yet
+5. **JVM waits until all non-daemon threads finish**
+6. `t1` wakes up after 1 second
+7. `t1` prints:
+    ```text
+    t1 - exit
+    ```
+8. Now JVM exits
+
+
+# 2. OOP & Object Model
+
+
+# Q - What are core principles of OOP?
+
+To remember the core principles of Object-Oriented Programming (OOP), you can use the acronym `A PIE`:
+
+1. Abstraction
+1. Polymorphism
+1. Inheritance
+1. Encapsulation
+
+Let's start with Polymorphism:
+
+Doing the same thing in different ways is called polymorhphism. There are two types of polymorhphism:
+
+1. Runtime polymorphism
+1. Compile time polymorphism
+
+## Runtime Polymorphism
+
+Consider an `Animal` class with an `eat()` method. Next, create a `Dog` class by extending `Animal` class
+and override the `eat()` method. Now create an object of type `Animal` and `Dog` and assign it to base class reference.
+
+```java
+Animal a1 = new Animal();
+a1.eat();
+
+a1 = new Dog();
+a1.eat();
+```
+
+At runtime, the JVM decides which version of `eat()` method should be called (i.e. from `Animal` or `Dog` class).
+This is called **Runtime polymorhphism**.
+
+
+## Compile time Polymorphism
+
+Method overloading is called **Compile time polymorhphism**.
+
+Method overloading allows a class to have more than one method with the same name, but with different
+parameters (different type, number, or both). The correct method to call is determined by the compiler based on the method
+signature (the number and types of parameters).
+
+Video Polymorphism: https://www.youtube.com/watch?v=jhDUxynEQRI&t=340s
+
+
+## Abstraction
+
+Abstraction in object-oriented programming (OOP) is the concept of hiding the complex
+implementation details and exposing only the essential features of an object or a system. This
+helps in reducing programming complexity and effort, enhancing code readability, and providing
+a clear and concise interface for the end user or other developers.
+
+Example:
+
+Suppose we want to implement `Set`. There are multiple implementations possible here:
+
+1. Balanced Binary Tree
+2. Hashtable
+
+We start by creating a interface called `Set` with two methods `add()` and `remove()`, and leave upto the child class to define the implementation.
+
+Video abstraction: https://www.youtube.com/watch?v=L1-zCdrx8Lk
+
+
+## Encapsulation
+
+Encapsulation is the ability of an object to hide parts of its state and behavior from the outside world.
+To encapculate something means to make it `private`, and thus accessible only from within if the methods if
+its own class. There is a little less restrictive mode called `protected` that makes a member of a class available to
+subclass as well.
+
+Encapsulation helps us to change implementation without of the class without affecting the users of the class.
+
+## Diff b/w Abstraction and Encapsulation
+
+Consider the following analogy:
+
+Engine is a piece of complex device. The car abstracts the complexity of the engine behind a simple interface pedals.
+This is abstraction in action. To protect th engine from tampering, the engine is sealed inside a metal hood.
+This is encapsulation.
 
 -----------------------------
 
@@ -662,10 +1328,10 @@ Association is the general relationship where one class knows about or interacts
 
 or
 
-Association is a general HAS-A relationship, where one object is connected to another, 
+Association is a general HAS-A relationship, where one object is connected to another,
 without implying ownership or lifecycle control.
 
-Association often means a class has a field referencing another object - 
+Association often means a class has a field referencing another object -
 but not always (it can also be through a method).
 
 ## Two forms of association
@@ -751,6 +1417,497 @@ Association (has-a)
 
 
 -----------------------------
+
+
+# Q - Is runtime polymorphism is applicable for fields also?
+
+No, Runtime Polymorphism does NOT apply to fields (variables). It only applies to methods.
+
+In Java, fields are accessed based on the Reference Type (the class name on the left side),
+whereas methods are accessed based on the Actual Object (the new class on the right side).
+
+**The Rule**
+
+* Methods (Overriding): Resolved at Runtime (Dynamic Binding). Java looks at the actual object in memory.
+* Fields (Hiding): Resolved at Compile Time (Static Binding). Java looks at the reference type you are holding.
+
+Example:
+
+```java
+class Parent {
+    String value = "Parent Field";
+
+    void show() {
+        System.out.println("Parent Method");
+    }
+}
+
+class Child extends Parent {
+    String value = "Child Field"; // Hides Parent's 'value'
+
+    @Override
+    void show() {
+        System.out.println("Child Method");
+    }
+}
+
+public class FieldTest {
+    public static void main(String[] args) {
+        System.out.println("--- Case 1: Parent Reference, Child Object ---");
+        Parent p = new Child();
+
+        // 1. Field Access -> STATIC BINDING (Looks at 'Parent' type)
+        System.out.println("p.value:    " + p.value);
+        // Output: "Parent Field" 
+
+        // 2. Method Call -> DYNAMIC BINDING (Looks at actual 'Child' object)
+        p.show();
+        // Output: "Child Method"
+
+
+        System.out.println("\n--- Case 2: Child Reference, Child Object ---");
+        Child c = (Child) p; // Downcasting the same object to Child reference
+
+        // 1. Field Access -> STATIC BINDING (Looks at 'Child' type)
+        System.out.println("c.value:    " + c.value);
+        // Output: "Child Field"
+
+        // 2. Method Call -> DYNAMIC BINDING (Still looks at actual 'Child' object)
+        c.show();
+        // Output: "Child Method"
+
+
+        System.out.println("\n--- Case 3: The 'Magic' of Casting ---");
+        // You can access the HIDDEN parent field by casting the reference temporarily
+        System.out.println("((Parent) c).value: " + ((Parent) c).value);
+        // Output: "Parent Field"
+    }
+}
+```
+
+
+-----------------------------
+
+
+# Q - Define Singleton class
+
+A Singleton class is a design pattern in object-oriented programming in which only one
+instance of the class can ever exist during the lifetime of an application.
+
+**Example 1:**
+
+A simple implementation of Singleton class:
+
+```java
+class Config {
+    private static volatile Config instance;
+
+    private int id;
+    protected String name;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Config(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    synchronized public static Config getInstance() {
+        if (null == instance) {
+            instance = new Config(1, "Default");
+        }
+        return instance;
+    }
+}
+
+public class Example12 {
+    public static void main(String[] args) {
+        Config instance1 = Config.getInstance();
+        Config instance2 = Config.getInstance();
+        System.out.println(instance1);
+        System.out.println(instance2);
+    }
+}
+```
+
+**Output:**
+
+```text
+org.example.sec02.Config@58372a00
+org.example.sec02.Config@58372a00
+```
+
+This implementation is simple and it works but the biggest drawback is:
+
+After the instance is created, every call still has to acquire the lock on the method, which makes:
+
+* Access slower
+* Unnecessary synchronization after the object already exists
+
+This is why the simple synchronized Singleton is safe but considered inefficient.
+
+Solution is to use **Double-Checked Locking with volatile keyword**
+
+**Example 2:**
+
+```java
+class Config {
+    private static volatile Config instance;
+
+    private int id;
+    protected String name;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Config(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public static Config getInstance() {
+        if (null == instance) {                 // 1st check
+            synchronized (Config.class){
+                if (null == instance) {         // 2nd check
+                    instance = new Config(1, "Default");
+                }
+            }
+        }
+        return instance;
+    }
+}
+
+public class Example12 {
+    public static void main(String[] args) {
+        Config instance1 = Config.getInstance();
+        Config instance2 = Config.getInstance();
+        System.out.println(instance1);
+        System.out.println(instance2);
+    }
+}
+```
+
+Here is why how double check works and why `volatile` is needed:
+
+## Sequence of events (step-by-step)
+
+Initial state:
+
+```text
+instance = null
+```
+
+1\. `T1` checks first `if (instance == null)` (1st check)
+
+Result → true
+
+`T1` proceeds toward the synchronized block.
+
+
+2\. `T2` checks first `if (instance == null)` (1st check)
+
+Result → true
+
+`T2` ALSO proceeds toward the synchronized block.
+
+Both threads think they should create the instance.
+
+
+3. `T1` acquires the lock first
+
+`T1` enters:
+
+```text
+instance = new Config(...);
+```
+
+Instance is now created.
+
+4. `T1` releases the lock
+
+5. `T2` now acquires the lock
+
+`T2` enters, the second check:
+
+```text
+synchronized (Config.class){
+    if (null == instance) {         // 2nd check
+```
+
+Since `instance` is now not `null`, `T2` skips instance creation and returns the same instance created by `T1`.
+
+Had there been no second check, `T2` would have created another instance overwriting the one `T1` created.
+
+This is why **double-checked locking** is needed.
+
+## Why volatile is required?
+
+The line `instance = new Config(1, "Default");` looks like one instruction, but at the bytecode level, it is actually three:
+
+1. `memory = allocate()` (Allocate memory for the object)
+2. `ctorInstance(memory)` (Initialize the object / Run constructor)
+3. `instance = memory` (Assign the reference to the static field)
+
+Without volatile, the JIT compiler or CPU is allowed to reorder
+instructions 2 and 3 for optimization (Instruction Reordering).
+
+If the order becomes **1 -> 3 -> 2**:
+
+* **Thread A** executes 1 and 3. The instance variable is now non-null, but the object is not initialized yet.
+* **Thread A** gets paused.
+* **Thread B** comes in, hits Check 1 (`if instance == null`), sees it is not `null`, and returns the instance.
+* **Thread B** tries to use the object and crashes (or sees invalid null values for internal fields)
+  because Step 2 (Constructor) hasn't happened yet.
+
+With `volatile`: It creates a Memory Barrier (specifically a "Happens-Before" relationship).
+It prevents the write to instance from being reordered with the initialization of the object.
+It ensures the write to memory is visible to all other threads only after the constructor has finished.
+
+-----------------------------
+
+
+# Q - How to make a class immutable?
+
+Rules to make object Immutable:
+
+1. Declare the class as final so it can't be extended.
+2. Make all the fields private so that direct access is not allowed.
+3. Don't provide setter methods for variables.
+4. Make all mutable fields final so that a field's value can be assigned only once.
+5. Initialize all fields using a constructor method performing deep copy.
+6. Perform deep copy in getter of mutable fields
+
+Here is an example of Immutable class:
+
+Pay close attention to how we handle the `Date` object (which is mutable),
+versus the `String` (which is already immutable).
+
+```java
+import java.util.Date;
+
+// Rule 1: Class is final (Cannot be extended)
+public final class Student {
+
+    // Rule 2 & 4: Fields are private and final
+    private final int id;
+    private final String name;
+    private final Date dateOfBirth; // Mutable object! Danger!
+
+    // Rule 5: Constructor performs Deep Copy for mutable fields
+    public Student(int id, String name, Date dateOfBirth) {
+        this.id = id;
+        this.name = name;
+
+        // DEEP COPY: We create a NEW Date object.
+        // If we just did "this.dateOfBirth = dateOfBirth", the caller 
+        // could change the date later and break our immutability.
+        this.dateOfBirth = new Date(dateOfBirth.getTime());
+    }
+
+    // Rule 3: No Setters provided.
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    // Rule 6: Getter performs Deep Copy (Cloning)
+    public Date getDateOfBirth() {
+        // DEEP COPY: Return a clone, not the original reference.
+        // If we returned "this.dateOfBirth", the caller could use 
+        // student.getDateOfBirth().setTime(...) to change the internal state.
+        return new Date(dateOfBirth.getTime());
+    }
+}
+```
+
+Video: https://www.youtube.com/watch?v=PYJrFi4Hzsg
+
+
+-----------------------------
+
+
+
+# Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?
+
+`final` means once a variable is assigned a reference it can't be changed but
+**immutable** means the state of the object can't be changed once its created.
+
+
+-----------------------------
+
+
+# Q - Why Java is not completely Object-Oriented?
+
+Because of primitive types like `int`, `char`, `float` etc.
+
+
+-----------------------------
+
+
+# Q - Why can't we override private and static methods?
+
+## Why you cannot override private methods
+
+Private methods are NOT visible to subclasses. If a subclass cannot see a method, it cannot override it.
+
+## Why you cannot override static methods
+
+Because static methods are bound at Compile Time, while overriding is a Runtime phenomenon.
+
+Here is the detailed breakdown:
+
+### 1. The Binding Difference
+
+* **Instance Methods (Overriding)**: Use **Dynamic Binding**. The JVM waits until the code is
+  actually running to check "What kind of object is this really?" (e.g., is it a Dog or a Cat?) before deciding which method to run.
+
+* **Static Methods (Hiding)**: Use **Static Binding**. The Compiler decides which method to call
+  **before the program even runs** based solely on the **Reference Type** (the class name you wrote)
+
+### 2. They belong to the Class, not the Object
+
+Overriding is all about Polymorphism (objects acting differently).
+Since static methods belong to the class definition itself, they don't care about the object instance.
+
+### 3. What actually happens? (Method Hiding)
+
+If you try to "override" a static method, Java doesn't give you an error, but it does something different
+called Method Hiding.
+
+* **Overriding:** The child's method replaces the parent's method everywhere.
+* **Hiding:** The child's method only exists if you look at the child directly.
+  If you look at the parent reference, you still see the parent's method.
+
+
+
+-----------------------------
+
+
+# 3. String & Object Internals
+
+
+## Q - What is JIT?
+
+JIT (Just-In-Time) Compiler is a component of the JVM that optimizes performance. While the Interpreter 
+executes bytecode line-by-line, the JIT identifies frequently used methods (Hotspots) and compiles them 
+into native machine code on the fly. This allows Java to run nearly as fast as C++ after a warm-up period.
+
+
+
+# Q - What is class Loader?
+
+* Part of the JVM that dynamically loads Java classes into the JVM memory (Metaspace).
+* **Lazy Loading:** It does not load all classes at startup; it loads them only when the application needs them.
+* **Delegation Hierarchy:** When asked to load a class, a ClassLoader first delegates the request to its Parent. 
+  It only tries to load it itself if the Parent cannot find it.
+* **Visibility:** A child ClassLoader can see classes loaded by the parent, but the parent cannot see classes 
+  loaded by the child.
+
+In simple terms: ClassLoader = Reads `.class` (bytecode) files and makes them usable by the JVM.
+
+-----------------------------
+
+# Q - What are different types of classloaders?
+
+
+**Bootstrap ClassLoader**
+
+* **What it loads:** The bare minimum to run Java. Specifically, the `java.base` module.
+* **Classes:** `java.lang.String`, `java.util.List`, `java.lang.System` etc.
+
+**Platform ClassLoader (Java 9+; replaces Extension loader)**
+
+* Loads platform modules / non-core JDK modules (`java.sql`, `java.xml`, etc.).
+* Parent is the Bootstrap loader.
+
+**Application (System) ClassLoader**
+
+* Loads classes from the application classpath (`-cp`, `CLASSPATH`, `target/classes`, or the module path when 
+  running modular apps).
+* Parent is Platform loader.
+
+**Custom Class Loaders**
+
+* Load encrypted classes
+* Load classes from a database or network
+* Hot-reload modules
+* Plugin systems (e.g., IDEs, servers)
+
+-----------------------------
+
+# Q - What are the diff memory area allocated by JVM?
+
+* Heap Space
+    * **What:** Where all Objects live (e.g., `new Employee()`).
+    * **Scope:** Shared by all threads (Global).
+    * **Cleanup:** Managed by Garbage Collector.
+* Stack
+    * **What:** Stores method calls (Stack Frames), local variables, and partial results.
+    * **Scope:** One per thread (Thread-safe).
+    * **Cleanup:** Automatically cleaned when the method finishes.
+
+* Method area (permgen/metaspace)
+    * **What:** It stores:
+        * Class metadata (structure of the class)
+        * Method metadata
+        * Field metadata (name, type, modifiers)
+        * Method bytecode
+        * Runtime constant pool
+    * **Note:** In modern Java, this uses native memory (outside the Heap).
+
+* PC Register (Program Counter)
+    * **What:** Holds the address of the current instruction being executed.
+    * **Analogy:** The "bookmark" telling the CPU which line to read next.
+
+* Native Method Stack
+    * **What:** Used for native code (C/C++ libraries) called via JNI.
+
+
+-----------------------------
+
+
+
+# Q - Do local variables in Java have default values?
+
+Local variables **do not have a default value**. Unlike instance variables (fields), they are not 
+automatically initialized. You must explicitly initialize them before use; otherwise, you will get 
+a compile-time error.
+
+-----------------------------
+
+
+
 
 # Q - What is copy constructor?
 
@@ -988,11 +2145,7 @@ Deep clone must be implemented manually.
 -----------------------------
 
 
-# Q - Why Java is not completely Object-Oriented?
 
-Because of primitive types like `int`, `char`, `float` etc.
-
------------------------------
 
 
 # Q - What are Wrapper classes
@@ -1019,216 +2172,8 @@ Every primitive has a corresponding Wrapper class.
 -----------------------------
 
 
-# Q - Define Singleton class 
 
-A Singleton class is a design pattern in object-oriented programming in which only one 
-instance of the class can ever exist during the lifetime of an application.
 
-**Example 1:**
-
-A simple implementation of Singleton class:
-
-```java
-class Config {
-    private static volatile Config instance;
-
-    private int id;
-    protected String name;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Config(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    synchronized public static Config getInstance() {
-        if (null == instance) {
-            instance = new Config(1, "Default");
-        }
-        return instance;
-    }
-}
-
-public class Example12 {
-    public static void main(String[] args) {
-        Config instance1 = Config.getInstance();
-        Config instance2 = Config.getInstance();
-        System.out.println(instance1);
-        System.out.println(instance2);
-    }
-}
-```
-
-**Output:**
-
-```text
-org.example.sec02.Config@58372a00
-org.example.sec02.Config@58372a00
-```
-
-This implementation is simple and it works but the biggest drawback is:
-
-After the instance is created, every call still has to acquire the lock on the method, which makes:
-
-* Access slower
-* Unnecessary synchronization after the object already exists
-
-This is why the simple synchronized Singleton is safe but considered inefficient.
-
-Solution is to use **Double-Checked Locking with volatile keyword**
-
-**Example 2:**
-
-```java
-class Config {
-    private static volatile Config instance;
-
-    private int id;
-    protected String name;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Config(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public static Config getInstance() {
-        if (null == instance) {                 // 1st check
-            synchronized (Config.class){
-                if (null == instance) {         // 2nd check
-                    instance = new Config(1, "Default");
-                }
-            }
-        }
-        return instance;
-    }
-}
-
-public class Example12 {
-    public static void main(String[] args) {
-        Config instance1 = Config.getInstance();
-        Config instance2 = Config.getInstance();
-        System.out.println(instance1);
-        System.out.println(instance2);
-    }
-}
-```
-
-Here is why how double check works and why `volatile` is needed:
-
-## Sequence of events (step-by-step)
-
-Initial state:
-
-```text
-instance = null
-```
-
-1\. `T1` checks first `if (instance == null)` (1st check)
-
-Result → true
-
-`T1` proceeds toward the synchronized block.
-
-
-2\. `T2` checks first `if (instance == null)` (1st check)
-
-Result → true
-
-`T2` ALSO proceeds toward the synchronized block.
-
-Both threads think they should create the instance.
-
-
-3. `T1` acquires the lock first
-
-`T1` enters:
-
-```text
-instance = new Config(...);
-```
-
-Instance is now created.
-
-4. `T1` releases the lock
-
-5. `T2` now acquires the lock
-
-`T2` enters, the second check:
-
-```text
-synchronized (Config.class){
-    if (null == instance) {         // 2nd check
-```
-
-Since `instance` is now not `null`, `T2` skips instance creation and returns the same instance created by `T1`.
-
-Had there been no second check, `T2` would have created another instance overwriting the one `T1` created.
-
-This is why **double-checked locking** is needed.
-
-## Why volatile is required?
-
-The line `instance = new Config(1, "Default");` looks like one instruction, but at the bytecode level, it is actually three:
-
-1. `memory = allocate()` (Allocate memory for the object)
-2. `ctorInstance(memory)` (Initialize the object / Run constructor)
-3. `instance = memory` (Assign the reference to the static field)
-
-Without volatile, the JIT compiler or CPU is allowed to reorder 
-instructions 2 and 3 for optimization (Instruction Reordering).
-
-If the order becomes **1 -> 3 -> 2**:
-
-* **Thread A** executes 1 and 3. The instance variable is now non-null, but the object is not initialized yet.
-* **Thread A** gets paused.
-* **Thread B** comes in, hits Check 1 (`if instance == null`), sees it is not `null`, and returns the instance.
-* **Thread B** tries to use the object and crashes (or sees invalid null values for internal fields)
-because Step 2 (Constructor) hasn't happened yet.
-
-With `volatile`: It creates a Memory Barrier (specifically a "Happens-Before" relationship). 
-It prevents the write to instance from being reordered with the initialization of the object. 
-It ensures the write to memory is visible to all other threads only after the constructor has finished.
-
------------------------------
-
-
-# Q - What are packages?
-
-Just a collection of related classes. The use of packages helps in code reusability and name clash.
-
-
------------------------------
 
 # Q - Do we have pointers in Java?
 
@@ -1319,40 +2264,10 @@ can be safely shared without thread-safety issues.
 
 
 
-# Q - What is JDK? What is the diff b/w JDK and JRE?
-
-JDK (Java Development Kit) is a software development environment used to develop Java applications.
-
-* JVM (Java Virtual Machine): The engine that actually runs the code.
-* JRE = JVM + Library Classes (`java.lang`, `java.util`, etc.)
-* JDK = JRE + Development Tools (compilers like `javac`, `javap`, debuggers, documentation generator etc.)
-
------------------------------
 
 
-# Q - What are access specifiers?
 
-Access Specifiers are predefined keywords used to help
-JVM with understanding the scope of a variable, method, and
-a class. We have four access specifiers.
 
-1\. Private
- * Keyword: `private`
- * Scope: Only within the same class.
-
-2\. Default (Package-Private)
- * Keyword: (None - simply leave it blank)
- * Scope: Only within the same package.
-
-3\. Protected
- * Keyword: `protected`
- * Scope: Same package + Subclasses (even in different packages).
-
-4\. Public
- * Keyword: `public`
- * Scope: Everywhere.
-
------------------------------
 
 
 # Q - What is Dynamic Method Dispatch?
@@ -1409,45 +2324,7 @@ cleanup.start();
 
 
 
-# Q - Can you run the code before executing main methods?
 
-Yes, Java allows execution of code before the main method using a **static initializer**.
-A **static initializer** runs when the class is loaded and initialized by the JVM, before
-any objects are created and before the main method is executed.
-
-**How it works:**
-
-When you run a Java program (e.g., `java MyClass`), the JVM performs the following steps:
-
-* **Load the Class:** It finds `MyClass.class` and loads it into memory.
-* **Execute Static Blocks:** During this loading phase, it runs all `static` blocks and initializes static variables.
-* **Call Main:** Only after the class is fully loaded does it look for and call `public static void main`.
-
-Example:
-
-```java
-public class PreMain {
-    
-    // 1. This runs FIRST (during class loading)
-    static {
-        System.out.println("I am running BEFORE main!");
-    }
-
-    // 2. This runs SECOND
-    public static void main(String[] args) {
-        System.out.println("I am running INSIDE main.");
-    }
-}
-```
-
-**Output:**
-
-```text
-I am running BEFORE main!
-I am running INSIDE main.
-```
-
------------------------------
 
 
 # Q -  How many times is the finalize() method called in Java?
@@ -2250,151 +3127,9 @@ Result:
 -----------------------------
 
 
-# Q - How to make a class immutable?
-
-Rules to make object Immutable:
-
-1. Declare the class as final so it can't be extended.
-2. Make all the fields private so that direct access is not allowed.
-3. Don't provide setter methods for variables.
-4. Make all mutable fields final so that a field's value can be assigned only once.
-5. Initialize all fields using a constructor method performing deep copy.
-6. Perform deep copy in getter of mutable fields
-
-Here is an example of Immutable class:
-
-Pay close attention to how we handle the `Date` object (which is mutable), 
-versus the `String` (which is already immutable).
-
-```java
-import java.util.Date;
-
-// Rule 1: Class is final (Cannot be extended)
-public final class Student {
-
-    // Rule 2 & 4: Fields are private and final
-    private final int id;
-    private final String name;
-    private final Date dateOfBirth; // Mutable object! Danger!
-
-    // Rule 5: Constructor performs Deep Copy for mutable fields
-    public Student(int id, String name, Date dateOfBirth) {
-        this.id = id;
-        this.name = name;
-
-        // DEEP COPY: We create a NEW Date object.
-        // If we just did "this.dateOfBirth = dateOfBirth", the caller 
-        // could change the date later and break our immutability.
-        this.dateOfBirth = new Date(dateOfBirth.getTime());
-    }
-
-    // Rule 3: No Setters provided.
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    // Rule 6: Getter performs Deep Copy (Cloning)
-    public Date getDateOfBirth() {
-        // DEEP COPY: Return a clone, not the original reference.
-        // If we returned "this.dateOfBirth", the caller could use 
-        // student.getDateOfBirth().setTime(...) to change the internal state.
-        return new Date(dateOfBirth.getTime());
-    }
-}
-```
-
-Video: https://www.youtube.com/watch?v=PYJrFi4Hzsg
 
 
------------------------------
 
-
-# Q - What are core principles of OOP?
-
-To remember the core principles of Object-Oriented Programming (OOP), you can use the acronym `A PIE`:
-
-1. Abstraction
-1. Polymorphism
-1. Inheritance
-1. Encapsulation
-
-Let's start with Polymorphism:
-
-Doing the same thing in different ways is called polymorhphism. There are two types of polymorhphism:
-
-1. Runtime polymorphism
-1. Compile time polymorphism
-
-## Runtime Polymorphism
-
-Consider an `Animal` class with an `eat()` method. Next, create a `Dog` class by extending `Animal` class 
-and override the `eat()` method. Now create an object of type `Animal` and `Dog` and assign it to base class reference.
-
-```java
-Animal a1 = new Animal();
-a1.eat();
-
-a1 = new Dog();
-a1.eat();
-```
-
-At runtime, the JVM decides which version of `eat()` method should be called (i.e. from `Animal` or `Dog` class). 
-This is called **Runtime polymorhphism**.
-
-
-## Compile time Polymorphism
-
-Method overloading is called **Compile time polymorhphism**.
-
-Method overloading allows a class to have more than one method with the same name, but with different 
-parameters (different type, number, or both). The correct method to call is determined by the compiler based on the method
-signature (the number and types of parameters).
-
-Video Polymorphism: https://www.youtube.com/watch?v=jhDUxynEQRI&t=340s
-
-
-## Abstraction
-
-Abstraction in object-oriented programming (OOP) is the concept of hiding the complex 
-implementation details and exposing only the essential features of an object or a system. This 
-helps in reducing programming complexity and effort, enhancing code readability, and providing 
-a clear and concise interface for the end user or other developers.
-
-Example:
-
-Suppose we want to implement `Set`. There are multiple implementations possible here:
-
-1. Balanced Binary Tree
-2. Hashtable
-
-We start by creating a interface called `Set` with two methods `add()` and `remove()`, and leave upto the child class to define the implementation.
-
-Video abstraction: https://www.youtube.com/watch?v=L1-zCdrx8Lk
-
-
-## Encapsulation
-
-Encapsulation is the ability of an object to hide parts of its state and behavior from the outside world.
-To encapculate something means to make it `private`, and thus accessible only from within if the methods if
-its own class. There is a little less restrictive mode called `protected` that makes a member of a class available to 
-subclass as well.
-
-Encapsulation helps us to change implementation without of the class without affecting the users of the class.
-
-## Diff b/w Abstraction and Encapsulation
-
-Consider the following analogy:
-
-Engine is a piece of complex device. The car abstracts the complexity of the engine behind a simple interface pedals.
-This is abstraction in action. To protect th engine from tampering, the engine is sealed inside a metal hood. 
-This is encapsulation.
-
------------------------------
 
 # Q - How many methods are there compare strings in Java?
 
@@ -2725,144 +3460,6 @@ registers, and a Thread Control Block, making creation and context switching muc
 
 -----------------------------
 
-# Q - Is it true that main thread doesn't terminate until the child threads are done?
-
-No, `main` does NOT wait for the child thread. Consider the following example:
-
-```java
-public class Test06 {
-    public static void main(String[] args) {
-        Thread t1 = new Thread(() -> {
-
-            try {
-                Thread.sleep(1_000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-            System.out.println("t1 - exit");
-        });
-
-        t1.start();
-        System.out.println("main - exit");
-    }
-}
-```
-
-**Output:**
-
-```text
-main - exit
-t1 - exit
-```
-
-Execution order (important)
-
-1. `t1.start()` → starts a new thread
-2. `main` immediately prints:
-    ```text
-    main - exit
-    ```
-3. `main` method finishes
-4. JVM does NOT exit yet
-5. **JVM waits until all non-daemon threads finish**
-6. `t1` wakes up after 1 second
-7. `t1` prints:
-    ```text
-    t1 - exit
-    ```
-8. Now JVM exits
-
-
------------------------------
-
-# Q - What is the diff b/w objects and references?
-
-**1. Object**
-
-An object is the actual data stored in memory (on the heap).
-
-It contains:
-
-* Fields (values)
-* Methods (behavior)
-* Its own memory address
-
-You cannot directly access an object - you access it through a reference.
-
-**2. Reference**
-
-A reference is like a pointer or address that "points to" an object in memory.
-
-* It does NOT hold the object
-* It only holds the location of the object
-* Multiple references can point to the same object
-
-Example:
-
-```java
-Emp e1 = new Emp(10, "John");  // e1 is a reference, Emp(...) creates an object
-Emp e2 = e1;                   // e2 is another reference pointing to the same object
-```
-
-Here:
-
-* `new Emp(10, "John")` → creates an object on heap
-* `e1` → a reference pointing to that object
-* `e2` → another reference pointing to the same object
-
-
-## Objects vs References
-
-References != Objects
-
-```mermaid
-graph LR
-  %% Centered title
-  title["Objects vs References"]
-
-  subgraph Stack [Stack Memory]
-    direction TB
-    ref1[referenceVar1]
-    ref2[referenceVar2]
-  end
-
-  subgraph Heap [Heap Memory]
-    obj((Object Instance))
-  end
-
-  ref1 --> obj
-  ref2 --> obj
-
-  style title fill:#ffffff,stroke:#ffffff,color:black,font-size:18px,font-weight:bold
-```
-
-## What is allocated where?
-
-* References:
-    * Can be allocated on the stack (e.g., as local variables).
-    * Can be allocated on the heap if they are members (fields) of a class.
-  
-* Objects:
-    * Are always allocated on the heap.
-
-
-## Memory Regions - Summary
-
-| **Heap (Shared)**                           | **Stack (Exclusive)**                                  |
-|---------------------------------------------|--------------------------------------------------------|
-| • **Objects** (The actual instances)        | • **Local primitive types** (int, double, etc.)        |
-| • **Class members** (Fields inside objects) | • **Local references** (Variables pointing to objects) |
-| • **Static variables**                      |                                                        |
-
-
-## References
-
-* https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199598#notes
-
-
-
------------------------------
 
 
 
@@ -3415,256 +4012,7 @@ are **JVM implementation–dependent**:
 Therefore, they are **not guaranteed**.
 
 
-
 -----------------------------
-
-
-
-# Q - Will the following code compile?
-
-```java
-byte myByte = 'a';
-char myChar = 'a';
-short myShort;
-
-myChar = myByte;
-myShort = myChar;
-myChar = myShort; 
-```
-
-No.
-
-Here is the general rule:
-
-> Java allows implicit conversions only when the conversion is a widening primitive conversion 
-> that cannot lose information or change the sign. All narrowing conversions require an 
-> explicit cast, except when assigning a compile-time constant that fits in the target type.
->
-
-## 1. Widening = implicit (safe)
-
-* Target type can represent all possible values of the source type
-* Sign is preserved
-* No overflow possible
-
-## 2. Narrowing = explicit cast required (unsafe)
-
-* Target type cannot represent all values
-* Sign may change
-* Overflow or truncation possible
-
----
-
-## Why `myChar = myByte` is not allowed
-
-> Because byte → char is not a widening primitive conversion.
->
-
-**Reason:**
-
-* `byte` is signed (`-128 to 127`)
-* `char` is unsigned (`0 to 65535`)
-* Some `byte` values (negative ones) cannot be represented by `char`
-
-
-## Why `myShort = myChar` is not allowed
-
-> Because char → short is not a widening primitive conversion.
-> 
->
-
-**Reason:**
-
-* `char` is unsigned (`0 to 65535`)
-* `short` is signed (`-32768 to 32767`)
-* Many valid `char` values cannot fit into `short`
-
-
-## Why `myChar = myShort` is not allowed
-
-> Because short → char is not a widening primitive conversion.
->
-
-**Reason:**
-
-* `short` is signed (`-32768 to 32767`)
-* `char` is unsigned (`0 to 65535`)
-* Negative `short` values cannot be represented by `char`
-
------------------------------
-
-# Q - Do `double` and `float` type overflow?
-
-Integers **wrap around**, while Floats **explode to Infinity**.
-
-Here is the distinction:
-
-**1\. Integers (Wrap Around)**
-
-When an integer type (`int`, `long`, `byte`, `short`) overflows, it loops back to the minimum value (negative). 
-This is often a silent bug.
-
-```java
-int max = Integer.MAX_VALUE; // 2,147,483,647
-int result = max + 1;
-// Result is -2,147,483,648 (Wraps to minimum)
-```
-
-**2\. Floating Point (Infinity)**
-
-When a `float` or `double` exceeds its maximum storage capacity, it does not wrap around. Instead, it hits a special 
-value called `Infinity`.
-
-```java
-double max = Double.MAX_VALUE; // approx 1.8 x 10^308
-double result = max * 1.1;     
-// Result is Infinity
-```
-
------------------------------
-
-# Q - What is shadowing?
-
-Shadowing happens when a variable declared in a inner scope has the same name as a variable in an outer scope.
-
-The inner variable shadows (hides) the outer one - meaning the outer variable cannot be accessed in that inner scope.
-
-In simple words:
-> The closest variable with that name wins.
-
-Here is an example:
-
-```java
-public class Main19 {
-    public static void main(String[] args) {
-        int i = 10;
-        
-        class SomeClass {
-//            int i = 100;
-            {
-                 for (int i = 0; i < 10; i++) {
-                     System.out.println(i);
-                 }
-            }
-        }
-
-        SomeClass someClass = new SomeClass();
-        System.out.println(someClass);
-    }
-}
-```
-
-**What is happening?**
-
-* You declared `int i = 10` in the `main` method.
-* Inside the for loop, you declared another `int i`.
-* The inner `i` shadows the outer `i`.
-
-**Result:**
-
-Inside the for loop:
-  * When you say `i`, Java uses the loop's `i`, not the main method's `i`.
-
-So inside the loop:
-
-* The outer `i = 10` becomes invisible.
-* Only the loop variable `i` exists.
-
------------------------------
-
-# Q - var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?
-
-Since Java 10, you can use `var` to let the compiler infer the type:
-
-```java
-var name = "John";   // inferred as String
-var age = 25;        // inferred as int
-```
-
-But this is allowed only for local variables, **not fields, not method parameters, and not return types**.
-
-Also note that, `var` is **not a reserved keyword**. It is a restricted type name.
-
-This means:
-
-* Java treats `var` specially only when used in variable declarations.
-* But outside that context, you can use `var` as an identifier.
-
-Example:
-
-```java
-int var = 10;        // valid
-String var = "Hi";   // valid
-class var { }        // valid class name (but discouraged)
-```
-
-If `var` appears where the compiler expects a type, it is treated as LVTI. Otherwise, it is treated
-as a normal name.
-
------------------------------
-
-# Q - Will the following code compile?
-
-```java
-var name = null;
-```
-
-No. because the type of the `name` variable can't be inferred.  
-
------------------------------
-
-# Q - Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword
-
-```java
-// cannot use var declaration in a compound statement
-var j = 0, k = 0;
-
-// again, cannot use var declaration in a compound statement
-var m, n = 0;
-
-// Cannot declare a var variable without also initializing it
-var someObject;
-
-// Cannot assign null to var variable, type cannot be inferred
-var newvar = null;
-
-// Cannot use array initializer in var declaration/initialization
-var myArray = {"A", "B"};
-
-// Cannot have an array of var
-var[] newArray = new int[2];
-
-public class VarDonts {
-    // Invalid - Static class variables cannot be declared with var
-    static var classVariable = 10;
-
-    // Invalid - class instance variables cannot be declared with var
-    var instanceVariable = 20;
-
-    public static void main(String[] args) {
-    }
-
-    // Invalid, cannot have a method return type of var
-    public static var returnThis(String[] args) {
-        return args;
-    }
-
-    // Invalid, cannot have method parameter of var
-    public static String[] returnThat(var args) {
-        return args;
-    }
-}
-
-// var can't be used as className
-class var{
-
-}
-```
-
-We can use **LVTI only for local variables in methods, code blocks and loop variables**.
-
-
----
 
 
 # Q - Will the following statement adds string to the string pool?
@@ -3887,52 +4235,7 @@ If you override `equals()`, you **MUST** override `hashCode()`. Breaking this co
 
 
 
-# Q - Does the finally block execute if there is a return statement inside try or catch?
 
-Consider the following example:
-
-```java
-public class MainExample {
-
-    static class Connection {
-        public void open() {
-            System.out.println("Connection opened");
-        }
-
-        public void close() {
-            System.out.println("Connection closed");
-        }
-    }
-
-    private static void method2() {
-        Connection connection = new Connection();
-        connection.open();
-
-        try {
-            // LOGIC
-            String str = null;
-            str.toString();   // This will throw NullPointerException
-            return;           // return inside try
-        }
-        catch (Exception e) {
-            // NOT PRINTING EXCEPTION TRACE (bad practice)
-            System.out.println("Exception Handled - Method 2");
-            return;           // return inside catch
-        }
-        finally {
-            connection.close();  // will execute?
-        }
-    }
-
-    public static void main(String[] args) {
-        method2();
-    }
-}
-```
-
-Yes. Regardless of whether the try or catch block completes normally, throws an exception, 
-or executes a `return` statement, the finally block always executes before the method returns.
-It is typically used for cleanup tasks like closing connections.
 
 # Q - Explain the hierarchy of exceptions in Java?
 
@@ -6054,39 +6357,6 @@ String result = switch (shape) {
 
 
 
-# Q - Why can't we override private and static methods?
-
-## Why you cannot override private methods
-
-Private methods are NOT visible to subclasses. If a subclass cannot see a method, it cannot override it.
-
-## Why you cannot override static methods
-
-Because static methods are bound at Compile Time, while overriding is a Runtime phenomenon.
-
-Here is the detailed breakdown:
-
-### 1. The Binding Difference
-
-* **Instance Methods (Overriding)**: Use **Dynamic Binding**. The JVM waits until the code is 
-actually running to check "What kind of object is this really?" (e.g., is it a Dog or a Cat?) before deciding which method to run.
-
-* **Static Methods (Hiding)**: Use **Static Binding**. The Compiler decides which method to call
-**before the program even runs** based solely on the **Reference Type** (the class name you wrote)
-
-### 2. They belong to the Class, not the Object
-
-Overriding is all about Polymorphism (objects acting differently). 
-Since static methods belong to the class definition itself, they don't care about the object instance.
-
-### 3. What actually happens? (Method Hiding)
-
-If you try to "override" a static method, Java doesn't give you an error, but it does something different 
-called Method Hiding.
-
-* **Overriding:** The child's method replaces the parent's method everywhere.
-* **Hiding:** The child's method only exists if you look at the child directly. 
-If you look at the parent reference, you still see the parent's method.
 
 
 # Q - Does finally always execute in Java?
@@ -6125,147 +6395,10 @@ Not in the following cases:
 
 
 
-# Q - Is Java Pass by Value or Pass by Reference?
-
-Pass by value
-
-
-----------------
-
-
-# Q - What if a method in child class is more restricted than a parent class?
-
-It causes a **Compile Time Error**.
-
-This rule exists to preserve the Contract of the Parent Class (related to the **Liskov Substitution Principle**).
-
-The Liskov Substitution Principle (LSP) states:
-> Whatever the Parent can do, the Child must also be able to do.
-
-When you override a method, you cannot make the access modifier more restrictive than the parent method.
-
-* ✅ You CAN keep it the same.
-* ✅ You CAN make it less restrictive (more visible).
-* ❌ You CANNOT make it more restrictive (less visible).
-
-
-----------------
-
-
-# Q - What is Covariant return type?
-
-Covariant Return Type is a feature (introduced in Java 5) that allows an overriding method to return 
-a subclass (narrower type) of the return type declared in the parent method.
-
-Example:
-
-```java
-class Burger {
-    // Generic Burger
-}
-
-class CheeseBurger extends Burger {
-    // Specific Burger
-}
-
-class BurgerShop {
-    // Parent promises to return a generic Burger
-    public Burger order() {
-        System.out.println("Here is a standard burger");
-        return new Burger();
-    }
-}
-
-class CheeseBurgerShop extends BurgerShop {
-    // OVERRIDING:
-    // We changed the return type from 'Burger' to 'CheeseBurger'.
-    // This is allowed because CheeseBurger IS-A Burger.
-    @Override
-    public CheeseBurger order() {
-        System.out.println("Here is a cheeseburger");
-        return new CheeseBurger();
-    }
-}
-
-public class Test {
-    public static void main(String[] args) {
-        CheeseBurgerShop shop = new CheeseBurgerShop();
-        
-        // No casting needed! We get the specific type directly.
-        CheeseBurger cb = shop.order(); 
-    }
-}
-```
-
-Why is this useful?
-
-It saves you from doing annoying type-casting.
-
-This relates directly to the Liskov Substitution Principle: 
-> The Child can provide more specific guarantees than the Parent, but never less.
 
 
 
-----------------
 
-
-
-# Q - Is default keyword one of the access modifier?
-
-No, the `default` keyword is NOT an access modifier keyword.
-
-Here is the breakdown of the confusion:
-
-1\. The "Default Access Modifier" (The Invisible One)
-
-When people talk about the Default Access Modifier (also called Package-Private), 
-they are talking about the absence of a keyword.
-
-* **How you write it:** You literally write nothing.
-* **Behavior:** Visible only within the same package.
-* **Keyword used:** None.
-
-Example:
-
-```java
-class Student {
-    // No keyword used here! This is "Default Access".
-    void study() { 
-        System.out.println("Studying...");
-    }
-}
-```
-
-2\. The `default` Keyword (The Actual Keyword)
-
-The word `default` does exist as a keyword in Java, but it is used for completely 
- different things:
-
-**Usage A: Interface Methods (Java 8+)** To provide a fallback implementation in an 
-interface so you don't break existing code
-
-```java
-interface Vehicle {
-    // Here, 'default' is NOT about access control. 
-    // It means "Here is the default code body".
-    default void honk() {
-        System.out.println("Beep!");
-    }
-}
-```
-
-**Usage B: Switch Statements** To specify what happens if no other case matches.
-
-```java
-switch(day) {
-    case 1: print("Monday"); break;
-    default: print("Weekend"); // The "Else" case
-}
-```
-
-
-
-----------------
 
 
 
@@ -6643,71 +6776,6 @@ public class ConsumerChainExample {
 Supplier can't be  chained as it takes no input.
 
 
-# Q - Is runtime polymorphism is applicable for fields also?
-
-No, Runtime Polymorphism does NOT apply to fields (variables). It only applies to methods.
-
-In Java, fields are accessed based on the Reference Type (the class name on the left side), 
-whereas methods are accessed based on the Actual Object (the new class on the right side).
-
-**The Rule**
-
-* Methods (Overriding): Resolved at Runtime (Dynamic Binding). Java looks at the actual object in memory.
-* Fields (Hiding): Resolved at Compile Time (Static Binding). Java looks at the reference type you are holding.
-
-Example:
-
-```java
-class Parent {
-    String value = "Parent Field";
-
-    void show() {
-        System.out.println("Parent Method");
-    }
-}
-
-class Child extends Parent {
-    String value = "Child Field"; // Hides Parent's 'value'
-
-    @Override
-    void show() {
-        System.out.println("Child Method");
-    }
-}
-
-public class FieldTest {
-    public static void main(String[] args) {
-        System.out.println("--- Case 1: Parent Reference, Child Object ---");
-        Parent p = new Child();
-
-        // 1. Field Access -> STATIC BINDING (Looks at 'Parent' type)
-        System.out.println("p.value:    " + p.value);
-        // Output: "Parent Field" 
-
-        // 2. Method Call -> DYNAMIC BINDING (Looks at actual 'Child' object)
-        p.show();
-        // Output: "Child Method"
-
-
-        System.out.println("\n--- Case 2: Child Reference, Child Object ---");
-        Child c = (Child) p; // Downcasting the same object to Child reference
-
-        // 1. Field Access -> STATIC BINDING (Looks at 'Child' type)
-        System.out.println("c.value:    " + c.value);
-        // Output: "Child Field"
-
-        // 2. Method Call -> DYNAMIC BINDING (Still looks at actual 'Child' object)
-        c.show();
-        // Output: "Child Method"
-
-
-        System.out.println("\n--- Case 3: The 'Magic' of Casting ---");
-        // You can access the HIDDEN parent field by casting the reference temporarily
-        System.out.println("((Parent) c).value: " + ((Parent) c).value);
-        // Output: "Parent Field"
-    }
-}
-```
 
 # Q - Do we have access to `this` the lambda?
 
@@ -8646,13 +8714,6 @@ public class GhostDemo {
 ---
 
 
-# Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?
-
-`final` means once a variable is assigned a reference it can't be changed but 
-**immutable** means the state of the object can't be changed once its created.
-
-
----
 
 
 # Q - Explain how AtomicInteger works?
