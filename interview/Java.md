@@ -94,7 +94,7 @@
   * [Q - Why `Object.clone()` is defined as protected?](#q---why-objectclone-is-defined-as-protected)
   * [Q - What are the advantages of String being immutable?](#q---what-are-the-advantages-of-string-being-immutable)
   * [Q - What's the default implementation of `Object.equals()` method?](#q---whats-the-default-implementation-of-objectequals-method)
-  * [Q - Does finally always execute in Java?](#q---does-finally-always-execute-in-java)
+  * [Q - Does finally block always execute in Java?](#q---does-finally-block-always-execute-in-java)
   * [Q - What are methods provided by the Object class?](#q---what-are-methods-provided-by-the-object-class)
   * [Q - Can you provide default hashcode() implementation in the interface?](#q---can-you-provide-default-hashcode-implementation-in-the-interface)
     * [1. The Conflict Resolution Rule](#1-the-conflict-resolution-rule)
@@ -2341,7 +2341,7 @@ Both check identity, not content.
 
 
 
-## Q - Does finally always execute in Java?
+## Q - Does finally block always execute in Java?
 
 Not in the following cases:
 
