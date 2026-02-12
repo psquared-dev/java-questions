@@ -321,6 +321,7 @@
     * [Why fairness (new ReentrantLock(true)) matters](#why-fairness-new-reentrantlocktrue-matters)
   * [Q - What is CAS (Compare-And-Swap)?](#q---what-is-cas-compare-and-swap)
   * [Q - What is Structured Concurrency (Java 21 Preview)?](#q---what-is-structured-concurrency-java-21-preview)
+  * [Q - How does ConcurrentHashMap work internally? (Java 7 vs Java 8)](#q---how-does-concurrenthashmap-work-internally-java-7-vs-java-8)
 * [6. Modern Java (Java 8 to Java 21)](#6-modern-java-java-8-to-java-21)
   * [Q - What is functional interface.](#q---what-is-functional-interface)
     * [Examples of Functional Interfaces in Java](#examples-of-functional-interfaces-in-java)
@@ -6375,6 +6376,32 @@ This solves the starvation issue you observed earlier.
 -----------------------------
 
 ## Q - What is Structured Concurrency (Java 21 Preview)?
+
+
+-----------------------------
+
+
+## Q - How does ConcurrentHashMap work internally? (Java 7 vs Java 8)
+
+This is the most asked concurrency collection question.
+
+**Java 7 (Segment Locking - The "Old" Way):**
+
+* It divided the map into **16 Segments**.
+* Each Segment had its own `ReentrantLock`.
+* **Result:** 16 threads could write simultaneously (one per segment).
+* **Downside:** Complexity. 16 locks is still a limit.
+
+**Java 8+ (CAS + Synchronized - The "Modern" Way):**
+
+* **No Segments.** It looks like a standard HashMap (Array of Buckets).
+* **Reading (`get`):** Completely lock-free (using `volatile` reads).
+* **Writing (`put`):**
+    1. **Empty Bucket:** Uses **CAS (Compare-And-Swap)** to insert the new node. 
+         This is lock-free and incredibly fast.
+    2. **Occupied Bucket (Collision):** Uses `synchronized` **only on that specific Node (Head of chain)**.
+
+* **Result:** Millions of threads can write simultaneously as long as they touch different buckets.
 
 
 -----------------------------
