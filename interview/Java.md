@@ -2034,17 +2034,17 @@ The primary difference is case sensitivity.
 
 1. Case Sensitivity:
 
-  * `equals()`: Is case-sensitive. It returns `true` only if the characters
-    match exactly, including casing (e.g., `"Java".equals("java")` returns `false`).
-  * `equalsIgnoreCase()`: Is case-insensitive. It returns `true` if the characters match regardless
-    of casing (e.g., `"Java".equalsIgnoreCase("java")` returns `true`).
+    * `equals()`: Is case-sensitive. It returns `true` only if the characters
+     match exactly, including casing (e.g., `"Java".equals("java")` returns `false`).
+    * `equalsIgnoreCase()`: Is case-insensitive. It returns `true` if the characters match regardless
+      of casing (e.g., `"Java".equalsIgnoreCase("java")` returns `true`).
 
 2. Parameter Type:
 
-  * `equals(Object anObject)`: Accepts an argument of type `Object`. (It overrides the method
-    from the `Object` class).
-  * `equalsIgnoreCase(String anotherString)`: Accepts an argument of type `String`. (It is a method
-    specific to the `String` class).
+    * `equals(Object anObject)`: Accepts an argument of type `Object`. (It overrides the method
+     from the `Object` class).
+    * `equalsIgnoreCase(String anotherString)`: Accepts an argument of type `String`. (It is a method
+      specific to the `String` class).
 
 
 -----------------------------
