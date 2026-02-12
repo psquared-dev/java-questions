@@ -18,6 +18,11 @@
   * [The Specific Exception: `RejectedExecutionException`](#the-specific-exception-rejectedexecutionexception)
   * [The "Silent Killer" (Default Policy)](#the-silent-killer-default-policy)
   * [Senior Dev Follow-Up: "How do we fix this?"](#senior-dev-follow-up-how-do-we-fix-this)
+* [Q - Have you used multithreading? If yes, where have you used it?](#q---have-you-used-multithreading-if-yes-where-have-you-used-it)
+  * [The "Whiteboard" Answer](#the-whiteboard-answer)
+  * [1. The Architecture (Producer-Consumer)](#1-the-architecture-producer-consumer)
+  * [2. The Critical Challenge (The "Bulkhead")](#2-the-critical-challenge-the-bulkhead)
+  * [3. The Result](#3-the-result)
 <!-- TOC -->
 
 # Q - You have 500 MB of memory, but the input data size is 2 GB. How would you sort this data and print it line by line in sorted order?
@@ -83,7 +88,9 @@ To impress the interviewer, mention the specific Java classes you would use:
   stores the `String line` and the `BufferedReader reader` so you know which file to 
   read from next when you pop an item.
 
---
+
+------------
+
 
 # Q - Java 8 Streams (Lazy Evaluation)
 
@@ -125,7 +132,9 @@ Streams process **Vertically** (Element by Element).
 Even if you have 1,000,000 elements, if the *3rd* one matches, the stream pipeline **terminates immediately**.
 The other 999,997 elements are never even touched.
 
----
+
+------------
+
 
 # Q- Map vs. FlatMap
 
@@ -144,7 +153,9 @@ What is the specific difference in the return type (Structure) between using `.m
 1. `Stream<List<LineItem>>`
 2. `Stream<LineItem>`
 
----
+
+------------
+
 
 # Q - Class Loaders
 
@@ -189,7 +200,9 @@ The JVM protects the core `java.*` packages. If it didn't, you could write a
 class called `java.lang.Integer` that steals data or breaks memory safety, and trick other 
 parts of the system into using it.
 
----
+
+------------
+
 
 # Q - In the following single line of code, exactly how many String objects are created in memory?
 
@@ -235,7 +248,7 @@ Heap Memory
 So, the variable `s` points to **Object #2**.
 
 
----
+------------
 
 
 # Q - You have an ExecutorService configured with a fixed thread pool of 10 threads and a bounded queue of size 100.
@@ -284,7 +297,51 @@ In a production system, you almost never want to just crash on overload. You cha
   It prevents data loss and provides automatic "backpressure."
 
 
----
+---------------
 
 
+# Q - Have you used multithreading? If yes, where have you used it?
 
+Here is the consolidated, "Senior Engineer" level answer.
+
+This answer works because it doesn't just say "I used a thread pool." It explains **why** you 
+used it (throughput) and **how you controlled it** (stability).
+
+## The "Whiteboard" Answer
+
+"**Yes, absolutely.** The most critical use case was in our **Identity Provider (IDP)** system.
+
+I designed a background pipeline to decommission **2 million legacy users** who were still using 
+insecure 'Security Question' (SQA) authentication. The challenge was deleting this massive amount 
+of data without locking the database and blocking active user logins."
+
+## 1. The Architecture (Producer-Consumer)
+
+"I implemented a **Producer-Consumer** pattern to decouple the scanning from the deletion logic:
+
+* **The Producer:** A single thread that scanned our Read-Replica database for 
+   inactive accounts (5+ years dormant) and pushed their IDs into a bounded `BlockingQueue` of size 500. 
+   This created natural **backpressure** to prevent memory overflows.
+* **The Consumers:** I used a `ThreadPoolExecutor` with **10 worker threads** to process the queue.
+
+## 2. The Critical Challenge (The "Bulkhead")
+
+"The real problem was that if all 10 threads hit the primary database with `DELETE` queries 
+simultaneously, we would exhaust the **Database Connection Pool** and cause timeouts for 
+the live `auth/login` service.
+
+To solve this, I used a **Semaphore** with exactly **3 permits** inside the worker threads.
+
+* **The Logic:** This acted as a **Bulkhead**. The 10 threads could concurrently handle CPU-heavy tasks like
+   audit logging or token invalidation, but they had to 'line up' to acquire a permit before touching the database.
+* **The Safety:** This guaranteed that our background job never held more than 3 active DB connections 
+   at once, leaving the rest of the pool free for live customer traffic."
+
+## 3. The Result
+
+"This architecture allowed us to purge all 2 million insecure identities in a 
+single 4-hour maintenance window. We reduced our security attack surface by 40% while 
+maintaining **zero downtime** and keeping login latency under 50ms."
+
+
+---------------
