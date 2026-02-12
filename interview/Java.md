@@ -1854,24 +1854,24 @@ for (Field f : fields) {
 ## Q - What are some use cases of reflection
 
 1. **Dependency Injection Frameworks (Spring Context)**
-  * **How:** When you use `@Autowired`, Spring scans your classes, finds the dependencies, and
-    injects them into private fields. It does this entirely via Reflection (because it can access
-    private members).
+    * **How:** When you use `@Autowired`, Spring scans your classes, finds the dependencies, and
+     injects them into private fields. It does this entirely via Reflection (because it can access
+     private members).
 
 2. **Testing Tools (JUnit / Mockito)**
-  * **How:** JUnit uses reflection to find all methods annotated with `@Test` and run them.
-    Mockito uses it to create "fake" proxy objects that look like your real classes.
+    * **How:** JUnit uses reflection to find all methods annotated with `@Test` and run them.
+     Mockito uses it to create "fake" proxy objects that look like your real classes.
 
 3. **Serialization / Deserialization (Jackson / Gson)**
-  * **How:** Converting JSON `{"name": "John"}` into a Java object `User`.
-    The library inspects the class to match keys to field names.
+    * **How:** Converting JSON `{"name": "John"}` into a Java object `User`.
+     The library inspects the class to match keys to field names.
 
 4. **ORM (Hibernate / JPA)**
-  * **How:** Mapping database columns to entity fields and generating SQL queries dynamically based on class definitions.
+    * **How:** Mapping database columns to entity fields and generating SQL queries dynamically based on class definitions.
 
 5. **IDEs and Debuggers (IntelliJ / Eclipse)**
-  * **How:** When you type `myObject`. and see a dropdown list of methods (Auto-complete),
-    the IDE is using reflection to inspect that object's class to see what methods exist.
+    * **How:** When you type `myObject`. and see a dropdown list of methods (Auto-complete),
+     the IDE is using reflection to inspect that object's class to see what methods exist.
 
 
 -----------------------------
