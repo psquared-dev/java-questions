@@ -960,8 +960,10 @@ kafka.send("OrderCreated"); // 2. Network Fails!
 transaction.commit();
 ```
 
-* **Result:** You have an order in your DB, but **no one else knows about it**. Your system is inconsistent.
-* **Reverse Scenario:** You send the message first, but the DB commit fails. Now shipping is trying to ship a phantom order.
+* **Result:** You have an order in your DB, but **no one else knows about it**. 
+   Your system is inconsistent.
+* **Reverse Scenario:** You send the message first, but the DB commit fails. 
+   Now shipping is trying to ship a phantom order.
 
 ---
 
