@@ -1,5 +1,5 @@
 <!-- TOC -->
-* [1. Core Java](#1-core-java)
+* [Level 1: Core Java](#level-1-core-java)
   * [Q - What is JDK? What is the diff b/w JDK and JRE?](#q---what-is-jdk-what-is-the-diff-bw-jdk-and-jre)
   * [Q - What are access specifiers?](#q---what-are-access-specifiers)
   * [Q - What are packages?](#q---what-are-packages)
@@ -125,7 +125,7 @@
     * [How to implement it?](#how-to-implement-it)
     * [When does it run?](#when-does-it-run)
     * [When does it NOT run?](#when-does-it-not-run)
-* [2. OOP & Object Model](#2-oop--object-model)
+* [Level 2: OOP & Object Model](#level-2-oop--object-model)
   * [Q - What are core principles of OOP?](#q---what-are-core-principles-of-oop)
     * [Runtime Polymorphism](#runtime-polymorphism)
     * [Compile time Polymorphism](#compile-time-polymorphism)
@@ -151,7 +151,7 @@
       * [2. They belong to the Class, not the Object](#2-they-belong-to-the-class-not-the-object)
       * [3. What actually happens? (Method Hiding)](#3-what-actually-happens-method-hiding)
   * [Q - What is Dynamic Method Dispatch?](#q---what-is-dynamic-method-dispatch)
-* [3. Exception Handling](#3-exception-handling)
+* [Level 3: Exception Handling](#level-3-exception-handling)
   * [Q - Explain the hierarchy of exceptions in Java?](#q---explain-the-hierarchy-of-exceptions-in-java)
     * [Checked Exceptions (Compile-Time)](#checked-exceptions-compile-time)
     * [Unchecked Exceptions (Runtime)](#unchecked-exceptions-runtime)
@@ -167,7 +167,7 @@
     * [1. The Core Purpose: Try-With-Resources](#1-the-core-purpose-try-with-resources)
     * [2. Code Example](#2-code-example)
     * [3. Senior Engineer Nuance: Exception Suppression](#3-senior-engineer-nuance-exception-suppression)
-* [4. Collections Framework](#4-collections-framework)
+* [Level 4: Collections Framework](#level-4-collections-framework)
   * [Q - What is diff b/w Vector and ArrayList?](#q---what-is-diff-bw-vector-and-arraylist)
   * [Q - Diff b/w Hashtable and HashMap](#q---diff-bw-hashtable-and-hashmap)
   * [Q - When would you use parallelStream()](#q---when-would-you-use-parallelstream)
@@ -199,7 +199,7 @@
     * [Fail-Fast Iterators](#fail-fast-iterators)
     * [Fail-Safe Iterators](#fail-safe-iterators)
   * [Q - How to create immutable collections in Java?](#q---how-to-create-immutable-collections-in-java)
-* [5. Concurrency & Multithreading](#5-concurrency--multithreading)
+* [Level 5: Concurrency & Multithreading](#level-5-concurrency--multithreading)
   * [Q - What are different thread states?](#q---what-are-different-thread-states)
   * [Q - What is daemon thread?](#q---what-is-daemon-thread)
   * [Q - What is BlockingQueue?](#q---what-is-blockingqueue)
@@ -322,7 +322,14 @@
   * [Q - What is CAS (Compare-And-Swap)?](#q---what-is-cas-compare-and-swap)
   * [Q - What is Structured Concurrency (Java 21 Preview)?](#q---what-is-structured-concurrency-java-21-preview)
   * [Q - How does ConcurrentHashMap work internally? (Java 7 vs Java 8)](#q---how-does-concurrenthashmap-work-internally-java-7-vs-java-8)
-* [6. Modern Java (Java 8 to Java 21)](#6-modern-java-java-8-to-java-21)
+  * [Q - What were the limitations of the Future interface in Java 5, and how does CompletableFuture address them?](#q---what-were-the-limitations-of-the-future-interface-in-java-5-and-how-does-completablefuture-address-them)
+    * [1. The Blocking Problem (`get()`)](#1-the-blocking-problem-get)
+    * [2. Lack of Composition (Chaining)](#2-lack-of-composition-chaining)
+    * [3. Combining Multiple Futures](#3-combining-multiple-futures)
+    * [4. No Exception Handling](#4-no-exception-handling)
+    * [5. Cannot Be Manually Completed](#5-cannot-be-manually-completed)
+    * [Summary Table](#summary-table-1)
+* [Level 6: Modern Java (Java 8 to Java 21)](#level-6-modern-java-java-8-to-java-21)
   * [Q - What is functional interface.](#q---what-is-functional-interface)
     * [Examples of Functional Interfaces in Java](#examples-of-functional-interfaces-in-java)
   * [Q - Can you tell few functional interface which is already there before java 8?](#q---can-you-tell-few-functional-interface-which-is-already-there-before-java-8)
@@ -361,7 +368,7 @@
   * [Q - What is Consumer chaining?](#q---what-is-consumer-chaining)
   * [Q - How to use chaining with Supplier?](#q---how-to-use-chaining-with-supplier)
   * [Q - Difference between Optional.of() and Optional.ofNullable()?](#q---difference-between-optionalof-and-optionalofnullable)
-* [7. JVM Architecture & Internals](#7-jvm-architecture--internals)
+* [Level 7: JVM Architecture & Internals](#level-7-jvm-architecture--internals)
   * [Q - What is JIT?](#q---what-is-jit)
   * [Q - What is class Loader?](#q---what-is-class-loader)
   * [Q - What are different types of classloaders?](#q---what-are-different-types-of-classloaders)
@@ -413,7 +420,7 @@
     * [2. The Mechanics (Ground Level)](#2-the-mechanics-ground-level)
     * [3. The Coding Pattern (The "Check-Check-Reload")](#3-the-coding-pattern-the-check-check-reload)
     * [Summary](#summary)
-* [8. Garbage Collection & Performance Tuning](#8-garbage-collection--performance-tuning)
+* [Level 8: Garbage Collection & Performance Tuning](#level-8-garbage-collection--performance-tuning)
   * [Q - How to manually trigger the garbage collection process?](#q---how-to-manually-trigger-the-garbage-collection-process)
   * [Q - Explain Minor GC vs Major GC vs Full GC](#q---explain-minor-gc-vs-major-gc-vs-full-gc)
     * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
@@ -550,7 +557,7 @@
       * [Summary for the Interview](#summary-for-the-interview-2)
 <!-- TOC -->
 
-# 1. Core Java
+# Level 1: Core Java
 
 ## Q - What is JDK? What is the diff b/w JDK and JRE?
 
@@ -2714,7 +2721,7 @@ If the JVM is killed violently, the hook is skipped.
 
 
 
-# 2. OOP & Object Model
+# Level 2: OOP & Object Model
 
 
 ## Q - What are core principles of OOP?
@@ -3308,7 +3315,7 @@ actual object type**, not the reference type.
 
 -----------------------------
 
-# 3. Exception Handling
+# Level 3: Exception Handling
 
 
 ## Q - Explain the hierarchy of exceptions in Java?
@@ -3607,7 +3614,7 @@ The Solution (`AutoCloseable` way): If both the `try` block and the `close()` me
 -----------------------------
 
 
-# 4. Collections Framework
+# Level 4: Collections Framework
 
 ## Q - What is diff b/w Vector and ArrayList?
 
@@ -4230,7 +4237,7 @@ Key points:
 ----------------
 
 
-# 5. Concurrency & Multithreading
+# Level 5: Concurrency & Multithreading
 
 ## Q - What are different thread states?
 
@@ -6407,7 +6414,87 @@ This is the most asked concurrency collection question.
 -----------------------------
 
 
-# 6. Modern Java (Java 8 to Java 21)
+## Q - What were the limitations of the Future interface in Java 5, and how does CompletableFuture address them?
+
+The `Future` interface, introduced in Java 5, provided a way to hold a reference to an 
+asynchronous calculation. However, it had significant architectural limitations that made 
+building complex, non-blocking systems difficult. `CompletableFuture` (Java 8) was designed 
+specifically to resolve these issues.
+
+Here are the technical limitations of `Future` and how `CompletableFuture` addresses them.
+
+### 1. The Blocking Problem (`get()`)
+
+* **Issue with Future:** The only way to retrieve the result from a `Future` is to call the `.get()` method. 
+   This method is **blocking**. The thread calling `.get()` is forced to wait (idle) until the 
+   computation completes. This negates the benefits of asynchronous programming because the 
+   calling thread cannot perform other useful work while waiting.
+* **CompletableFuture Solution:** It introduces a **push-based** model using callbacks. 
+   Instead of asking for the result, you provide a function (using methods like `thenApply` or `thenAccept`) 
+   that the system automatically executes once the result is available. The main thread remains unblocked.
+
+
+### 2. Lack of Composition (Chaining)
+
+* **Issue with Future:** You cannot create a pipeline of asynchronous steps. If you want to take the 
+   result of `Future A` and pass it as input to `Future B`, you must manually block on `A.get()`, retrieve 
+   the value, and then submit `B`. This creates a dependency where you essentially turn asynchronous code 
+   back into synchronous code.
+* **CompletableFuture Solution:** It supports functional composition. Methods like `thenCompose()` allow you
+   to chain two asynchronous operations together. The output of the first stage is automatically piped as 
+   the input to the next stage without any blocking code in between.
+
+
+### 3. Combining Multiple Futures
+
+* **Issue with Future:** There is no native API to manage multiple futures simultaneously. 
+   If you spawn 5 independent tasks and want to run a final task only when **all** of them are finished, 
+   you have to manually loop through the list and call `get()` on each one.
+* **CompletableFuture Solution:** It provides combinator methods:
+    * `CompletableFuture.allOf(f1, f2, ...)`: Returns a new future that completes when **all** input 
+        futures complete.
+    * `CompletableFuture.anyOf(f1, f2, ...)`: Returns a new future that completes as soon 
+        as **any one** of the input futures completes.
+
+
+### 4. No Exception Handling
+
+* **Issue with Future:** If an exception occurs inside the asynchronous task, there is no way to 
+   handle it gracefully within the future object itself. The exception is trapped until you 
+   call `get()`, at which point it is thrown as an `ExecutionException`, requiring 
+   verbose `try-catch` blocks in the consumer code.
+* **CompletableFuture Solution:** It treats exception handling as a step in the pipeline. 
+   Methods like `exceptionally()` and `handle()` allow you to catch errors occurring in any 
+   previous stage and provide a recovery value (fallback) so the pipeline can continue processing
+   without crashing.
+
+
+### 5. Cannot Be Manually Completed
+
+* **Issue with Future:** A `Future` represents the result of a background task submitted to 
+   an `ExecutorService`. It is passive; you cannot externally force a value into it. 
+   You are entirely dependent on the task finishing naturally.
+* **CompletableFuture Solution:** As the name implies, it can be explicitly "completed." 
+   You can call `.complete(value)` from any thread to immediately set the result of the future. 
+   This is critical for scenarios like timeouts or bridging legacy callback-based APIs into a 
+   modern `Future` workflow.
+
+
+### Summary Table
+
+| Limitation in Future                      | Solution in CompletableFuture                            |
+|-------------------------------------------|----------------------------------------------------------|
+| **Blocking retrieval** via `get()`        | **Non-blocking callbacks** via `thenApply`, `thenAccept` |
+| **No Chaining** (dependent tasks)         | **Composition** via `thenCompose`                        |
+| **Manual coordination** of multiple tasks | **Combinators** via `allOf`, `anyOf`, `thenCombine`      |
+| **Verbose exception handling**            | **Fluent handling** via `exceptionally`, `handle`        |
+| **Passive** (cannot set value)            | **Active** (can call `.complete(value)`)                 |
+
+
+-----------------------------
+
+
+# Level 6: Modern Java (Java 8 to Java 21)
 
 ## Q - What is functional interface.
 
@@ -7150,7 +7237,7 @@ Summary: When to use what?
 
 
 
-# 7. JVM Architecture & Internals
+# Level 7: JVM Architecture & Internals
 
 
 ## Q - What is JIT?
@@ -7939,7 +8026,7 @@ public Image getImage(String key) {
 
 
 
-# 8. Garbage Collection & Performance Tuning
+# Level 8: Garbage Collection & Performance Tuning
 
 
 ## Q - How to manually trigger the garbage collection process?
