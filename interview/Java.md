@@ -21,6 +21,8 @@
   * [Q - Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword](#q---mentions-some-other-possible-scenarios-where-we-cant-use-the-var-lvti-keyword)
   * [Q - Do `double` and `float` type overflow?](#q---do-double-and-float-type-overflow)
   * [Q - Is default keyword one of the access modifier?](#q---is-default-keyword-one-of-the-access-modifier)
+    * [1. The "Default Access Modifier" (The Invisible One)](#1-the-default-access-modifier-the-invisible-one)
+    * [2. The `default` Keyword (The Actual Keyword)](#2-the-default-keyword-the-actual-keyword)
   * [Q - What is Covariant return type?](#q---what-is-covariant-return-type)
   * [Q - What if a method in child class is more restricted than a parent class?](#q---what-if-a-method-in-child-class-is-more-restricted-than-a-parent-class)
   * [Q - Does the finally block execute if there is a return statement inside try or catch?](#q---does-the-finally-block-execute-if-there-is-a-return-statement-inside-try-or-catch)
@@ -969,7 +971,7 @@ No, the `default` keyword is NOT an access modifier keyword.
 
 Here is the breakdown of the confusion:
 
-1\. The "Default Access Modifier" (The Invisible One)
+### 1. The "Default Access Modifier" (The Invisible One)
 
 When people talk about the Default Access Modifier (also called Package-Private),
 they are talking about the absence of a keyword.
@@ -989,7 +991,7 @@ class Student {
 }
 ```
 
-2\. The `default` Keyword (The Actual Keyword)
+### 2. The `default` Keyword (The Actual Keyword)
 
 The word `default` does exist as a keyword in Java, but it is used for completely
 different things:
