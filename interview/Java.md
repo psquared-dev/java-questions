@@ -3195,7 +3195,7 @@ Rules to make object Immutable:
 1. Declare the class as final so it can't be extended.
 2. Make all the fields private so that direct access is not allowed.
 3. Don't provide setter methods for variables.
-4. Make all mutable fields final so that a field's value can be assigned only once.
+4. Make all the fields final so that a field's value can be assigned only once.
 5. Initialize all fields using a constructor method performing deep copy.
 6. Perform deep copy in getter of mutable fields
 
