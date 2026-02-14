@@ -4473,3 +4473,51 @@ In a banking or e-commerce system, if a transaction is stuck, you need to know *
 > Camunda, or a custom Saga Manager) as soon as the business logic spans more than 4 microservices 
 > or requires complex branching."
 > 
+>
+
+-----------------------------
+
+# Q -  Which http status code you should pass when request is accepted but an async job is still running?
+
+The correct HTTP status code is **202 Accepted**.
+
+## Why 202?
+
+It specifically indicates that "The request has been accepted for processing, but the 
+processing has not been completed."
+
+### Best Practice Implementation
+
+When returning a `202 Accepted`, you should not just leave the client hanging. You should 
+provide a way for them to check the status of the job.
+
+**Typical Response Header:**
+
+* **Location:** `/jobs/12345` (A URL where the client can poll for the result)
+
+**Typical Response Body (JSON):**
+
+```json
+{
+  "status": "queued",
+  "job_id": "12345",
+  "eta": "30s",
+  "status_url": "/jobs/12345"
+}
+```
+
+
+-------------------
+
+
+# Q - Which http status code you should pass when a request from a client is invalid?
+
+Yes, **400 Bad Request** is the standard, generic answer for an invalid client request.
+
+However, in a mature REST API, "invalid" can mean different things. While `400` is 
+the catch-all for "Client Error," specific scenarios often demand more precise codes.
+
+
+-------------------
+
+

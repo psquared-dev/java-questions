@@ -124,7 +124,50 @@ Check listening socket:
 if (FD_ISSET(3, &readfds)) ...
 ```
 
-```text
+```textvar serverSocketChannel = ServerSocketChannel.open();
+serverSocketChannel.configureBlocking(false);
+// Creates a non-blocking TCP listening socket (socket() + fcntl(O_NONBLOCK))
+
+var selector = Selector.open();
+// On Linux → epoll_create()
+// On macOS → kqueue()
+// On Windows → IOCP
+
+serverSocketChannel.bind(new InetSocketAddress(portNumber));
+// bind() + listen() under the hood
+
+serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+// epoll_ctl(ADD, server_fd, EPOLLIN)
+
+while (true) {
+
+    if (selector.select() == 0) continue;
+    // selector.select() = epoll_wait()
+    // Blocks until some fd becomes ready
+
+    for (var key : selector.selectedKeys()) {
+
+        if (key.isAcceptable()) {
+            // This means: server_fd got EPOLLIN → accept() won't block
+
+            var clientChannel = serverSocketChannel.accept();
+            // accept() = new client fd
+
+            clientChannel.configureBlocking(false);
+            // fcntl(client_fd, O_NONBLOCK)
+
+            clientChannel.register(selector, SelectionKey.OP_READ);
+            // epoll_ctl(ADD, client_fd, EPOLLIN)
+        }
+
+        else if (key.isReadable()) {
+            // client_fd triggered EPOLLIN → data is available
+
+            var clientChannel = (SocketChannel) key.channel();
+            // read(client_fd, ...)
+        }
+    }
+}
 No → 3 is not in {4}
 ```
 
@@ -464,6 +507,64 @@ while (true) {
 
             var clientChannel = (SocketChannel) key.channel();
             // read(client_fd, ...)
+        }
+    }
+}
+```
+
+```java
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.util.Iterator;
+
+public class NioServer {
+
+    public static void main(String[] args) throws IOException {
+
+        ServerSocketChannel serverChannel = ServerSocketChannel.open();
+        serverChannel.bind(new InetSocketAddress(8081));
+        serverChannel.configureBlocking(false);
+
+        Selector selector = Selector.open();
+        serverChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+        ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+        while (true) {
+
+            selector.select();  // blocks like epoll_wait()
+
+            Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+
+            while (keys.hasNext()) {
+
+                SelectionKey key = keys.next();
+                keys.remove();
+
+                if (key.isAcceptable()) {
+
+                    SocketChannel client = serverChannel.accept();
+                    client.configureBlocking(false);
+                    client.register(selector, SelectionKey.OP_READ);
+
+                } else if (key.isReadable()) {
+
+                    SocketChannel client = (SocketChannel) key.channel();
+
+                    buffer.clear();
+                    int bytes = client.read(buffer);
+
+                    if (bytes == -1) {
+                        client.close();
+                        continue;
+                    }
+
+                    buffer.flip();
+                    client.write(buffer);
+                }
+            }
         }
     }
 }
