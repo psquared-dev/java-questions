@@ -2923,8 +2923,8 @@ whereas methods are accessed based on the Actual Object (the new class on the ri
 
 **The Rule**
 
-* Methods (Overriding): Resolved at Runtime (Dynamic Binding). Java looks at the actual object in memory.
-* Fields (Hiding): Resolved at Compile Time (Static Binding). Java looks at the reference type you are holding.
+* **Methods (Overriding):** Resolved at Runtime (Dynamic Binding). Java looks at the actual object in memory.
+* **Fields (Hiding):** Resolved at Compile Time (Static Binding). Java looks at the reference type you are holding.
 
 Example:
 
