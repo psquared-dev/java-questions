@@ -202,6 +202,11 @@
     * [Fail-Fast Iterators](#fail-fast-iterators)
     * [Fail-Safe Iterators](#fail-safe-iterators)
   * [Q - How to create immutable collections in Java?](#q---how-to-create-immutable-collections-in-java)
+    * [1. Using the "List.of()" Factory Method (Java 9+)](#1-using-the-listof-factory-method-java-9)
+    * [2. Using Stream Collectors (Java 10+)](#2-using-stream-collectors-java-10)
+    * [3. Creating a Copy (Java 10+)](#3-creating-a-copy-java-10)
+    * [4. The "Unmodifiable View" (The Older Way)](#4-the-unmodifiable-view-the-older-way)
+    * [Comparison of Methods](#comparison-of-methods)
 * [Level 5: Concurrency & Multithreading](#level-5-concurrency--multithreading)
   * [Q - What are different thread states?](#q---what-are-different-thread-states)
   * [Q - What is daemon thread?](#q---what-is-daemon-thread)
@@ -4239,7 +4244,70 @@ Key points:
 
 ## Q - How to create immutable collections in Java?
 
-`Collections.toUnmodifieableList()`
+In modern Java, you have a few ways to handle this depending on whether 
+you want a **read-only view** of an existing list or a truly **immutable** collection. 
+Here is a breakdown of the most common methods:
+
+---
+
+### 1. Using the "List.of()" Factory Method (Java 9+)
+
+This is the cleanest and most common way to create a small, fixed-size 
+immutable list from scratch. These collections are truly immutable; attempting
+to change them will throw an `UnsupportedOperationException`.
+
+```java
+List<String> fruits = List.of("Apple", "Banana", "Cherry");
+
+```
+
+### 2. Using Stream Collectors (Java 10+)
+
+If you are processing data through a stream and want the result 
+to be immutable, use the collector you mentioned:
+
+```java
+List<String> immutableList = items.stream()
+    .filter(s -> s.startsWith("A"))
+    .collect(Collectors.toUnmodifiableList());
+
+```
+
+### 3. Creating a Copy (Java 10+)
+
+If you already have a mutable list and want to create an immutable snapshot of it:
+
+```java
+List<String> copy = List.copyOf(existingList);
+
+```
+
+### 4. The "Unmodifiable View" (The Older Way)
+
+Before Java 9, we used `Collections.unmodifiableList()`. It is important 
+to note that this is a **wrapper**. If the underlying original list changes, 
+the "unmodifiable" view will also change.
+
+```java
+List<String> mutable = new ArrayList<>();
+List<String> view = Collections.unmodifiableList(mutable);
+
+mutable.add("New Item"); 
+// 'view' now contains "New Item" too! It's not truly immutable.
+```
+
+---
+
+### Comparison of Methods
+
+| Method                            | Java Version | Truly Immutable?     | Allows Nulls? |
+|-----------------------------------|--------------|----------------------|---------------|
+| `List.of(...)`                    | 9+           | **Yes**              | No            |
+| `List.copyOf(...)`                | 10+          | **Yes**              | No            |
+| `Collectors.toUnmodifiableList()` | 10+          | **Yes**              | No            |
+| `Collections.unmodifiableList()`  | 2+           | **No** (it's a view) | Yes           |
+
+Similar methods exists for to handle immutable **Maps** or **Sets** as well.
 
 
 ----------------
