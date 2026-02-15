@@ -1438,7 +1438,7 @@ In Spring Boot, we use the `@Retry` annotation.
 @Service
 public class PaymentService {
 
-    // Retry max 3 times. Wait 2s between attempts.
+    // Retry max 3 times.
     @Retry(name = "paymentRetry", fallbackMethod = "fallbackPay")
     public String processPayment(Order order) {
         // Unreliable call
