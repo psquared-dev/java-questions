@@ -43,6 +43,14 @@
   * [Approach 2: Orchestration (The "Conductor")](#approach-2-orchestration-the-conductor)
   * [**Comparison Cheat Sheet**](#comparison-cheat-sheet)
   * [**Summary for Interview**](#summary-for-interview)
+* [Q - How does a Saga Orchestrator initiate and control both the happy path and compensation flow?](#q---how-does-a-saga-orchestrator-initiate-and-control-both-the-happy-path-and-compensation-flow)
+  * [1. How the Orchestrator is Triggered](#1-how-the-orchestrator-is-triggered)
+  * [2. The Step-by-Step Flow](#2-the-step-by-step-flow)
+    * [Step A: Orchestrator to Payment](#step-a-orchestrator-to-payment)
+    * [Step B: Orchestrator to Inventory](#step-b-orchestrator-to-inventory)
+    * [Step C: The Finalization](#step-c-the-finalization)
+  * [3. What if something fails? (Compensating Transactions)](#3-what-if-something-fails-compensating-transactions)
+  * [Summary of Orchestrator Characteristics](#summary-of-orchestrator-characteristics)
 * [Q - Explain Transactional outbox pattern](#q---explain-transactional-outbox-pattern)
   * [The Problem: The "Dual Write" Dilemma](#the-problem-the-dual-write-dilemma)
   * [The Solution: The Outbox Pattern](#the-solution-the-outbox-pattern)
@@ -297,6 +305,10 @@
   * [3. The Flow Has Cyclic Dependencies](#3-the-flow-has-cyclic-dependencies)
   * [4. Compensation (Rollback) Logic is Critical](#4-compensation-rollback-logic-is-critical)
   * [Summary Table](#summary-table)
+* [Q -  Which http status code you should pass when request is accepted but an async job is still running?](#q---which-http-status-code-you-should-pass-when-request-is-accepted-but-an-async-job-is-still-running)
+  * [Why 202?](#why-202)
+    * [Best Practice Implementation](#best-practice-implementation)
+* [Q - Which http status code you should pass when a request from a client is invalid?](#q---which-http-status-code-you-should-pass-when-a-request-from-a-client-is-invalid)
 <!-- TOC -->
 
 # Q - Types of caches
@@ -937,7 +949,79 @@ participant what to do.
 >
 
 
-----------------
+------------------
+
+
+# Q - How does a Saga Orchestrator initiate and control both the happy path and compensation flow?
+
+The Orchestrator is a Microservice.
+
+Here is the step-by-step flow of a **Saga Orchestration** for 
+an E-commerce system (Order, Payment, Inventory).
+
+---
+
+## 1. How the Orchestrator is Triggered
+
+The Orchestrator doesn't just wake up on its own. It is triggered by a **State Change**.
+
+* **Step 0:** The user hits the `POST /orders` endpoint on the **Order Service**.
+* **Step 1 (The Trigger):** The Order Service saves the order as `PENDING` and **publishes 
+   a "Saga Started" event** to a Kafka topic, or it calls the Orchestrator Service via a **REST/gRPC** call.
+* **The Result:** The Orchestrator creates a new **Saga Instance ID** and persists the 
+   state as `STARTED` in its own database.
+
+---
+
+## 2. The Step-by-Step Flow
+
+### Step A: Orchestrator to Payment
+
+The Orchestrator sends a **Command** to the `payment-commands` Kafka topic: *"Process $100 for Order #1"*.
+
+* The **Payment Service** listens, processes the card, and sends a **Reply** to the
+   `payment-replies` topic: *"Payment Success"*.
+* The Orchestrator consumes this, updates its state to `PAYMENT_COMPLETED`.
+
+### Step B: Orchestrator to Inventory
+
+Seeing that payment succeeded, the Orchestrator sends a **Command** to the
+`inventory-commands` topic: *"Reserve Item X for Order #1"*.
+
+* The **Inventory Service** listens, locks the item in the DB, and sends a **Reply** to 
+   `inventory-replies`: *"Inventory Reserved"*.
+* The Orchestrator updates its state to `INVENTORY_COMPLETED`.
+
+### Step C: The Finalization
+
+The Orchestrator sends a final **Command** back to the **Order Service**: *"Success! Mark Order #1 as COMPLETED"*.
+
+* The Saga reaches its `END` state.
+
+---
+
+## 3. What if something fails? (Compensating Transactions)
+
+This is where the Orchestrator earns its keep. If Step B fails (e.g., Inventory is out of stock):
+
+1. **Inventory Service** replies: *"Out of Stock"*.
+2. **Orchestrator** looks at its state and sees Payment was already done.
+3. **The Compensation:** The Orchestrator sends a command to **Payment Service**: *"Refund $100 for Order #1"*.
+4. **Final Step:** It tells **Order Service**: *"Cancel Order #1"*.
+
+---
+
+## Summary of Orchestrator Characteristics
+
+| Feature                   | Description                                                                                                                                        |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Is it a Microservice?** | **Yes.** It should be a standalone service so that if the Order Service goes down, the Orchestrator can still finish or roll back the transaction. |
+| **Does it have a DB?**    | **Yes.** It must have a "State Log" table to remember where the Saga is (e.g., if the Orchestrator restarts, it knows it stopped at Payment).      |
+| **Communication?**        | Uses **Point-to-Point** (Commands/Replies) via Kafka topics rather than public broadcasts.                                                         |
+
+
+
+------------------
 
 
 # Q - Explain Transactional outbox pattern
