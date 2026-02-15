@@ -60,6 +60,7 @@
   * [The Problem: "Resource Exhaustion" (The Sinking Ship)](#the-problem-resource-exhaustion-the-sinking-ship)
   * [The Solution: The Bulkhead Pattern](#the-solution-the-bulkhead-pattern)
   * [Java Implementation (Resilience4j)](#java-implementation-resilience4j)
+  * [Execution Flow](#execution-flow)
 * [Q - Explain Circuit Breaker pattern](#q---explain-circuit-breaker-pattern)
   * [The core idea](#the-core-idea)
   * [The Problem: "Cascading Failure" ( The Domino Effect)](#the-problem-cascading-failure--the-domino-effect)
@@ -1162,20 +1163,36 @@ In Spring Boot, we use the `@Bulkhead` annotation to enforce this.
 public class InvoiceService {
 
     // LIMIT: Only 5 concurrent calls allowed for this specific method
-    @Bulkhead(name = "invoiceService", type = Bulkhead.Type.SEMAPHORE, maxConcurrentCalls = 5)
+    @Bulkhead(name = "invoiceService", 
+            type = Bulkhead.Type.SEMAPHORE, 
+            maxConcurrentCalls = 5, 
+            fallbackMethod = "generateInvoiceFallback")
     public byte[] generateInvoice(String orderId) {
         // Heavy logic taking 5 seconds...
         return pdfBytes;
     }
-}
 
+  // Fallback method must have the SAME return type and arguments + Throwable
+  public byte[] generateInvoiceFallback(String orderId, Throwable t) {
+    // Handle the 'BulkheadFullException' specifically if needed
+    System.out.println("Bulkhead is full or service failed for Order: " + orderId);
+
+    // Return a default response, a cached version, or a 'Please try later' message
+    return "System busy. Your invoice is being generated and will be emailed shortly.".getBytes();
+  }
+}
 ```
 
-* If a 6th thread tries to call `generateInvoice`, it gets a `BulkheadFullException` immediately. It does not wait.
-* Your other services (`ProductService`) are completely unaffected.
+## Execution Flow
+
+* **Capacity Check:** The 6th thread arrives and checks for an available slot (out of 5).
+* **Immediate Action:** Since all slots are full, **it fails fast**. It does not block or wait.
+* **Routing:**
+   * **No Fallback:** Throws `BulkheadFullException` immediately.
+   * **With Fallback:** Executes the `fallbackMethod` logic immediately.
 
 
----
+---------------
 
 
 # Q - Explain Circuit Breaker pattern
