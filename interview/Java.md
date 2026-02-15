@@ -1,5 +1,5 @@
 <!-- TOC -->
-* [Level 1: Core Java](#level-1-core-java)
+* [Module 1: Core Java](#module-1-core-java)
   * [Q - What is JDK? What is the diff b/w JDK and JRE?](#q---what-is-jdk-what-is-the-diff-bw-jdk-and-jre)
   * [Q - What are access specifiers?](#q---what-are-access-specifiers)
   * [Q - What are packages?](#q---what-are-packages)
@@ -128,7 +128,7 @@
     * [How to implement it?](#how-to-implement-it)
     * [When does it run?](#when-does-it-run)
     * [When does it NOT run?](#when-does-it-not-run)
-* [Level 2: OOP & Object Model](#level-2-oop--object-model)
+* [Module 2: OOP & Object Model](#module-2-oop--object-model)
   * [Q - What are core principles of OOP?](#q---what-are-core-principles-of-oop)
     * [Runtime Polymorphism](#runtime-polymorphism)
     * [Compile time Polymorphism](#compile-time-polymorphism)
@@ -154,7 +154,7 @@
       * [2. They belong to the Class, not the Object](#2-they-belong-to-the-class-not-the-object)
       * [3. What actually happens? (Method Hiding)](#3-what-actually-happens-method-hiding)
   * [Q - What is Dynamic Method Dispatch?](#q---what-is-dynamic-method-dispatch)
-* [Level 3: Exception Handling](#level-3-exception-handling)
+* [Module 3: Exception Handling](#module-3-exception-handling)
   * [Q - Explain the hierarchy of exceptions in Java?](#q---explain-the-hierarchy-of-exceptions-in-java)
     * [Checked Exceptions (Compile-Time)](#checked-exceptions-compile-time)
     * [Unchecked Exceptions (Runtime)](#unchecked-exceptions-runtime)
@@ -170,7 +170,35 @@
     * [1. The Core Purpose: Try-With-Resources](#1-the-core-purpose-try-with-resources)
     * [2. Code Example](#2-code-example)
     * [3. Senior Engineer Nuance: Exception Suppression](#3-senior-engineer-nuance-exception-suppression)
-* [Level 4: Collections Framework](#level-4-collections-framework)
+  * [Q -  What is Closeable and how its related to AutoCloseable?](#q---what-is-closeable-and-how-its-related-to-autocloseable)
+    * [1. The Parent: `AutoCloseable` (Added in Java 7)](#1-the-parent-autocloseable-added-in-java-7)
+    * [2. The Specialized Child: `Closeable` (Older, updated in Java 7)](#2-the-specialized-child-closeable-older-updated-in-java-7)
+    * [**The Key Differences (Interview "Slayer" Points)**](#the-key-differences-interview-slayer-points)
+      * [A. The Exception Contract](#a-the-exception-contract)
+      * [B. Idempotency (The "Safety" Rule)](#b-idempotency-the-safety-rule)
+      * [C. History & Compatibility](#c-history--compatibility)
+    * [**How they look in code**](#how-they-look-in-code)
+* [Module 4: Generics](#module-4-generics)
+  * [Q - Generics & Type Erasure: What happens to type information at runtime? Why are Generics Invariant while Arrays are Covariant?](#q---generics--type-erasure-what-happens-to-type-information-at-runtime-why-are-generics-invariant-while-arrays-are-covariant)
+    * [1. What Problem Were Generics Solving?](#1-what-problem-were-generics-solving)
+      * [Problems:](#problems)
+    * [2. Type Erasure (Critical JVM Design Decision)](#2-type-erasure-critical-jvm-design-decision)
+      * [What You Write](#what-you-write)
+      * [What the Compiler Generates (After Erasure)](#what-the-compiler-generates-after-erasure)
+      * [What Gets Erased?](#what-gets-erased)
+      * [1. Type parameters replaced with bound](#1-type-parameters-replaced-with-bound)
+      * [2. Casts inserted automatically](#2-casts-inserted-automatically)
+    * [3. Arrays vs Generics — The Core Difference](#3-arrays-vs-generics--the-core-difference)
+      * [Arrays Are Covariant](#arrays-are-covariant)
+      * [Why?](#why)
+      * [Generics Are Invariant](#generics-are-invariant)
+      * [Why?](#why-1)
+    * [4. Why Covariance Would Break Generics](#4-why-covariance-would-break-generics)
+    * [5. The Core Principle](#5-the-core-principle)
+      * [Mutable containers cannot be safely covariant.](#mutable-containers-cannot-be-safely-covariant)
+    * [6. Controlled Variance with Wildcards](#6-controlled-variance-with-wildcards)
+    * [7. Final Interview-Ready Answer](#7-final-interview-ready-answer)
+* [Module 5: Collections Framework](#module-5-collections-framework)
   * [Q - What is diff b/w Vector and ArrayList?](#q---what-is-diff-bw-vector-and-arraylist)
   * [Q - Diff b/w Hashtable and HashMap](#q---diff-bw-hashtable-and-hashmap)
   * [Q - When would you use parallelStream()](#q---when-would-you-use-parallelstream)
@@ -207,7 +235,7 @@
     * [3. Creating a Copy (Java 10+)](#3-creating-a-copy-java-10)
     * [4. The "Unmodifiable View" (The Older Way)](#4-the-unmodifiable-view-the-older-way)
     * [Comparison of Methods](#comparison-of-methods)
-* [Level 5: Concurrency & Multithreading](#level-5-concurrency--multithreading)
+* [Module 6: Concurrency & Multithreading](#module-6-concurrency--multithreading)
   * [Q - What are different thread states?](#q---what-are-different-thread-states)
   * [Q - What is daemon thread?](#q---what-is-daemon-thread)
   * [Q - What is BlockingQueue?](#q---what-is-blockingqueue)
@@ -351,7 +379,7 @@
     * [4. No Exception Handling](#4-no-exception-handling)
     * [5. Cannot Be Manually Completed](#5-cannot-be-manually-completed)
     * [Summary Table](#summary-table-1)
-* [Level 6: Modern Java (Java 8 to Java 21)](#level-6-modern-java-java-8-to-java-21)
+* [Module 7: Modern Java (Java 8 to Java 21)](#module-7-modern-java-java-8-to-java-21)
   * [Q - What is functional interface.](#q---what-is-functional-interface)
     * [Examples of Functional Interfaces in Java](#examples-of-functional-interfaces-in-java)
   * [Q - Can you tell few functional interface which is already there before java 8?](#q---can-you-tell-few-functional-interface-which-is-already-there-before-java-8)
@@ -390,7 +418,7 @@
   * [Q - What is Consumer chaining?](#q---what-is-consumer-chaining)
   * [Q - How to use chaining with Supplier?](#q---how-to-use-chaining-with-supplier)
   * [Q - Difference between Optional.of() and Optional.ofNullable()?](#q---difference-between-optionalof-and-optionalofnullable)
-* [Level 7: JVM Architecture & Internals](#level-7-jvm-architecture--internals)
+* [Module 8: JVM Architecture & Internals](#module-8-jvm-architecture--internals)
   * [Q - What is JIT?](#q---what-is-jit)
   * [Q - What is class Loader?](#q---what-is-class-loader)
   * [Q - What are different types of classloaders?](#q---what-are-different-types-of-classloaders)
@@ -579,7 +607,7 @@
       * [Summary for the Interview](#summary-for-the-interview-2)
 <!-- TOC -->
 
-# Level 1: Core Java
+# Module 1: Core Java
 
 ## Q - What is JDK? What is the diff b/w JDK and JRE?
 
@@ -2734,7 +2762,7 @@ If the JVM is killed violently, the hook is skipped.
 
 
 
-# Level 2: OOP & Object Model
+# Module 2: OOP & Object Model
 
 
 ## Q - What are core principles of OOP?
@@ -3328,7 +3356,7 @@ actual object type**, not the reference type.
 
 -----------------------------
 
-# Level 3: Exception Handling
+# Module 3: Exception Handling
 
 
 ## Q - Explain the hierarchy of exceptions in Java?
@@ -3624,10 +3652,383 @@ The Solution (`AutoCloseable` way): If both the `try` block and the `close()` me
 3. You can retrieve it using **mainException.getSuppressed()**.
 
 
+
+## Q -  What is Closeable and how its related to AutoCloseable?
+
+To explain this from the ground level, we have to look at how Java evolved. 
+Before Java 7, if you opened a stream or a socket, you were responsible for manually
+closing it in a `finally` block. If you forgot, you leaked memory or file handles—which 
+eventually crashed the system.
+
+Java introduced two interfaces to standardize how we "clean up" after ourselves.
+
+### 1. The Parent: `AutoCloseable` (Added in Java 7)
+
+`AutoCloseable` is the most basic contract. It was created specifically to 
+support the **Try-with-Resources** statement.
+
+* **The Signature:** `void close() throws Exception;`
+* **The Purpose:** It’s a very "broad" interface. Any class that implements 
+   this can be put inside the `try(...)` parentheses.
+* **The Exception:** It throws the generic `Exception`. This is intentional 
+   so that it can be used for *anything*—database connections, cloud clients, etc. - not just I/O.
+
+
+### 2. The Specialized Child: `Closeable` (Older, updated in Java 7)
+
+`Closeable` actually existed since Java 5, but it was retrofitted to 
+extend `AutoCloseable` when Java 7 arrived.
+
+* **The Signature:** `void close() throws IOException;`
+* **The Purpose:** It is a specialized version of `AutoCloseable` specifically 
+   for **I/O streams** (Files, Sockets).
+* **The Exception:** It is restricted to `IOException`.
+
+---
+
+### **The Key Differences (Interview "Slayer" Points)**
+
+If an interviewer asks, "Why have both?" you give them these three distinctions:
+
+#### A. The Exception Contract
+
+* `AutoCloseable.close()` throws `Exception`.
+* `Closeable.close()` throws `IOException`.
+* **Why it matters:** Because `Closeable` is a subtype, it obeys the rule that an 
+   overriding method can throw a *more specific* exception, but not a broader one.
+
+#### B. Idempotency (The "Safety" Rule)
+
+* **`Closeable`** *must* be idempotent. This means you can call `close()` ten times 
+   in a row, and the first call closes it, while the other nine do absolutely nothing.
+* **`AutoCloseable`** is only *recommended* to be idempotent. It is technically allowed 
+   to throw an exception if you try to close it twice (though most devs make it idempotent anyway).
+
+#### C. History & Compatibility
+
+`Closeable` belongs to the `java.io` package. `AutoCloseable` belongs to `java.lang`. By creating a new parent (`AutoCloseable`), Java was able to introduce Try-with-Resources to everything (like JDBC) without forcing database drivers to depend on the `java.io` package.
+
+---
+
+### **How they look in code**
+
+When you use Try-with-Resources, the compiler doesn't care if 
+it's `Closeable` or `AutoCloseable`. It just looks for that `close()` method.
+
+```java
+// Works for both AutoCloseable and Closeable
+try (MyResource res = new MyResource()) {
+    res.doWork();
+} 
+// The compiler secretly adds the 'finally' block and calls res.close() here.
+```
+
+
 -----------------------------
 
 
-# Level 4: Collections Framework
+# Module 4: Generics
+
+## Q - Generics & Type Erasure: What happens to type information at runtime? Why are Generics Invariant while Arrays are Covariant?
+
+### 1. What Problem Were Generics Solving?
+
+Before Java 5, collections stored `Object`.
+
+```java
+List list = new ArrayList();
+list.add("Prateek");
+list.add(10);  // Allowed
+
+String s = (String) list.get(0);  // Manual cast
+```
+
+#### Problems:
+
+* No compile-time type safety
+* Frequent `ClassCastException`
+* Manual casting everywhere
+
+Generics introduced compile-time type checking:
+
+```java
+List<String> list = new ArrayList<>();
+list.add("apple");
+list.add(10);   // Compile-time error
+```
+
+Now type errors are caught at compile time.
+
+---
+
+### 2. Type Erasure (Critical JVM Design Decision)
+
+Java generics are implemented using **Type Erasure**.
+
+Generic type information exists only at compile time.
+
+---
+
+#### What You Write
+
+```java
+List<String> list = new ArrayList<>();
+list.add("Hello");
+```
+
+#### What the Compiler Generates (After Erasure)
+
+```java
+List list = new ArrayList();
+list.add("Hello");
+```
+
+The `<String>` part is removed.
+
+---
+
+#### What Gets Erased?
+
+#### 1. Type parameters replaced with bound
+
+Unbounded:
+
+```java
+class Box<T> {
+    T value;
+}
+```
+
+Becomes:
+
+```java
+class Box {
+    Object value;
+}
+```
+
+Bounded:
+
+```java
+class Box<T extends Number> {
+    T value;
+}
+```
+
+Becomes:
+
+```java
+class Box {
+    Number value;
+}
+```
+
+Rule:
+
+* Unbounded → `Object`
+* Bounded → upper bound
+
+---
+
+#### 2. Casts inserted automatically
+
+```java
+List<String> list = new ArrayList<>();
+String s = list.get(0);
+```
+
+After erasure:
+
+```java
+List list = new ArrayList();
+String s = (String) list.get(0);  // inserted by compiler
+```
+
+So:
+
+* Type safety enforced at compile time
+* Runtime sees only raw types
+
+---
+
+### 3. Arrays vs Generics — The Core Difference
+
+---
+
+#### Arrays Are Covariant
+
+If:
+
+```
+String <: Object
+```
+
+Then:
+
+```
+String[] <: Object[]
+```
+
+Example:
+
+```java
+String[] strings = new String[10];
+Object[] objects = strings;  // allowed
+```
+
+But:
+
+```java
+objects[0] = 10;
+```
+
+Throws:
+
+```
+ArrayStoreException
+```
+
+#### Why?
+
+Arrays are:
+
+* Reified (they know their runtime component type)
+* Runtime type-checked
+* Covariant
+
+The JVM checks element type at insertion time.
+
+---
+
+#### Generics Are Invariant
+
+Even though:
+
+```
+String <: Object
+```
+
+This is NOT allowed:
+
+```java
+List<String> strings = new ArrayList<>();
+List<Object> objects = strings;  // compile-time error
+```
+
+---
+
+#### Why?
+
+Because generics use **type erasure**.
+
+At runtime:
+
+```
+List<String> → List
+List<Integer> → List
+```
+
+Both become the same raw type.
+
+The JVM cannot distinguish them.
+
+---
+
+### 4. Why Covariance Would Break Generics
+
+Assume covariance was allowed:
+
+```java
+List<String> strings = new ArrayList<>();
+List<Object> objects = strings;  // assume allowed
+objects.add(10);
+```
+
+Now:
+
+```java
+String s = strings.get(0);
+```
+
+Problem:
+
+* `strings` is supposed to contain only `String`
+* It now contains `Integer`
+* Type contract broken
+
+Worse:
+The JVM cannot detect this at insertion time (no runtime type info).
+
+This is called **heap pollution**.
+
+Therefore:
+
+> The compiler must prevent this at compile time.
+
+---
+
+### 5. The Core Principle
+
+#### Mutable containers cannot be safely covariant.
+
+Because:
+
+* Covariance allows treating `List<Child>` as `List<Parent>`
+* `List<Parent>` allows inserting any Parent
+* That may violate original child-only guarantee
+
+So Java makes generic types invariant by default.
+
+---
+
+### 6. Controlled Variance with Wildcards
+
+Java allows safe variance using wildcards.
+
+Example:
+
+```java
+List<? extends Number> list = new ArrayList<Integer>();
+Number n = list.get(0);  // safe
+list.add(10);            // compile error
+```
+
+Internally the compiler treats this as:
+
+```
+List<X> where X extends Number
+```
+
+Since X is unknown:
+
+* Reading is safe (X is at least Number)
+* Writing is unsafe (unknown exact subtype)
+
+This follows:
+
+> PECS — Producer Extends, Consumer Super
+
+---
+
+### 7. Final Interview-Ready Answer
+
+If asked:
+
+> Why are arrays covariant but generics invariant?
+
+Answer:
+
+> Arrays are reified and perform runtime type checks (`ArrayStoreException`), so covariance is allowed 
+> but may fail at runtime. Generics use type erasure and lose type information at runtime, so the compiler
+> must enforce strict invariance to prevent heap pollution and preserve type safety for mutable containers.
+> 
+
+
+---------------
+
+
+
+# Module 5: Collections Framework
 
 ## Q - What is diff b/w Vector and ArrayList?
 
@@ -4313,7 +4714,7 @@ Similar methods exists for to handle immutable **Maps** or **Sets** as well.
 ----------------
 
 
-# Level 5: Concurrency & Multithreading
+# Module 6: Concurrency & Multithreading
 
 ## Q - What are different thread states?
 
@@ -6780,7 +7181,7 @@ Here are the technical limitations of `Future` and how `CompletableFuture` addre
 -----------------------------
 
 
-# Level 6: Modern Java (Java 8 to Java 21)
+# Module 7: Modern Java (Java 8 to Java 21)
 
 ## Q - What is functional interface.
 
@@ -7523,7 +7924,7 @@ Summary: When to use what?
 
 
 
-# Level 7: JVM Architecture & Internals
+# Module 8: JVM Architecture & Internals
 
 
 ## Q - What is JIT?
