@@ -214,6 +214,18 @@
     * [Case 1 - NEVER is called without a transaction](#case-1---never-is-called-without-a-transaction)
     * [Case 2 - NEVER is called inside a transaction](#case-2---never-is-called-inside-a-transaction)
     * [Key observation (this is the core)](#key-observation-this-is-the-core-2)
+* [Q - What is Isolation Levels in Spring?](#q---what-is-isolation-levels-in-spring)
+    * [The 4 Standard Isolation Levels](#the-4-standard-isolation-levels)
+    * [The 3 Read Phenomona](#the-3-read-phenomona)
+    * [Spring-Specific Implementation](#spring-specific-implementation)
+      * [1. ISOLATION_DEFAULT](#1-isolation_default)
+      * [2. Performance Trade-off](#2-performance-trade-off)
+    * [Whats the relation between "3 Read Phenomona" and "Isolation Level"](#whats-the-relation-between-3-read-phenomona-and-isolation-level)
+      * [The Mapping Table](#the-mapping-table)
+      * [Ground Level Breakdown: How the protection works](#ground-level-breakdown-how-the-protection-works)
+        * [1. Preventing Dirty Reads (Read Committed)](#1-preventing-dirty-reads-read-committed)
+        * [2. Preventing Non-Repeatable Reads (Repeatable Read)](#2-preventing-non-repeatable-reads-repeatable-read)
+        * [3. Preventing Phantom Reads (Serializable)](#3-preventing-phantom-reads-serializable)
 * [Q-37 What is the @Async annotation in Spring? How does it work internally, and when should we use it?](#q-37-what-is-the-async-annotation-in-spring-how-does-it-work-internally-and-when-should-we-use-it)
   * [What problem does it solve?](#what-problem-does-it-solve)
   * [How it works internally (step by step)](#how-it-works-internally-step-by-step)
@@ -4021,6 +4033,115 @@ IllegalTransactionStateException
 
 * `MANDATORY` → requires a transaction
 * `NEVER` → forbids a transaction
+
+
+---------------
+
+
+# Q - What is Isolation Levels in Spring?
+
+
+In Spring, isolation levels define how transaction integrity is visible to
+other concurrent transactions. Since you’re aiming for senior roles, think 
+of this as the balance between **Data Consistency** and **System Performance**.
+
+Spring doesn't implement these levels itself; it acts as a proxy that passes 
+these settings down to the underlying database (like Oracle, MySQL, or PostgreSQL).
+
+---
+
+### The 4 Standard Isolation Levels
+
+In Spring, you set these using `@Transactional(isolation = Isolation.LEVEL_NAME)`.
+
+| Isolation Level  | Description                                                                        | Prevents...                          |
+|------------------|------------------------------------------------------------------------------------|--------------------------------------|
+| READ_UNCOMMITTED | A transaction can read data that hasn't been committed yet.                        | Nothing. Fastest but most dangerous. |
+| READ_COMMITTED   | (Default for most DBs) Only committed data can be read.                            | **Dirty Reads**                      |
+| REPEATABLE_READ  | If you read a row twice in one transaction, the data is guaranteed to be the same. | **Non-Repeatable Reads**             |
+| SERIALIZABLE     | Transactions are executed as if they are one after another.                        | **Phantom Reads**                    |
+
+---
+
+### The 3 Read Phenomona
+
+To explain why we need isolation, you must define the problems they solve:
+
+* **Dirty Read:** You read uncommitted data written by another transaction.
+* **Non-Repeatable Read:** You read the same row twice, but it has changed because 
+   another transaction committed an update.
+**Phantom Read:** You read a set of rows twice with the same condition, but the 
+   number of rows changes because another transaction inserted/deleted.
+
+---
+
+### Spring-Specific Implementation
+
+#### 1. ISOLATION_DEFAULT
+
+This tells Spring to use whatever the underlying database is configured to use. 
+For **PostgreSQL and Oracle**, this is usually `READ_COMMITTED`. 
+For **MySQL (InnoDB)**, it’s usually `REPEATABLE_READ`.
+
+#### 2. Performance Trade-off
+
+As a senior dev, you should mention that moving 
+from `READ_COMMITTED` to `SERIALIZABLE` drastically reduces throughput. 
+`SERIALIZABLE` often uses range locks or predicate locks, which can
+cause "Lock Wait Timeouts" in high-traffic apps like your Mini-Redis or a banking system.
+
+
+### Whats the relation between "3 Read Phenomona" and "Isolation Level"
+
+The relationship is simple: **The Isolation Level is the "Shield" and
+the Read Phenomena are the "Attacks."**
+
+As you increase the isolation level, you are adding
+more protection against these phenomena. The higher the shield, the more
+performance you sacrifice (due to locking), but the more consistency you gain.
+
+Here is exactly how they map to each other at the ground level:
+
+#### The Mapping Table
+
+| Isolation Level      | Dirty Read      | Non-Repeatable Read | Phantom Read    |
+|----------------------|-----------------|---------------------|-----------------|
+| **Read Uncommitted** | ❌ (Allowed)     | ❌ (Allowed)         | ❌ (Allowed)     |
+| **Read Committed**   | ✅ **Prevented** | ❌ (Allowed)         | ❌ (Allowed)     |
+| **Repeatable Read**  | ✅ **Prevented** | ✅ **Prevented**     | ❌ (Allowed)     |
+| **Serializable**     | ✅ **Prevented** | ✅ **Prevented**     | ✅ **Prevented** |
+
+---
+
+#### Ground Level Breakdown: How the protection works
+
+##### 1. Preventing Dirty Reads (Read Committed)
+
+* **The Problem:** Transaction A reads a value that Transaction B changed but hasn't committed yet.
+* **The Shield:** The database ensures that `SELECT` queries only see data that has been 
+   successfully committed to the disk.
+* **The Cost:** Very low performance hit. This is why it’s the default for most enterprise systems.
+
+##### 2. Preventing Non-Repeatable Reads (Repeatable Read)
+
+* **The Problem:** You read a row, someone else updates it, you read it
+   again, and the value changed.
+* **The Shield:** The database keeps a "Snapshot" of the data for your transaction. 
+   Even if another user commits a change, your transaction keeps seeing the old version (Read View).
+* **The Cost:** Higher. The database has to track versions of rows 
+   (MVCC - Multi-Version Concurrency Control).
+
+##### 3. Preventing Phantom Reads (Serializable)
+
+* **The Problem:** You query a range (e.g., "All students with marks > 80"). 
+   Someone **inserts** a new student. You query again and see a new row.
+* **The Shield:** The database doesn't just lock the rows you read; it locks
+   the **Range** (Gap Locking). It says, "No one can insert anything into the gap between marks 80 and 100."
+* **The Cost:** **Very High.** This causes many "Deadlocks" because transactions are 
+   fighting over space in the table that doesn't even have data yet.
+
+
+---------------
 
 
 # Q-37 What is the @Async annotation in Spring? How does it work internally, and when should we use it?
