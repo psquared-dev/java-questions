@@ -300,6 +300,13 @@
   * [The Problem: The "Push" Model (Jenkins)](#the-problem-the-push-model-jenkins)
   * [The Solution: The "Pull" Model (GitOps with ArgoCD)](#the-solution-the-pull-model-gitops-with-argocd)
 * [Q - Explain the architecture of your previous project](#q---explain-the-architecture-of-your-previous-project)
+  * [The Professional Walkthrough: "The Life of a Loan Request"](#the-professional-walkthrough-the-life-of-a-loan-request)
+    * [Step 1: The Gateway & Reliable Ingestion](#step-1-the-gateway--reliable-ingestion)
+    * [2. The Async Handshake (The Integration Layer)](#2-the-async-handshake-the-integration-layer)
+    * [3. The Webhook & Data Persistence](#3-the-webhook--data-persistence)
+    * [4. The Decision Engine (The Command Pattern)](#4-the-decision-engine-the-command-pattern)
+    * [5. The Recursive Execution](#5-the-recursive-execution)
+  * [The "Mic Drop" Summary (Closing the Walkthrough)](#the-mic-drop-summary-closing-the-walkthrough)
 * [Q - In what scenario, you should prefer orchestration saga pattern over choreography pattern?](#q---in-what-scenario-you-should-prefer-orchestration-saga-pattern-over-choreography-pattern)
   * [1. The Workflow is Complex (More than 4 steps)](#1-the-workflow-is-complex-more-than-4-steps)
   * [2. You Need Centralized Monitoring & Control](#2-you-need-centralized-monitoring--control)
@@ -310,6 +317,7 @@
   * [Why 202?](#why-202)
     * [Best Practice Implementation](#best-practice-implementation)
 * [Q - Which http status code you should pass when a request from a client is invalid?](#q---which-http-status-code-you-should-pass-when-a-request-from-a-client-is-invalid)
+* [Q - What is Kafka transaction management and why is it needed?](#q---what-is-kafka-transaction-management-and-why-is-it-needed)
 <!-- TOC -->
 
 # Q - Types of caches
@@ -4492,27 +4500,88 @@ To solve this permanently, modern architectures use **ArgoCD** (or Flux).
 
 # Q - Explain the architecture of your previous project
 
-Our Identity Provider was designed as a stateless OAuth2-compliant authentication service. 
-It exposed REST endpoints for token issuance, authorization, and refresh flows.
+## The Professional Walkthrough: "The Life of a Loan Request"
 
-Authentication was handled via credential validation against a PostgreSQL 
-database, with passwords hashed using BCrypt.
+### Step 1: The Gateway & Reliable Ingestion
 
-On successful authentication, we generated JWT tokens signed using RS256. 
-The private key was securely stored within the service, and the public key was exposed 
-via a JWKS endpoint for downstream verification.
+"The journey starts when the user submits their data on the mobile app. 
+To ensure we never lose a lead, my API uses the **Transactional Outbox Pattern**. I save 
+the user's data and a 'message intent' into a local database in one atomic transaction. 
+A background **Outbox Poller** then pushes that intent to **Kafka**. This guarantees 
+that even if Kafka is briefly down, our customer data is safe."
 
-Authorization was implemented using role-based access control, and roles were embedded 
-as claims in the token to avoid additional database lookups.
+### 2. The Async Handshake (The Integration Layer)
 
-The service was stateless, which allowed horizontal scaling on Kubernetes. 
-Redis was used for caching user sessions and rate-limiting counters.
+"The **Credit Engine Consumer** picks up the message from Kafka. 
+Since CIBIL is a third-party API and can be slow, I don't want to 
+block my service threads. I generate a unique **Correlation ID (UUID)** and 
+save a record in my `credit_requests` table with a status of `PENDING`. 
+I then hit the CIBIL API, passing that UUID and a **Webhook Callback URL**, and 
+immediately release the thread."
 
-Security considerations included short-lived access tokens, refresh token rotation, 
-HTTPS enforcement, brute-force protection, and audit logging.
+### 3. The Webhook & Data Persistence
 
-Overall, the system was designed for high availability, low latency, and secure 
-token issuance for multiple microservices.
+"When CIBIL finishes, they hit our **Webhook Controller**. I use the returned 
+UUID to find the original request. I then perform two critical actions: I update 
+the request status to `COMPLETED` and I store the **raw XML response** in a 
+separate `credit_responses` table. Storing the raw XML is vital for audit compliance
+and allows us to re-run rules later without paying for another API call."
+
+### 4. The Decision Engine (The Command Pattern)
+
+"This is where the logic happens. Based on the `bank_id` from the request, I 
+fetch a **JSON configuration** from the DB. Because different banks have wildly
+different logic—like **ICICI’s nested conditions**—I use a **Recursive Command Factory**."
+
+### 5. The Recursive Execution
+
+"The Factory transforms that JSON into a tree of **Command Objects**. For example, it 
+might build an `AndComposite` that contains a `ScoreCheck` and a `ConditionalRule`. 
+I then execute the root of that tree against the parsed XML. The results bubble up, 
+and the final eligibility is determined. This design allows us to add complex new bank
+rules by simply updating a JSON string in the database, requiring **zero code changes**."
+
+The bank specific rules looks like this:
+
+```json
+{
+  "bank_name": "ICICI_PREMIUM",
+  "rules": [
+    {
+      "command": "ScoreCheck",
+      "params": { "min": 750 }
+    },
+    {
+      "command": "AndComposite",
+      "params": {
+        "subRules": [
+          { "command": "AgeCheck", "params": { "min_age": 21, "max_age": 60 } },
+          { "command": "CityCheck", "params": { "tier_1_only": true } }
+        ]
+      }
+    },
+    {
+      "command": "ConditionalRule",
+      "params": {
+        "condition": "IsSalaried",
+        "ifTrue": { "command": "MaxDtiCheck", "params": { "limit": 50 } },
+        "ifFalse": { "command": "MaxDtiCheck", "params": { "limit": 30 } }
+      }
+    }
+  ]
+}
+```
+
+---
+
+## The "Mic Drop" Summary (Closing the Walkthrough)
+
+Finish with this specific sentence to show your architectural maturity:
+
+> "By combining **Kafka for durability**, **Webhooks for non-blocking I/O**, and 
+> the **Composite Pattern for business logic**, I created a system that is not only highly
+> resilient but also incredibly easy for the business team to scale as we onboard more banks."
+> 
 
 
 ----------------
@@ -4621,4 +4690,6 @@ the catch-all for "Client Error," specific scenarios often demand more precise c
 
 -------------------
 
+
+# Q - What is Kafka transaction management and why is it needed?
 
