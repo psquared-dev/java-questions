@@ -322,6 +322,19 @@
   * [How Spring decides which one to use](#how-spring-decides-which-one-to-use)
 * [Q-50 Why does AOP not work on private methods?](#q-50-why-does-aop-not-work-on-private-methods)
   * [Senior Engineer Nuance: "Is it impossible?"](#senior-engineer-nuance-is-it-impossible)
+* [Q - What is pessimistic locking? What’s your approach to handling row-level locks?](#q---what-is-pessimistic-locking-whats-your-approach-to-handling-row-level-locks)
+    * [1. What is Pessimistic Locking?](#1-what-is-pessimistic-locking)
+    * [2. My Approach to Handling Row-Level Locks](#2-my-approach-to-handling-row-level-locks)
+      * [A. The "Short & Sweet" Rule](#a-the-short--sweet-rule)
+      * [B. Handle the "Lock Timeout"](#b-handle-the-lock-timeout)
+      * [C. Deadlock Prevention](#c-deadlock-prevention)
+      * [D. Use it Sparingly (The 90/10 Rule)](#d-use-it-sparingly-the-9010-rule)
+    * [The "Slayer" Comparison: Pessimistic vs. Optimistic](#the-slayer-comparison-pessimistic-vs-optimistic)
+* [Q -  How do you handle concurrency issues (e.g., withdrawing money from multiple channels simultaneously)?](#q---how-do-you-handle-concurrency-issues-eg-withdrawing-money-from-multiple-channels-simultaneously)
+    * [1. The Database-First Approach (Pessimistic Locking)](#1-the-database-first-approach-pessimistic-locking)
+    * [2. The Application-Level Approach (Optimistic Locking)](#2-the-application-level-approach-optimistic-locking)
+    * [3. The Atomic "Native" Update (The Performance Slay)](#3-the-atomic-native-update-the-performance-slay)
+    * [The "Senior" Considerations](#the-senior-considerations)
 <!-- TOC -->
 
 # Q-1 What are two essentials feature of Spring Core?
@@ -5887,7 +5900,168 @@ it can intercept anything—private methods, static methods, and even constructo
 But that is a different technology stack than standard Spring AOP."
 
 
+------------------------
+
+
+# Q - What is pessimistic locking? What’s your approach to handling row-level locks?
+
+To "slay" this question, you need to frame **Pessimistic Locking** not just 
+as a technical feature, but as a **concurrency strategy**.
+
+### 1. What is Pessimistic Locking?
+
+Pessimistic locking assumes the worst: 
+> "If I'm working on this data, someone else *will* definitely try to change it."
+> 
+
+At the ground level, it works by **locking the record at the database level** the 
+moment you read it. Other transactions that want to modify (or sometimes even read) 
+that same record must wait until you are finished.
+
+**In Java/JPA, it looks like this:**
+
+```java
+// SQL generated: SELECT ... FROM account WHERE id = 1 FOR UPDATE
+Account acc = entityManager.find(Account.class, id, LockModeType.PESSIMISTIC_WRITE);
+```
+
 ---
+
+### 2. My Approach to Handling Row-Level Locks
+
+A senior developer doesn't just "use" locks; they manage 
+the **blast radius**. Here is a tiered approach:
+
+#### A. The "Short & Sweet" Rule
+
+The biggest danger with pessimistic locking is **long-held locks** leading to database "hangs."
+
+* **Approach:** Keep the `@Transactional` method as small as possible. 
+   Never, ever make a network call (like calling a 3rd party API) or perform 
+   heavy processing while holding a pessimistic lock. If the API is slow, you’ve just
+   locked that row for everyone else for 10 seconds.
+
+#### B. Handle the "Lock Timeout"
+
+If Transaction A locks a row and Transaction B tries to get that lock, B will wait. 
+You shouldn't let B wait forever.
+
+* **Approach:** Always define a **timeout**. In Spring/JPA, you can use hint properties:
+
+```java
+@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "5000")})
+```
+
+If the lock isn't acquired in 5 seconds, fail fast with a `LockTimeoutException` so 
+the user isn't staring at a loading spinner.
+
+#### C. Deadlock Prevention
+
+If Thread 1 locks Row A then wants Row B, while Thread 2 locks Row B 
+then wants Row A, you have a **Deadlock**.
+
+* **Approach:** Ensure that all parts of the application acquire locks in 
+   the **same consistent order** (e.g., always lock the 'Sender' account before the 'Receiver' account).
+
+#### D. Use it Sparingly (The 90/10 Rule)
+
+* **Approach:** Use **Optimistic Locking** (`@Version`) for 90% of 
+   cases (web forms, user profiles). Use **Pessimistic Locking** only for high-contention, 
+   high-value operations where the cost of a collision is too high 
+   to "retry" (e.g., deducting money from a bank balance or a seat booking system).
+
+---
+
+### The "Slayer" Comparison: Pessimistic vs. Optimistic
+
+| Feature         | Optimistic Locking (`@Version`)       | Pessimistic Locking (`FOR UPDATE`)             |
+|-----------------|---------------------------------------|------------------------------------------------|
+| **Philosophy**  | "Conflict is rare; check at the end." | "Conflict is likely; lock at the start."       |
+| **Mechanism**   | App-side version check.               | DB-side row-level lock.                        |
+| **Performance** | High (No DB locks).                   | Lower (Queues other transactions).             |
+| **Best Case**   | High-volume, low-contention.          | Low-volume, high-contention (Money/Inventory). |
+
+
+------------------
+
+
+# Q -  How do you handle concurrency issues (e.g., withdrawing money from multiple channels simultaneously)?
+
+This is the classic "Banking Interview" question. To answer like a 
+Senior Dev, you must move beyond just "locking" and talk about **correctness versus performance**.
+
+When withdrawing money from multiple channels (ATM, Mobile App, Web), 
+you face the **Race Condition**. If two threads read a balance of 1000 and 
+both withdraw 700 simultaneously, the account could end up at -400 because 
+they both saw "1000" as the starting point.
+
+Here is the three-tiered approach to solving this:
+
+---
+
+### 1. The Database-First Approach (Pessimistic Locking)
+
+For high-value financial transactions, this is the most common choice. 
+You lock the row at the start of the transaction so no other channel can 
+even *read* the balance until you are done.
+
+* **How:** Use `SELECT ... FOR UPDATE` (or `@Lock(LockModeType.PESSIMISTIC_WRITE)` in Spring).
+* **The Flow:** 
+    1. ATM thread locks Row #123.
+    2. Mobile thread tries to lock Row #123 but is **queued**.
+    3. ATM completes, commits, and releases the lock.
+    4. Mobile thread wakes up, reads the *new* balance, and proceeds safely.
+
+---
+
+### 2. The Application-Level Approach (Optimistic Locking)
+
+If you have a massive number of users and very few actually clash at the 
+exact same millisecond, Pessimistic locking might be too slow.
+
+* **How:** Use a `@Version` column (a simple `INT`).
+* **The Flow:**
+    1. Both ATM and Mobile read the balance (1000) and the version (v1).
+    2. ATM finishes first and updates the DB: `SET balance=300, version=v2 WHERE id=123 AND version=v1`.
+    3. Mobile tries to update: `SET balance=300, version=v2 WHERE id=123 AND version=v1`.
+    4. **The Catch:** The `WHERE` clause fails because the version is now `v2`. Spring 
+      throws an `OptimisticLockingFailureException`.
+    5. **Handling:** You catch the exception and tell the Mobile App to "Retry" (Refresh and try again).
+
+
+---
+
+### 3. The Atomic "Native" Update (The Performance Slay)
+
+If the logic is simple (just subtraction), you can skip Java-side checks entirely 
+and let the Database handle it in a single atomic step.
+
+* **How:** Use a native query.
+    ```sql
+    UPDATE accounts 
+    SET balance = balance - :amount 
+    WHERE id = :id AND balance >= :amount
+    ```
+
+
+* **Why it works:** The Database is naturally single-threaded at the row-level for updates. 
+   The `AND balance >= :amount` acts as a "Guard" to prevent negative balances. If the update 
+   count is `0`, you know the withdrawal failed due to insufficient funds.
+
+---
+
+### The "Senior" Considerations
+
+If you want to truly impress, mention these two things:
+
+* **Idempotency:** What if the ATM crashes *after* the money is deducted but *before* it tells 
+   the user? Every request from a channel should have a **Unique Transaction ID**. If the same ID 
+   hits the server twice, you check the logs and don't deduct the money again.
+
+
+---------------
+
+
 
 1. gateway filters
 1. How to use transactions across services
