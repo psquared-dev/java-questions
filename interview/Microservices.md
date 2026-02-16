@@ -39,10 +39,10 @@
   * [Summary](#summary)
 * [Q - Explain Saga pattern](#q---explain-saga-pattern)
   * [Saga Pattern: Distributed Transactions](#saga-pattern-distributed-transactions)
-  * [**Approach 1: Choreography (The "Dance")**](#approach-1-choreography-the-dance)
+  * [Approach 1: Choreography (The "Dance")](#approach-1-choreography-the-dance)
   * [Approach 2: Orchestration (The "Conductor")](#approach-2-orchestration-the-conductor)
-  * [**Comparison Cheat Sheet**](#comparison-cheat-sheet)
-  * [**Summary for Interview**](#summary-for-interview)
+  * [Comparison Cheat Sheet](#comparison-cheat-sheet)
+  * [Summary for Interview](#summary-for-interview)
 * [Q - How does a Saga Orchestrator initiate and control both the happy path and compensation flow?](#q---how-does-a-saga-orchestrator-initiate-and-control-both-the-happy-path-and-compensation-flow)
   * [1. How the Orchestrator is Triggered](#1-how-the-orchestrator-is-triggered)
   * [2. The Step-by-Step Flow](#2-the-step-by-step-flow)
@@ -883,7 +883,7 @@ changes made by the previous steps.
 
 ---
 
-## **Approach 1: Choreography (The "Dance")**
+## Approach 1: Choreography (The "Dance")
 
 **Concept:** Decentralized. No central manager. Services listen for events and decide what to do.
 
@@ -929,7 +929,7 @@ participant what to do.
 
 ---
 
-## **Comparison Cheat Sheet**
+## Comparison Cheat Sheet
 
 | Feature        | Choreography (Events)                     | Orchestration (Command)                   |
 |----------------|-------------------------------------------|-------------------------------------------|
@@ -939,7 +939,7 @@ participant what to do.
 | **Best For**   | Simple flows (2-3 steps).                 | Complex flows (4+ steps).                 |
 
 
-## **Summary for Interview**
+## Summary for Interview
 
 >
 > "The Saga pattern manages distributed transactions by breaking them into local steps. 
