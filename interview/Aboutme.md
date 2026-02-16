@@ -16,4 +16,6 @@ I also added JUnit-based unit tests to ensure correctness and maintainability.
 In addition, I created a Spring Boot microservice boilerplate to standardize backend development, 
 incorporating common configurations and reusable components.
 
-Spring Boot, PostgreSQL, MySQL, RabbitMQ, Kafka, OAuth2/OIDC, JWT, Docker, Kubernetes, AWS, JUnit, Mockito, Grafana, Git.
+I've worked with Kafka and RabbitMQ for event-driven communication, built CI/CD pipelines using 
+Jenkins with some exposure to Harness, deployed applications on Kubernetes, and primarily used 
+PostgreSQL and MySQL for data persistence.
