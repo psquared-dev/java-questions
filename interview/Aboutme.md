@@ -3,15 +3,22 @@ systems using Java and Spring Boot. I have worked across domains including healt
 e-commerce, delivering backend solutions that emphasize reliability, performance, and security.
 
 In my current role at Publicis Sapient, I'm working on a Optum project called Aikyam Identity Platform (IDP), 
-contributing to core backend modules of an enterprise healthcare authentication system. 
-My work includes implementing COPPA consent logic, adding CSRF protection, campaign-id and creating 
-JWT-based login_hint generation for context-aware authorization. I resolved critical 
-production issues to improve system stability, and strengthen code quality through 
-unit testing and SonarQube compliance. I also participated in the staging release.
+contributing to core backend modules of an enterprise healthcare authentication system.
 
-At New Street Technologies, I developed a Credit module using Java and Spring Boot that integrates with a 
-third-party CIBIL API to fetch credit scores and applies predefined business rules to determine loan eligibility.
-I also added JUnit-based unit tests to ensure correctness and maintainability.
+Key Contributions:
+
+* Implemented COPPA consent logic for regulatory compliance
+* Added CSRF protection to strengthen application security
+* Implemented campaign-id handling
+* Developed JWT-based login_hint generation for context-aware authorization
+* Resolved critical production issues to improve system stability
+* Strengthened code quality through unit testing and SonarQube compliance
+* Participated in staging releases and deployment activities
+
+At New Street Technologies, I developed a Credit module using Java and Spring Boot that
+integrates with a third-party CIBIL API to fetch credit scores and applies predefined business 
+rules to determine loan eligibility. I also added JUnit-based unit tests to ensure correctness
+and maintainability.
 
 In addition, I created a Spring Boot microservice boilerplate to standardize backend development, 
 incorporating common configurations and reusable components.
