@@ -119,7 +119,7 @@
       * [Sealed Classes](#sealed-classes)
       * [Helpful NullPointerExceptions](#helpful-nullpointerexceptions)
     * [Phase 3: Java 18 - 21 (The "Concurrency Revolution")](#phase-3-java-18---21-the-concurrency-revolution)
-      * [Virtual Threads (Project Loom) - **The Game Changer**](#virtual-threads-project-loom---the-game-changer)
+      * [Virtual Threads (Project Loom) - The Game Changer](#virtual-threads-project-loom---the-game-changer)
       * [Structured Concurrency](#structured-concurrency)
       * [Sequenced Collections](#sequenced-collections)
       * [Record Patterns](#record-patterns)
@@ -2630,7 +2630,7 @@ public sealed interface Shape permits Circle, Square {}
 
 *Focus: High-throughput concurrency and simplification.*
 
-#### Virtual Threads (Project Loom) - **The Game Changer**
+#### Virtual Threads (Project Loom) - The Game Changer
 
 **The Problem:** Java threads map 1:1 to OS threads. OS threads are heavy (2MB RAM).
 You can only have ~5,000 active threads before the server crashes.
