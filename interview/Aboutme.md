@@ -25,6 +25,6 @@ incorporating common configurations and reusable components.
 
 * Event-driven communication: Kafka and RabbitMQ
 * CI/CD: Jenkins with some exposure to Harness
-* Deployement: K8S
+* Deployment: K8S
 * Data persistence: PostgreSQL and MySQL 
 
