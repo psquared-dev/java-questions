@@ -23,6 +23,8 @@ and maintainability.
 In addition, I created a Spring Boot microservice boilerplate to standardize backend development, 
 incorporating common configurations and reusable components.
 
-I've worked with Kafka and RabbitMQ for event-driven communication, built CI/CD pipelines using 
-Jenkins with some exposure to Harness, deployed applications on Kubernetes, and primarily used 
-PostgreSQL and MySQL for data persistence.
+Event-driven communication: Kafka and RabbitMQ
+CI/CD: Jenkins with some exposure to Harness
+Deployement: K8S
+data persistence: PostgreSQL and MySQL 
+
