@@ -307,6 +307,10 @@ breakdown between its internal servers.
 
 ## Q - What is CAP and PACELC theorem?
 
+In distributed systems, these theorems define the "physics" of data. 
+They dictate the trade-offs involved in data replication and how a system
+handles read and write operations.
+
 When a network partition happens, you must choose:
 
 * Consistency OR
@@ -394,7 +398,11 @@ The PACELC theorem states that:
 * if there is a partition ('P'), a distributed system can tradeoff between availability 
    and consistency (i.e., 'A' and 'C');
 * else ('E'), when the system is running normally in the absence of partitions, the system
-   can tradeoff between latency ('L') and consistency ('C').
+   can trade-off between latency ('L') and consistency ('C').
+
+Even when the system is healthy, if you want high consistency, 
+you must pay in latency (waiting for all nodes to sync). If you want low latency, 
+you must accept lower consistency (syncing in the background).
 
 
 ![](../images/cap.png)
@@ -425,7 +433,6 @@ If no network partition:
 |---------------|-------------------------------------------------------------------------------------------|
 | Conistency    | High reliability, but higher Latency because nodes must "talk" and agree before replying. |
 | Latency       | Extremely fast response, but risked stale data until background sync finishes.            |
-
 
 ------------
 
