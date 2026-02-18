@@ -173,11 +173,17 @@
   * [Q -  What is Closeable and how its related to AutoCloseable?](#q---what-is-closeable-and-how-its-related-to-autocloseable)
     * [1. The Parent: `AutoCloseable` (Added in Java 7)](#1-the-parent-autocloseable-added-in-java-7)
     * [2. The Specialized Child: `Closeable` (Older, updated in Java 7)](#2-the-specialized-child-closeable-older-updated-in-java-7)
-    * [**The Key Differences (Interview "Slayer" Points)**](#the-key-differences-interview-slayer-points)
+    * [The Key Differences (Interview "Slayer" Points)](#the-key-differences-interview-slayer-points)
       * [A. The Exception Contract](#a-the-exception-contract)
       * [B. Idempotency (The "Safety" Rule)](#b-idempotency-the-safety-rule)
       * [C. History & Compatibility](#c-history--compatibility)
-    * [**How they look in code**](#how-they-look-in-code)
+    * [How they look in code](#how-they-look-in-code)
+  * [Q - How should we handle resource cleanup in Java to prevent memory and handle leaks?](#q---how-should-we-handle-resource-cleanup-in-java-to-prevent-memory-and-handle-leaks)
+    * [1. `AutoCloseable` with Try-with-Resources (The Industry Standard)](#1-autocloseable-with-try-with-resources-the-industry-standard)
+    * [2. `finally` block (The Manual Way)](#2-finally-block-the-manual-way)
+    * [3. `finalize()` method (The "Never Use This" Way)](#3-finalize-method-the-never-use-this-way)
+    * [Comparison Cheat Sheet](#comparison-cheat-sheet)
+    * [Summary for Interview](#summary-for-interview)
 * [Module 4: Generics](#module-4-generics)
   * [Q - Generics & Type Erasure: What happens to type information at runtime? Why are Generics Invariant while Arrays are Covariant?](#q---generics--type-erasure-what-happens-to-type-information-at-runtime-why-are-generics-invariant-while-arrays-are-covariant)
     * [1. What Problem Were Generics Solving?](#1-what-problem-were-generics-solving)
@@ -3686,7 +3692,7 @@ extend `AutoCloseable` when Java 7 arrived.
 
 ---
 
-### **The Key Differences (Interview "Slayer" Points)**
+### The Key Differences (Interview "Slayer" Points)
 
 If an interviewer asks, "Why have both?" you give them these three distinctions:
 
@@ -3710,7 +3716,7 @@ If an interviewer asks, "Why have both?" you give them these three distinctions:
 
 ---
 
-### **How they look in code**
+### How they look in code
 
 When you use Try-with-Resources, the compiler doesn't care if 
 it's `Closeable` or `AutoCloseable`. It just looks for that `close()` method.
@@ -3722,6 +3728,67 @@ try (MyResource res = new MyResource()) {
 } 
 // The compiler secretly adds the 'finally' block and calls res.close() here.
 ```
+
+
+-----------------------------
+
+
+## Q - How should we handle resource cleanup in Java to prevent memory and handle leaks?
+
+Java provides multiple ways to clean up resources (file handles, sockets, database connections), 
+but they differ significantly in safety and modern standards.
+
+### 1. `AutoCloseable` with Try-with-Resources (The Industry Standard)
+
+Introduced in Java 7, this is the **most recommended** approach.
+
+* **How it works:** A class implements the `AutoCloseable` interface. When used within 
+   a `try(...)` block, the JVM automatically calls `.close()` when the block execution
+   completes (even if an exception occurs).
+* **Advantage:** It eliminates "Boilerplate Hell" and handles **suppressed exceptions** 
+   (where an exception occurs during the cleanup itself) much better than manual blocks.
+
+---
+
+### 2. `finally` block (The Manual Way)
+
+The traditional method before Java 7.
+
+* **How it works:** You manually call `.close()` inside a `finally` block.
+* **Drawback:** It is error-prone. If `.close()` itself throws an exception, it can 
+   mask the original exception from the `try` block. It also requires nested `try-catch` blocks, 
+   making the code hard to read.
+
+---
+
+### 3. `finalize()` method (The "Never Use This" Way)
+
+A method in the `Object` class called by the Garbage Collector before an object is destroyed.
+
+* **Risk:** It is **non-deterministic**; you have no guarantee when the GC will run. 
+   This can leave critical resources like file handles open indefinitely, leading to system crashes.
+* **Status:** **Deprecated since Java 9.**
+
+---
+
+### Comparison Cheat Sheet
+
+| Mechanism           | Safety        | Boilerplate | Recommended Use                                       |
+|---------------------|---------------|-------------|-------------------------------------------------------|
+| **`AutoCloseable`** | **Highest**   | Low         | **Standard for all modern Java.**                     |
+| **`finally`**       | High          | High        | Only for non-resource cleanup (e.g., simple logging). |
+| **`finalize()`**    | **Dangerous** | Low         | **None.** (Legacy/Deprecated).                        |
+
+---
+
+### Summary for Interview
+
+> "I always prioritize **AutoCloseable** with **Try-with-Resources**. 
+> It ensures deterministic cleanup and handles suppressed exceptions safely without 
+> the verbose boilerplate of manual `finally` blocks. I strictly avoid `finalize()` 
+> because its execution is unpredictable and it has been deprecated due to its 
+> negative impact on performance and reliability."
+
 
 
 -----------------------------
