@@ -397,7 +397,7 @@ The PACELC theorem states that:
    can tradeoff between latency ('L') and consistency ('C').
 
 
-![](/home/x/Desktop/code/java-questions-theory/images/cap.png)
+![](../images/cap.png)
 
 ## Important Correction
 
