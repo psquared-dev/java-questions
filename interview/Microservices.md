@@ -2162,17 +2162,24 @@ Hibernate runs **1 single query**:
 
 ### Write through cache
 
-Every write goes to both the cache and the underlying storage (memory/disk) at the same time.
+The application writes data to the cache, which then synchronously 
+replicates that data to the main database or disk. The operation is 
+only considered complete once the information has been successfully persisted to both layers.
+
+![](../images/write-through-cache.png)
 
 ### Write around cache
 
 Writes go directly to the storage (skipping the cache). Cache is only updated on a read miss later.
+
+![](../images/write-around-cache.png)
 
 ### Write back cache
 
 Writes go to the cache only at first, and are marked as "dirty". Later, the dirty data
 is flushed (written back) to storage asynchronously.
 
+![](../images/write-back-cache.png)
 
 ---------------
 
