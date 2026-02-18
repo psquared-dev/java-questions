@@ -8,7 +8,7 @@
     * [Case 2: Choose Availability](#case-2-choose-availability)
     * [What is missing in the CAP theorem?](#what-is-missing-in-the-cap-theorem)
     * [PACELC theorem to the rescue](#pacelc-theorem-to-the-rescue)
-  * [Important Correction](#important-correction)
+    * [Important Correction](#important-correction)
     * [Real-world mapping (intuition)](#real-world-mapping-intuition)
   * [Q - What are two common Replication Models?](#q---what-are-two-common-replication-models)
     * [Primary–Replica (Leader–Follower)](#primaryreplica-leaderfollower)
@@ -96,7 +96,7 @@
       * [C and E reply](#c-and-e-reply)
       * [A merges replies](#a-merges-replies)
     * [10. Discovery continues (A meets B)](#10-discovery-continues-a-meets-b)
-  * [11. Stable cluster view](#11-stable-cluster-view)
+    * [11. Stable cluster view](#11-stable-cluster-view)
     * [FAILURE DETECTION (MOST IMPORTANT PART)](#failure-detection-most-important-part)
     * [12. Node D crashes silently](#12-node-d-crashes-silently)
     * [13. A probes D](#13-a-probes-d)
@@ -407,7 +407,7 @@ you must accept lower consistency (syncing in the background).
 
 ![](../images/cap.png)
 
-## Important Correction
+### Important Correction
 
 The CAP theorem was a bit too simple - it assumed that if there was 
 no partition, you just "got" Consistency and Availability for free. 
@@ -574,9 +574,9 @@ If you want to guarantee that your friend always sees "The sky is Green," you mu
 
 ## Q - What are Vector Clocks?
 
-(Original content unchanged — placeholder preserved.)
 
----
+
+----------------
 
 ## Q - What are Bloom Filters?
 
@@ -1812,7 +1812,7 @@ A merges and adds B.
 
 ---
 
-## 11. Stable cluster view
+### 11. Stable cluster view
 
 Eventually, after multiple rounds:
 
