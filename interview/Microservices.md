@@ -1,5 +1,6 @@
 <!-- TOC -->
 * [Module 1 — Core Distributed Systems Foundations](#module-1--core-distributed-systems-foundations)
+  * [Q - What is latency and throughput?](#q---what-is-latency-and-throughput)
   * [Q - What is Partition Tolerance?](#q---what-is-partition-tolerance)
   * [Q - What is CAP theorem?](#q---what-is-cap-theorem)
     * [Why Partition Tolerance is mandatory](#why-partition-tolerance-is-mandatory)
@@ -117,7 +118,6 @@
     * [26. Perfect interview summary (one sentence)](#26-perfect-interview-summary-one-sentence)
     * [27. Ultra-short version (interrupt-safe)](#27-ultra-short-version-interrupt-safe)
 * [Module 2 — System Performance & Scalability](#module-2--system-performance--scalability)
-  * [Q - What is latency and throughput?](#q---what-is-latency-and-throughput)
   * [Q - What is N+1 problem?](#q---what-is-n1-problem)
     * [1. The Scenario: "Authors and Books"](#1-the-scenario-authors-and-books)
     * [2. The Bad Code (The Trap)](#2-the-bad-code-the-trap)
@@ -258,6 +258,14 @@
   * [Q - Follow-up question from the interviewer -  What if some logs into the k8s cluster and manually scaled replica?](#q---follow-up-question-from-the-interviewer---what-if-some-logs-into-the-k8s-cluster-and-manually-scaled-replica)
     * [The Problem: The "Push" Model (Jenkins)](#the-problem-the-push-model-jenkins)
     * [The Solution: The "Pull" Model (GitOps with ArgoCD)](#the-solution-the-pull-model-gitops-with-argocd)
+  * [Q - Explain the architecture of your previous project](#q---explain-the-architecture-of-your-previous-project)
+    * [The Professional Walkthrough: "The Life of a Loan Request"](#the-professional-walkthrough-the-life-of-a-loan-request)
+    * [Step 1: The Gateway & Reliable Ingestion](#step-1-the-gateway--reliable-ingestion)
+    * [2. The Async Handshake (The Integration Layer)](#2-the-async-handshake-the-integration-layer)
+    * [3. The Webhook & Data Persistence](#3-the-webhook--data-persistence)
+    * [4. The Decision Engine (The Command Pattern)](#4-the-decision-engine-the-command-pattern)
+    * [5. The Recursive Execution](#5-the-recursive-execution)
+    * [The "Mic Drop" Summary (Closing the Walkthrough)](#the-mic-drop-summary-closing-the-walkthrough)
 * [Module 7 — Software Design Principles](#module-7--software-design-principles)
   * [Q - Difference between Coupling and Cohesion?](#q---difference-between-coupling-and-cohesion)
     * [COHESION](#cohesion)
@@ -279,6 +287,14 @@
 ---
 
 # Module 1 — Core Distributed Systems Foundations
+
+## Q - What is latency and throughput?
+
+* Latency - Latency is the time taken to complete a single request or task.
+* Throughput - Throughput is the number of tasks completed in a given time period.
+
+
+--------------
 
 ## Q - What is Partition Tolerance?
 
@@ -2039,12 +2055,6 @@ DEAD
 
 # Module 2 — System Performance & Scalability
 
-## Q - What is latency and throughput?
-
-* Latency - Latency is the time taken to complete a single request or task.
-* Throughput - Throughput is the number of tasks completed in a given time period.
-
----
 
 ## Q - What is N+1 problem?
 
@@ -4054,6 +4064,96 @@ To solve this permanently, modern architectures use **ArgoCD** (or Flux).
 
 
 ----------------
+
+
+## Q - Explain the architecture of your previous project
+
+### The Professional Walkthrough: "The Life of a Loan Request"
+
+### Step 1: The Gateway & Reliable Ingestion
+
+"The journey starts when the user submits their data on the mobile app.
+To ensure we never lose a lead, my API uses the **Transactional Outbox Pattern**. I save
+the user's data and a 'message intent' into a local database in one atomic transaction.
+A background **Outbox Poller** then pushes that intent to **Kafka**. This guarantees
+that even if Kafka is briefly down, our customer data is safe."
+
+### 2. The Async Handshake (The Integration Layer)
+
+"The **Credit Engine Consumer** picks up the message from Kafka.
+Since CIBIL is a third-party API and can be slow, I don't want to
+block my service threads. I generate a unique **Correlation ID (UUID)** and
+save a record in my `credit_requests` table with a status of `PENDING`.
+I then hit the CIBIL API, passing that UUID and a **Webhook Callback URL**, and
+immediately release the thread."
+
+### 3. The Webhook & Data Persistence
+
+"When CIBIL finishes, they hit our **Webhook Controller**. I use the returned
+UUID to find the original request. I then perform two critical actions: I update
+the request status to `COMPLETED` and I store the **raw XML response** in a
+separate `credit_responses` table. Storing the raw XML is vital for audit compliance
+and allows us to re-run rules later without paying for another API call."
+
+### 4. The Decision Engine (The Command Pattern)
+
+"This is where the logic happens. Based on the `bank_id` from the request, I
+fetch a **JSON configuration** from the DB. Because different banks have wildly
+different logic—like **ICICI’s nested conditions**—I use a **Recursive Command Factory**."
+
+### 5. The Recursive Execution
+
+"The Factory transforms that JSON into a tree of **Command Objects**. For example, it
+might build an `AndComposite` that contains a `ScoreCheck` and a `ConditionalRule`.
+I then execute the root of that tree against the parsed XML. The results bubble up,
+and the final eligibility is determined. This design allows us to add complex new bank
+rules by simply updating a JSON string in the database, requiring **zero code changes**."
+
+The bank specific rules looks like this:
+
+```json
+{
+  "bank_name": "ICICI_PREMIUM",
+  "rules": [
+    {
+      "command": "ScoreCheck",
+      "params": { "min": 750 }
+    },
+    {
+      "command": "AndComposite",
+      "params": {
+        "subRules": [
+          { "command": "AgeCheck", "params": { "min_age": 21, "max_age": 60 } },
+          { "command": "CityCheck", "params": { "tier_1_only": true } }
+        ]
+      }
+    },
+    {
+      "command": "ConditionalRule",
+      "params": {
+        "condition": "IsSalaried",
+        "ifTrue": { "command": "MaxDtiCheck", "params": { "limit": 50 } },
+        "ifFalse": { "command": "MaxDtiCheck", "params": { "limit": 30 } }
+      }
+    }
+  ]
+}
+```
+
+---
+
+### The "Mic Drop" Summary (Closing the Walkthrough)
+
+Finish with this specific sentence to show your architectural maturity:
+
+> "By combining **Kafka for durability**, **Webhooks for non-blocking I/O**, and
+> the **Composite Pattern for business logic**, I created a system that is not only highly
+> resilient but also incredibly easy for the business team to scale as we onboard more banks."
+>
+
+
+----------------
+
 
 
 # Module 7 — Software Design Principles
