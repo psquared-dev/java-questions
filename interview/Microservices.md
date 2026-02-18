@@ -2,11 +2,13 @@
 * [Module 1 — Core Distributed Systems Foundations](#module-1--core-distributed-systems-foundations)
   * [Q - What is latency and throughput?](#q---what-is-latency-and-throughput)
   * [Q - What is Partition Tolerance?](#q---what-is-partition-tolerance)
-  * [Q - What is CAP theorem?](#q---what-is-cap-theorem)
+  * [Q - What is CAP and PACELC theorem?](#q---what-is-cap-and-pacelc-theorem)
     * [Why Partition Tolerance is mandatory](#why-partition-tolerance-is-mandatory)
     * [Case 1: Choose Consistency](#case-1-choose-consistency)
     * [Case 2: Choose Availability](#case-2-choose-availability)
-    * [Important correction (many people get this wrong)](#important-correction-many-people-get-this-wrong)
+    * [What is missing in the CAP theorem?](#what-is-missing-in-the-cap-theorem)
+    * [PACELC theorem to the rescue](#pacelc-theorem-to-the-rescue)
+  * [Important Correction](#important-correction)
     * [Real-world mapping (intuition)](#real-world-mapping-intuition)
   * [Q - What are two common Replication Models?](#q---what-are-two-common-replication-models)
     * [Primary–Replica (Leader–Follower)](#primaryreplica-leaderfollower)
@@ -290,8 +292,8 @@
 
 ## Q - What is latency and throughput?
 
-* Latency - Latency is the time taken to complete a single request or task.
-* Throughput - Throughput is the number of tasks completed in a given time period.
+* Latency: It's the time taken to complete a single request or task.
+* Throughput: It's the number of tasks completed in a given time period.
 
 
 --------------
@@ -303,7 +305,7 @@ breakdown between its internal servers.
 
 ---
 
-## Q - What is CAP theorem?
+## Q - What is CAP and PACELC theorem?
 
 When a network partition happens, you must choose:
 
@@ -332,9 +334,7 @@ During a partition:
 Choose C or A
 ```
 
-Not all three.
-
-Let's see the choice (ELI5)
+Not all three. Let's see the choices.
 
 ### Case 1: Choose Consistency
 
@@ -380,29 +380,55 @@ Result:
 
 This is AP (Availability + Partition Tolerance).
 
-### Important correction (many people get this wrong)
 
-CAP does NOT say:
+### What is missing in the CAP theorem?
 
-> "You can never have all three"
+One place where the CAP theorem is silent is what happens when there is no 
+network partition? What choices does a distributed system have when there is no partition?
 
-It says:
-**During a partition**, you must choose
 
-When the network is healthy:
+### PACELC theorem to the rescue
 
-* you can have C + A
+The PACELC theorem states that:
+
+* if there is a partition ('P'), a distributed system can tradeoff between availability 
+   and consistency (i.e., 'A' and 'C');
+* else ('E'), when the system is running normally in the absence of partitions, the system
+   can tradeoff between latency ('L') and consistency ('C').
+
+
+![](/home/x/Desktop/code/java-questions-theory/images/cap.png)
+
+## Important Correction
+
+The CAP theorem was a bit too simple - it assumed that if there was 
+no partition, you just "got" Consistency and Availability for free. 
+However, PACELC states that there will always be latency.
+
+In other words, in real-world:
+
+> "You can never have all three, even if there network is 100% healthy"
+
 
 ### Real-world mapping (intuition)
+
+If there is partition then:
 
 | System choice | What it values                  |
 |---------------|---------------------------------|
 | CP            | Correctness over responsiveness |
 | AP            | Responsiveness over correctness |
 
-Neither is "better". They solve different problems.
+If no network partition:
 
----
+| System choice | What it values                                                                            |
+|---------------|-------------------------------------------------------------------------------------------|
+| Conistency    | High reliability, but higher Latency because nodes must "talk" and agree before replying. |
+| Latency       | Extremely fast response, but risked stale data until background sync finishes.            |
+
+
+------------
+
 
 ## Q - What are two common Replication Models?
 
