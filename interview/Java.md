@@ -1334,7 +1334,7 @@ If you override `equals()`, you **MUST** override `hashCode()`. Breaking this co
 |-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Rule 1: If `a.equals(b)` is TRUE, then `a.hashCode() == b.hashCode()` MUST be true.** | **Why?** If two equal keys have different hash codes, they will land in **different buckets**. When you try to `get(key)`, the Map will look in the wrong bucket and return `null`, effectively losing your data.      |
 | **Rule 2: If `a.hashCode() == b.hashCode()`, `a.equals(b)` does NOT have to be true.**  | **Why?** This is a **Collision**. Different words (like "Aa" and "BB") can mathematically result in the same hash. They land in the same bucket, and the Map uses `equals()` to differentiate them within that bucket. |
-| **Rule 3: Consistency**                                                                 | `hashCode()` must return the same value throughout the object's life (unless the object is modified).                                                                                                                  |
+| **Rule 3: Consistency**                                                                 | `hashCode()` must return the same value throughout the object's life (unless the object is modified). **This is why keys must be Immutable**.                                                                          |
 
 **Summary for Interviews:**
 
