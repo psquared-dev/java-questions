@@ -2173,13 +2173,16 @@ Writes go directly to the storage (skipping the cache). Cache is only updated on
 Writes go to the cache only at first, and are marked as "dirty". Later, the dirty data
 is flushed (written back) to storage asynchronously.
 
----
+
+---------------
+
 
 ## Q - What are different cache eviction policies?
 
-(Original placeholder preserved.)
 
----
+
+---------------
+
 
 ## Q - What are different Rate Limiting Algorithms?
 
@@ -4677,12 +4680,5 @@ then introduce an Abstract Class in the middle.
 
 ## Q - What is Kafka transaction management and why is it needed?
 
-(Original placeholder preserved.)
 
----
-
-If you want, I can now:
-
-* Clean up heading hierarchy for Notion
-* Convert this into printable revision sheets
-* Or create a 30-day structured revision sprint for SDE-3 level mastery
+-----------------
