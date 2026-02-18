@@ -3296,15 +3296,15 @@ Propagation answers that question.
 
 The following are 7 Propagation Types.
 
-| Propagation          | Behavior                              |
-|----------------------|---------------------------------------|
-| REQUIRED  (default)  | Join existing or create new           |
-| REQUIRES_NEW         | Always create new, suspend existing   |
-| NESTED               | Savepoint within existing transaction |
-| SUPPORTS             | Join if exists, else no transaction   |
-| NOT_SUPPORTED        | Always no transaction                 |
-| MANDATORY            | Must have existing transaction        |
-| NEVER                | Must not have transaction             |
+| Propagation         | Behavior                                                        |
+|---------------------|-----------------------------------------------------------------|
+| REQUIRED  (default) | Join existing or create new                                     |
+| REQUIRES_NEW        | Always create new, suspend existing                             |
+| NESTED              | Savepoint within existing transaction                           |
+| SUPPORTS            | Join if exists (works just like REQUIRED). Else no transaction. |
+| NOT_SUPPORTED       | Always no transaction                                           |
+| MANDATORY           | Must have existing transaction                                  |
+| NEVER               | Must not have transaction                                       |
 
 
 ## 1. REQUIRED (Default)
