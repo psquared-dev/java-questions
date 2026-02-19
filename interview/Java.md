@@ -185,6 +185,7 @@
     * [Comparison Cheat Sheet](#comparison-cheat-sheet)
     * [Summary for Interview](#summary-for-interview)
   * [Q - When to Use Checked Exceptions and Unchecked Exceptions?](#q---when-to-use-checked-exceptions-and-unchecked-exceptions)
+    * [References:](#references-1)
 * [Module 4: Generics](#module-4-generics)
   * [Q - Generics & Type Erasure: What happens to type information at runtime? Why are Generics Invariant while Arrays are Covariant?](#q---generics--type-erasure-what-happens-to-type-information-at-runtime-why-are-generics-invariant-while-arrays-are-covariant)
     * [1. What Problem Were Generics Solving?](#1-what-problem-were-generics-solving)
@@ -3820,6 +3821,11 @@ if (fileName == null || fileName.isEmpty())  {
     throw new NullOrEmptyException("The filename is null or empty.");
 }
 ```
+
+### References:
+
+* https://www.baeldung.com/java-checked-unchecked-exceptions
+
 
 
 -----------------------------
