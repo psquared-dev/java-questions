@@ -376,9 +376,7 @@
     * [Why This Is Powerful](#why-this-is-powerful)
     * [Relationship with Virtual Threads](#relationship-with-virtual-threads)
     * [Two Common Policies](#two-common-policies)
-      * [1 ShutdownOnFailure](#1-shutdownonfailure)
-      * [2 ShutdownOnSuccess](#2-shutdownonsuccess)
-    * [🆚 Compared to CompletableFuture](#-compared-to-completablefuture)
+    * [Compared to CompletableFuture](#compared-to-completablefuture)
   * [Q - How does ConcurrentHashMap work internally? (Java 7 vs Java 8)](#q---how-does-concurrenthashmap-work-internally-java-7-vs-java-8)
   * [Q - What were the limitations of the Future interface in Java 5, and how does CompletableFuture address them?](#q---what-were-the-limitations-of-the-future-interface-in-java-5-and-how-does-completablefuture-address-them)
     * [1. The Blocking Problem (`get()`)](#1-the-blocking-problem-get)
@@ -7147,11 +7145,11 @@ Structured concurrency  uses virtual threads by default
 
 ### Two Common Policies
 
-#### 1 ShutdownOnFailure
+**1 ShutdownOnFailure**
 
 If one task fails → cancel others.
 
-#### 2 ShutdownOnSuccess
+**2 ShutdownOnSuccess**
 
 Return as soon as one succeeds → cancel rest.
 
@@ -7162,10 +7160,10 @@ Useful for:
 
 ---
 
-### 🆚 Compared to CompletableFuture
+### Compared to CompletableFuture
 
 | CompletableFuture        | Structured Concurrency |
-| ------------------------ | ---------------------- |
+|--------------------------|------------------------|
 | Unstructured graph       | Scoped block           |
 | Manual cancellation      | Automatic              |
 | Harder error handling    | Centralized            |
