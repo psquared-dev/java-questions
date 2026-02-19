@@ -6095,15 +6095,15 @@ This is what happens inside `incrementAndGet()` when two threads compete.
 **The Race:**
 
 1. **Thread A** reaches the CPU first.
-  * **CAS(V=Addr, E=10, N=11)**
-  * Is current value 10? **YES.**
-  * Update memory to **11**. Return `true`.
+   * **CAS(V=Addr, E=10, N=11)**
+   * Is current value 10? **YES.**
+   * Update memory to **11**. Return `true`.
 
 
 2. **Thread B** reaches the CPU 1 nanosecond later.
-  * **CAS(V=Addr, E=10, N=11)**
-  * Is current value 10? **NO.** (It is now 11).
-  * **FAIL.** Return `false`.
+   * **CAS(V=Addr, E=10, N=11)**
+   * Is current value 10? **NO.** (It is now 11).
+   * **FAIL.** Return `false`.
 
 
 
