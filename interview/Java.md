@@ -184,6 +184,7 @@
     * [3. `finalize()` method (The "Never Use This" Way)](#3-finalize-method-the-never-use-this-way)
     * [Comparison Cheat Sheet](#comparison-cheat-sheet)
     * [Summary for Interview](#summary-for-interview)
+  * [Q - When to Use Checked Exceptions and Unchecked Exceptions?](#q---when-to-use-checked-exceptions-and-unchecked-exceptions)
 * [Module 4: Generics](#module-4-generics)
   * [Q - Generics & Type Erasure: What happens to type information at runtime? Why are Generics Invariant while Arrays are Covariant?](#q---generics--type-erasure-what-happens-to-type-information-at-runtime-why-are-generics-invariant-while-arrays-are-covariant)
     * [1. What Problem Were Generics Solving?](#1-what-problem-were-generics-solving)
@@ -3792,6 +3793,37 @@ A method in the `Object` class called by the Garbage Collector before an object 
 
 
 -----------------------------
+
+
+## Q - When to Use Checked Exceptions and Unchecked Exceptions?
+
+If a client can reasonably be expected to recover from an exception, make it a 
+checked exception. If a client cannot do anything to recover from the exception, 
+make it an unchecked exception.
+
+For example, before we open a file, we can first validate the input file name. 
+If the user input file name is invalid, we can throw a custom checked exception:
+
+```java
+if (!isCorrectFileName(fileName)) {
+    throw new IncorrectFileNameException("Incorrect filename : " + fileName );
+}
+```
+
+In this way, we can recover the system by accepting another user input file name.
+
+However, if the input file name is a null pointer or it is an empty string, it means
+that we have some errors in the code. In this case, we should throw an unchecked exception
+
+```java
+if (fileName == null || fileName.isEmpty())  {
+    throw new NullOrEmptyException("The filename is null or empty.");
+}
+```
+
+
+-----------------------------
+
 
 
 # Module 4: Generics
