@@ -3824,7 +3824,7 @@ if (fileName == null || fileName.isEmpty())  {
 
 ### References:
 
-* https://www.baeldung.com/java-checked-unchecked-exceptions
+* https://www.baeldung.com/java-checked-unchecked-exceptions#when
 
 
 
