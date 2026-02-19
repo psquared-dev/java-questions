@@ -5493,24 +5493,24 @@ at all, and no other thread can observe it in an intermediate state.
 Atomic Read/Write Operations
 
 1. Reads and writes of all primitive types except `long` and `double`
-  * `int`, `boolean`, `char`, `byte`, `short`, `float`
-  * Atomic for both read and write
+   * `int`, `boolean`, `char`, `byte`, `short`, `float`
+    Atomic for both read and write
 
 2. Reads and writes of `long` and `double` declared as `volatile`
-  * Guarantees atomicity plus visibility
+   * Guarantees atomicity plus visibility
 
 3. Reads and writes of object references
-  * Reading or writing the reference value itself (i.e., assigning or accessing a reference) is
-    atomic; object creation and initialization are not.
+   * Reading or writing the reference value itself (i.e., assigning or accessing a reference) is
+     atomic; object creation and initialization are not.
 
 4. Reads and writes of volatile variables (any type)
-  * Atomic read/write with visibility and ordering guarantees
+   * Atomic read/write with visibility and ordering guarantees
 
 5. Reads and writes via classes in `java.util.concurrent.atomic`
-  * Examples: `AtomicInteger.get()`, `AtomicInteger.set()`, `AtomicReference.get()`
+   * Examples: `AtomicInteger.get()`, `AtomicInteger.set()`, `AtomicReference.get()`
 
 6. Monitor enter and exit (`synchronized`)
-  * Lock acquisition and release are atomic operations
+   * Lock acquisition and release are atomic operations
 
 
 ### Resources
