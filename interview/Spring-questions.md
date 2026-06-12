@@ -4083,7 +4083,7 @@ To explain why we need isolation, you must define the problems they solve:
 * **Dirty Read:** You read uncommitted data written by another transaction.
 * **Non-Repeatable Read:** You read the same row twice, but it has changed because 
    another transaction committed an update.
-**Phantom Read:** You read a set of rows twice with the same condition, but the 
+* **Phantom Read:** You read a set of rows twice with the same condition, but the 
    number of rows changes because another transaction inserted/deleted.
 
 ---
