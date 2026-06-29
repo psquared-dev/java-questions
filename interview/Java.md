@@ -800,6 +800,19 @@ So inside the loop:
 * The outer `i = 10` becomes invisible.
 * Only the loop variable `i` exists.
 
+Here is another example of shadowing.
+
+```java
+class User {
+    private int age = 25;
+
+    void print() {
+        int age = 30;   // Shadows the field
+        System.out.println(age);      // 30
+        System.out.println(this.age); // 25
+    }
+}
+```
 
 -----------------------------
 
