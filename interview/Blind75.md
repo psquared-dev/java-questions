@@ -33,3 +33,10 @@
 2. [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/description/) [[Sol](https://www.youtube.com/watch?v=s6ATEkipzow)]
 3. [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/description/) [[Sol](https://www.youtube.com/watch?v=nONCGxWoUfM)]
 4. [Construct Binary Tree from Preorder and Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/description/) 
+
+
+
+##
+
+* [Minimum Difference Between BST Nodes (easy)](https://www.designgurus.io/course-play/grokking-data-structures-for-coding-interviews/doc/minimum-difference-between-bst-nodes-easy) [Sol](https://www.youtube.com/watch?v=joxx4hTYwcw)
+* 

@@ -31,9 +31,9 @@
 
 ## 1NF
 
-1. Each column must store a single, indivisible value (no lists, arrays, or comma-separated values).
-1. No repeating groups / columns
-1. Each record is unique. No two rows should be completely identical.
+1. Each column must store a single, atomic value (no lists, arrays, or comma-separated values).
+2. No repeating groups / columns
+3. Each row must be uniquely identifiable by a primary key or candidate key.
 
 ## 2NF
 

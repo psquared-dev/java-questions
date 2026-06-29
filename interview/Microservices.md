@@ -4552,6 +4552,58 @@ Both should depend on **Abstractions**.
 
 * *Don't use `new` to create dependencies inside your class. Ask for them in the constructor.*
 
+Conside the following analogy:
+
+#### Without Dependency Inversion
+
+The **high-level module** (Restaurant) depends directly on a **low-level implementation** (John).
+
+```terminaloutput
+High-Level Module
++----------------+
+|   Restaurant   |
++----------------+
+        |
+        | depends on
+        v
++----------------+
+|  Chef John     |   <-- Concrete Implementation
++----------------+
+```
+
+Problem:
+
+> If John leaves, the Restaurant has to change because it depends specifically on John.
+
+#### With Dependency Inversion
+
+The Restaurant depends on an **abstraction** (`Cook`), not on a specific person.
+
+```terminaloutput
+                  Abstraction
+               +-------------+
+               |    Cook     |
+               +-------------+
+                ^          ^
+                |          |
+     implements |          | implements
+                |          |
+      +---------+          +---------+
+      |                              |
++--------------+              +--------------+
+| Chef John    |              | Chef Alice   |
++--------------+              +--------------+
+  Implementation                Implementation
+        ^
+        |
+        | depends on
+        |
++----------------+
+|   Restaurant   |
++----------------+
+ High-Level Module
+```
+
 **The Bad Example (Tightly Coupled)**
 
 The `Store` is hard-coded to use `Stripe`. You cannot easily switch to PayPal or test

@@ -228,6 +228,14 @@ from employee
 where hire_date between '2025-12-01' and '2025-12-31'
 ```
 
+**Note:** `DATE_PART()` is PostgreSQL-specific. The SQL standard equivalent is `EXTRACT()`, for example:
+
+```sql
+EXTRACT(MONTH FROM hire_date) = 12
+```
+
+`EXTRACT()` is more portable across SQL databases, while `DATE_PART()` is 
+commonly used in PostgreSQL.
 
 
 # Q-10 WAQ to select employees whose names contain exactly two 'L' characters.
