@@ -1454,8 +1454,8 @@ a compile-time error.
 
 ## Q - What is copy constructor?
 
-A copy constructor is a constructor that creates a new object by copying the state of
-another object of the same class.
+A copy constructor is one way to create a copy of an object, and it is 
+generally preferred over `clone()` in Java.
 
 In Java, copy constructors are not built-in; they are user-defined.
 
