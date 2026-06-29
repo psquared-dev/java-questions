@@ -2156,7 +2156,7 @@ These methods allow reading characters, but not modifying them.
 ### Why was CharSequence introduced?
 
 * To allow methods to accept any type of character data, not just `String`.
-* To provide flexibility — code can work with `String`, `StringBuilder`, 'StringBuffer' and `CharBuffer`.
+* To provide flexibility — code can work with `String`, `StringBuilder`, `StringBuffer` and `CharBuffer`.
 * To reduce strict type dependencies and increase polymorphism.
 
 
