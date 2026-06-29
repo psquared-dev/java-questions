@@ -800,7 +800,7 @@ So inside the loop:
 * The outer `i = 10` becomes invisible.
 * Only the loop variable `i` exists.
 
-Here is another example of shadowing.
+ Here is another example of shadowing:
 
 ```java
 class User {
