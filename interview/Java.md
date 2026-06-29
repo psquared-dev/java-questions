@@ -1579,7 +1579,7 @@ The design of `clone()` is weird.
 
 ## Q - What object cloning?
 
-Object cloning is the process of creating a copy of an existing object by directly
+Object cloning is the process of creating a copy of an object by directly
 duplicating its memory state, without invoking any constructors.
 
 Cloning is done using the `clone()` method, usually with the class implementing
