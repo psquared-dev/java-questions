@@ -3485,7 +3485,8 @@ preserving the original cause.
 In simple words:
 > You throw a new exception but also attach the original exception so nothing is lost.
 
-Java supports this through the `Throwable(Throwable cause)` constructor and `getCause()` method.
+Java supports this through the `Throwable(Throwable cause)` and `Throwable(String message, Throwable cause)` 
+constructor and `getCause()` method.
 
 ### Why is Exception Chaining needed?
 
