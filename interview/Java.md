@@ -2323,8 +2323,9 @@ class User implements Serializable {
 }
 ```
 
-When this object is deserialized, the password field will not contain the original value;
-it will be initialized to its default value (e.g., `null` for objects, `0` for integers, `false` for booleans).
+A `transient` field is excluded from Java's default serialization process.
+Its value is not written to the serialization stream, and upon deserialization, it is
+initialized to its default value.
 
 ### 2. The static Modifier (The "Class-Level" Rule)
 
