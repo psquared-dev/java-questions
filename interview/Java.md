@@ -917,7 +917,6 @@ Example:
 ```java
 int var = 10;        // valid
 String var = "Hi";   // valid
-class var { }        // valid class name (but discouraged)
 ```
 
 If `var` appears where the compiler expects a type, it is treated as LVTI. Otherwise, it is treated
@@ -983,7 +982,12 @@ class var{
 }
 ```
 
-We can use **LVTI only for local variables in methods, code blocks and loop variables**.
+We can use `var` only for the follwing cases:
+
+- Local variables inside methods
+- Local variables inside code blocks (`if`, `while`, etc.)
+- Loop variables (`for` loops)
+- Variables declared in try-with-resources
 
 
 -------------
