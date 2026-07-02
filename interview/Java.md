@@ -896,6 +896,8 @@ Here is the general rule:
 
 Since Java 10, you can use `var` to let the compiler infer the type:
 
+`var` is not a Java keyword. It is a reserved type name
+
 ```java
 var name = "John";   // inferred as String
 var age = 25;        // inferred as int
