@@ -1020,6 +1020,19 @@ public class BlockedInterruption {
 
 # Q-18 What is ReentrantLock?
 
+**What does reentrant mean?**
+
+It means:
+
+> A thread that already owns a lock can acquire the same lock again without blocking.
+
+* `synchronized`
+* ReentrantLock
+
+Both are reentrant locks.
+
+Now coming back to `ReentrantLock` class. 
+
 `ReentrantLock` is a lock implementation provided by Java in `java.util.concurrent.locks`.
 
 It is an **explicit locking mechanism**, meaning:
@@ -1692,8 +1705,8 @@ Here is how they compare fundamentally:
 
 This is a brilliant optimization for **CPU Cache Locality**.
 
-* When a thread splits a task, it pushes the new sub-task to the head of its deque.
-* It immediately pops the head again to work on it.
+* When a thread splits a task, it pushes the new sub-task to the bottom of its deque.
+* It immediately pops the bottom again to work on it.
 * Since this data was just created, it is likely still hot in the CPU's L1/L2 Cache.
 * Standard TPE often processes "older" tasks first, meaning the data might be cold (flushed from cache to RAM), 
 causing cache misses.
