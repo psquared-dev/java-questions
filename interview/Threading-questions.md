@@ -1792,17 +1792,28 @@ It will grow seamlessly to accommodate whatever you throw at it.
 
 ### 3. Direct Hand-off Queues (`SynchronousQueue`)
 
-This is the anomaly. A direct hand-off queue has a capacity of **exactly zero**. It does not act like a bucket; it acts like a face-to-face hand-off between threads.
+This is the anomaly. A direct hand-off queue has a capacity of **exactly zero**. 
+It does not act like a bucket; it acts like a face-to-face hand-off between threads.
 
 * **The Blueprint:** `new SynchronousQueue()`.
+
 * **How it works with the Executor:**
-1. When a task is submitted, the queue instantly says, *"I have no storage space to hold this."*
-2. This immediate failure forces the executor to look for an idle thread. If none are idle, it **instantly spawns a new thread** up to your `maximumPoolSize`.
-3. If it hits the maximum pool size, it immediately rejects the task.
+  1. When a task is submitted, the queue instantly says, *"I have no storage space to hold this."*
+  2. This immediate failure forces the executor to look for an idle thread. 
+     If none are idle, it **instantly spawns a new thread** up to your `maximumPoolSize`.
+  3. If it hits the maximum pool size, it immediately rejects the task.
 
 
-* **The Execution Order:** It destroys FIFO. Because it stores no tasks, it stores **sleeping threads** inside an internal memory structure. By default, it operates as a **LIFO (Last-In, First-Out) stack** for those threads. It lets the newest, freshest thread cut to the front of the line to catch the incoming task, which optimizes CPU cache performance but obliterates sequential task ordering.
-* **Best Used For:** Maximum throughput and rapid response times under erratic workloads. This is the structural foundation of `Executors.newCachedThreadPool()`, allowing it to dynamically spawn hundreds of threads for sudden traffic spikes and shut them down immediately when the rush ends.
+* **The Execution Order:** It destroys FIFO. Because it stores no tasks, it 
+  stores **sleeping threads** inside an internal memory structure. By default, it 
+  operates as a **LIFO (Last-In, First-Out) stack** for those threads. It lets the newest, freshest thread 
+  cut to the front of the line to catch the incoming task, which optimizes CPU cache performance 
+  but obliterates sequential task ordering.
+
+* **Best Used For:** Maximum throughput and rapid response times under erratic workloads. 
+  This is the structural foundation of `Executors.newCachedThreadPool()`, allowing it to 
+  dynamically spawn hundreds of threads for sudden traffic spikes and shut them down immediately 
+  when the rush ends.
 
 ---
 
