@@ -1723,7 +1723,172 @@ ThreadPoolExecutor executor = new ThreadPoolExecutor(
 
 ```
 
-In this setup, **your pool will never, ever create more than 5 threads**. Why? Because a default `LinkedBlockingQueue` is unbounded—it can hold an infinite number of tasks. Since the queue can never fill up, the executor will never trigger step 3 to hire your "on-call" threads. Your `maximumPoolSize` of 10 is completely useless here.
+In this setup, **your pool will never, ever create more than 5 threads**. Why? Because a 
+default `LinkedBlockingQueue` is unbounded—it can hold an infinite number of tasks. Since the 
+queue can never fill up, the executor will never trigger step 3 to hire your "on-call" threads. 
+Your `maximumPoolSize` of 10 is completely useless here.
+
+## Types of queues
+
+When you configure a `ThreadPoolExecutor`, you have to choose a **`BlockingQueue`**. 
+This queue acts as the temporary warehouse where tasks sit when your worker threads are too 
+busy to process them immediately.
+
+There are **three primary categories** of queues you can use. Choosing one completely 
+changes the rules of how your thread pool scales, handles traffic spikes, and 
+preserves (or destroys) order.
+
+---
+
+### 1. Bounded Queues (`ArrayBlockingQueue`)
+
+A bounded queue has a **strict, fixed capacity limit** (a hard ceiling) that you must 
+define upfront when you build it.
+
+* **The Blueprint:** `new ArrayBlockingQueue<>(100)` (Holds exactly 100 tasks).
+* **How it works with the Executor:**
+1. Tasks go to your `corePoolSize` threads first.
+2. If those core threads are busy, incoming tasks accumulate inside the queue line.
+3. If the queue hits its max limit (e.g., all 100 slots are full), *only then* does the executor spin up extra threads up to your `maximumPoolSize`.
+4. If the max threads are busy AND the queue is full, it triggers your **Rejection Policy**.
+
+
+* **The Execution Order:** The queue itself hands out tasks in strict First-In, First-Out (**FIFO**) order. However, if your pool has more than 1 thread active, those threads process tasks concurrently on different CPU cores, meaning tasks will still finish out of order. Furthermore, if the queue fills up, new tasks will bypass the queue entirely to run on the newly spawned max threads, scrambling submission order.
+* **Best Used For:** Enterprise applications where resource protection is paramount. It guarantees your application will never crash from running out of memory (OOM) because there is a strict ceiling on both threads and tasks.
+
+---
+
+### 2. Unbounded Queues (`LinkedBlockingQueue`, `PriorityBlockingQueue`)
+
+An unbounded queue has a **practically infinite capacity** (set by default to over 2 billion items). 
+It will grow seamlessly to accommodate whatever you throw at it.
+
+* **The Blueprint:** `new LinkedBlockingQueue()` or `new PriorityBlockingQueue()`.
+* **How it works with the Executor:**
+1. Tasks are handed to your `corePoolSize` threads.
+2. If they are busy, the tasks flow into the queue.
+3. Because the queue is infinite, it **never fills up**. Therefore, the executor **never creates extra threads** past 
+   the `corePoolSize`. Your `maximumPoolSize` setting is completely ignored, and tasks are never rejected.
+
+
+* **The Execution Order:**
+* `LinkedBlockingQueue`: Handed off in strict **FIFO** order to waiting threads.
+* `PriorityBlockingQueue`: Discards arrival order entirely. It continuously reshuffles itself based on a comparison score you 
+   define, forcing **highest-priority tasks to cut to the absolute front of the line**.
+
+
+* **Best Used For:**
+* `Linked`: Smooth, predictable workloads where you want tasks processed in the sequence they arrived and are 100% certain your core threads can keep up with demand.
+* `Priority`: Background job engines (like processing VIP user requests ahead of standard system cleanups).
+
+
+* **The Massive Risk:** If tasks arrive faster than your core threads can finish them, the queue will swell endlessly, swallow 
+  your system's RAM, and crash your application with an `OutOfMemoryError`.
+
+---
+
+### 3. Direct Hand-off Queues (`SynchronousQueue`)
+
+This is the anomaly. A direct hand-off queue has a capacity of **exactly zero**. It does not act like a bucket; it acts like a face-to-face hand-off between threads.
+
+* **The Blueprint:** `new SynchronousQueue()`.
+* **How it works with the Executor:**
+1. When a task is submitted, the queue instantly says, *"I have no storage space to hold this."*
+2. This immediate failure forces the executor to look for an idle thread. If none are idle, it **instantly spawns a new thread** up to your `maximumPoolSize`.
+3. If it hits the maximum pool size, it immediately rejects the task.
+
+
+* **The Execution Order:** It destroys FIFO. Because it stores no tasks, it stores **sleeping threads** inside an internal memory structure. By default, it operates as a **LIFO (Last-In, First-Out) stack** for those threads. It lets the newest, freshest thread cut to the front of the line to catch the incoming task, which optimizes CPU cache performance but obliterates sequential task ordering.
+* **Best Used For:** Maximum throughput and rapid response times under erratic workloads. This is the structural foundation of `Executors.newCachedThreadPool()`, allowing it to dynamically spawn hundreds of threads for sudden traffic spikes and shut them down immediately when the rush ends.
+
+---
+
+### Master Cheat Sheet
+
+| Queue Type                  | Structural Storage            | Uses `maximumPoolSize`? | Primary Operational Threat             | Execution Sort Order     |
+|-----------------------------|-------------------------------|-------------------------|----------------------------------------|--------------------------|
+| **`ArrayBlockingQueue`**    | Fixed-size Array Bucket       | **Yes**                 | Task Rejection (`Exception`)           | Strict FIFO              |
+| **`LinkedBlockingQueue`**   | Infinite Node Chain Bucket    | **No**                  | `OutOfMemoryError` (RAM Crash)         | Strict FIFO              |
+| **`PriorityBlockingQueue`** | Infinite Heap Array Bucket    | **No**                  | Task Starvation (Low priority ignored) | Sorted by Priority Value |
+| **`SynchronousQueue`**      | **Zero Storage** (Rendezvous) | **Yes**                 | Massive Thread Spikes                  | LIFO Stack (for threads) |
+
+
+## Under the Hood: Locking Architecture and GC Performance
+
+You are completely spot on. Those are two highly sophisticated, low-level architectural 
+points that completely change the performance profile of these queues in production.
+
+Let's break down exactly why your two additions are so critical.
+
+---
+
+### 1. The Two-Lock Optimization (Linked vs. Array)
+
+This is a massive structural difference in how these queues handle highly concurrent applications.
+
+#### Bounded Queues (`ArrayBlockingQueue`)
+
+An `ArrayBlockingQueue` uses **one single lock** for everything.
+
+* Under the hood, it has one `ReentrantLock`. Both the producers (threads calling `put()`) and 
+  the consumers (worker threads calling `take()`) must fight for this exact same lock.
+* **The Performance Bottleneck:** If a producer is trying to add a task to the queue at the exact 
+  same microsecond a worker thread is trying to pull a task out, **they block each other**. 
+  They cannot operate simultaneously.
+
+#### Unbounded Queues (`LinkedBlockingQueue`)
+
+A `LinkedBlockingQueue` uses a brilliant **"Two-Lock Queue" algorithm** (originally designed 
+by researchers Michael Scott and John Mellor-Crummey). It splits the synchronization into two 
+independent locks:
+
+1. `takeLock`: Handled exclusively by consumer threads pulling from the head.
+2. `putLock`: Handled exclusively by producer threads inserting at the tail.
+
+```text
+         ┌───────────────┐                  ┌───────────────┐
+         │   takeLock    │                  │   putLock     │
+         └───────┬───────┘                  └───────┬───────┘
+                 ▼                                  ▼
+   Head ──► [Node] ──► [Node] ──► [Node] ──► [Node] ──► Tail
+
+```
+
+Because the head and the tail of a linked list are physically separate objects in memory, **a producer thread can insert a task at the exact same moment a worker thread is pulling a task out.** They do not contend for the same lock, which drastically increases throughput under heavy multi-threaded traffic.
+
+---
+
+### 2. Memory Allocation & Garbage Collection (GC) Pressure
+
+This is the hidden operational cost that bites teams when they scale up their applications.
+
+#### Bounded Queues (`ArrayBlockingQueue`) — Allocated Upfront
+
+Because an `ArrayBlockingQueue` uses a fixed-size Java array under the hood (`Object[] items`), **all the memory for the queue slots is allocated at the exact moment you instantiate it.**
+
+* If you write `new ArrayBlockingQueue<>(100_000)`, Java immediately claims a contiguous block of memory big enough to hold 100,000 object references.
+* As tasks flow into and out of the array, the array indices simply change. No new internal wrapper objects are created or destroyed. Memory footprint is flat, predictable, and causes **virtually zero Garbage Collection pressure**.
+
+#### Unbounded Queues (`LinkedBlockingQueue`) — Swift Memory Spikes & GC Stress
+
+A `LinkedBlockingQueue` allocates memory **dynamically on demand**. Every single time your application submits a task, the queue has to use the `new` keyword to create a brand new internal `Node` object to wrap your task and link it to the chain.
+
+* **The GC Nightmare:** If your application experiences a massive traffic spike and drops 100,000 tasks into an unbounded queue, Java instantly allocates 100,000 fresh `Node` objects.
+* Once your worker threads quickly process those 100,000 tasks, all 100,000 of those temporary `Node` objects instantly become garbage.
+* This floods Java's young memory generation (Eden space), forcing the Garbage Collector to run aggressively to clean up the mess. If the spike is severe enough, the GC pauses can freeze your entire application.
+
+---
+
+### Updated Cheat Sheet Comparison
+
+| Feature | `ArrayBlockingQueue` | `LinkedBlockingQueue` |
+| --- | --- | --- |
+| **Locking Strategy** | **Single Lock** (Producers & Consumers block each other) | **Two Locks** (Producers & Consumers run concurrently) |
+| **Memory Allocation** | **Upfront static allocation** (Flat footprint) | **Dynamic on-demand allocation** (Can spike swiftly) |
+| **Garbage Collection** | **Extremely Low** (Reuses fixed array slots) | **High GC Pressure** (Constant creation/destruction of Node objects) |
+
+Thank you for bringing those up—those two mechanics bridge the gap between how a queue works in a textbook versus how it actually behaves under a massive production load.
+
 
 # Q-24 What's the differences b/w ForkJoinPool and ThreadPoolExecutor?
 
