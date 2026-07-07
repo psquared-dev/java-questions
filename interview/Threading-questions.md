@@ -1765,22 +1765,24 @@ An unbounded queue has a **practically infinite capacity** (set by default to ov
 It will grow seamlessly to accommodate whatever you throw at it.
 
 * **The Blueprint:** `new LinkedBlockingQueue()` or `new PriorityBlockingQueue()`.
+
 * **How it works with the Executor:**
-1. Tasks are handed to your `corePoolSize` threads.
-2. If they are busy, the tasks flow into the queue.
-3. Because the queue is infinite, it **never fills up**. Therefore, the executor **never creates extra threads** past 
-   the `corePoolSize`. Your `maximumPoolSize` setting is completely ignored, and tasks are never rejected.
+  1. Tasks are handed to your `corePoolSize` threads.
+  2. If they are busy, the tasks flow into the queue.
+  3. Because the queue is infinite, it **never fills up**. Therefore, the 
+     executor **never creates extra threads** past the `corePoolSize`. 
+     Your `maximumPoolSize` setting is completely ignored, and tasks are never rejected.
 
 
 * **The Execution Order:**
-* `LinkedBlockingQueue`: Handed off in strict **FIFO** order to waiting threads.
-* `PriorityBlockingQueue`: Discards arrival order entirely. It continuously reshuffles itself based on a comparison score you 
-   define, forcing **highest-priority tasks to cut to the absolute front of the line**.
+  * `LinkedBlockingQueue`: Handed off in strict **FIFO** order to waiting threads.
+  * `PriorityBlockingQueue`: Discards arrival order entirely. It continuously reshuffles itself based on a comparison score you 
+     define, forcing **highest-priority tasks to cut to the absolute front of the line**.
 
 
 * **Best Used For:**
-* `Linked`: Smooth, predictable workloads where you want tasks processed in the sequence they arrived and are 100% certain your core threads can keep up with demand.
-* `Priority`: Background job engines (like processing VIP user requests ahead of standard system cleanups).
+  * `Linked`: Smooth, predictable workloads where you want tasks processed in the sequence they arrived and are 100% certain your core threads can keep up with demand.
+  * `Priority`: Background job engines (like processing VIP user requests ahead of standard system cleanups).
 
 
 * **The Massive Risk:** If tasks arrive faster than your core threads can finish them, the queue will swell endlessly, swallow 
