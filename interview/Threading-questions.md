@@ -1746,11 +1746,12 @@ A bounded queue has a **strict, fixed capacity limit** (a hard ceiling) that you
 define upfront when you build it.
 
 * **The Blueprint:** `new ArrayBlockingQueue<>(100)` (Holds exactly 100 tasks).
+
 * **How it works with the Executor:**
-1. Tasks go to your `corePoolSize` threads first.
-2. If those core threads are busy, incoming tasks accumulate inside the queue line.
-3. If the queue hits its max limit (e.g., all 100 slots are full), *only then* does the executor spin up extra threads up to your `maximumPoolSize`.
-4. If the max threads are busy AND the queue is full, it triggers your **Rejection Policy**.
+  1. Tasks go to your `corePoolSize` threads first.
+  2. If those core threads are busy, incoming tasks accumulate inside the queue line.
+  3. If the queue hits its max limit (e.g., all 100 slots are full), *only then* does the executor spin up extra threads up to your `maximumPoolSize`.
+  4. If the max threads are busy AND the queue is full, it triggers your **Rejection Policy**.
 
 
 * **The Execution Order:** The queue itself hands out tasks in strict First-In, First-Out (**FIFO**) order. However, if your pool has more than 1 thread active, those threads process tasks concurrently on different CPU cores, meaning tasks will still finish out of order. Furthermore, if the queue fills up, new tasks will bypass the queue entirely to run on the newly spawned max threads, scrambling submission order.
