@@ -1,0 +1,47 @@
+Prateek Pandey
+Gurugram, India | jdev.prateek@gmail.com | +91 63943-25963 | www.linkedin.com/in/jdev-prateek | github.com/jdev-prateek/
+Professional Summary
+Senior Java Developer with 7+ years of experience in Java, Spring Boot, distributed systems, Spring Security, OAuth2/OIDC,
+PostgreSQL, RabbitMQ, Docker, and Kubernetes. Passionate about building scalable backend platforms and reusable frameworks.
+‘
+Experience
+Senior Software Engineer, Publicis Sapient, Noida
+Project: Coreless Banking Modernization (Thought Machine Vault) (Client: NAB)
+• Designed a configurable workflow execution framework using a registry-based strategy and
+stage-driven processing model, enabling new business workflows to be added with minimal code
+changes.
+• Implemented the Transactional Outbox pattern to guarantee reliable event publication and
+exactly-once processing semantics across distributed services
+Project: Aikyam Identity Management (Client: Optum)
+Jul 2024 – Present
+• Contributed to COPPA consent implementation in a core module, including parental verification and age-restricted access using
+Spring Boot REST APIs.
+• Added CSRF protection and secure cookie-based token handling to prevent cross-site request forgery attacks.
+• Designed and implemented end-to-end propagation of Campaign ID across the OAuth2/OIDC authorization flow, ensuring
+availability during downstream authentication and consent processing.
+• Implemented a JWT-based login_hint generation solution using client ID and secret, enabling secure, context-aware
+authentication and currently used in live authorization flows.
+Software Engineer, New Street Technologies Pvt Ltd, Bangalore Oct 2023 – Jul 2024
+• Architected a Credit module in Java Spring Boot that fetches CIBIL scores from a third-party API and uses predefined conditions to
+determine loan eligibility. Added JUnit for testing.
+• Developed a Java Spring Boot boilerplate to standardize microservices development integrating Config Server, Postgres,
+RabbitMQ, Grafana, and Vault.
+• Optimized RabbitMQ performance by adjusting prefetch count, leading to a 20% increase in message throughput.
+• Identified and optimized SQL queries, achieving a 30% performance boost through profiling and monitoring techniques.
+Software Engineer, Cedcoss Technology, Lucknow Apr 2022 – Oct 2023
+• Interacted with the teams and developed an in-memory caching application in JavaScript with Time-to-Live (TTL), enhancing
+performance by 10%
+• Implemented data modeling using Spring JPA and unit tests using JUnit in the Social Ads for Buy With Prime application.
+• Developed internal libraries in Java for GitHub Audit logs and permissions using AWS Lambda.
+Software Engineer, OverIQ (self-employed) Apr 2017 – Mar 2020
+• Built and operated OverIQ, a content and e-commerce platform using Java Spring Boot, serving 150K monthly organic users.
+• Improved performance using Memcached, reducing page load latency by 60%, and monetized the platform via AdSense/Ezoic.
+Technical Skills
+Backend: Java 17/21, Spring Boot 3, Microservices Architecture, OAuth2/OIDC, Spring Security
+Data & Persistence: PostgreSQL, MySQL, JPA/Hibernate, Redis (Caching)
+Event-driven communication: Kafka, RabbitMQ
+Cloud & Infrastructure: AWS, GCP, Docker, Kubernetes, Jenkins (CI/CD)
+Testing & Quality: JUnit 5, Mockito, SonarQube, TDD
+Education
+• Master of Computer Application (MCA), Pranveer Singh Institute of Technology 2020 – 2022
+• Bachelor of Computer Application (BCA), Indira Gandhi National Open University 2013 – 2016
