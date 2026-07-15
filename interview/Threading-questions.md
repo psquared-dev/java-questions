@@ -2770,6 +2770,11 @@ It consumes the result or exception but does not alter or transform the value fl
 
 # Q - What is Virtual Thread?
 
+A virtual thread is a `java.lang.Thread` instance that is not tied to one-to-one to an OS thread. Instead,
+the JVM run it on a **carrier thread**(a real OS/Platform thread from a small `ForkJoinPool()`) only while
+it is executing. When the virtual thread hits a blocking (like a socket read), the JVM **unmounts** it from the 
+carrier thread and parks it stack on teh heap, and frees the carrier thread to run other virtual threads.
+
 ## The Analogy
 
 Here is the simplest explanation using a Restaurant Analogy.
