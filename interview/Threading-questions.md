@@ -105,12 +105,6 @@
       * [Bounded Queues (`ArrayBlockingQueue`) — Allocated Upfront](#bounded-queues-arrayblockingqueue--allocated-upfront)
       * [Unbounded Queues (`LinkedBlockingQueue`) — Swift Memory Spikes & GC Stress](#unbounded-queues-linkedblockingqueue--swift-memory-spikes--gc-stress)
     * [Updated Cheat Sheet Comparison](#updated-cheat-sheet-comparison)
-* [Q - What's the differences b/w ForkJoinPool and ThreadPoolExecutor?](#q---whats-the-differences-bw-forkjoinpool-and-threadpoolexecutor)
-  * [The Classic: ThreadPoolExecutor](#the-classic-threadpoolexecutor)
-  * [The Specialist: ForkJoinPool (Java 7+)](#the-specialist-forkjoinpool-java-7)
-  * [Key Differences](#key-differences)
-  * [Deep Dive: Why LIFO in ForkJoinPool?](#deep-dive-why-lifo-in-forkjoinpool)
-  * [When to use which?](#when-to-use-which)
 * [Q - Explain some types of ExecutorService?](#q---explain-some-types-of-executorservice)
   * [SingleThreadExecutor](#singlethreadexecutor)
   * [FixedThreadPool](#fixedthreadpool)
@@ -132,6 +126,7 @@
   * [STEP 8 — Result build-up (bottom → top)](#step-8--result-build-up-bottom--top)
   * [STEP 9 — Final join at root](#step-9--final-join-at-root)
   * [FINAL GLOBAL VIEW — Everything together](#final-global-view--everything-together)
+* [Q - What's the differences b/w ForkJoinPool and ThreadPoolExecutor?](#q---whats-the-differences-bw-forkjoinpool-and-threadpoolexecutor)
 * [Q - How ForkJoinPool() is different from Executors.newWorkStealingPool()](#q---how-forkjoinpool-is-different-from-executorsnewworkstealingpool)
   * [1. The Return Type (API vs Implementation)](#1-the-return-type-api-vs-implementation)
   * [2. The Hidden Difference: "Async Mode"](#2-the-hidden-difference-async-mode)
@@ -1915,91 +1910,7 @@ A `LinkedBlockingQueue` allocates memory **dynamically on demand**. Every single
 
 Thank you for bringing those up—those two mechanics bridge the gap between how a queue works in a textbook versus how it actually behaves under a massive production load.
 
-
-
----
-
-
-
-# Q - What's the differences b/w ForkJoinPool and ThreadPoolExecutor?
-
-To understand the difference, we first need to understand the "why". Both of these are implementations of 
-the `ExecutorService` interface, designed to solve the same fundamental problem: **creating a Thread is expensive**.
-
-Instead of creating a new OS thread for every task (which burns memory and CPU cycles), we create a "pool" of 
-threads once and reuse them.
-
-Here is the breakdown from the ground up.
-
-## The Classic: ThreadPoolExecutor
-
-Think of this as a standard Bank Counter System.
-
-* **The Structure:** There is one central queue (ticket machine) and a fixed number of tellers (Threads).
-* **The Process:**
-    * You (the main program) submit a task.
-    * The task goes into the central `BlockingQueue`.
-    * All threads compete to grab the next task from this single queue.
-    * Once a thread grabs a task, it processes it to completion, then comes back to the queue for another.
-
-* **The Philosophy:** "Fairness and Order." Tasks are generally processed in the
-order they arrive (depending on the queue type).
-* **The Limitation:** If one thread gets a huge task, it is stuck. If the queue is locked by 
-one thread taking a task, others have to wait (contention).
-
-## The Specialist: ForkJoinPool (Java 7+)
-
-Think of this as a Restaurant Kitchen preparing a massive banquet.
-
-* **The Structure:** There is no single central line. Every chef (Thread) has their **own personal desk (Deque)** of tasks.
-* **The Philosophy:** "Divide and Conquer" (Recursive processing).
-* **The Process:**
-    * **Fork:** A big task (e.g., "Prep 1000 steaks") arrives. One chef takes it.
-    * **Split:** That chef realizes it's too big, splits it into two tasks of 500, keeps one, and pushes the other 
-to the top of their own pile.
-    * **Join:** They keep splitting until the tasks are small enough to just cook.
-    * **Work Stealing (The Magic):** If another chef finishes their work early and has nothing 
-to do, they don't wait. They look at your pile, sneak to the back (the tail), and "steal" one of 
-your unprocessed sub-tasks to help you out.
-
-## Key Differences
-
-Here is how they compare fundamentally:
-
-
-| Feature                | ThreadPoolExecutor (TPE)                                                     | ForkJoinPool (FJP)                                                                                          |
-|:-----------------------|:-----------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------|
-| **Work Queue**         | **Single Central Queue.** All threads contend for the same lock to get work. | **Multiple Local Queues.** Each thread has its own Deque. Low contention.                                   |
-| **Task Relationship**  | Best for **Independent tasks** (e.g., User A login, User B upload).          | Best for **Recursive tasks** (e.g., Sorting an array, Matrix multiplication).                               |
-| **Algorithm**          | Standard Producer-Consumer.                                                  | **Work-Stealing Algorithm.**                                                                                |
-| **The "Stuck" Factor** | If a thread waits for a result (e.g., IO), it does nothing (blocks).         | If a thread waits for a sub-task (`join`), it effectively puts that task aside and works on something else. |
-| **Order of Execution** | Usually **FIFO** (First-In-First-Out).                                       | **LIFO** (Last-In-First-Out) for the owner thread; **FIFO** for the stealer.                                |
-
-## Deep Dive: Why LIFO in ForkJoinPool?
-
-This is a brilliant optimization for **CPU Cache Locality**.
-
-* When a thread splits a task, it pushes the new sub-task to the bottom of its deque.
-* It immediately pops the bottom again to work on it.
-* Since this data was just created, it is likely still hot in the CPU's L1/L2 Cache.
-* Standard TPE often processes "older" tasks first, meaning the data might be cold (flushed from cache to RAM), 
-causing cache misses.
-
-
-## When to use which?
-
-1\. Use `ThreadPoolExecutor` when:
-
-* You have blocking IO tasks (Database calls, API requests).
-* The tasks are unrelated (Task A doesn't care if Task B finishes).
-* You need strict control over priority or timing (e.g., `ScheduledThreadPoolExecutor`).
-
-2\. Use `ForkJoinPool` when:
-
-* You have computational heavy tasks (Number crunching, Image processing).
-* The tasks can be broken down recursively (The "Divide and Conquer" pattern).
-* You are using Java Streams (`.parallelStream()`), which uses the common FJP under the hood.
-
+------------
 
 # Q - Explain some types of ExecutorService?
 
@@ -2093,8 +2004,8 @@ ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 **Behavior**
 
 * Executes tasks:
-    * After a delay
-    * Periodically
+  * After a delay
+  * Periodically
 * Supports fixed-rate and fixed-delay scheduling
 
 **Realistic use case**
@@ -2134,6 +2045,10 @@ ExecutorService executor = Executors.newWorkStealingPool();
 * Reduces idle threads
 
 ⚠️ Not suitable for blocking I/O
+
+
+--------------
+
 
 # Q - Explain ForkJoinPool with an example
 
@@ -2198,14 +2113,14 @@ public class WorkStealingDemo {
 
 * BOTTOM → owner pushes & pops
 * FRONT → thieves steal
-  
+
 **Method semantics**
 
 * `fork()` → pushes task to BOTTOM of current worker deque
 * `compute()` → normal method call, runs immediately
 * `join()` → wait point
-    * if result ready → return
-    * if not → worker waits (may steal)
+  * if result ready → return
+  * if not → worker waits (may steal)
 
 
 ## Problem
@@ -2435,6 +2350,30 @@ Final result:
              /        \                    /          \
    (1..2)=3 [W4]  (3..4)=7 [W2]   (5..6)=11 [W3]  (7..8)=15 [W1]
 ```
+
+
+------------
+
+
+# Q - What's the differences b/w ForkJoinPool and ThreadPoolExecutor?
+
+This is a very common interview question. The key difference is **the execution model**, not just the API.
+
+| Feature             | `ThreadPoolExecutor`                   | `ForkJoinPool`                                               |
+|---------------------|----------------------------------------|--------------------------------------------------------------|
+| Primary purpose     | Execute independent tasks              | Execute recursive divide-and-conquer tasks                   |
+| Queue               | Usually one shared blocking queue      | One deque (double-ended queue) per worker thread             |
+| Load balancing      | Workers pull from shared queue         | Workers steal work from each other                           |
+| Best for            | Web servers, I/O tasks, business logic | Parallel algorithms, recursive computations                  |
+| Task type           | `Runnable`, `Callable`                 | `RecursiveTask`, `RecursiveAction`, also supports `Runnable` |
+| Scheduling          | FIFO (typically)                       | LIFO for own tasks, FIFO when stealing                       |
+| Work stealing       | ❌ No                                   | ✅ Yes                                                        |
+| Recursive tasks     | Poor fit                               | Excellent                                                    |
+| Blocking operations | Handles reasonably                     | Discouraged unless using `ManagedBlocker`                    |
+
+
+------------
+
 
 # Q - How ForkJoinPool() is different from Executors.newWorkStealingPool()
 
