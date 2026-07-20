@@ -2829,9 +2829,9 @@ public class VirtualThreadExample {
 
 # Q - What is Thread Local?
 
-ThreadLocal (`java.lang.ThreadLocal`) is a Java utility class that provides thread-confined variables.
+`ThreadLocal` (`java.lang.ThreadLocal`) is a Java utility class that provides thread-confined variables.
 
-Here is a clear, concrete breakdown of how **`ThreadLocal`** works under the hood.
+Here is a clear, concrete breakdown of how `ThreadLocal` works under the hood.
 
 ---
 
