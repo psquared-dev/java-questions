@@ -2823,7 +2823,7 @@ it is executing. When the virtual thread hits a blocking operation (like a socke
 the
 carrier thread and parks it stack on the heap, and frees the carrier thread to run other virtual threads.
 
-**Both normal (platform) threads and virtual threads are instances of `java.lang.Thread**`.
+Both normal (platform) threads and virtual threads are instances of `java.lang.Thread`.
 
 This was one of the most brilliant design decisions made by the
 OpenJDK team during **Project Loom**. Rather than introducing a
