@@ -2887,21 +2887,14 @@ Java added a dedicated method to `java.lang.Thread`:
 ```java
 Thread current = Thread.currentThread();
 
-if(current.
-
-isVirtual()){
-		System.out.
-
-println("I am a Virtual Thread on the heap!");
-}else{
-		System.out.
-
-println("I am a heavy Platform Thread backed 1:1 by the OS!");
+if (current.isVirtual()) {
+        System.out.println("I am a Virtual Thread on the heap!");
+} else {
+        System.out.println("I am a heavy Platform Thread backed 1:1 by the OS!");
 }
-
 ```
 
-----------------
+---
 
 ## Example of Virtual Thread
 
@@ -2938,6 +2931,10 @@ public class VirtualThreadExample {
 	}
 }
 ```
+
+
+-------------------
+
 
 # Q - What is Thread Local?
 
