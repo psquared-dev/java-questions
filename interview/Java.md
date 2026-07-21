@@ -2311,11 +2311,8 @@ No issue - methods are not serialized.
 
 ## Q - Is serialVersionUID persisted into the serialized byte stream?
 
-Yes, absolutely! The serialVersionUID IS persisted (written directly) into the
+Yes. The serialVersionUID IS persisted (written directly) into the
 serialized byte stream when an object is converted into bytes.
-
-**Yes, absolutely!** The `serialVersionUID` **IS persisted (written directly) into 
-the serialized byte stream** when an object is converted into bytes.
 
 Here is the exact technical breakdown of how and why it happens under 
 the hood during Java serialization and deserialization.
