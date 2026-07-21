@@ -2498,11 +2498,12 @@ In Java, a class can inherit behavior from two places:
 * A Superclass (e.g., Object).
 * An Interface (via default methods).
 
-The Rule: If a method exists in both a parent class and an interface, the **parent class's version always wins**.
+The Rule: If a method exists in both a parent class and an 
+interface, the **parent class's version always wins**.
 
 ### 2. The Problem
 
-Since every Java class automatically extends Object, every single class
+Since every Java class automatically extends `Object`, every single class
 you ever create already has a version of `hashCode()` inherited from `Object`.
 
 If Java allowed you to write a default `hashCode()` in an interface:
@@ -2529,6 +2530,34 @@ interface MyInterface {
     }
 }
 ```
+
+Here is a clear, concrete example showing how this works:
+
+```java
+// 1. The Interface with a default method
+interface Logger {
+    default void log() {
+        System.out.println("LOG: Message from Interface default method");
+    }
+}
+
+// 2. The Superclass with a standard method
+class BaseLogger {
+    public void log() {
+        System.out.println("LOG: Message from Superclass method");
+    }
+}
+
+// 3. The Child Class that inherits from BOTH
+public class AppLogger extends BaseLogger implements Logger {
+    
+    public static void main(String[] args) {
+        AppLogger logger = new AppLogger();
+        logger.log();   // Output: LOG: Message from Superclass method
+    }
+}
+```
+
 
 ----------------
 
