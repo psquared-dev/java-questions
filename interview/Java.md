@@ -90,6 +90,9 @@
       * [Change field order](#change-field-order)
       * [Add methods](#add-methods)
       * [Changes that break compatibility](#changes-that-break-compatibility)
+  * [Q - Is serialVersionUID persisted into the serialized byte stream?](#q---is-serialversionuid-persisted-into-the-serialized-byte-stream)
+    * [1. What Happens During Serialization (`ObjectOutputStream`)](#1-what-happens-during-serialization-objectoutputstream)
+    * [2. What Happens During Deserialization (`ObjectInputStream`)](#2-what-happens-during-deserialization-objectinputstream)
   * [Q - How to prevent serialization of a field?](#q---how-to-prevent-serialization-of-a-field)
     * [1. The transient Keyword (The Standard Way)](#1-the-transient-keyword-the-standard-way)
     * [2. The static Modifier (The "Class-Level" Rule)](#2-the-static-modifier-the-class-level-rule)
@@ -2304,6 +2307,54 @@ No issue - methods are not serialized.
 
 
 -----------------------------
+
+
+## Q - Is serialVersionUID persisted into the serialized byte stream?
+
+Yes, absolutely! The serialVersionUID IS persisted (written directly) into the
+serialized byte stream when an object is converted into bytes.
+
+**Yes, absolutely!** The `serialVersionUID` **IS persisted (written directly) into 
+the serialized byte stream** when an object is converted into bytes.
+
+Here is the exact technical breakdown of how and why it happens under 
+the hood during Java serialization and deserialization.
+
+---
+
+### 1. What Happens During Serialization (`ObjectOutputStream`)
+
+When you serialize an object using `ObjectOutputStream.writeObject(obj)`:
+
+1. Java writes the metadata header for the class.
+2. It looks up the `serialVersionUID` of the class.
+   * If you explicitly declared `private static final long serialVersionUID = 1L;`, it reads that exact 
+     value.
+   * If you did **not** declare it, the JVM automatically calculates a dynamic 64-bit 
+     hash (based on fields, methods, interfaces, etc.) at runtime.
+
+3. The `serialVersionUID` value (an 8-byte `long`) is physically written into the serialized byte stream.
+
+---
+
+### 2. What Happens During Deserialization (`ObjectInputStream`)
+
+When another application or process tries to read those bytes using `ObjectInputStream.readObject()`:
+
+1. Java reads the class metadata header from the byte stream, extracting the **persisted `serialVersionUID**`.
+2. Java loads the local target `.class` file currently running in the JVM and gets its **local `serialVersionUID**`.
+3. **The Comparison:** Java compares the two values:
+
+$$\text{Persisted } \mathtt{serialVersionUID} \stackrel{?}{=} \text{Local } \mathtt{serialVersionUID}$$
+
+
+4. **The Result:**
+   * **If they match:** Java safely reconstructs the object.
+   * **If they DO NOT match:** Java throws an **`InvalidClassException`**, refusing to deserialize the object because the class versions are incompatible.
+
+
+-----------------------------
+
 
 
 ## Q - How to prevent serialization of a field?
