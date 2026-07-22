@@ -897,7 +897,7 @@ Here is the general rule:
 
 ## Q - var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?
 
-Since Java 10, you can use `var` to let the compiler infer the type:
+Since Java 10, you can use `var` to declare local variables only when an initializer is present.
 
 `var` is not a Java keyword. It is a **reserved type name**
 
