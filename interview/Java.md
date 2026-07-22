@@ -3743,6 +3743,12 @@ public class Main {
 }
 ```
 
+Note that, in try-with-resources, resource cleanup via `close()` runs immediately upon
+exiting the try block, before control ever reaches any `catch` or `finally` block.
+
+Therefore, the `catch` block executes only after `close()` has already freed
+the resource, handling exceptions from either the try block, the `close()` method itself, or both.
+
 ### 3. Senior Engineer Nuance: Exception Suppression
 
 **The Problem (Old finally way):** If your code throws an exception (e.g., `RuntimeException`) AND
