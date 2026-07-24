@@ -1914,11 +1914,11 @@ Thank you for bringing those up—those two mechanics bridge the gap between how
 
 # Q - Explain some types of ExecutorService?
 
-1. SingleThreadExecutor
-2. FixedThreadPool
-3. CachedThreadPool
-4. ScheduledThreadPoolExecutor
-5. WorkStealingPool (ForkJoinPool)
+1. newSingleThreadExecutor
+2. newFixedThreadPool
+3. newCachedThreadPool
+4. newScheduledThreadPool
+5. newWorkStealingPool (ForkJoinPool)
 
 ## SingleThreadExecutor
 
