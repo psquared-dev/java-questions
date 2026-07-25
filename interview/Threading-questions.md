@@ -3509,6 +3509,10 @@ that no other thread is modifying it at the exact same moment.
 It relies on a hardware primitive called **CAS (Compare-And-Swap)**: _"Set the value to B, but ONLY IF the
 current value is still A."_
 
+Note that normal assignment is automic and just overwrites a value without checking what's there first, 
+but `AtomicReference`lets you check and update in one single step so other threads can't 
+sneak in and mess things up.
+
 ## Traditional solution: synchronized
 
 ```java
