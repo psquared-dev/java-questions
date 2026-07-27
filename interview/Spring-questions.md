@@ -701,14 +701,6 @@ public class PaymentListener {
 
 ```
 
-* **Dependency Injection (DI)** is a technique where the framework provides required dependencies to a class
-instead of the class creating them.
-* In Spring, the framework **injects values or objects** into:
-    * Constructors
-    * Method parameters
-    * Fields
-* DI is a practical application of Inversion of Control (IoC).
-* IoC means the framework controls execution and object wiring, not the application.
 
 ## Simple Example (Method Parameter Injection)
 
