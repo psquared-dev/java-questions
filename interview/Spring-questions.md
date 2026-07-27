@@ -23,6 +23,9 @@
     * [3. Inject all beans as a collection](#3-inject-all-beans-as-a-collection)
   * [Key rules to remember](#key-rules-to-remember)
 * [Q-7 What is Dependency Injection (DI) in spring?](#q-7-what-is-dependency-injection-di-in-spring)
+  * [1. Service Locator Pattern](#1-service-locator-pattern)
+    * [2. Template Method Pattern (Callback Pattern)](#2-template-method-pattern-callback-pattern)
+    * [3. Observer / Event-Listener Pattern](#3-observer--event-listener-pattern)
   * [Simple Example (Method Parameter Injection)](#simple-example-method-parameter-injection)
   * [What happens here](#what-happens-here)
 * [Q-8 Different ways of injecting dependencies using Spring's DI mechanism (with or without @Autowired).](#q-8-different-ways-of-injecting-dependencies-using-springs-di-mechanism-with-or-without-autowired)
@@ -634,6 +637,69 @@ Useful when processing all implementations
 
 
 # Q-7 What is Dependency Injection (DI) in spring?
+
+Dependency Injection (DI) is one of the ways to implement the broader principle 
+of Inversion of Control (IoC).
+
+Here are the most important alternative ways to implement IoC:
+
+---
+
+## 1. Service Locator Pattern
+
+Instead of the framework pushing dependencies into the class (DI), the class
+reaches out to a central registry to fetch what it needs. Control over creation 
+remains inverted because the class does not instantiate the service directly using `new`.
+
+```java
+public class OrderService {
+    private EmailService emailService;
+
+    public OrderService() {
+        // PULLING dependency from central registry instead of creating with 'new'
+        this.emailService = (EmailService) ServiceRegistry.get("EmailService");
+    }
+}
+
+```
+
+---
+
+### 2. Template Method Pattern (Callback Pattern)
+
+The framework owns and controls the entire execution 
+algorithm (e.g., opening database connections, handling transactions, catching exceptions, closing resources). 
+It temporarily hands control back to your code only for custom execution steps.
+
+```java
+// Spring's JdbcTemplate controls connection lifecycle and error handling.
+// It invokes your lambda only to map each SQL row.
+List<User> users = jdbcTemplate.query(
+    "SELECT id, name FROM users",
+    (rs, rowNum) -> new User(rs.getLong("id"), rs.getString("name"))
+);
+```
+
+---
+
+### 3. Observer / Event-Listener Pattern
+
+The framework runs the main event loop and monitors triggers 
+(such as HTTP requests, UI clicks, or domain events). 
+Your code does not poll for work; the framework decides when to call your method when an event occurs.
+
+```java
+@Component
+public class PaymentListener {
+
+    // Spring controls WHEN and IF this method executes based on application events
+    @EventListener
+    public void handleOrderCreated(OrderCreatedEvent event) {
+        processPayment(event.getOrderId());
+    }
+}
+
+```
 
 * **Dependency Injection (DI)** is a technique where the framework provides required dependencies to a class
 instead of the class creating them.
