@@ -479,7 +479,7 @@
     * [2. The Mechanics (Ground Level)](#2-the-mechanics-ground-level)
     * [3. The Coding Pattern (The "Check-Check-Reload")](#3-the-coding-pattern-the-check-check-reload)
     * [Summary](#summary)
-* [Level 8: Garbage Collection & Performance Tuning](#level-8-garbage-collection--performance-tuning)
+* [Module 9: Garbage Collection & Performance Tuning](#module-9-garbage-collection--performance-tuning)
   * [Q - How to manually trigger the garbage collection process?](#q---how-to-manually-trigger-the-garbage-collection-process)
   * [Q - Explain Minor GC vs Major GC vs Full GC](#q---explain-minor-gc-vs-major-gc-vs-full-gc)
     * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
@@ -8920,7 +8920,7 @@ public Image getImage(String key) {
 
 
 
-# Level 8: Garbage Collection & Performance Tuning
+# Module 9: Garbage Collection & Performance Tuning
 
 
 ## Q - How to manually trigger the garbage collection process?
