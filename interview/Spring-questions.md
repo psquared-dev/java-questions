@@ -1,34 +1,34 @@
 <!-- TOC -->
-* [Q-1 What are two essentials feature of Spring Core?](#q-1-what-are-two-essentials-feature-of-spring-core)
-* [Q-2 What is IOC?](#q-2-what-is-ioc)
+* [Q - What are two essentials feature of Spring Core?](#q---what-are-two-essentials-feature-of-spring-core)
+* [Q - What is IOC?](#q---what-is-ioc)
   * [Without IoC](#without-ioc)
   * [With IoC](#with-ioc)
   * [IoC Container (Spring Context)](#ioc-container-spring-context)
-* [Q-3 What is Spring AOP?](#q-3-what-is-spring-aop)
+* [Q - What is Spring AOP?](#q---what-is-spring-aop)
   * [Spring AOP (part of Spring Core)](#spring-aop-part-of-spring-core)
-* [Q-4 What is context or application context in spring app?](#q-4-what-is-context-or-application-context-in-spring-app)
+* [Q - What is context or application context in spring app?](#q---what-is-context-or-application-context-in-spring-app)
   * [1. The `BeanFactory` (The Heart)](#1-the-beanfactory-the-heart)
   * [2. The ApplicationContext (The Complete Car)](#2-the-applicationcontext-the-complete-car)
   * [Why use `ApplicationContext` instead of just `BeanFactory`?](#why-use-applicationcontext-instead-of-just-beanfactory)
-* [Q-5 What are the different ways of adding a bean to the spring context?](#q-5-what-are-the-different-ways-of-adding-a-bean-to-the-spring-context)
+* [Q - What are the different ways of adding a bean to the spring context?](#q---what-are-the-different-ways-of-adding-a-bean-to-the-spring-context)
   * [1. Using Stereotype Annotations (`@Component`, `@Service`, etc.)](#1-using-stereotype-annotations-component-service-etc)
   * [2. Using `@Bean` Methods in a `@Configuration` Class](#2-using-bean-methods-in-a-configuration-class)
   * [3. Programmatic Registration (`registerBean()` / `registerSingleton()`)](#3-programmatic-registration-registerbean--registersingleton)
   * [4. Using XML Configuration (Legacy Approach)](#4-using-xml-configuration-legacy-approach)
-* [Q-6 Can we define multiple beans of the same type?](#q-6-can-we-define-multiple-beans-of-the-same-type)
+* [Q - Can we define multiple beans of the same type?](#q---can-we-define-multiple-beans-of-the-same-type)
   * [The real issue: Injection ambiguity](#the-real-issue-injection-ambiguity)
   * [How to resolve ambiguity](#how-to-resolve-ambiguity)
     * [1. Use `@Qualifier`](#1-use-qualifier)
     * [2. Use `@Primary`](#2-use-primary)
     * [3. Inject all beans as a collection](#3-inject-all-beans-as-a-collection)
   * [Key rules to remember](#key-rules-to-remember)
-* [Q-7 What is Dependency Injection (DI) in spring?](#q-7-what-is-dependency-injection-di-in-spring)
+* [Q - What is Dependency Injection (DI) in spring?](#q---what-is-dependency-injection-di-in-spring)
   * [1. Service Locator Pattern](#1-service-locator-pattern)
     * [2. Template Method Pattern (Callback Pattern)](#2-template-method-pattern-callback-pattern)
     * [3. Observer / Event-Listener Pattern](#3-observer--event-listener-pattern)
   * [Simple Example (Method Parameter Injection)](#simple-example-method-parameter-injection)
   * [What happens here](#what-happens-here)
-* [Q-8 Different ways of injecting dependencies using Spring's DI mechanism (with or without @Autowired).](#q-8-different-ways-of-injecting-dependencies-using-springs-di-mechanism-with-or-without-autowired)
+* [Q - Different ways of injecting dependencies using Spring's DI mechanism (with or without @Autowired).](#q---different-ways-of-injecting-dependencies-using-springs-di-mechanism-with-or-without-autowired)
   * [Constructor Injection (Recommended)](#constructor-injection-recommended)
   * [Field Injection](#field-injection)
   * [Setter Injection](#setter-injection)
@@ -38,7 +38,7 @@
   * [Controlling Autowiring Behavior](#controlling-autowiring-behavior)
     * [Optional Dependency](#optional-dependency)
     * [Using `@Qualifier`](#using-qualifier)
-* [Q-9 How to use abstractions with the Spring Context?](#q-9-how-to-use-abstractions-with-the-spring-context)
+* [Q - How to use abstractions with the Spring Context?](#q---how-to-use-abstractions-with-the-spring-context)
   * [Introducing the Abstraction](#introducing-the-abstraction)
   * [Concrete Implementations](#concrete-implementations)
   * [Case 1 – Using a Single Implementation](#case-1--using-a-single-implementation)
@@ -46,67 +46,67 @@
     * [Using `@Qualifier`](#using-qualifier-1)
   * [Case 3 – Using Multiple Implementations at the Same Time](#case-3--using-multiple-implementations-at-the-same-time)
   * [Case 4 – Selecting an Implementation at Runtime](#case-4--selecting-an-implementation-at-runtime)
-* [Q-10 How is a singleton in Spring different from a singleton in core Java?](#q-10-how-is-a-singleton-in-spring-different-from-a-singleton-in-core-java)
+* [Q - How is a singleton in Spring different from a singleton in core Java?](#q---how-is-a-singleton-in-spring-different-from-a-singleton-in-core-java)
   * [Why Spring does this](#why-spring-does-this)
-* [Q-11 Why should singleton beans in Spring be immutable?](#q-11-why-should-singleton-beans-in-spring-be-immutable)
+* [Q - Why should singleton beans in Spring be immutable?](#q---why-should-singleton-beans-in-spring-be-immutable)
   * [Why mutable singleton beans are dangerous](#why-mutable-singleton-beans-are-dangerous)
   * [Immutable singleton beans are safe](#immutable-singleton-beans-are-safe)
-* [Q-12 What are lazy and eager bean initialization?](#q-12-what-are-lazy-and-eager-bean-initialization)
+* [Q - What are lazy and eager bean initialization?](#q---what-are-lazy-and-eager-bean-initialization)
   * [Eager Loading (The Default)](#eager-loading-the-default)
   * [Lazy Loading](#lazy-loading)
-* [Q-13 What are the different bean scopes in Spring?](#q-13-what-are-the-different-bean-scopes-in-spring)
+* [Q - What are the different bean scopes in Spring?](#q---what-are-the-different-bean-scopes-in-spring)
   * [Singleton (Default)](#singleton-default)
   * [Prototype](#prototype)
   * [Important Spring Design Nuance (Frequently Asked in Interviews)](#important-spring-design-nuance-frequently-asked-in-interviews)
   * [Correct Solutions](#correct-solutions)
     * [1. Use ObjectProvider (Recommended)](#1-use-objectprovider-recommended)
     * [2. Inject `ApplicationContext`](#2-inject-applicationcontext)
-* [Q-14 What is Spring Boot? Why did you use Spring Boot in your project not Spring?](#q-14-what-is-spring-boot-why-did-you-use-spring-boot-in-your-project-not-spring)
+* [Q - What is Spring Boot? Why did you use Spring Boot in your project not Spring?](#q---what-is-spring-boot-why-did-you-use-spring-boot-in-your-project-not-spring)
   * [Why I used Spring Boot in my project](#why-i-used-spring-boot-in-my-project)
-* [Q-15 What the purpose of @Configuration annotation in Spring boot?](#q-15-what-the-purpose-of-configuration-annotation-in-spring-boot)
+* [Q - What the purpose of @Configuration annotation in Spring boot?](#q---what-the-purpose-of-configuration-annotation-in-spring-boot)
   * [Key interview points (important nuance included):](#key-interview-points-important-nuance-included)
   * [The Senior Follow-Up: `proxyBeanMethods = false`](#the-senior-follow-up-proxybeanmethods--false)
-* [Q-16 What does the @SpringBootApplicaton annotation does?](#q-16-what-does-the-springbootapplicaton-annotation-does)
+* [Q - What does the @SpringBootApplicaton annotation does?](#q---what-does-the-springbootapplicaton-annotation-does)
   * [1. @Configuration](#1-configuration)
   * [2. @EnableAutoConfiguration (The Magic)](#2-enableautoconfiguration-the-magic)
   * [3. @ComponentScan](#3-componentscan)
   * [Code Equivalence](#code-equivalence)
   * [Senior Engineer Nuance](#senior-engineer-nuance)
-* [Q-17 How to disable specific configuration class?](#q-17-how-to-disable-specific-configuration-class)
+* [Q - How to disable specific configuration class?](#q---how-to-disable-specific-configuration-class)
   * [1. Using the Annotation (Compile Time)](#1-using-the-annotation-compile-time)
   * [2. Using Properties File (Runtime)](#2-using-properties-file-runtime)
   * [@ConditionalOnProperty and @Profile](#conditionalonproperty-and-profile)
   * [1. Using @Profile (Environment-Based Control)](#1-using-profile-environment-based-control)
   * [2. Using @ConditionalOnProperty (Feature Flag Control)](#2-using-conditionalonproperty-feature-flag-control)
-* [Q-18 Can we replace Embedded Tomcat server in Spring boot?](#q-18-can-we-replace-embedded-tomcat-server-in-spring-boot)
+* [Q - Can we replace Embedded Tomcat server in Spring boot?](#q---can-we-replace-embedded-tomcat-server-in-spring-boot)
   * [1. The Supported Alternatives](#1-the-supported-alternatives)
   * [2. How to do it (Maven)](#2-how-to-do-it-maven)
-* [Q-19 What is RestController and how it's related to @Controller?](#q-19-what-is-restcontroller-and-how-its-related-to-controller)
+* [Q - What is RestController and how it's related to @Controller?](#q---what-is-restcontroller-and-how-its-related-to-controller)
   * [The Relationship (The Formula)](#the-relationship-the-formula)
   * [1. @Controller (The Traditional Way)](#1-controller-the-traditional-way)
   * [2. @ResponseBody](#2-responsebody)
   * [3. @RestController (The Modern Way)](#3-restcontroller-the-modern-way)
-* [Q-20 What's the difference between @RequestMapping and @GetMapping?](#q-20-whats-the-difference-between-requestmapping-and-getmapping)
+* [Q - What's the difference between @RequestMapping and @GetMapping?](#q---whats-the-difference-between-requestmapping-and-getmapping)
   * [@RequestMapping](#requestmapping)
   * [@GetMapping](#getmapping)
   * [Relationship between them](#relationship-between-them)
   * [Key differences (interview table)](#key-differences-interview-table)
   * [When to use which?](#when-to-use-which)
-* [Q-21 What's Profile in Spring boot?](#q-21-whats-profile-in-spring-boot)
+* [Q - What's Profile in Spring boot?](#q---whats-profile-in-spring-boot)
   * [Why do we need Profiles?](#why-do-we-need-profiles)
   * [How Profiles work](#how-profiles-work)
     * [1. Activating a profile](#1-activating-a-profile)
   * [2. Profile-specific configuration files](#2-profile-specific-configuration-files)
-* [Q-22 How do you read configuration values in a Spring Boot application?](#q-22-how-do-you-read-configuration-values-in-a-spring-boot-application)
+* [Q - How do you read configuration values in a Spring Boot application?](#q---how-do-you-read-configuration-values-in-a-spring-boot-application)
   * [1. Using @Value (Simple, small use cases)](#1-using-value-simple-small-use-cases)
   * [2. Using Environment (Dynamic / conditional access)](#2-using-environment-dynamic--conditional-access)
   * [3. Using @ConfigurationProperties (RECOMMENDED)](#3-using-configurationproperties-recommended)
-* [Q-23 What is RestControllerAdvice?](#q-23-what-is-restcontrolleradvice)
+* [Q - What is RestControllerAdvice?](#q---what-is-restcontrolleradvice)
   * [Why it exists (the problem it solves)](#why-it-exists-the-problem-it-solves)
   * [What you typically use it for](#what-you-typically-use-it-for)
   * [Typical usage pattern](#typical-usage-pattern)
   * [Difference between related annotations](#difference-between-related-annotations)
-* [Q-24 What is Spring Actuator?](#q-24-what-is-spring-actuator)
+* [Q - What is Spring Actuator?](#q---what-is-spring-actuator)
   * [Why Spring Actuator exists (the problem it solves)](#why-spring-actuator-exists-the-problem-it-solves)
   * [What Spring Actuator provides](#what-spring-actuator-provides)
   * [How you enable Spring Actuator?](#how-you-enable-spring-actuator)
@@ -116,11 +116,12 @@
   * [How to create a custom Actuator endpoint?](#how-to-create-a-custom-actuator-endpoint)
     * [Custom endpoint using @Endpoint](#custom-endpoint-using-endpoint)
     * [Supported operations](#supported-operations)
-* [Q-25 What is spring-boot-maven-plugin?](#q-25-what-is-spring-boot-maven-plugin)
+* [Q - What is spring-boot-maven-plugin?](#q---what-is-spring-boot-maven-plugin)
   * [1. The Problem: Standard Maven Builds](#1-the-problem-standard-maven-builds)
   * [2. The Solution: The "Fat JAR"](#2-the-solution-the-fat-jar)
   * [3. Key Goals (Interview Checklist)](#3-key-goals-interview-checklist)
-* [Q-26 What are the advantages of yaml over properties file?](#q-26-what-are-the-advantages-of-yaml-over-properties-file)
+  * [](#)
+* [Q - What are the advantages of yaml over properties file?](#q---what-are-the-advantages-of-yaml-over-properties-file)
   * [Key advantages of YAML over .properties](#key-advantages-of-yaml-over-properties)
     * [1. Hierarchical and structured configuration (biggest advantage)](#1-hierarchical-and-structured-configuration-biggest-advantage)
     * [2. Better readability for large configs](#2-better-readability-for-large-configs)
@@ -128,11 +129,11 @@
     * [5. Reduced duplication and better maintainability](#5-reduced-duplication-and-better-maintainability)
     * [6. Strong fit with @ConfigurationProperties](#6-strong-fit-with-configurationproperties)
   * [Disadvantages of YAML (important to mention)](#disadvantages-of-yaml-important-to-mention)
-* [Q-27 What's the difference between liveness and readiness?](#q-27-whats-the-difference-between-liveness-and-readiness)
+* [Q - What's the difference between liveness and readiness?](#q---whats-the-difference-between-liveness-and-readiness)
   * [Liveness Probe — "Should this app be restarted?"](#liveness-probe--should-this-app-be-restarted)
   * [Readiness Probe — "Can this app receive traffic?"](#readiness-probe--can-this-app-receive-traffic)
   * [Side-by-side comparison](#side-by-side-comparison)
-* [Q-28 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?](#q-28-what-are-servlets-what-is-a-web-servlet-container-and-why-is-it-needed-what-problems-did-developers-face-with-servlets-that-led-to-frameworks-like-spring-mvc)
+* [Q - What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?](#q---what-are-servlets-what-is-a-web-servlet-container-and-why-is-it-needed-what-problems-did-developers-face-with-servlets-that-led-to-frameworks-like-spring-mvc)
   * [1. What are Servlets?](#1-what-are-servlets)
   * [2️. What is a Web / Servlet Container?](#2-what-is-a-web--servlet-container)
     * [Responsibilities of a Servlet Container](#responsibilities-of-a-servlet-container)
@@ -144,8 +145,8 @@
     * [3. Poor separation of concerns](#3-poor-separation-of-concerns)
     * [4. No built-in MVC abstraction](#4-no-built-in-mvc-abstraction)
     * [5. Weak support for cross-cutting concerns](#5-weak-support-for-cross-cutting-concerns)
-* [Q-29 When we define Controller, it gets converted to servlet or not?](#q-29-when-we-define-controller-it-gets-converted-to-servlet-or-not)
-* [Q-30 Explain Filter and Interceptor. How do they differ?](#q-30-explain-filter-and-interceptor-how-do-they-differ)
+* [Q - When we define Controller, it gets converted to servlet or not?](#q---when-we-define-controller-it-gets-converted-to-servlet-or-not)
+* [Q - Explain Filter and Interceptor. How do they differ?](#q---explain-filter-and-interceptor-how-do-they-differ)
   * [1. What is a Filter?](#1-what-is-a-filter)
     * [Key characteristics](#key-characteristics)
     * [Typical use cases](#typical-use-cases)
@@ -154,33 +155,43 @@
     * [Lifecycle hooks](#lifecycle-hooks)
     * [Typical use cases](#typical-use-cases-1)
   * [3. Execution order (critical)](#3-execution-order-critical)
-* [Q-31 Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?](#q-31-why-can-a-servlet-filter-execute-more-than-once-for-a-single-http-request-explain-the-underlying-mechanism-and-give-concrete-examples)
+* [Q - Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?](#q---why-can-a-servlet-filter-execute-more-than-once-for-a-single-http-request-explain-the-underlying-mechanism-and-give-concrete-examples)
   * [1. Very Basics — What does “execute once” even mean?](#1-very-basics--what-does-execute-once-even-mean)
   * [2. What is a dispatch?](#2-what-is-a-dispatch)
   * [3. Core Rule (must be memorized)](#3-core-rule-must-be-memorized)
-  * [4. Case 1 — ERROR dispatch (most common in Spring Boot)](#4-case-1--error-dispatch-most-common-in-spring-boot)
-  * [5. Case 2 — FORWARD dispatch (server-side routing)](#5-case-2--forward-dispatch-server-side-routing)
-  * [6. Case 3 — ASYNC dispatch (modern Spring MVC)](#6-case-3--async-dispatch-modern-spring-mvc)
-  * [7. Case 4 — INCLUDE dispatch (legacy but valid)](#7-case-4--include-dispatch-legacy-but-valid)
-  * [8. Why this does NOT always happen in Spring Boot](#8-why-this-does-not-always-happen-in-spring-boot)
-  * [9. How double execution actually happens in real projects](#9-how-double-execution-actually-happens-in-real-projects)
-  * [10. How OncePerRequestFilter fits in](#10-how-onceperrequestfilter-fits-in)
-  * [11. Special case — Spring Security (important gotcha)](#11-special-case--spring-security-important-gotcha)
-  * [12. Summary Table (Interview Gold)](#12-summary-table-interview-gold)
-* [Q-33 If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?](#q-33-if-multiple-servlet-filters-are-registered-in-a-spring-boot-application-how-is-their-execution-order-determined-and-how-can-we-explicitly-control-that-order)
+  * [Case 1 — Forward dispatch (most common in Spring Boot)](#case-1--forward-dispatch-most-common-in-spring-boot)
+    * [Overview of the Flow](#overview-of-the-flow)
+    * [Step 1: Initial HTTP Request Arrives from Client](#step-1-initial-http-request-arrives-from-client)
+    * [Step 2: First Pass Through the Filter Chain](#step-2-first-pass-through-the-filter-chain)
+    * [Step 3: Execution Hits Controller #1 (`/v1/user`)](#step-3-execution-hits-controller-1-v1user)
+    * [Step 4: Container Updates Request Metadata (The Mutation)](#step-4-container-updates-request-metadata-the-mutation)
+    * [Step 5: Re-dispatching & Second Pass Through the Filter Chain](#step-5-re-dispatching--second-pass-through-the-filter-chain)
+    * [Step 6: Execution Hits Controller #2 (`/v2/user`)](#step-6-execution-hits-controller-2-v2user)
+    * [Step 7: Response Unwinds and Sent to Browser](#step-7-response-unwinds-and-sent-to-browser)
+  * [Case 2 — Error dispatch (most common in Spring Boot)](#case-2--error-dispatch-most-common-in-spring-boot)
+    * [Overview of the Flow](#overview-of-the-flow-1)
+    * [Step 1: Initial HTTP Request Arrives from Client](#step-1-initial-http-request-arrives-from-client-1)
+    * [Step 2: First Pass Through the Filter Chain](#step-2-first-pass-through-the-filter-chain-1)
+    * [Step 3: Controller Throws an Exception](#step-3-controller-throws-an-exception)
+    * [Step 4: Container Updates Request Metadata (The Error Capture)](#step-4-container-updates-request-metadata-the-error-capture)
+    * [Step 5: Re-dispatching & Second Pass Through the Filter Chain](#step-5-re-dispatching--second-pass-through-the-filter-chain-1)
+    * [Step 6: Execution Hits the `/error` Controller (`BasicErrorController`)](#step-6-execution-hits-the-error-controller-basicerrorcontroller)
+    * [Step 7: Response Unwinds and Sent to Browser](#step-7-response-unwinds-and-sent-to-browser-1)
+    * [Quick Comparison: `FORWARD` vs `ERROR` Dispatch](#quick-comparison-forward-vs-error-dispatch)
+* [Q - If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?](#q---if-multiple-servlet-filters-are-registered-in-a-spring-boot-application-how-is-their-execution-order-determined-and-how-can-we-explicitly-control-that-order)
   * [How Spring Boot decides filter order (important)](#how-spring-boot-decides-filter-order-important)
   * [How to explicitly control the order (BEST PRACTICE)](#how-to-explicitly-control-the-order-best-practice)
     * [Option 1: Use @Order (simple & common)](#option-1-use-order-simple--common)
     * [Option 2: Use FilterRegistrationBean (most control)](#option-2-use-filterregistrationbean-most-control)
   * [Important interview clarification](#important-interview-clarification)
-* [Q-34 How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?](#q-34-how-can-we-make-a-servlet-filter-execute-only-for-certain-endpoints-in-a-spring-boot-application)
+* [Q - How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?](#q---how-can-we-make-a-servlet-filter-execute-only-for-certain-endpoints-in-a-spring-boot-application)
   * [Option 1 - Use FilterRegistrationBean with URL patterns (BEST & CLEANEST)](#option-1---use-filterregistrationbean-with-url-patterns-best--cleanest)
   * [URL pattern rules (Servlet spec)](#url-pattern-rules-servlet-spec)
   * [Option 2 - Use OncePerRequestFilter.shouldNotFilter() (Spring-style)](#option-2---use-onceperrequestfiltershouldnotfilter-spring-style)
   * [Option 3 - Manual if check inside doFilter (NOT recommended)](#option-3---manual-if-check-inside-dofilter-not-recommended)
   * [Option 4 - Use Interceptor instead (important distinction)](#option-4---use-interceptor-instead-important-distinction)
   * [Execution flow (important)](#execution-flow-important)
-* [Q-35 How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.](#q-35-how-does-transaction-management-work-in-spring-explain-the-role-of-transactional-proxies-and-what-happens-at-runtime)
+* [Q - How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.](#q---how-does-transaction-management-work-in-spring-explain-the-role-of-transactional-proxies-and-what-happens-at-runtime)
   * [1. What is a transaction? (Very basics)](#1-what-is-a-transaction-very-basics)
   * [2. How Spring manages transactions (big picture)](#2-how-spring-manages-transactions-big-picture)
   * [3. What happens at runtime (step-by-step)](#3-what-happens-at-runtime-step-by-step)
@@ -189,7 +200,7 @@
     * [2. Transaction Proxy (AOP)](#2-transaction-proxy-aop)
     * [3. PlatformTransactionManager](#3-platformtransactionmanager)
   * [5. Rollback rules (very important)](#5-rollback-rules-very-important)
-* [Q-36 What is Transaction Propagation?](#q-36-what-is-transaction-propagation)
+* [Q - What is Transaction Propagation?](#q---what-is-transaction-propagation)
   * [Why propagation exists (intuition)](#why-propagation-exists-intuition)
   * [1. REQUIRED (Default)](#1-required-default)
   * [2. REQUIRES_NEW](#2-requires_new)
@@ -229,7 +240,7 @@
         * [1. Preventing Dirty Reads (Read Committed)](#1-preventing-dirty-reads-read-committed)
         * [2. Preventing Non-Repeatable Reads (Repeatable Read)](#2-preventing-non-repeatable-reads-repeatable-read)
         * [3. Preventing Phantom Reads (Serializable)](#3-preventing-phantom-reads-serializable)
-* [Q-37 What is the @Async annotation in Spring? How does it work internally, and when should we use it?](#q-37-what-is-the-async-annotation-in-spring-how-does-it-work-internally-and-when-should-we-use-it)
+* [Q - What is the @Async annotation in Spring? How does it work internally, and when should we use it?](#q---what-is-the-async-annotation-in-spring-how-does-it-work-internally-and-when-should-we-use-it)
   * [What problem does it solve?](#what-problem-does-it-solve)
   * [How it works internally (step by step)](#how-it-works-internally-step-by-step)
   * [Basic usage](#basic-usage)
@@ -238,9 +249,9 @@
   * [Exception handling in @Async](#exception-handling-in-async)
   * [Common gotchas (interview favorites)](#common-gotchas-interview-favorites)
   * [When should you use @Async?](#when-should-you-use-async)
-* [Q-38 What is Data Source?](#q-38-what-is-data-source)
-* [Q-39 What is JDBC Driver](#q-39-what-is-jdbc-driver-)
-* [Q-40 How to configure multiple data sources in Spring Boot?](#q-40-how-to-configure-multiple-data-sources-in-spring-boot)
+* [Q - What is Data Source?](#q---what-is-data-source)
+* [Q - What is JDBC Driver](#q---what-is-jdbc-driver-)
+* [Q - How to configure multiple data sources in Spring Boot?](#q---how-to-configure-multiple-data-sources-in-spring-boot)
   * [1. Why do we need multiple data sources?](#1-why-do-we-need-multiple-data-sources)
   * [2. Core concepts involved (must know)](#2-core-concepts-involved-must-know)
   * [3. High-level steps (interview checklist)](#3-high-level-steps-interview-checklist)
@@ -248,9 +259,9 @@
   * [5. Step 2: Create DataSource beans](#5-step-2-create-datasource-beans)
   * [6. Step 3: Configure EntityManagerFactory (JPA)](#6-step-3-configure-entitymanagerfactory-jpa)
   * [7. How Spring knows which DB to use](#7-how-spring-knows-which-db-to-use)
-* [Q-41 What are different levels of logging (in order of less severe to more severe)?](#q-41-what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
-* [Q-42 What are the various ways to activate spring profile?](#q-42-what-are-the-various-ways-to-activate-spring-profile)
-* [Q-43 What is the order in which Spring Boot configuration is processed?](#q-43-what-is-the-order-in-which-spring-boot-configuration-is-processed)
+* [Q - What are different levels of logging (in order of less severe to more severe)?](#q---what-are-different-levels-of-logging-in-order-of-less-severe-to-more-severe)
+* [Q - What are the various ways to activate spring profile?](#q---what-are-the-various-ways-to-activate-spring-profile)
+* [Q - What is the order in which Spring Boot configuration is processed?](#q---what-is-the-order-in-which-spring-boot-configuration-is-processed)
   * [1. Command-line arguments](#1-command-line-arguments)
   * [2. JVM system properties](#2-jvm-system-properties)
   * [3. OS environment variables](#3-os-environment-variables)
@@ -260,8 +271,8 @@
   * [7. @PropertySource](#7-propertysource)
   * [8. Default properties](#8-default-properties)
   * [Final precedence list (clean)](#final-precedence-list-clean)
-* [Q-43 In Spring MVC async request processing, how does the servlet container resume request handling after an asynchronous task completes?](#q-43-in-spring-mvc-async-request-processing-how-does-the-servlet-container-resume-request-handling-after-an-asynchronous-task-completes)
-* [Q-44 What is the Spring Bean lifecycle?](#q-44-what-is-the-spring-bean-lifecycle)
+* [Q - In Spring MVC async request processing, how does the servlet container resume request handling after an asynchronous task completes?](#q---in-spring-mvc-async-request-processing-how-does-the-servlet-container-resume-request-handling-after-an-asynchronous-task-completes)
+* [Q - What is the Spring Bean lifecycle?](#q---what-is-the-spring-bean-lifecycle)
   * [Plain Java (NO Spring)](#plain-java-no-spring)
   * [Spring Bean Lifecycle](#spring-bean-lifecycle)
   * [What Spring does — step by step](#what-spring-does--step-by-step)
@@ -277,7 +288,7 @@
     * [STEP 10. Destruction (on shutdown)](#step-10-destruction-on-shutdown)
   * [✅ LIFECYCLE ORDER](#-lifecycle-order)
   * [🔑 Key points (lock these in)](#-key-points-lock-these-in)
-* [Q-45 What is DispatcherServlet and how does request flow work?](#q-45-what-is-dispatcherservlet-and-how-does-request-flow-work)
+* [Q - What is DispatcherServlet and how does request flow work?](#q---what-is-dispatcherservlet-and-how-does-request-flow-work)
   * [What is DispatcherServlet?](#what-is-dispatcherservlet)
   * [Why DispatcherServlet is needed](#why-dispatcherservlet-is-needed)
   * [High-level request flow](#high-level-request-flow)
@@ -293,19 +304,19 @@
   * [Filters vs Interceptors (short and clear)](#filters-vs-interceptors-short-and-clear)
   * [DispatcherServlet and async requests](#dispatcherservlet-and-async-requests)
   * [Thread-safety](#thread-safety)
-* [Q-46 Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?](#q-46-difference-between-crudrepository-jparepository-and-pagingandsortingrepository)
+* [Q - Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?](#q---difference-between-crudrepository-jparepository-and-pagingandsortingrepository)
   * [Hierarchy (very important)](#hierarchy-very-important)
   * [1. CrudRepository – Basic operations](#1-crudrepository--basic-operations)
   * [2. PagingAndSortingRepository – Adds pagination & sorting](#2-pagingandsortingrepository--adds-pagination--sorting)
   * [3. JpaRepository – Full-featured (most commonly used)](#3-jparepository--full-featured-most-commonly-used)
   * [Key differences in a table (interview gold)](#key-differences-in-a-table-interview-gold)
   * [Important interview clarifications](#important-interview-clarifications)
-* [Q-47 What is EntityManager vs Repository abstraction?](#q-47-what-is-entitymanager-vs-repository-abstraction)
+* [Q - What is EntityManager vs Repository abstraction?](#q---what-is-entitymanager-vs-repository-abstraction)
   * [1. The EntityManager (The "Manual Mode")](#1-the-entitymanager-the-manual-mode)
   * [2. The Repository (The "Automatic Mode")](#2-the-repository-the-automatic-mode)
   * [Key differences (interview-critical table)](#key-differences-interview-critical-table)
   * [Senior Engineer Nuance (When to use which?)](#senior-engineer-nuance-when-to-use-which)
-* [Q-48 What is AOP and why is it used?](#q-48-what-is-aop-and-why-is-it-used)
+* [Q - What is AOP and why is it used?](#q---what-is-aop-and-why-is-it-used)
   * [Important AOP Terminology](#important-aop-terminology)
   * [How Spring AOP works (high-level)](#how-spring-aop-works-high-level)
   * [AOP in Action — Full Working Example](#aop-in-action--full-working-example)
@@ -317,13 +328,13 @@
   * [6. Runtime execution flow (THIS IS THE KEY PART)](#6-runtime-execution-flow-this-is-the-key-part)
   * [7. Console output (proof AOP is working)](#7-console-output-proof-aop-is-working)
   * [8. Where is this implemented internally?](#8-where-is-this-implemented-internally)
-* [Q-49 Difference between JDK dynamic proxies and CGLIB](#q-49-difference-between-jdk-dynamic-proxies-and-cglib)
+* [Q - Difference between JDK dynamic proxies and CGLIB](#q---difference-between-jdk-dynamic-proxies-and-cglib)
   * [1. JDK Dynamic Proxies](#1-jdk-dynamic-proxies)
     * [How it works](#how-it-works)
   * [2. CGLIB Proxies](#2-cglib-proxies)
   * [Key Differences (Interview Core)](#key-differences-interview-core)
   * [How Spring decides which one to use](#how-spring-decides-which-one-to-use)
-* [Q-50 Why does AOP not work on private methods?](#q-50-why-does-aop-not-work-on-private-methods)
+* [Q - Why does AOP not work on private methods?](#q---why-does-aop-not-work-on-private-methods)
   * [Senior Engineer Nuance: "Is it impossible?"](#senior-engineer-nuance-is-it-impossible)
 * [Q - What is pessimistic locking? What’s your approach to handling row-level locks?](#q---what-is-pessimistic-locking-whats-your-approach-to-handling-row-level-locks)
     * [1. What is Pessimistic Locking?](#1-what-is-pessimistic-locking)
@@ -340,7 +351,10 @@
     * [The "Senior" Considerations](#the-senior-considerations)
 <!-- TOC -->
 
-# Q-1 What are two essentials feature of Spring Core?
+------------
+
+
+# Q - What are two essentials feature of Spring Core?
 
 Essential features of Spring Core:
 
@@ -355,9 +369,10 @@ Other Features in Spring Core
 * Spring Expression Language (SpEL)
 
 
+------------
 
 
-# Q-2 What is IOC?
+# Q - What is IOC?
 
 Spring Core
 
@@ -399,9 +414,10 @@ Inversion of Control (IoC)
 
 
 
+------------
 
 
-# Q-3 What is Spring AOP?
+# Q - What is Spring AOP?
 
 ## Spring AOP (part of Spring Core)
 
@@ -414,9 +430,10 @@ Inversion of Control (IoC)
     * Security
 
 
+------------
 
 
-# Q-4 What is context or application context in spring app?
+# Q - What is context or application context in spring app?
 
 Spring Context:
 * The **Spring Context** is a core component of the Spring Framework.
@@ -466,9 +483,10 @@ MyService service = context.getBean(MyService.class);
 ```
 
 
+------------
 
 
-# Q-5 What are the different ways of adding a bean to the spring context?
+# Q - What are the different ways of adding a bean to the spring context?
 
 There are four main ways to add a bean to the Spring context.
 
@@ -544,8 +562,10 @@ Example:
 
 
 
+------------
 
-# Q-6 Can we define multiple beans of the same type?
+
+# Q - Can we define multiple beans of the same type?
 
 Yes, Spring allows **multiple beans of the same type** to exist in the application context.
 
@@ -634,9 +654,10 @@ Useful when processing all implementations
 * Ambiguity must be resolved explicitly
 
 
+------------
 
 
-# Q-7 What is Dependency Injection (DI) in spring?
+# Q - What is Dependency Injection (DI) in spring?
 
 Dependency Injection (DI) is one of the ways to implement the broader principle 
 of Inversion of Control (IoC).
@@ -729,9 +750,10 @@ class ProjectConfig {
 * The `Person` object receives its dependency without creating it
 
 
+------------
 
 
-# Q-8 Different ways of injecting dependencies using Spring's DI mechanism (with or without @Autowired).
+# Q - Different ways of injecting dependencies using Spring's DI mechanism (with or without @Autowired).
 
 Spring can inject dependencies in three primary ways.
 
@@ -848,9 +870,10 @@ Parrot parrot;
 Resolves ambiguity when multiple beans exist.
 
 
+------------
 
 
-# Q-9 How to use abstractions with the Spring Context?
+# Q - How to use abstractions with the Spring Context?
 
 This example demonstrates how Spring encourages programming to abstractions (interfaces) 
 rather than concrete implementations.
@@ -998,10 +1021,10 @@ public class Person {
 📌 This allows dynamic selection, but introduces coupling to concrete classes.
 
 
+------------
 
 
-
-# Q-10 How is a singleton in Spring different from a singleton in core Java?
+# Q - How is a singleton in Spring different from a singleton in core Java?
 
 In Spring, a singleton does not mean "only one instance per application" as it does in classic Java.
 
@@ -1048,9 +1071,10 @@ Because Spring:
 * Supports multiple implementations and instances cleanly
 
 
+------------
 
 
-# Q-11 Why should singleton beans in Spring be immutable?
+# Q - Why should singleton beans in Spring be immutable?
 
 In Spring, a singleton bean is shared by all threads that access the application context.
 Because of this, **singleton beans should ideally be immutable**.
@@ -1082,9 +1106,10 @@ If you need to make an object bean in the Spring context, it should be singleton
 only if it's immutable. Avoid designing mutable singleton beans.
 
 
+------------
 
 
-# Q-12 What are lazy and eager bean initialization?
+# Q - What are lazy and eager bean initialization?
 
 Eager and Lazy refer to WHEN Spring creates your beans (objects).
 
@@ -1145,9 +1170,10 @@ public class ReportService {
 * Console Output only after you call `context.getBean(ReportService.class)`: `ReportService Created! (I am Lazy)`
 
 
+------------
 
 
-# Q-13 What are the different bean scopes in Spring?
+# Q - What are the different bean scopes in Spring?
 
 A bean scope defines how many instances of a bean Spring creates and how long those instances live.
 
@@ -1294,9 +1320,10 @@ class A {
 ```
 
 
+------------
 
 
-# Q-14 What is Spring Boot? Why did you use Spring Boot in your project not Spring?
+# Q - What is Spring Boot? Why did you use Spring Boot in your project not Spring?
 
 Spring Boot is an opinionated framework built on top of the Spring Framework that simplifies 
 the development of production-ready Java applications.
@@ -1310,9 +1337,10 @@ the development of production-ready Java applications.
 * Exposing production features via Actuator (health, metrics, monitoring)
 
 
+------------
 
 
-# Q-15 What the purpose of @Configuration annotation in Spring boot?
+# Q - What the purpose of @Configuration annotation in Spring boot?
 
 The `@Configuration` annotation tells Spring this class provides bean definitions.
 
@@ -1346,9 +1374,10 @@ Interviewers often ask: "Can we disable this CGLIB behavior to improve performan
   class (i.e., no method calls each other), or if you purely use parameter injection.
 
 
+------------
 
 
-# Q-16 What does the @SpringBootApplicaton annotation does?
+# Q - What does the @SpringBootApplicaton annotation does?
 
 The `@SpringBootApplication` annotation is a convenience annotation that acts as the main 
 entry point for a Spring Boot application.
@@ -1428,9 +1457,10 @@ to change the scanning behavior.
  multi-module project or need to include beans from a library outside your main package structure.
 
 
+------------
 
 
-# Q-17 How to disable specific configuration class?
+# Q - How to disable specific configuration class?
 
 In Spring Boot, you might sometimes want to prevent a specific default behavior (like Spring 
 automatically configuring a database you don't need). You can do this in two ways:
@@ -1546,9 +1576,10 @@ app.email.enabled=true  # Set to false to disable the entire config
 | **`@ConditionalOnProperty`** | You want to toggle **specific features** on/off via configuration.                                               | Feature flags, optional modules.      |
 
 
+------------
 
 
-# Q-18 Can we replace Embedded Tomcat server in Spring boot?
+# Q - Can we replace Embedded Tomcat server in Spring boot?
 
 Yes, absolutely. Spring Boot is designed to be flexible, and the embedded Tomcat 
 server is just the default.
@@ -1594,8 +1625,10 @@ the `spring-boot-starter-web` and then add the dependency for the server you wan
 ```
 
 
+------------
 
-# Q-19 What is RestController and how it's related to @Controller?
+
+# Q - What is RestController and how it's related to @Controller?
 
 `@RestController` is a specialized version of the `@Controller` annotation used in Spring MVC. 
 It is a convenience annotation designed specifically for creating RESTful Web Services.
@@ -1673,8 +1706,10 @@ public class NewUserController {
 ```
 
 
+------------
 
-# Q-20 What's the difference between @RequestMapping and @GetMapping?
+
+# Q - What's the difference between @RequestMapping and @GetMapping?
 
 In Spring Framework, both annotations are used to map HTTP requests to controller methods, but they 
 differ in scope, intent, and clarity.
@@ -1761,8 +1796,10 @@ public class UserController {
 ```
 
 
+------------
 
-# Q-21 What's Profile in Spring boot?
+
+# Q - What's Profile in Spring boot?
 
 In Spring Boot, a Profile is a mechanism used to group and activate beans and configuration based
 on the runtime environment.
@@ -1819,7 +1856,10 @@ application-prod.properties
 ```
 
 
-# Q-22 How do you read configuration values in a Spring Boot application?
+------------
+
+
+# Q - How do you read configuration values in a Spring Boot application?
 
 
 ## 1. Using @Value (Simple, small use cases)
@@ -1951,9 +1991,10 @@ public class OrderService {
 * Supports validation
 
 
+------------
 
 
-# Q-23 What is RestControllerAdvice?
+# Q - What is RestControllerAdvice?
 
 `@RestControllerAdvice` is a specialized Spring annotation used to implement global 
 exception handling and response customization for REST APIs.
@@ -2040,8 +2081,10 @@ public class GlobalExceptionHandler {
 
 
 
+------------
 
-# Q-24 What is Spring Actuator?
+
+# Q - What is Spring Actuator?
 
 Spring Boot Actuator is a production-ready module of Spring Boot that provides built-in 
 endpoints to monitor, manage, and inspect a running application.
@@ -2197,8 +2240,10 @@ Access URL:
 
 
 
+------------
 
-# Q-25 What is spring-boot-maven-plugin?
+
+# Q - What is spring-boot-maven-plugin?
 
 The spring-boot-maven-plugin is a vital tool that bridges the gap between 
 a standard Maven build and a Spring Boot application.
@@ -2234,10 +2279,11 @@ The Spring Boot plugin steps in after the standard package phase. It creates a n
 * `build-info`: Generates a `build-info.properties` file containing version, time, and artifact
   details (useful for actuator health checks).
 
+  
+------------
 
 
-
-# Q-26 What are the advantages of yaml over properties file?
+# Q - What are the advantages of yaml over properties file?
 
 In Spring Boot, configuration can be written using either:
 
@@ -2358,9 +2404,10 @@ If both `application.yml` and `application.properties` exist, Spring Boot loads 
 from `application.properties` override those from `application.yml`.
 
 
+------------
 
 
-# Q-27 What's the difference between liveness and readiness?
+# Q - What's the difference between liveness and readiness?
 
 * **Liveness:** "Is the application running?"
 * **Readiness:** "Is the application ready to accept traffic?"
@@ -2422,12 +2469,14 @@ from `application.properties` override those from `application.yml`.
 | Failure action    | Pod restarted | Pod removed from load balancer |
 | Traffic impact    | Indirect      | Immediate                      |
 | Used for          | Self-healing  | Traffic control                |
-| Restart triggered | ✅ Yes         | ❌ No                           |
+| Restart triggered | ✅ Yes        | ❌ No                          |
 
 
 
+------------
 
-# Q-28 What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?
+
+# Q - What are Servlets? What is a Web (Servlet) Container, and why is it needed? What problems did developers face with Servlets that led to frameworks like Spring MVC?
 
 ## 1. What are Servlets?
 
@@ -2547,8 +2596,10 @@ They work well, but they force developers to handle **too many concerns in one p
 * Filters become overloaded and hard to manage
 
 
+------------
 
-# Q-29 When we define Controller, it gets converted to servlet or not?
+
+# Q - When we define Controller, it gets converted to servlet or not?
 
 ❌ No. A Spring `@Controller` **is NOT converted into a Servlet**.
 
@@ -2564,9 +2615,10 @@ The servlet involved is `DispatcherServlet`.
 * Controllers are **plain Java objects (POJOs)**
 
 
+------------
 
 
-# Q-30 Explain Filter and Interceptor. How do they differ?
+# Q - Explain Filter and Interceptor. How do they differ?
 
 ## 1. What is a Filter?
 
@@ -2674,7 +2726,11 @@ Response
 
 
 
-# Q-31 Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?
+
+------------
+
+
+# Q - Why can a Servlet Filter execute more than once for a single HTTP request? Explain the underlying mechanism and give concrete examples?
 
 ## 1. Very Basics — What does “execute once” even mean?
 
@@ -2708,259 +2764,242 @@ Each dispatcher type represents **a new entry into the filter chain**.
 
 ## 3. Core Rule (must be memorized)
 
+>
 > Every dispatch re-enters the filter chain.
 >
 
 **So if a single HTTP request causes multiple dispatches, the filter may execute multiple times**.
 
+The following are two cases illustrates multiple dispatching.
 
-## 4. Case 1 — ERROR dispatch (most common in Spring Boot)
+## Case 1 — Forward dispatch (most common in Spring Boot)
 
-**Code**
+Here is the exact, step-by-step lifecycle of what happens inside 
+the web server when a request undergoes a 
+**server-side forward** (e.g., forwarding from `/v1/user` to `/v2/user`).
 
-```java
-@RestController
-public class UserController {
+---
 
+### Overview of the Flow
+
+Unlike an HTTP redirect (`302 Found`), a server-side 
+forward **never returns to the browser**. Everything happens entirely inside 
+the Servlet Container (Tomcat/Jetty) within a **single TCP connection and a single HTTP Request object**.
+
+---
+
+### Step 1: Initial HTTP Request Arrives from Client
+
+1. The browser sends an HTTP request: `GET /v1/user`.
+2. Tomcat creates two core Java objects:
+   * **`HttpServletRequest`** (holding parameters, headers, URL `/v1/user`).
+   * **`HttpServletResponse`** (empty response stream).
+
+3. Tomcat sets the request metadata flag:
+   * `request.getDispatcherType()` = `DispatcherType.REQUEST`
+
+
+---
+
+### Step 2: First Pass Through the Filter Chain
+
+1. The request enters the **Servlet Filter Chain** for the first time.
+2. Filters configured for `DispatcherType.REQUEST` execute (e.g., authentication, logging).
+3. If using standard `OncePerRequestFilter`, Spring attaches an internal flag to the request:
+     `request.setAttribute("MyFilter.FILTERED", true)`.
+
+---
+
+### Step 3: Execution Hits Controller #1 (`/v1/user`)
+
+1. Tomcat routes the request to `v1Controller`.
+2. Inside `v1Controller`, the method executes and returns a forward directive:
+
+    ```java
+    return "forward:/v2/user"; // Or request.getRequestDispatcher("/v2/user").forward(req, res);
+    ```
+
+
+---
+
+### Step 4: Container Updates Request Metadata (The Mutation)
+
+Before handing off control to `/v2/user`, the Servlet 
+Container **modifies the existing `HttpServletRequest` object in-place**:
+
+1. **Updates Dispatcher Type:** Changes `request.getDispatcherType()` from `REQUEST` to **`DispatcherType.FORWARD`**.
+2. **Injects Backup Attributes:** To preserve the original request info, it injects these attributes:
+   * `jakarta.servlet.forward.request_uri` = `"/v1/user"`
+   * `jakarta.servlet.forward.servlet_path` = `"/v1/user"`
+
+3. **Updates Current Target URI:** Updates `request.getRequestURI()` to **`"/v2/user"`**.
+
+---
+
+### Step 5: Re-dispatching & Second Pass Through the Filter Chain
+
+1. The container **re-dispatches** the modified request back to the filter pipeline targeting `/v2/user`.
+2. **What happens to Filters here?**
+   * **Plain Filters mapped to `FORWARD`:** Execute **again** (2nd time!).
+   * **Spring's `OncePerRequestFilter`:** Checks for its flag (`"MyFilter.FILTERED"`), sees it already 
+     ran in Step 2, and **skips execution**.
+
+---
+
+### Step 6: Execution Hits Controller #2 (`/v2/user`)
+
+1. The request reaches `v2Controller` mapped to `/v2/user`.
+2. `v2Controller` processes the business logic and generates the final output 
+    payload (e.g., JSON response or view model).
+
+---
+
+### Step 7: Response Unwinds and Sent to Browser
+
+1. Execution unwinds backward out of Controller #2 and through the filters.
+2. Tomcat flushes the `HttpServletResponse` output stream back across the network to the browser.
+3. **Browser State:** * The browser receives the HTTP response with status `200 OK`.
+   * The URL bar in the browser still shows `/v1/user` because the browser has no idea 
+     an internal forward ever happened!
+
+
+---------
+
+## Case 2 — Error dispatch (most common in Spring Boot)
+
+Here is the exact, step-by-step lifecycle of what happens inside the web server 
+when a request triggers an **`ERROR` dispatch** in Spring Boot (for example, when 
+a controller throws an unhandled exception).
+
+---
+
+### Overview of the Flow
+
+When an unhandled exception occurs inside a controller method, 
+Spring Boot does not send a raw stack trace directly to the browser. 
+Instead, the Servlet Container catches the exception, modifies the request, 
+and **re-dispatches the request internally** to Spring Boot's default error handling 
+controller (usually `/error`).
+
+---
+
+### Step 1: Initial HTTP Request Arrives from Client
+
+1. The browser sends an HTTP request: `GET /user`.
+2. Tomcat creates the standard Java request/response objects:
+   * **`HttpServletRequest`** (holding URL `/user`, headers, params).
+   * **`HttpServletResponse`**.
+
+
+3. Tomcat sets the initial metadata flag:
+   * `request.getDispatcherType()` = `DispatcherType.REQUEST`
+
+---
+
+### Step 2: First Pass Through the Filter Chain
+
+1. The request enters the **Servlet Filter Chain** for the first time.
+2. Filters configured for `DispatcherType.REQUEST` run (e.g., logging, security checks).
+3. If using `OncePerRequestFilter`, Spring attaches its completion flag to the request:
+   `request.setAttribute("MyFilter.FILTERED", true)`.
+
+---
+
+### Step 3: Controller Throws an Exception
+
+1. The request reaches the `@RestController` mapped to `/user`.
+2. The controller method executes and throws an unhandled exception:
+
+    ```java
     @GetMapping("/user")
-    public String getUser() {
-        throw new RuntimeException("boom");
+    public User getUser() {
+        throw new RuntimeException("Database Connection Timeout!");
     }
-}
-```
-
-**What happens internally**
-
-```text
-DISPATCH #1 → REQUEST
-  ↓
-Filter executes
-  ↓
-Controller throws exception
-
-DISPATCH #2 → ERROR
-  ↓
-Filter executes again (if mapped to ERROR)
-  ↓
-/error handler
-```
-
-**Important Spring Boot default**
-
-* Filters are auto-registered for **REQUEST** only
-* **ERROR** dispatch still happens
-* Filter runs **again only if ERROR is enabled explicitly**
+    ```
 
 
-## 5. Case 2 — FORWARD dispatch (server-side routing)
+3. Because there is no local `@ExceptionHandler` or try-catch inside the controller, the exception 
+   bubbles up out of the controller to the Servlet Container.
 
-**Code**
+---
 
-```java
-@Controller
-public class UserController {
+### Step 4: Container Updates Request Metadata (The Error Capture)
 
-    @GetMapping("/v1/user")
-    public String v1() {
-        return "forward:/v2/user";
+Before re-dispatching, Tomcat catches the thrown exception 
+and **decorates the existing `HttpServletRequest` object with error metadata**:
+
+1. **Updates Dispatcher Type:** Changes `request.getDispatcherType()` from `REQUEST` to **`DispatcherType.ERROR`**.
+2. **Injects Error Attributes:** Injects specialized servlet attributes into the request so the error handler can read them:
+   * `jakarta.servlet.error.exception` = `RuntimeException("Database Connection Timeout!")`
+   * `jakarta.servlet.error.status_code` = `500`
+   * `jakarta.servlet.error.request_uri` = `"/user"` (Original failed URL)
+   * `jakarta.servlet.error.servlet_name` = `"dispatcherServlet"`
+
+
+3. **Updates Target URI:** Changes the request's internal target path to the configured 
+    error path (default: **`"/error"`**).
+
+---
+
+### Step 5: Re-dispatching & Second Pass Through the Filter Chain
+
+1. Tomcat **re-dispatches** the request internally to target the `/error` URI.
+2. **What happens to Filters here?**
+   * **Standard Filters (with `DispatcherType.ERROR` enabled):** Execute **again** (2nd pass!).
+   * **Spring Boot Defaults:** By default, Spring Boot registers custom filters 
+     for `DispatcherType.REQUEST` only. So unless you explicitly 
+     enable `ERROR` in `FilterRegistrationBean`, plain filters won't run again.
+   * **Spring's `OncePerRequestFilter`:** Checks its internal flag (`"MyFilter.FILTERED"`), sees it 
+     already executed during Step 2, and **skips execution**.
+
+
+---
+
+### Step 6: Execution Hits the `/error` Controller (`BasicErrorController`)
+
+1. The request reaches Spring Boot's internal **`BasicErrorController`** mapped to `/error`.
+2. `BasicErrorController` reads the error attributes injected into the request in Step 4 (`jakarta.servlet.error.exception`, `status_code`, etc.).
+3. It constructs the standard JSON response payload:
+
+    ```json
+    {
+      "timestamp": "2026-07-28T20:51:00.000+00:00",
+      "status": 500,
+      "error": "Internal Server Error",
+      "message": "Database Connection Timeout!",
+      "path": "/user"
     }
+    ```
 
-    @GetMapping("/v2/user")
-    @ResponseBody
-    public String v2() {
-        return "user v2";
-    }
-}
-```
+---
 
-**Dispatch flow**
+### Step 7: Response Unwinds and Sent to Browser
 
-```text
-DISPATCH #1 → REQUEST (/v1/user)
-  ↓
-Filter executes
-  ↓
-Controller returns forward
-
-DISPATCH #2 → FORWARD (/v2/user)
-  ↓
-Filter executes again (if mapped to FORWARD)
-```
-
-**Key point**
-
-* Same HTTP request
-* Same request object
-* Browser URL unchanged
-* Two dispatches → possible double execution
+1. Execution unwinds backward out of `/error` and through the filters.
+2. Tomcat sets the HTTP response status to `500 Internal Server Error` and flushes 
+   the JSON payload to the client.
+3. **Browser State:**
+   * The client receives a `500` status with the error JSON.
+   * The client's URL bar remains `/user`.
 
 
+---
 
-## 6. Case 3 — ASYNC dispatch (modern Spring MVC)
+### Quick Comparison: `FORWARD` vs `ERROR` Dispatch
 
-**Code**
-
-```java
-@GetMapping("/async")
-public Callable<String> async() {
-    return () -> "done";
-}
-```
-
-**Dispatch flow**
-
-```text
-DISPATCH #1 → REQUEST
-  ↓
-Filter executes
-  ↓
-Async started
-  ↓
-Thread released
-
-DISPATCH #2 → ASYNC
-  ↓
-Filter executes again (if mapped to ASYNC)
-  ↓
-Response written
-```
-
-**Why this happens**
-
-Async is `pause + resume`, not continuation. The container must re-dispatch to complete the response.
+| Metadata / Property               | Initial Request          | `FORWARD` Dispatch                    | `ERROR` Dispatch                      |
+|-----------------------------------|--------------------------|---------------------------------------|---------------------------------------|
+| **`request.getDispatcherType()`** | `DispatcherType.REQUEST` | `DispatcherType.FORWARD`              | **`DispatcherType.ERROR`**            |
+| **Trigger Cause**                 | Client network call      | Controller returns `"forward:/..."`   | **Unhandled Exception thrown**        |
+| **Target Route**                  | `/user`                  | `/v2/user`                            | **`/error`**                          |
+| **Primary Attribute Set**         | None                     | `jakarta.servlet.forward.request_uri` | **`jakarta.servlet.error.exception`** |
+| **Final HTTP Status**             | `200 OK`                 | `200 OK`                              | **`500 Internal Server Error`**       |
 
 
-## 7. Case 4 — INCLUDE dispatch (legacy but valid)
-
-**Code**
-
-```java
-request.getRequestDispatcher("/header").include(request, response);
-```
-
-**Dispatch flow**
-
-```text
-DISPATCH #1 → REQUEST
-DISPATCH #2 → INCLUDE
-```
-
-Filter executes twice if INCLUDE is enabled.
+--------------------
 
 
-## 8. Why this does NOT always happen in Spring Boot
-
-Spring Boot design decision
-
-> Auto-registered filters are mapped to:
-
-
-```text
-DispatcherType.REQUEST only
-```
-
-So:
-
-* Multiple dispatches still occur
-* Filters participate only in REQUEST
-* This avoids accidental double execution
-
-
-## 9. How double execution actually happens in real projects
-
-Explicit dispatcher type configuration
-
-```java
-@Bean
-FilterRegistrationBean<MyFilter> reg() {
-    FilterRegistrationBean<MyFilter> bean = new FilterRegistrationBean<>();
-    bean.setFilter(new MyFilter());
-    bean.setDispatcherTypes(
-        DispatcherType.REQUEST,
-        DispatcherType.ERROR,
-        DispatcherType.FORWARD
-    );
-    return bean;
-}
-```
-
-Now the filter executes once **per matching dispatch**.
-
-
-## 10. How OncePerRequestFilter fits in
-
-Even if multiple dispatches occur:
-
-```java
-public class MyFilter extends OncePerRequestFilter { }
-```
-
-Spring ensures:
-
-```text
-REQUEST → executes
-ERROR   → skipped
-FORWARD → skipped
-ASYNC   → skipped
-```
-
-So the filter runs **once per logical HTTP request**.
-
-
-## 11. Special case — Spring Security (important gotcha)
-
-A filter may execute twice **even without multiple dispatches if**:
-
-* Registered in **Servlet filter chain**
-* AND added to **Spring Security filter chain**
-
-This is a **registration issue**, not a dispatch issue.
-
-We can prevent this situation by defining a bean of type `FilterRegistrationBean`:
-
-```java
-@Bean
-public FilterRegistrationBean staticKeyAuth() {
-    FilterRegistrationBean registration = new FilterRegistrationBean();
-    registration.setFilter(new SomeFilter());
-    registration.setEnabled(false);
-    return registration;
-}
-```
-
-Here `registration.setEnabled(false)` 
-tells Spring Boot: "I am giving you this Filter bean, but DO NOT automatically 
-register it in the Servlet filter chain."
-
-Now:
-
-* **Servlet Container:** Ignores the filter (it won't run automatically).
-* **Spring Context:** Still holds the Bean (so you can `@Autowired` it).
-* **Spring Security:** You can manually inject it and place it exactly 
-  where you want using `http.addFilterBefore()`.
-
-
-**Note:** Simply annotating a filter with `@Component` registers it in the global 
-**Servlet Filter Chain**. It does not automatically add it to the 
-Spring Security Filter Chain, even if Spring Security is on the classpath.
-Filter gets added to the spring security only when you call `http.addFilter()`.
-
-
-## 12. Summary Table (Interview Gold)
-
-| Cause             | Why filter runs twice    |
-|-------------------|--------------------------|
-| ERROR dispatch    | Exception handling       |
-| FORWARD dispatch  | Internal routing         |
-| ASYNC dispatch    | Async resume             |
-| INCLUDE dispatch  | Resource inclusion       |
-| Dual registration | Servlet + Security chain |
-
-
-
-
-
-# Q-33 If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?
+# Q - If multiple Servlet Filters are registered in a Spring Boot application, how is their execution order determined, and how can we explicitly control that order?
 
 Assume we have the following two filters:
 
@@ -3090,8 +3129,10 @@ DispatcherServlet
 * Execution order **must be explicitly defined**
 
 
+------------
 
-# Q-34 How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?
+
+# Q - How can we make a Servlet Filter execute only for certain endpoints in a Spring Boot application?
 
 
 ## Option 1 - Use FilterRegistrationBean with URL patterns (BEST & CLEANEST)
@@ -3227,7 +3268,10 @@ Controller
 ```
 
 
-# Q-35 How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.
+------------
+
+
+# Q - How does transaction management work in Spring? Explain the role of @Transactional, proxies, and what happens at runtime.
 
 ## 1. What is a transaction? (Very basics)
 
@@ -3330,7 +3374,10 @@ or
 ```
 
 
-# Q-36 What is Transaction Propagation?
+------------
+
+
+# Q - What is Transaction Propagation?
 
 Transaction propagation defines how a transactional method behaves when it is called from 
 another transactional method—specifically, whether it **joins**, **creates**, **suspends**, 
@@ -4106,7 +4153,7 @@ IllegalTransactionStateException
 * `NEVER` → forbids a transaction
 
 
----------------
+------------
 
 
 # Q - What is Isolation Levels in Spring?
@@ -4175,12 +4222,12 @@ Here is exactly how they map to each other at the ground level:
 
 #### The Mapping Table
 
-| Isolation Level      | Dirty Read      | Non-Repeatable Read | Phantom Read    |
-|----------------------|-----------------|---------------------|-----------------|
-| **Read Uncommitted** | ❌ (Allowed)     | ❌ (Allowed)         | ❌ (Allowed)     |
-| **Read Committed**   | ✅ **Prevented** | ❌ (Allowed)         | ❌ (Allowed)     |
-| **Repeatable Read**  | ✅ **Prevented** | ✅ **Prevented**     | ❌ (Allowed)     |
-| **Serializable**     | ✅ **Prevented** | ✅ **Prevented**     | ✅ **Prevented** |
+| Isolation Level      | Dirty Read       | Non-Repeatable Read | Phantom Read     |
+|----------------------|------------------|---------------------|------------------|
+| **Read Uncommitted** | ❌ (Allowed)     | ❌ (Allowed)        | ❌ (Allowed)     |
+| **Read Committed**   | ✅ **Prevented** | ❌ (Allowed)        | ❌ (Allowed)     |
+| **Repeatable Read**  | ✅ **Prevented** | ✅ **Prevented**    | ❌ (Allowed)     |
+| **Serializable**     | ✅ **Prevented** | ✅ **Prevented**    | ✅ **Prevented** |
 
 ---
 
@@ -4215,7 +4262,7 @@ Here is exactly how they map to each other at the ground level:
 ---------------
 
 
-# Q-37 What is the @Async annotation in Spring? How does it work internally, and when should we use it?
+# Q - What is the @Async annotation in Spring? How does it work internally, and when should we use it?
 
 `@Async` is a Spring annotation used to execute a method asynchronously—that is, the 
 method runs in a separate thread so the caller does not block waiting for it to finish.
@@ -4383,8 +4430,10 @@ Fix:
 * The task is CPU-bound without proper limits
 
 
+------------
 
-# Q-38 What is Data Source?
+
+# Q - What is Data Source?
 
 Ans: The data source is a component that manages connections to the database management
 systems (DBMS). The data source uses the JDBC driver to get the connections it manages. The 
@@ -4411,9 +4460,10 @@ a data source to retrieve and manage the connections.
 HikariCP the default data source implementation.
 
 
+------------
 
 
-# Q-39 What is JDBC Driver 
+# Q - What is JDBC Driver 
 
 Ans: JDBC offers you a way to connect to a DBMS to work with a database. However, the JDK 
 doesn’t provide a specific implementation for working with a particular technology (such as 
@@ -4425,9 +4475,10 @@ app to enable it to connect to that specific technology. The JDBC driver is not 
 comes either from the JDK or from a framework such as Spring.
 
 
+------------
 
 
-# Q-40 How to configure multiple data sources in Spring Boot?
+# Q - How to configure multiple data sources in Spring Boot?
 
 ## 1. Why do we need multiple data sources?
 
@@ -4610,9 +4661,10 @@ Spring resolves DB usage based on:
 
 
 
+------------
 
 
-# Q-41 What are different levels of logging (in order of less severe to more severe)?
+# Q - What are different levels of logging (in order of less severe to more severe)?
 
 1. `TRACE`: The least severe. Provides fine-grained informational events useful for debugging.
 2. `DEBUG`: Provides detailed information for diagnosing problems.
@@ -4622,9 +4674,10 @@ Spring resolves DB usage based on:
 6. `FATAL`: Very severe error events that will presumably lead the application to abort.
 
 
+------------
 
 
-# Q-42 What are the various ways to activate spring profile?
+# Q - What are the various ways to activate spring profile?
 
 ```bash
 # this method is called command line arguments
@@ -4646,9 +4699,10 @@ $ SPRING_PROFILES_ACTIVE=qa java -jar target/userservice-0.0.1-SNAPSHOT.jar
 ```
 
 
+------------
 
 
-# Q-43 What is the order in which Spring Boot configuration is processed?
+# Q - What is the order in which Spring Boot configuration is processed?
 
 Configuration precedence (HIGHEST → LOWEST)
 
@@ -4759,10 +4813,16 @@ SpringApplication.setDefaultProperties(...)
 9. Default properties
 ```
 
+------------
 
-# Q-43 In Spring MVC async request processing, how does the servlet container resume request handling after an asynchronous task completes?
 
-# Q-44 What is the Spring Bean lifecycle?
+# Q - In Spring MVC async request processing, how does the servlet container resume request handling after an asynchronous task completes?
+
+
+------------
+
+
+# Q - What is the Spring Bean lifecycle?
 
 ## Plain Java (NO Spring)
 
@@ -5097,9 +5157,10 @@ Beans are destroyed in reverse order.
 * Bean is NOT ready until after `afterInitialization`
 
 
+------------
 
 
-# Q-45 What is DispatcherServlet and how does request flow work?
+# Q - What is DispatcherServlet and how does request flow work?
 
 ## What is DispatcherServlet?
 
@@ -5284,9 +5345,10 @@ Same receptionist, request comes back later to finish.
 * Safe for concurrent requests
 
 
+-----------
 
 
-# Q-46 Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?
+# Q - Difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?
 
 Short answer:
 > All three are Spring Data repository interfaces.
@@ -5434,9 +5496,10 @@ Because it is tightly coupled to JPA and exposes:
 `CrudRepository` and `PagingAndSortingRepository` are store-agnostic.
 
 
+------------
 
 
-# Q-47 What is EntityManager vs Repository abstraction?
+# Q - What is EntityManager vs Repository abstraction?
 
 This is a comparison between the Low-Level Core (EntityManager) and 
 the High-Level Abstraction (Repository).
@@ -5533,9 +5596,10 @@ in two specific scenarios:"
   every 50 records to prevent `OutOfMemoryError`.
 
 
+------------
 
 
-# Q-48 What is AOP and why is it used?
+# Q - What is AOP and why is it used?
 
 AOP (Aspect-Oriented Programming) is a programming paradigm that aims to 
 increase modularity by allowing the separation of cross-cutting concerns.
@@ -5803,9 +5867,10 @@ This happens in:
 That's why AOP is runtime-based.
 
 
+------------
 
 
-# Q-49 Difference between JDK dynamic proxies and CGLIB
+# Q - Difference between JDK dynamic proxies and CGLIB
 
 ## 1. JDK Dynamic Proxies
 
@@ -5918,9 +5983,10 @@ You can override this:
 Forces CGLIB even if interface exists.
 
 
+------------
 
 
-# Q-50 Why does AOP not work on private methods?
+# Q - Why does AOP not work on private methods?
 
 Spring AOP is Proxy-based. It works by creating a wrapper (Proxy) around your 
 bean that intercepts method calls.
@@ -5958,7 +6024,7 @@ it can intercept anything—private methods, static methods, and even constructo
 But that is a different technology stack than standard Spring AOP."
 
 
-------------------------
+------------
 
 
 # Q - What is pessimistic locking? What’s your approach to handling row-level locks?
@@ -6040,7 +6106,7 @@ then wants Row A, you have a **Deadlock**.
 | **Best Case**   | High-volume, low-contention.          | Low-volume, high-contention (Money/Inventory). |
 
 
-------------------
+------------
 
 
 # Q -  How do you handle concurrency issues (e.g., withdrawing money from multiple channels simultaneously)?
