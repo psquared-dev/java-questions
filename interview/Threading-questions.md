@@ -137,33 +137,33 @@
     * [3. The "Async Pipeline" Nightmare (Nested `.get()` Dependencies)](#3-the-async-pipeline-nightmare-nested-get-dependencies)
     * [4. Brittle Exception Handling](#4-brittle-exception-handling)
   * [The Resolution](#the-resolution)
-  * [Group A: Initiating Asynchronous Tasks](#group-a-initiating-asynchronous-tasks)
-    * [1. `supplyAsync` (Returns a Result)](#1-supplyasync-returns-a-result)
-    * [2. `runAsync` (Fire-and-Forget / Void)](#2-runasync-fire-and-forget--void)
-  * [Group B: Transforming and Chaining (Pipelining)](#group-b-transforming-and-chaining-pipelining)
-  * [Group C: Combining Multiple Futures](#group-c-combining-multiple-futures)
-    * [1. `thenCombine` (Merge Two Independent Futures)](#1-thencombine-merge-two-independent-futures)
-    * [2. `CompletableFuture.allOf` (Wait for a Batch)](#2-completablefutureallof-wait-for-a-batch)
-    * [3. `CompletableFuture.anyOf` (Fastest Match Wins)](#3-completablefutureanyof-fastest-match-wins)
-  * [How `CompletableFuture` Handles Errors](#how-completablefuture-handles-errors)
-    * [1. `.exceptionally(Function<Throwable, T>)`](#1-exceptionallyfunctionthrowable-t)
-    * [2. `.handle(BiFunction<T, Throwable, U>)`](#2-handlebifunctiont-throwable-u)
-    * [3. `.whenComplete(BiConsumer<T, Throwable>)`](#3-whencompletebiconsumert-throwable)
+  * [🏗️ Group 1: Initiating Asynchronous Tasks](#-group-1-initiating-asynchronous-tasks)
+    * [1. `supplyAsync()`](#1-supplyasync)
+    * [2. `runAsync()`](#2-runasync)
+  * [⚡ Group 2: Transforming & Chaining (Single Pipeline)](#-group-2-transforming--chaining-single-pipeline)
+    * [3. `thenApply()`](#3-thenapply)
+    * [4. `thenCompose()`](#4-thencompose)
+    * [5. `thenAccept()`](#5-thenaccept)
+  * [🔀 Group 3: Combining Multiple Futures](#-group-3-combining-multiple-futures)
+    * [6. `thenCombine()`](#6-thencombine)
+    * [7. `allOf()`](#7-allof)
+    * [8. `anyOf()`](#8-anyof)
+  * [🚨 Group 4: Exception Handling & Recovery](#-group-4-exception-handling--recovery)
+    * [9. `exceptionally()`](#9-exceptionally)
+    * [10. `handle()`](#10-handle)
 * [Q - What is Virtual Thread?](#q---what-is-virtual-thread)
-  * [The Analogy](#the-analogy)
-    * [The Old Way: Platform Threads (The "Personal Butler" Model)](#the-old-way-platform-threads-the-personal-butler-model)
-    * [The New Way: Virtual Threads (The "Order Pad" Model)](#the-new-way-virtual-threads-the-order-pad-model)
-    * [The Technical Translation](#the-technical-translation)
-    * [Why is this huge?](#why-is-this-huge)
-  * [Virtual Threads (VTs)](#virtual-threads-vts)
-    * [What problem do they solve?](#what-problem-do-they-solve)
-    * [What happens when a VT blocks?](#what-happens-when-a-vt-blocks)
-  * [What are Cooperative Threads](#what-are-cooperative-threads)
-  * [How Virtual Threads DIFFER from Cooperative Threads](#how-virtual-threads-differ-from-cooperative-threads)
-  * [Why people mistakenly call VTs "cooperative"](#why-people-mistakenly-call-vts-cooperative)
+  * [The Class Hierarchy Under the Hood](#the-class-hierarchy-under-the-hood)
+  * [How You Create Them in Code](#how-you-create-them-in-code)
+  * [How to Check at Runtime](#how-to-check-at-runtime)
   * [Example of Virtual Thread](#example-of-virtual-thread)
 * [Q - What is Thread Local?](#q---what-is-thread-local)
-  * [The Purpose](#the-purpose)
+    * [1. The Core Architecture (The Inverted Model)](#1-the-core-architecture-the-inverted-model)
+    * [2. What Happens Step-by-Step in Memory](#2-what-happens-step-by-step-in-memory)
+      * [When **Thread A** calls `context.set(userA)`:](#when-thread-a-calls-contextsetusera)
+      * [When **Thread B** calls `context.set(userB)`:](#when-thread-b-calls-contextsetuserb)
+      * [When **Thread A** calls `context.get()`:](#when-thread-a-calls-contextget)
+    * [3. Visual Layout of Memory](#3-visual-layout-of-memory)
+    * [4. Why Is It Designed This Way?](#4-why-is-it-designed-this-way)
   * [Code Example: The "Context Holder" Pattern](#code-example-the-context-holder-pattern)
   * [The Danger: Memory Leaks (The "Dirty Thread" Problem)](#the-danger-memory-leaks-the-dirty-thread-problem)
 * [Q - What is CountDownLatch vs CyclicBarrier?](#q---what-is-countdownlatch-vs-cyclicbarrier)
@@ -2536,172 +2536,314 @@ try {
 
 ##  The Resolution
 
-CompletableFuture provides a rich API that allows you to start, transform, and combine 
+`CompletableFuture` provides a rich API that allows you to start, transform, and combine 
 asynchronous operations without nesting or blocking.
+---
 
-Here are practical, interview-ready code examples mapping directly to the three core capability groups (**A**, **B**, and **C**) we discussed for organizing your `CompletableFuture` API knowledge.
+Here is the comprehensive handbook explaining all 10 
+core `CompletableFuture` methods:
 
 ---
 
-## Group A: Initiating Asynchronous Tasks
+## 🏗️ Group 1: Initiating Asynchronous Tasks
 
-These examples demonstrate how to kick off background jobs using the 
-static factory methods rather than manually handling an execution framework.
+### 1. `supplyAsync()`
 
-### 1. `supplyAsync` (Returns a Result)
+* 📌 **Role & Signature:** Static factory method used to start an asynchronous 
+computation that **computes and returns a result**.
+    * **Input:** `Supplier<T>` (Signature: `T get()` — takes no args, returns value of type `T`).
+    * **Returns:** `CompletableFuture<T>`.
+    * **Execution:** Executed on `ForkJoinPool.commonPool()` by default unless a custom `Executor` is passed.
 
-Use this when your background task computes or fetches data that your application needs later.
+* **Practical Code Example:**
 
-```java
-import java.util.concurrent.CompletableFuture;
-
-[cite_start]// Starts a background task in ForkJoinPool.commonPool() to fetch data [cite: 178]
-CompletableFuture<String> dataFuture = CompletableFuture.supplyAsync(() -> {
-    // Simulating a network or DB query
-    return "Fetched User Data Payload"; 
-});
-
-```
-
-### 2. `runAsync` (Fire-and-Forget / Void)
-
-Use this when you need to trigger a background task purely for its side effects, with no 
-data returning to the pipeline.
-
-```java
-[cite_start]// Executes a background task that performs an action but returns nothing (void) [cite: 179]
-CompletableFuture<Void> loggingFuture = CompletableFuture.runAsync(() -> {
-    System.out.println("[LOG] Asynchronous audit log entry written by " + Thread.currentThread().getName());
-});
-```
-
----
-
-## Group B: Transforming and Chaining (Pipelining)
-
-These methods demonstrate how `CompletableFuture` acts as a reactive push pipeline, automatically
-forwarding data from one completed stage to the next without blocking the main thread.
-
-```java
-CompletableFuture.supplyAsync(() -> "Order_ID_4562") // Starts Stage
-    
-    // 1. thenApply() -> Like a 'map' function. [cite_start]Transforms the string to an Order object[cite: 180].
-    .thenApply(orderId -> fetchOrderDetails(orderId)) 
-    
-    // 2. thenCompose() -> Like a 'flatMap'. [cite_start]Use when the next step ALSO returns a CompletableFuture[cite: 183].
-    [cite_start]// This flattens what would have been a CompletableFuture<CompletableFuture<Invoice>>[cite: 184].
-    .thenCompose(order -> paymentService.processPaymentAsync(order)) 
-    
-    // 3. thenAccept() -> Terminal operation. [cite_start]Consumes the final result and yields nothing[cite: 182].
-    .thenAccept(invoice -> System.out.println("Receipt printed for: " + invoice.getAmount()));
-```
-
----
-
-## Group C: Combining Multiple Futures
-
-These methods showcase coordination patterns, allowing you to synchronize independent asynchronous
-streams cleanly.
-
-### 1. `thenCombine` (Merge Two Independent Futures)
-
-Executes two tasks concurrently and merges their outcomes using a function once both complete.
-
-```java
-CompletableFuture<Double> priceFuture = CompletableFuture.supplyAsync(() -> 199.99);
-CompletableFuture<Double> discountFuture = CompletableFuture.supplyAsync(() -> 20.00);
-
-[cite_start]// Combines both independent results when they finish [cite: 185]
-CompletableFuture<Double> finalPriceFuture = priceFuture.thenCombine(discountFuture, (price, discount) -> {
-    return price - discount; 
-});
-
-```
-
-### 2. `CompletableFuture.allOf` (Wait for a Batch)
-
-Takes a collection of futures and returns a collective future that completes only 
-when **all** tasks in the batch have finished executing.
-
-```java
-CompletableFuture<String> task1 = CompletableFuture.supplyAsync(() -> "Image 1 Optimized");
-CompletableFuture<String> task2 = CompletableFuture.supplyAsync(() -> "Image 2 Optimized");
-CompletableFuture<String> task3 = CompletableFuture.supplyAsync(() -> "Image 3 Optimized");
-
-[cite_start]// Creates a composite future that blocks/triggers ONLY when all three complete [cite: 186]
-CompletableFuture<Void> allBatchFuture = CompletableFuture.allOf(task1, task2, task3);
-
-allBatchFuture.thenRun(() -> System.out.println("All images processed and saved successfully!"));
-```
-
-### 3. `CompletableFuture.anyOf` (Fastest Match Wins)
-
-Returns a value as soon as the **quickest** independent task completes, ignoring the rest.
-
-```java
-CompletableFuture<String> cacheSource = CompletableFuture.supplyAsync(() -> fetchFromCache());
-CompletableFuture<String> dbSource = CompletableFuture.supplyAsync(() -> fetchFromDatabase());
-
-[cite_start]// Whichever data source responds first triggers completion [cite: 187]
-CompletableFuture<Object> fastestResultFuture = CompletableFuture.anyOf(cacheSource, dbSource);
-
-fastestResultFuture.thenAccept(result -> System.out.println("Data loaded from fastest source: " + result));
-```
-
-## How `CompletableFuture` Handles Errors
-
-In traditional `Future` handling, exceptions are swallowed and blindly wrapped 
-inside an `ExecutionException`, which you can only catch when invoking a blocking `.get()` call.
-
-`CompletableFuture` treats errors as **first-class citizens** in the reactive data pipeline.
-If an exception occurs, it flows down the pipeline, bypassing regular operational 
-steps (like `thenApply`) until it encounters a specialized exception-handling stage.
-
-Here are the primary native methods used to handle errors gracefully:
-
-### 1. `.exceptionally(Function<Throwable, T>)`
-
-This acts like a functional `catch` block. It intercepts an exception thrown anywhere
-upstream in the pipeline and allows you to supply an elegant **fallback value** so the 
-rest of the application chain can continue safely.
-
-```java
-CompletableFuture.supplyAsync(() -> {
-    if (networkFailed) {
-        throw new RuntimeException("Database timeout!");
-    }
-    return "User Data";
-})
-.exceptionally(ex -> {
-    System.err.println("Error encountered: " + ex.getMessage());
-    return "Fallback Guest Profile"; // Recovers the pipeline with safe data
-})
-.thenAccept(profile -> System.out.println("Rendering: " + profile));
-
-```
-
-### 2. `.handle(BiFunction<T, Throwable, U>)`
-
-This acts like a combination of a `catch` and a `finally` block. 
-It is **always executed**, regardless of whether the previous step succeeded or failed. 
-It accepts both the successful result *and* the exception object as arguments, allowing you to inspect both and map them to a new output.
-
-```java
-CompletableFuture.supplyAsync(() -> fetchPaymentStatus())
-    .handle((result, exception) -> {
-        if (exception != null) {
-            logError(exception);
-            return "FAILED_TRANSACTION";
-        }
-        return "SUCCESS_" + result;
+    ```java
+    // Fires a background thread to fetch a user from DB
+    CompletableFuture<User> userFuture = CompletableFuture.supplyAsync(() -> {
+        return userRepository.findById("USER-101"); // Returns User object
     });
-```
+    ```
 
-### 3. `.whenComplete(BiConsumer<T, Throwable>)`
 
-Similar to `.handle()`, this method executes regardless of the outcome, but it 
-is purely for **side-effects** (like logging or cleaning up resources). 
-It consumes the result or exception but does not alter or transform the value flowing down the pipeline.
+* 💡 **Senior Interview Takeaway:** *"Use `supplyAsync()` when your background operation computes 
+or fetches data that downstream steps in your pipeline depend on."*
+
+
+---
+
+### 2. `runAsync()`
+
+* 📌 **Role & Signature:** Static factory method used to start an asynchronous task that runs 
+purely for its **side effects and returns no value** (`void`).
+    * **Input:** `Runnable` (Signature: `void run()` — takes no args, returns `void`).
+    * **Returns:** `CompletableFuture<Void>`.
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    // Fire-and-forget log flushing or audit metrics recording
+    CompletableFuture<Void> logFuture = CompletableFuture.runAsync(() -> {
+        auditLogger.logEvent("User logged in at " + LocalDateTime.now());
+    });
+    ```
+
+
+* 💡 **Senior Interview Takeaway:** *"Use `runAsync()` for fire-and-forget workloads like 
+sending emails, logging metrics, or clearing caches where no data payload flows back into your application."*
+
+
+---
+
+## ⚡ Group 2: Transforming & Chaining (Single Pipeline)
+
+### 3. `thenApply()`
+
+* 📌 **Role & Signature:** Performs an **in-memory, synchronous transformation** on the result of the 
+  previous stage. Acts as the **`map()`** operator for futures.
+    * **Input:** `Function<T, U>` (Takes result `T` from previous step, returns new value `U`).
+    * **Returns:** `CompletableFuture<U>`.
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    CompletableFuture<String> upperNameFuture = CompletableFuture.supplyAsync(() -> new User("alice"))
+        // Takes User object, synchronously transforms it into an uppercase String
+        .thenApply(user -> user.getName().toUpperCase()); // Returns "ALICE"
+    ```
+
+* 💡 **Senior Interview Takeaway:** *"Use `thenApply()` for fast, in-memory synchronous 
+transformations (formatting strings, calculating mathematical totals, or mapping DTOs) that do not perform further async I/O."*
+
+
+---
+
+### 4. `thenCompose()`
+
+* 📌 **Role & Signature:** Chains two **dependent asynchronous tasks** sequentially where the second 
+task uses the first task's result to launch another `CompletableFuture`. Acts as the **`flatMap()`** operator, preventing 
+nested futures (`CompletableFuture<CompletableFuture<U>>`).
+
+    * **Input:** `Function<T, CompletionStage<U>>` (Takes result `T`, returns a new `CompletableFuture<U>`).
+    * **Returns:** `CompletableFuture<U>` (flattened single level).
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    CompletableFuture<Order> orderFuture = CompletableFuture.supplyAsync(() -> userService.getUser("101"))
+        // Takes User, fires a SECOND async request (returns CompletableFuture<Order>)
+        .thenCompose(user -> orderService.fetchLatestOrderAsync(user));
+    ```
+
+
+* 💡 **Senior Interview Takeaway:** *"Use `thenCompose()` whenever your downstream step is another 
+asynchronous call (like firing a second DB or HTTP request) to flatten the pipeline into a single `CompletableFuture`."*
+
+
+---
+
+### 5. `thenAccept()`
+
+* 📌 **Role & Signature:** Consumes the final output of an upstream stage without returning any result. 
+Serves as a **terminal consumer** at the end of a transformation chain.
+    * **Input:** `Consumer<T>` (Signature: `void accept(T t)` — consumes `T`, returns `void`).
+    * **Returns:** `CompletableFuture<Void>`.
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    CompletableFuture.supplyAsync(() -> userRepository.findById("101"))
+        .thenApply(User::getEmail)
+        // Consumes the email String and prints it; pipeline terminates with Void
+        .thenAccept(email -> System.out.println("Notification sent to: " + email));
+    ```
+
+
+* 💡 **Senior Interview Takeaway:** *"Use `thenAccept()` as a non-blocking terminal callback when you want 
+to consume the pipeline's result (e.g., render UI, write to HTTP response) without producing further data."*
+
+---
+
+## 🔀 Group 3: Combining Multiple Futures
+
+### 6. `thenCombine()`
+
+* 📌 **Role & Signature:** Executes two **independent futures concurrently** in parallel and merges their 
+results using a `BiFunction` once **BOTH** finish.
+    * **Input:** Another `CompletableFuture<U>` + `BiFunction<T, U, V>`.
+    * **Returns:** `CompletableFuture<V>`.
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    CompletableFuture<User> userFuture = CompletableFuture.supplyAsync(() -> userService.getUser("101"));
+    CompletableFuture<Cart> cartFuture = CompletableFuture.supplyAsync(() -> cartService.getCart("101"));
+  
+    // Executes in parallel; merges when BOTH complete
+    CompletableFuture<CheckoutSummary> summaryFuture = userFuture.thenCombine(
+        cartFuture, 
+        (user, cart) -> new CheckoutSummary(user, cart) // BiFunction
+    );
+    ```
+
+
+* ⚙️ **Visual Flow:**
+
+    ```text
+    userFuture (Stream A) ──┐
+                         ├─► [ Both Done? ] ──► BiFunction(user, cart) ──► CompletableFuture<CheckoutSummary>
+    cartFuture (Stream B) ──┘
+    ```
+
+
+* 💡 **Senior Interview Takeaway:** *"Use `thenCombine()` to merge the outcomes of two independent, parallel asynchronous
+tasks, optimizing overall response time to `max(timeA, timeB)` rather than sequential `timeA + timeB`."*
+
+---
+
+### 7. `allOf()`
+
+* 📌 **Role & Signature:** Static combinator method that acts as a **synchronization barrier** for a batch of
+futures. Completes only when **EVERY** input future completes.
+
+    * **Input:** `CompletableFuture<?>... cfs` (varargs array of futures).
+    * **Returns:** `CompletableFuture<Void>` (does **not** carry individual task results).
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    CompletableFuture<String> f1 = CompletableFuture.supplyAsync(() -> "Image 1");
+    CompletableFuture<String> f2 = CompletableFuture.supplyAsync(() -> "Image 2");
+    CompletableFuture<String> f3 = CompletableFuture.supplyAsync(() -> "Image 3");
+  
+    // Barrier completes when f1, f2, AND f3 finish
+    CompletableFuture<Void> allBatch = CompletableFuture.allOf(f1, f2, f3);
+  
+    // Extract all results together non-blockingly:
+    CompletableFuture<List<String>> resultsFuture = allBatch.thenApply(v -> 
+        List.of(f1.join(), f2.join(), f3.join()) // .join() is non-blocking here because allOf guaranteed completion!
+    );
+    ```
+
+
+* ⚙️ **Visual Flow:**
+
+    ```text
+    f1 ──┐
+    f2 ──┼─► CompletableFuture.allOf() ──► [ Void Barrier Done ] ──► thenApply() ──► CompletableFuture<List<String>>
+    f3 ──┘    
+    ```
+
+
+* 💡 **Senior Interview Takeaway:** *"Because `allOf()` returns `CompletableFuture<Void>`, attach 
+a `.thenApply()` block using `.join()` to extract all completed payload values into a single `List` non-blockingly."*
+
+
+---
+
+### 8. `anyOf()`
+
+* 📌 **Role & Signature:** Static combinator method that implements a **"fastest-wins" race condition**. Completes 
+as soon as **ANY ONE** of the input futures completes.
+    * **Input:** `CompletableFuture<?>... cfs` (varargs array).
+    * **Returns:** `CompletableFuture<Object>` (returns `Object` because inputs can be heterogeneous types).
+
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    CompletableFuture<String> server1 = CompletableFuture.supplyAsync(() -> fetchFromMirror1());
+    CompletableFuture<String> server2 = CompletableFuture.supplyAsync(() -> fetchFromMirror2());
+    
+    // Returns whichever server responds first
+    CompletableFuture<Object> fastestFuture = CompletableFuture.anyOf(server1, server2);
+    
+    // Cast back to domain model safely
+    CompletableFuture<String> result = fastestFuture.thenApply(res -> (String) res);
+    ```
+
+
+* ⚙️ **Visual Flow:**
+
+    ```text
+    server1 (Slow: 300ms) ──┐
+                            ├─► [ First Finish Wins! ] ──► Returns Server 2 Result ──► CompletableFuture<Object>
+    server2 (Fast: 50ms)  ──┘
+    ```
+
+
+* 💡 **Senior Interview Takeaway:** *"Use `anyOf()` for redundant API/DNS calls or fetching data from the 
+fastest server mirror. It returns `CompletableFuture<Object>` because Java resolves input types at compile-time to `Object`."*
+
+
+---
+
+## 🚨 Group 4: Exception Handling & Recovery
+
+### 9. `exceptionally()`
+
+* 📌 **Role & Signature:** Acts as an **asynchronous `catch` block** in the reactive pipeline. Intercepts any 
+exception thrown upstream and returns a safe fallback value.
+
+    * **Input:** `Function<Throwable, T>` (Receives the exception, returns fallback of type `T`).
+    * **Returns:** `CompletableFuture<T>`.
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    CompletableFuture<Integer> balanceFuture = CompletableFuture.supplyAsync(() -> {
+        if (true) throw new RuntimeException("DB Connection Timeout!");
+        return 1000;
+    })
+    // Intercepts error and returns fallback value 0 so downstream tasks don't crash
+    .exceptionally(ex -> {
+        System.err.println("Error encountered: " + ex.getMessage());
+        return 0; // Fallback balance
+    });
+    ```
+
+
+* ⚙️ **Visual Flow:**
+
+    ```text
+    supplyAsync() [💥 Throws Exception] ──(Bypasses normal stages)──► exceptionally(ex -> fallback) ──► CompletableFuture<Integer> (0)
+    ```
+
+* 💡 **Senior Interview Takeaway:** *"`exceptionally()` catches upstream exceptions and swaps in fallback 
+data without crashing the execution chain or blocking threads in `try-catch` blocks."*
+* 
+
+---
+
+### 10. `handle()`
+
+* 📌 **Role & Signature:** Acts as a **`catch-finally` hybrid stage**. **Always executes**, regardless of whether 
+upstream succeeded or failed.
+
+    * **Input:** `BiFunction<T, Throwable, U>` (Receives result `T` **AND** exception `Throwable`, returns type `U`).
+    * **Returns:** `CompletableFuture<U>` (allows transforming success/failure into a new type `U`).
+
+* 💻 **Practical Code Example:**
+
+    ```java
+    CompletableFuture<ResponseDTO> responseFuture = CompletableFuture.supplyAsync(() -> userService.getUser("101"))
+        // Always runs: result is non-null on success; ex is non-null on error
+        .handle((user, ex) -> {
+            if (ex != null) {
+                return new ResponseDTO(500, "Failed: " + ex.getMessage());
+            }
+            return new ResponseDTO(200, "Success: " + user.getName());
+        });
+    ```
+
+* ⚙️ **Visual Flow:**
+
+    ```text
+    Upstream Task ──► [ Success (user) OR Error (ex) ] ──► handle((user, ex) -> ResponseDTO) ──► CompletableFuture<ResponseDTO>
+    ```
+
+
+* 💡 **Senior Interview Takeaway:** *"Use `handle()` when you need to inspect both success result (`T`) and 
+exception (`Throwable`) simultaneously to map them into a single, unified output DTO (e.g., HTTP 200 vs 500 response)."*
 
 
 --------------
