@@ -2854,7 +2854,7 @@ exception (`Throwable`) simultaneously to map them into a single, unified output
 A virtual thread is a `java.lang.Thread` instance that is **not** tied one-to-one to an OS thread. Instead,
 the JVM runs it on a **carrier thread**(a real OS/Platform thread from a small `ForkJoinPool()`) only while
 it is executing. When the virtual thread hits a blocking operation (like a socket read), the JVM **unmounts** it from the 
-carrier thread and parks it stack on the heap, and frees the carrier thread to run other virtual threads.
+carrier thread and parks its stack on the heap, and frees the carrier thread to run other virtual threads.
 
 Both normal (platform) threads and virtual threads are instances of `java.lang.Thread`.
 
