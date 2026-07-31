@@ -166,7 +166,7 @@
     * [4. Why Is It Designed This Way?](#4-why-is-it-designed-this-way)
   * [Code Example: The "Context Holder" Pattern](#code-example-the-context-holder-pattern)
   * [The Danger: Memory Leaks (The "Dirty Thread" Problem)](#the-danger-memory-leaks-the-dirty-thread-problem)
-* [Q - What is CountDownLatch vs CyclicBarrier?](#q---what-is-countdownlatch-vs-cyclicbarrier)
+* [Q - What is CountDownLatch](#q---what-is-countdownlatch)
   * [The Problem](#the-problem)
   * [Before `CountDownLatch`](#before-countdownlatch)
   * [The Idea Behind `CountDownLatch`](#the-idea-behind-countdownlatch)
@@ -175,7 +175,6 @@
   * [Why Was It Introduced?](#why-was-it-introduced)
   * [Another Common Use Case](#another-common-use-case)
   * [One-Time Synchronization](#one-time-synchronization)
-  * [Summary](#summary)
 * [Q - What is CyclicBarrier?](#q---what-is-cyclicbarrier)
   * [What happens?](#what-happens)
     * [Initially](#initially)
@@ -3162,11 +3161,7 @@ try {
 
 
 
-# Q - What is CountDownLatch vs CyclicBarrier?
-
-Great question. Instead of starting with the API, let's start with the **problem** it solves.
-
----
+# Q - What is CountDownLatch
 
 ## The Problem
 
@@ -3455,54 +3450,6 @@ Once it reaches zero:
 * you need a new `CountDownLatch` if you want to repeat the process.
 
 This distinguishes it from `CyclicBarrier`, which is reusable.
-
----
-
-## Summary
-
-**What is it?**
-
->
-> `CountDownLatch` is a synchronization aid that allows one or more threads to 
-> wait until a specified number of operations have completed.
-> 
-
-**Why was it introduced?**
-
->
-> It provides a simple way to coordinate threads or tasks by waiting for a fixed number of 
-> completion events, especially when the work is performed by tasks in an `ExecutorService` or by 
-> dynamically created threads where `Thread.join()` is impractical.
-> 
-
-Think of it as a countdown timer:
-
-```text
-Initial Count = 3
-
-Task 1 finishes
-↓
-
-2
-
-Task 2 finishes
-↓
-
-1
-
-Task 3 finishes
-↓
-
-0
-
-↓
-
-Waiting threads are released.
-```
-
-The key insight is that **`CountDownLatch` waits for a number of completions, not for 
-specific threads**. That's why it fits naturally with modern Java concurrency 
-APIs like `ExecutorService` and `CompletableFuture`.
 
 
 --------------------
