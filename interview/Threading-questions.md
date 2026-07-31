@@ -167,6 +167,22 @@
   * [Code Example: The "Context Holder" Pattern](#code-example-the-context-holder-pattern)
   * [The Danger: Memory Leaks (The "Dirty Thread" Problem)](#the-danger-memory-leaks-the-dirty-thread-problem)
 * [Q - What is CountDownLatch vs CyclicBarrier?](#q---what-is-countdownlatch-vs-cyclicbarrier)
+  * [The Problem](#the-problem)
+  * [Before `CountDownLatch`](#before-countdownlatch)
+  * [The Idea Behind `CountDownLatch`](#the-idea-behind-countdownlatch)
+  * [How It Works](#how-it-works)
+  * [Example](#example-1)
+  * [Why Was It Introduced?](#why-was-it-introduced)
+  * [Another Common Use Case](#another-common-use-case)
+  * [One-Time Synchronization](#one-time-synchronization)
+  * [Summary](#summary)
+* [Q - What is CyclicBarrier?](#q---what-is-cyclicbarrier)
+  * [What happens?](#what-happens)
+    * [Initially](#initially)
+  * [Round 1](#round-1)
+  * [The same thing happens again](#the-same-thing-happens-again)
+  * [Possible Output](#possible-output)
+    * [The key idea](#the-key-idea)
 * [Q - What is Semaphore?](#q---what-is-semaphore)
 * [Q - BlockingQueue (why introduced)](#q---blockingqueue-why-introduced)
 * [Q - ConcurrentHashMap (how it avoids full locking)](#q---concurrenthashmap-how-it-avoids-full-locking)
@@ -3141,7 +3157,656 @@ try {
 }
 ```
 
+
+--------------------
+
+
+
 # Q - What is CountDownLatch vs CyclicBarrier?
+
+Great question. Instead of starting with the API, let's start with the **problem** it solves.
+
+---
+
+## The Problem
+
+Suppose you have three worker threads.
+
+```text
+Worker 1
+Worker 2
+Worker 3
+```
+
+Each performs some work.
+
+The main thread should continue **only after all three workers finish**.
+
+Without any coordination:
+
+```java
+worker1.start();
+worker2.start();
+worker3.start();
+
+System.out.println("All workers finished");
+```
+
+This is wrong.
+
+The output might be:
+
+```
+All workers finished
+Worker 2 done
+Worker 1 done
+Worker 3 done
+```
+
+The main thread has no idea when the workers are actually finished.
+
+---
+
+## Before `CountDownLatch`
+
+People solved this by calling `join()`.
+
+```java
+worker1.join();
+worker2.join();
+worker3.join();
+
+System.out.println("All workers finished");
+```
+
+This works.
+
+But notice the limitation.
+
+The main thread must know **every thread**.
+
+If tomorrow there are:
+
+* 20 workers
+* dynamically created workers
+* tasks running in an `ExecutorService`
+
+`join()` becomes inconvenient because you don't have `Thread` objects to join.
+
+---
+
+## The Idea Behind `CountDownLatch`
+
+Instead of waiting for **threads**, wait for **events**.
+
+For example:
+
+```text
+Need 3 events.
+
+Worker 1 finishes → count = 2
+
+Worker 2 finishes → count = 1
+
+Worker 3 finishes → count = 0
+
+↓
+
+Main thread continues.
+```
+
+That's exactly what `CountDownLatch` does.
+
+---
+
+## How It Works
+
+Suppose there are three workers.
+
+```java
+CountDownLatch latch = new CountDownLatch(3);
+```
+
+The internal counter is:
+
+```text
+3
+```
+
+Worker 1:
+
+```java
+latch.countDown();
+```
+
+Counter:
+
+```text
+2
+```
+
+Worker 2:
+
+```java
+latch.countDown();
+```
+
+Counter:
+
+```text
+1
+```
+
+Worker 3:
+
+```java
+latch.countDown();
+```
+
+Counter:
+
+```text
+0
+```
+
+Any thread waiting here:
+
+```java
+latch.await();
+```
+
+is immediately released.
+
+---
+
+## Example
+
+```java
+CountDownLatch latch = new CountDownLatch(3);
+
+ExecutorService executor = Executors.newFixedThreadPool(3);
+
+for (int i = 0; i < 3; i++) {
+
+    executor.submit(() -> {
+
+        System.out.println(Thread.currentThread().getName());
+
+        latch.countDown();
+    });
+}
+
+latch.await();
+
+System.out.println("All workers completed");
+```
+
+Execution:
+
+```text
+pool-1-thread-2
+
+pool-1-thread-1
+
+pool-1-thread-3
+
+All workers completed
+```
+
+The order of workers doesn't matter.
+
+The main thread proceeds only after the counter reaches zero.
+
+---
+
+## Why Was It Introduced?
+
+It solves a problem that `join()` doesn't solve elegantly.
+
+Imagine using an `ExecutorService`.
+
+```java
+executor.submit(task1);
+executor.submit(task2);
+executor.submit(task3);
+```
+
+There are no `Thread` objects available.
+
+You cannot write:
+
+```java
+thread.join();
+```
+
+because you don't own the worker threads.
+
+Instead, each task simply says:
+
+```java
+latch.countDown();
+```
+
+The coordinating thread waits:
+
+```java
+latch.await();
+```
+
+This works regardless of which thread executed the task.
+
+---
+
+## Another Common Use Case
+
+Suppose a server cannot start until three components are initialized.
+
+```
+Database
+
+↓
+
+Cache
+
+↓
+
+Message Queue
+```
+
+Each initialization thread calls:
+
+```java
+countDown();
+```
+
+The server thread waits:
+
+```java
+await();
+```
+
+Only after all components are ready does the server begin accepting requests.
+
+---
+
+## One-Time Synchronization
+
+A `CountDownLatch` is **one-shot**.
+
+```text
+3
+
+↓
+
+2
+
+↓
+
+1
+
+↓
+
+0
+```
+
+Once it reaches zero:
+
+* it **cannot** be reset.
+* you need a new `CountDownLatch` if you want to repeat the process.
+
+This distinguishes it from `CyclicBarrier`, which is reusable.
+
+---
+
+## Summary
+
+**What is it?**
+
+>
+> `CountDownLatch` is a synchronization aid that allows one or more threads to 
+> wait until a specified number of operations have completed.
+> 
+
+**Why was it introduced?**
+
+>
+> It provides a simple way to coordinate threads or tasks by waiting for a fixed number of 
+> completion events, especially when the work is performed by tasks in an `ExecutorService` or by 
+> dynamically created threads where `Thread.join()` is impractical.
+> 
+
+Think of it as a countdown timer:
+
+```text
+Initial Count = 3
+
+Task 1 finishes
+↓
+
+2
+
+Task 2 finishes
+↓
+
+1
+
+Task 3 finishes
+↓
+
+0
+
+↓
+
+Waiting threads are released.
+```
+
+The key insight is that **`CountDownLatch` waits for a number of completions, not for 
+specific threads**. That's why it fits naturally with modern Java concurrency 
+APIs like `ExecutorService` and `CompletableFuture`.
+
+
+--------------------
+
+
+# Q - What is CyclicBarrier?
+
+Imagine four friends participating in a treasure hunt. The game is divided into multiple stages. 
+At the end of each stage, **every friend must reach a checkpoint before anyone is allowed to continue
+to the next stage**.
+
+Even if one friend finishes early, they must wait at the checkpoint until the others arrive. 
+Once the last friend reaches the checkpoint, **the gate opens**, everyone proceeds to the 
+next stage together, and the checkpoint is ready to be used again for the following stage.
+
+This checkpoint is exactly how a `CyclicBarrier` works.
+
+A `CyclicBarrier` is a synchronization aid that allows a fixed number of threads (called **parties**) to 
+wait for each other at a common synchronization point (the **barrier**). When the last participating 
+thread reaches the barrier by calling `await()`, all waiting threads are released
+simultaneously, and the barrier automatically resets so it can be reused in the next cycle.
+
+This makes `CyclicBarrier` ideal for problems where multiple threads perform 
+work in **repeated phases**, and **no thread should begin the next phase until every thread has 
+completed the current one**.
+
+Let's understand this using a multiplayer game where four players participate in multiple rounds. 
+Each player must wait for the others to finish the current round before the next round begins.
+
+Here's a complete, minimal example of `CyclicBarrier`.
+
+```java
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class CyclicBarrierDemo {
+
+    public static void main(String[] args) {
+
+        // One barrier shared by all 4 threads
+        CyclicBarrier barrier = new CyclicBarrier(
+                4,
+                () -> System.out.println("\n>>> All players finished the round. Starting next round...\n")
+        );
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        // Start 4 player threads
+        for (int i = 1; i <= 4; i++) {
+
+            int playerId = i;
+
+            executor.submit(() -> player(playerId, barrier));
+        }
+
+        executor.shutdown();
+    }
+
+    static void player(int playerId, CyclicBarrier barrier) {
+
+        try {
+
+            for (int round = 1; round <= 3; round++) {
+
+                System.out.println(
+                        "Player " + playerId +
+                        " is playing Round " + round
+                );
+
+                // Simulate different players taking different time
+                Thread.sleep((long) (Math.random() * 3000));
+
+                System.out.println(
+                        "Player " + playerId +
+                        " finished Round " + round
+                );
+
+                // Wait for everyone
+                barrier.await();
+
+                System.out.println(
+                        "Player " + playerId +
+                        " starts Round " + (round + 1)
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+---
+
+## What happens?
+
+### Initially
+
+Main thread creates
+
+```java
+CyclicBarrier barrier = new CyclicBarrier(4);
+```
+
+There is **one** barrier object.
+
+---
+
+Then
+
+```java
+ExecutorService executor =
+        Executors.newFixedThreadPool(4);
+```
+
+creates a thread pool with 4 worker threads.
+
+---
+
+Next
+
+```java
+executor.submit(() -> player(playerId, barrier));
+```
+
+is called four times.
+
+So the executor starts
+
+```text
+Thread-1 ---> player(1, barrier)
+
+Thread-2 ---> player(2, barrier)
+
+Thread-3 ---> player(3, barrier)
+
+Thread-4 ---> player(4, barrier)
+```
+
+Notice something important.
+
+Each thread receives **the same barrier object**.
+
+## Round 1
+
+Suppose execution happens like this:
+
+```text
+Player 2 finished Round 1
+```
+
+Player 2 executes
+
+```java
+barrier.await();
+```
+
+Barrier:
+
+```text
+Waiting = 1
+```
+
+Player 2 blocks.
+
+---
+
+Next
+
+```text
+Player 1 finished Round 1
+```
+
+Barrier:
+
+```text
+Waiting = 2
+```
+
+Player 1 blocks.
+
+---
+
+Next
+
+```text
+Player 4 finished Round 1
+```
+
+Barrier:
+
+```text
+Waiting = 3
+```
+
+---
+
+Finally
+
+```text
+Player 3 finished Round 1
+```
+
+Barrier:
+
+```text
+Waiting = 4
+```
+
+Now the barrier says:
+
+> Everyone has arrived.
+
+It runs the barrier action:
+
+```text
+>>> All players finished the round. Starting next round...
+```
+
+Then wakes **all four threads**.
+
+---
+
+Immediately all four continue.
+
+```text
+Player 1 starts Round 2
+
+Player 2 starts Round 2
+
+Player 3 starts Round 2
+
+Player 4 starts Round 2
+```
+
+---
+
+## The same thing happens again
+
+Round 2
+
+↓
+
+Barrier
+
+↓
+
+Round 3
+
+↓
+
+Barrier
+
+↓
+
+Finished
+
+---
+
+## Possible Output
+
+Your output will vary because of the random delays, but it might look like:
+
+```text
+Player 1 is playing Round 1
+Player 2 is playing Round 1
+Player 3 is playing Round 1
+Player 4 is playing Round 1
+
+Player 2 finished Round 1
+Player 4 finished Round 1
+Player 1 finished Round 1
+Player 3 finished Round 1
+
+>>> All players finished the round. Starting next round...
+
+Player 2 starts Round 2
+Player 1 starts Round 2
+Player 3 starts Round 2
+Player 4 starts Round 2
+```
+
+---
+
+### The key idea
+
+There are **four independent threads** all running the same `player()` method concurrently.
+
+Each thread eventually reaches:
+
+```java
+barrier.await();
+```
+
+The **same `CyclicBarrier` instance** counts how many threads have arrived. 
+When the fourth thread calls `await()`, it releases **all** waiting threads and automatically resets 
+itself so it can synchronize the next round. This shared barrier is what allows the threads to 
+progress through each round together.
+
+
+--------------------
+
 
 # Q - What is Semaphore?
 
