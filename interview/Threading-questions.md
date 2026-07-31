@@ -1303,7 +1303,7 @@ Use:
 # Q - What is a race condition?
 
 A race condition occurs when multiple threads perform unsynchronized operations on 
-shared mutable state, and the final result is unpredictable and depends on order of execution of threads
+shared mutable state, and the final result is unpredictable and depends on the order of execution of threads
 
 
 # Q - What is atomicity, and how is it different from visibility?
