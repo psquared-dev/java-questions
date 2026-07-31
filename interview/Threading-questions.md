@@ -1302,8 +1302,8 @@ Use:
 
 # Q - What is a race condition?
 
-A race condition occurs when multiple threads access shared mutable data concurrently and the result depends 
-on execution order, often leading to incorrect outcomes.
+A race condition occurs when multiple threads perform unsynchronized operations on 
+shared mutable state, and the final result is unpredictable and depends on order of execution of threads
 
 
 # Q - What is atomicity, and how is it different from visibility?
