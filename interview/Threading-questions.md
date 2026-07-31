@@ -183,6 +183,14 @@
   * [Possible Output](#possible-output)
     * [The key idea](#the-key-idea)
 * [Q - What is Semaphore?](#q---what-is-semaphore)
+  * [The Problem](#the-problem-1)
+  * [Before Semaphore](#before-semaphore)
+  * [The Idea Behind Semaphore](#the-idea-behind-semaphore)
+  * [Analogy: Parking Lot](#analogy-parking-lot)
+  * [How It Works](#how-it-works-1)
+  * [Example](#example-2)
+  * [Why Was It Introduced?](#why-was-it-introduced-1)
+  * [Difference from a Lock](#difference-from-a-lock)
 * [Q - BlockingQueue (why introduced)](#q---blockingqueue-why-introduced)
 * [Q - ConcurrentHashMap (how it avoids full locking)](#q---concurrenthashmap-how-it-avoids-full-locking)
 * [Q - What is ReentrantReadWriteLock?](#q---what-is-reentrantreadwritelock)
@@ -3756,6 +3764,346 @@ progress through each round together.
 
 
 # Q - What is Semaphore?
+
+## The Problem
+
+Suppose your application has a database connection pool with **10 connections**.
+
+At some point, **100 threads** want to access the database.
+
+```text
+100 Threads
+
+↓
+
+Database
+```
+
+Can all 100 access it simultaneously?
+
+No.
+
+There are only **10 database connections**.
+
+The remaining 90 threads must wait until a connection becomes available.
+
+How do we enforce this limit?
+
+---
+
+## Before Semaphore
+
+One naive approach is to write your own logic.
+
+```java
+if (connectionsAvailable > 0) {
+    connectionsAvailable--;
+    // Use database
+}
+```
+
+But this is unsafe.
+
+Imagine two threads executing simultaneously.
+
+```text
+Connections Available = 1
+```
+
+Thread A reads:
+
+```text
+1
+```
+
+Before it decrements...
+
+Thread B also reads:
+
+```text
+1
+```
+
+Now both think they can proceed.
+
+You've just handed out the same database connection twice.
+
+You now need:
+
+* synchronization
+* waiting
+* waking threads
+* fairness
+
+This becomes surprisingly difficult to implement correctly.
+
+---
+
+## The Idea Behind Semaphore
+
+Instead of protecting **one resource**, imagine you have **N identical resources**.
+
+A semaphore simply keeps track of:
+
+> **How many permits are currently available?**
+
+Think of a permit as a ticket.
+
+Initially:
+
+```text
+10 permits
+```
+
+Every thread that wants the resource must first obtain a permit.
+
+---
+
+## Analogy: Parking Lot
+
+Imagine a parking lot with **5 parking spaces**.
+
+```text
+Parking Lot
+
+[ ][ ][ ][ ][ ]
+```
+
+Cars arrive.
+
+Car 1
+
+↓
+
+Gets a spot.
+
+```text
+[X][ ][ ][ ][ ]
+```
+
+Car 2
+
+↓
+
+```text
+[X][X][ ][ ][ ]
+```
+
+Eventually:
+
+```text
+[X][X][X][X][X]
+```
+
+The parking lot is full.
+
+Now another car arrives.
+
+Can it enter?
+
+❌ No.
+
+It waits outside.
+
+Only when a car leaves...
+
+```text
+[X][X][ ][X][X]
+```
+
+does the waiting car get the free spot.
+
+This is exactly how a `Semaphore` works.
+
+The parking spaces are the **permits**.
+
+---
+
+## How It Works
+
+Suppose there are three permits.
+
+```java
+Semaphore semaphore = new Semaphore(3);
+```
+
+Initially:
+
+```text
+Available Permits = 3
+```
+
+Thread A
+
+```java
+semaphore.acquire();
+```
+
+Available:
+
+```text
+2
+```
+
+---
+
+Thread B
+
+```text
+1
+```
+
+---
+
+Thread C
+
+```text
+0
+```
+
+Now all permits are in use.
+
+---
+
+Thread D arrives.
+
+```java
+semaphore.acquire();
+```
+
+There are no permits left.
+
+Thread D blocks.
+
+---
+
+Later,
+
+Thread B finishes.
+
+```java
+semaphore.release();
+```
+
+Available:
+
+```text
+1
+```
+
+The semaphore immediately wakes Thread D.
+
+Thread D acquires the permit.
+
+Available:
+
+```text
+0
+```
+
+---
+
+## Example
+
+Imagine only two printers.
+
+```java
+Semaphore printerSemaphore = new Semaphore(2);
+
+void printDocument() {
+
+    printerSemaphore.acquire();
+
+    try {
+        System.out.println("Printing...");
+        Thread.sleep(3000);
+    } finally {
+        printerSemaphore.release();
+    }
+}
+```
+
+If ten threads call `printDocument()`:
+
+```text
+10 Threads
+
+↓
+
+Only 2 print simultaneously
+
+↓
+
+8 wait
+
+↓
+
+When one printer becomes free,
+another waiting thread starts printing.
+```
+
+---
+
+## Why Was It Introduced?
+
+Many real-world resources are **limited**.
+
+Examples:
+
+* Database connections
+* Printer devices
+* API rate limits
+* GPU resources
+* File handles
+* Network connections
+
+The problem is not:
+
+> "Only one thread at a time."
+
+The problem is:
+
+> "Only **N** threads at a time."
+
+That's exactly what a semaphore solves.
+
+---
+
+
+## Difference from a Lock
+
+Suppose there is one bathroom.
+
+Only one person can enter.
+
+That's a lock.
+
+```text
+1 permit
+```
+
+Now imagine five bathroom stalls.
+
+Five people can enter simultaneously.
+
+Everyone else waits.
+
+That's a semaphore.
+
+```text
+5 permits
+```
+
+In fact,
+
+```java
+new Semaphore(1)
+```
+
+behaves similarly to a mutex (though there are semantic differences, such as ownership—any thread can call `release()` on a semaphore).
+
+------------
+
 
 # Q - BlockingQueue (why introduced)
 
