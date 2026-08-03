@@ -3707,6 +3707,59 @@ called Method Hiding.
   If you look at the parent reference, you still see the parent's method.
 
 
+The following example shows method hinding in action:
+
+```java
+package org.example;
+
+class Parent {
+    // Static method in Superclass
+    public static void display() {
+        System.out.println("1. Parent's Static display()");
+    }
+
+    // Instance method in Superclass
+    public void print() {
+        System.out.println("1. Parent's Instance print()");
+    }
+}
+
+class Child extends Parent {
+    // HIDES Parent.display() - Static method in Subclass
+    // Note: Adding @Override here will cause a COMPILER ERROR!
+    public static void display() {
+        System.out.println("2. Child's Static display()");
+    }
+
+    // OVERRIDES Parent.print() - Instance method in Subclass
+    @Override
+    public void print() {
+        System.out.println("2. Child's Instance print()");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        System.out.println("=== 1. Invoking via Parent Reference to Child Object ===");
+        Parent obj = new Child();
+        
+        obj.display(); // 🛑 Method Hiding: Resolved at compile time via 'Parent' reference
+        obj.print();   // 🟢 Method Overriding: Resolved at runtime via 'Child' object
+
+        System.out.println("\n=== 2. Invoking via Direct Child Reference ===");
+        Child childObj = new Child();
+        
+        childObj.display(); // Executes Child's static method
+        childObj.print();   // Executes Child's instance method
+
+        System.out.println("\n=== 3. Recommended Way: Invoking via Class Names ===");
+        Parent.display(); // Directly calls Parent's static method
+        Child.display();  // Directly calls Child's static method
+    }
+}
+```
+
 
 -----------------------------
 
