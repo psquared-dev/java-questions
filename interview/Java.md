@@ -4195,15 +4195,6 @@ Exception in thread "main" java.lang.RuntimeException: Primary Error: Business l
 		at ExceptionMaskingSolution.main(ExceptionMaskingSolution.java:23)
 ```
 
-If you call `e.printStackTrace()`, the JVM automatically displays the full chain:
-
-```text
-java.lang.RuntimeException: Primary Error: Failed to process data!
-    at ExceptionSuppressionDemo.main(ExceptionSuppressionDemo.java:5)
-    Suppressed: java.io.IOException: Secondary Error: Disk IO failed during close()!
-        at BadResource.close(ExceptionSuppressionDemo.java:18)
-```
-
 
 -----------------------------
 
