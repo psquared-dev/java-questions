@@ -190,6 +190,13 @@
     * [1. ClassNotFoundException (The "Typo")](#1-classnotfoundexception-the-typo)
     * [2. NoClassDefFoundError (The "Ghost")](#2-noclassdeffounderror-the-ghost)
     * [Summary Table (Memorize This)](#summary-table-memorize-this)
+  * [Q - What is 'Exception Masking' in traditional `try-finally` blocks, and how does `try-with-resources` solve this using Suppressed Exceptions?](#q---what-is-exception-masking-in-traditional-try-finally-blocks-and-how-does-try-with-resources-solve-this-using-suppressed-exceptions)
+    * [1. The Problem: Exception Masking in Traditional `try-finally`](#1-the-problem-exception-masking-in-traditional-try-finally)
+      * [Bad Code Example (Traditional `finally`):](#bad-code-example-traditional-finally)
+      * [Output Stack Trace:](#output-stack-trace)
+    * [2. The Solution (Preserving the Primary Exception in Traditional Java)](#2-the-solution-preserving-the-primary-exception-in-traditional-java)
+      * [Good Code Example (`try-with-resources`):](#good-code-example-try-with-resources)
+      * [Execution Output:](#execution-output)
   * [Q - What is AutoCloseable interface?](#q---what-is-autocloseable-interface)
     * [1. The Core Purpose: Try-With-Resources](#1-the-core-purpose-try-with-resources)
     * [2. Code Example](#2-code-example)
@@ -4078,8 +4085,128 @@ public class GhostDemo {
 | **Fix**     | Check the string spelling or classpath.           | Check for mismatched JAR versions or static initializer errors.             |
 
 
+-----------------------------
+
+
+## Q - What is 'Exception Masking' in traditional `try-finally` blocks, and how does `try-with-resources` solve this using Suppressed Exceptions?
+
+###  1. The Problem: Exception Masking in Traditional `try-finally`
+
+In traditional Java resource handling, if an exception is thrown inside 
+the `try` block **AND** a secondary exception is thrown inside the `finally` block (e.g., while 
+closing a stream or database connection), **the JVM discards the primary exception entirely**.
+
+The secondary exception from `finally` overwrites the original error, swallowing the root cause 
+and making debugging extremely difficult.
+
+#### Bad Code Example (Traditional `finally`):
+
+```java
+public class ExceptionMaskingDemo {
+
+  // Helper method that simulates business logic failing
+  public static void doWork() {
+    throw new RuntimeException("Primary Error: Business logic failed!");
+  }
+
+  // Helper method that simulates cleanup/closing failing
+  public static void cleanup() throws Exception {
+    throw new Exception("Secondary Error: Cleanup failed!");
+  }
+
+  public static void main(String[] args) throws Exception {
+    try {
+      doWork(); // 💥 Throws RuntimeException first
+    } finally {
+      cleanup(); // 💥 Throws Exception during cleanup
+    }
+  }
+}
+```
+
+#### Output Stack Trace:
+
+```text
+Exception in thread "main" java.lang.Exception: Secondary Error: Cleanup failed!
+	at ExceptionMaskingDemo.cleanup(ExceptionMaskingDemo.java:10)
+	at ExceptionMaskingDemo.main(ExceptionMaskingDemo.java:17)
+```
+
+The Flaw: The `RuntimeException("Primary Error: Business logic failed!")` is completely gone. 
+Anyone inspecting logs or debugging will only see the Secondary Error, hiding the true cause of the failure.
+
+
+---
+
+### 2. The Solution (Preserving the Primary Exception in Traditional Java)
+
+If you cannot or do not want to use `try-with-resources` (or `AutoCloseable`), you must 
+manually handle the cleanup inside a `try-catch` within the `finally` block and manually 
+attach the cleanup error using `Throwable.addSuppressed()`:
+
+
+
+#### Good Code Example (`try-with-resources`):
+
+```java
+public class ExceptionMaskingSolution {
+
+  public static void doWork() {
+    throw new RuntimeException("Primary Error: Business logic failed!");
+  }
+
+  public static void cleanup() throws Exception {
+    throw new Exception("Secondary Error: Cleanup failed!");
+  }
+
+  public static void main(String[] args) {
+    Throwable primaryException = null;
+
+    try {
+      doWork(); // 💥 Throws Primary Exception
+    } catch (Throwable t) {
+      primaryException = t; // 1. Save the primary exception
+      throw t;              // 2. Re-throw it so the caller gets it
+    } finally {
+      try {
+        cleanup(); // Attempt cleanup
+      } catch (Throwable cleanupException) {
+        if (primaryException != null) {
+          // 3. Attach cleanup exception as suppressed to primary exception
+          primaryException.addSuppressed(cleanupException);
+        } else {
+          // If try block didn't fail, rethrow the cleanup exception
+          throw new RuntimeException(cleanupException);
+        }
+      }
+    }
+  }
+}
+```
+
+#### Execution Output:
+
+```text
+Exception in thread "main" java.lang.RuntimeException: Primary Error: Business logic failed!
+	at ExceptionMaskingSolution.doWork(ExceptionMaskingSolution.java:5)
+	at ExceptionMaskingSolution.main(ExceptionMaskingSolution.java:16)
+	Suppressed: java.lang.Exception: Secondary Error: Cleanup failed!
+		at ExceptionMaskingSolution.cleanup(ExceptionMaskingSolution.java:9)
+		at ExceptionMaskingSolution.main(ExceptionMaskingSolution.java:23)
+```
+
+If you call `e.printStackTrace()`, the JVM automatically displays the full chain:
+
+```text
+java.lang.RuntimeException: Primary Error: Failed to process data!
+    at ExceptionSuppressionDemo.main(ExceptionSuppressionDemo.java:5)
+    Suppressed: java.io.IOException: Secondary Error: Disk IO failed during close()!
+        at BadResource.close(ExceptionSuppressionDemo.java:18)
+```
+
 
 -----------------------------
+
 
 
 ## Q - What is AutoCloseable interface?
