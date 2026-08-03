@@ -23,6 +23,21 @@
   * [Q - Is default keyword one of the access modifier?](#q---is-default-keyword-one-of-the-access-modifier)
     * [1. The "Default Access Modifier" (The Invisible One)](#1-the-default-access-modifier-the-invisible-one)
     * [2. The `default` Keyword (The Actual Keyword)](#2-the-default-keyword-the-actual-keyword)
+  * [Q - What are the uses of `super` keyword?](#q---what-are-the-uses-of-super-keyword)
+    * [The 3 Primary Uses of `super`](#the-3-primary-uses-of-super)
+      * [1. Calling Superclass Methods (Overridden Methods)](#1-calling-superclass-methods-overridden-methods)
+      * [2. Calling Superclass Constructors (`super()`)](#2-calling-superclass-constructors-super)
+      * [3. Accessing Superclass Fields (Hidden/Shadowed Fields)](#3-accessing-superclass-fields-hiddenshadowed-fields)
+  * [Q - Can a top level class be private / protected?](#q---can-a-top-level-class-be-private--protected)
+    * [Allowed Access Modifiers for Top-Level Classes](#allowed-access-modifiers-for-top-level-classes)
+    * [Why `private` is Not Allowed at the Top Level](#why-private-is-not-allowed-at-the-top-level)
+    * [Why `protected` is Not Allowed at the Top Level](#why-protected-is-not-allowed-at-the-top-level)
+    * [Where CAN a Class Be `private` or `protected`?](#where-can-a-class-be-private-or-protected)
+  * [Q - Can we override the main() method?](#q---can-we-override-the-main-method)
+    * [1. Why Can’t `main()` Be Overridden?](#1-why-cant-main-be-overridden)
+    * [2. What Happens If You Write `main()` in a Subclass? (Method Hiding)](#2-what-happens-if-you-write-main-in-a-subclass-method-hiding)
+      * [Verification:](#verification)
+    * [3. Can We OVERLOAD the `main()` Method?](#3-can-we-overload-the-main-method)
   * [Q - What is Covariant return type?](#q---what-is-covariant-return-type)
   * [Q - What if a method in child class is more restricted than a parent class?](#q---what-if-a-method-in-child-class-is-more-restricted-than-a-parent-class)
   * [Q - Does the finally block execute if there is a return statement inside try or catch?](#q---does-the-finally-block-execute-if-there-is-a-return-statement-inside-try-or-catch)
@@ -161,6 +176,12 @@
   * [Q - Explain the hierarchy of exceptions in Java?](#q---explain-the-hierarchy-of-exceptions-in-java)
     * [Checked Exceptions (Compile-Time)](#checked-exceptions-compile-time)
     * [Unchecked Exceptions (Runtime)](#unchecked-exceptions-runtime)
+  * [Q - Can a try block exist in Java without a catch or finally block? What are all the valid syntax combinations?](#q---can-a-try-block-exist-in-java-without-a-catch-or-finally-block-what-are-all-the-valid-syntax-combinations)
+    * [Valid Traditional `try` Block Combinations](#valid-traditional-try-block-combinations)
+      * [1. `try-catch`](#1-try-catch)
+      * [2. `try-finally`](#2-try-finally)
+      * [3. `try-catch-finally`](#3-try-catch-finally)
+    * [The One Exception to the Rule: Java 7+ `try-with-resources`](#the-one-exception-to-the-rule-java-7-try-with-resources)
   * [Q - What is Exception chaining?](#q---what-is-exception-chaining)
     * [Why is Exception Chaining needed?](#why-is-exception-chaining-needed)
     * [Real-World Example (ELI5)](#real-world-example-eli5)
@@ -1080,6 +1101,251 @@ switch(day) {
 }
 ```
 
+----------------
+
+## Q - What are the uses of `super` keyword?
+
+There are 3 main uses of the `super` keyword!**
+
+In Java, `super` is a reference variable used to refer directly 
+to the **immediate parent class (superclass)** object.
+
+---
+
+### The 3 Primary Uses of `super`
+
+#### 1. Calling Superclass Methods (Overridden Methods)
+
+Used to invoke a parent class method that has been **overridden** in the subclass.
+
+```java
+class Animal {
+    void makeSound() {
+        System.out.println("Animal makes a sound");
+    }
+}
+
+class Dog extends Animal {
+    @Override
+    void makeSound() {
+        super.makeSound(); // Calls Animal's version
+        System.out.println("Dog barks");
+    }
+}
+
+```
+
+---
+
+#### 2. Calling Superclass Constructors (`super()`)
+
+Used to invoke the parent class constructor.
+
+* Must be the **very first statement** inside the subclass constructor.
+* If you don't explicitly call `super()`, the Java compiler automatically inserts 
+   a default no-arg `super()` call for you.
+
+```java
+class Person {
+    String name;
+    Person(String name) {
+        this.name = name;
+    }
+}
+
+class Employee extends Person {
+    int id;
+    Employee(String name, int id) {
+        super(name); // Invokes Person(String name) constructor
+        this.id = id;
+    }
+}
+
+```
+
+---
+
+#### 3. Accessing Superclass Fields (Hidden/Shadowed Fields)
+
+Used to access a field of the parent class if the subclass has defined a field 
+with the **same name** (field shadowing).
+
+```java
+class Parent {
+    int num = 10;
+}
+
+class Child extends Parent {
+    int num = 20; // Shadows Parent's num
+
+    void printNumbers() {
+        System.out.println(this.num);  // Prints 20 (Child's field)
+        System.out.println(super.num); // Prints 10 (Parent's field)
+    }
+}
+
+```
+
+----------------
+
+## Q - Can a top level class be private / protected?
+
+No, a top-level class cannot be declared as `private` (or `protected`).
+
+### Allowed Access Modifiers for Top-Level Classes
+
+A top-level class in Java can only have **two** access levels:
+
+1. **`public`**: Accessible from any other class in any package.
+2. **Package-Private (Default / No modifier)**: Accessible only by classes within the same package.
+
+```java
+// ✅ VALID: Public top-level class
+public class Car { }
+
+// ✅ VALID: Package-private top-level class (no modifier)
+class Engine { }
+
+// ❌ COMPILER ERROR: Illegal modifier for the class
+private class Transmission { } 
+
+// ❌ COMPILER ERROR: Illegal modifier for the class
+protected class Steering { } 
+
+```
+
+---
+
+### Why `private` is Not Allowed at the Top Level
+
+1. **Meaning of `private`:** The `private` modifier limits visibility to the **enclosing class body**.
+2. **No Outer Scope:** A top-level class is sitting directly inside a package—it 
+   is not contained inside any outer class.
+3. **Useless Class:** If a top-level class were marked `private`, no other class in the 
+   entire application (not even in the same file or package) could ever access, instantiate, or 
+   extend it. It would be completely unreachable and useless to the JVM.
+
+---
+
+### Why `protected` is Not Allowed at the Top Level
+
+`protected` grants access to:
+
+1. Classes in the **same package**.
+2. **Subclasses** in *different* packages.
+
+Since package-private already covers the "same package" access, having `protected` at the top 
+level without an outer enclosing class hierarchy makes no sense to the Java compiler.
+
+---
+
+### Where CAN a Class Be `private` or `protected`?
+
+**Nested (Inner) Classes!** Because a nested class lives inside an outer containing class, 
+it has an enclosing scope. Therefore, inner classes can use all 4 access modifiers 
+(`public`, `protected`, default, `private`).
+
+```java
+public class OuterClass {
+    
+    // ✅ VALID: Inner class can be private (only accessible inside OuterClass)
+    private class InnerPrivate { }
+    
+    // ✅ VALID: Inner class can be protected
+    protected class InnerProtected { }
+}
+```
+
+----------------
+
+
+## Q - Can we override the main() method?
+
+No, you cannot override the `main()` method in Java. Here is the detailed breakdown of
+why, along with what you *can* do instead (Method Hiding and Method Overloading).
+
+---
+
+### 1. Why Can’t `main()` Be Overridden?
+
+To override a method in Java, it must be an **instance method** (resolved at runtime via 
+dynamic binding/polymorphism).
+
+Because the standard `main` method is declared as `static`:
+
+* It belongs to the **Class**, not to an object instance.
+* It is bound at **compile-time** (Static Binding / Early Binding).
+* Polymorphism does not apply to `static` methods.
+
+---
+
+### 2. What Happens If You Write `main()` in a Subclass? (Method Hiding)
+
+If you declare a `main` method with the exact same signature in a subclass, the 
+code **will compile**, but it is **Method Hiding**, NOT Method Overriding.
+
+```java
+class Parent {
+    public static void main(String[] args) {
+        System.out.println("Parent main execution");
+    }
+}
+
+class Child extends Parent {
+    // This HIDES Parent's main(), it does NOT override it!
+    public static void main(String[] args) {
+        System.out.println("Child main execution");
+    }
+}
+
+```
+
+#### Verification:
+
+If you invoke `main` through a parent reference pointing to a child object, it calls
+the `Parent` version because static methods are resolved by reference type, not actual object type:
+
+```java
+Parent p = new Child();
+p.main(args); // Prints "Parent main execution" (Proves NO runtime overriding occurred!)
+
+```
+
+---
+
+### 3. Can We OVERLOAD the `main()` Method?
+
+**YES!** You can overload the `main()` method by providing different parameter types or
+counts within the same class.
+
+```java
+public class MainOverloadTest {
+
+    // 🟢 JVM Standard Entry Point
+    public static void main(String[] args) {
+        System.out.println("Standard main method called by JVM");
+        
+        // Calling overloaded versions manually
+        main(10);
+        main("Hello", "World");
+    }
+
+    // Overloaded main 1
+    public static void main(int arg) {
+        System.out.println("Overloaded main with int: " + arg);
+    }
+
+    // Overloaded main 2
+    public static void main(String arg1, String arg2) {
+        System.out.println("Overloaded main with two strings: " + arg1 + ", " + arg2);
+    }
+}
+
+```
+
+**Note:** The JVM will **only** automatically execute `public static void main(String[] args)` as the 
+entry point when starting the program. Any overloaded `main()` methods must be called explicitly from 
+your code.
 
 ----------------
 
@@ -3548,6 +3814,80 @@ This branch is further divided into two critical categories:
   * `NullPointerException` (NPE).
   * `ArithmeticException` (Dividing by zero).
   * `ArrayIndexOutOfBoundsException`.
+
+
+-------------------
+
+
+## Q - Can a try block exist in Java without a catch or finally block? What are all the valid syntax combinations?
+
+Yes, absolutely! In standard Java syntax, a `try` block cannot exist by itself. 
+It must be paired with at least one `catch` block, a `finally` block, or both.
+
+---
+
+### Valid Traditional `try` Block Combinations
+
+#### 1. `try-catch`
+
+Used when you want to handle exceptions immediately.
+
+```java
+try {
+    int result = 10 / 0;
+} catch (ArithmeticException e) {
+    System.out.println("Cannot divide by zero");
+}
+```
+
+#### 2. `try-finally`
+
+Used when you don't handle the exception here (letting it propagate up), but 
+you **must** execute cleanup code (like closing a stream or unlocking a lock).
+
+```java
+try {
+    // Code that might throw an exception
+} finally {
+    System.out.println("Cleanup always executes");
+}
+
+```
+
+#### 3. `try-catch-finally`
+
+Used when you want to handle exceptions **and** ensure cleanup code runs regardless of outcome.
+
+```java
+try {
+    // Work
+} catch (Exception e) {
+    // Handle error
+} finally {
+    // Cleanup
+}
+
+```
+
+---
+
+### The One Exception to the Rule: Java 7+ `try-with-resources`
+
+There is **one special case** in modern Java where a `try` block appears to stand 
+without an explicit `catch` or `finally` block:
+
+```java
+// ✅ VALID in Java 7+
+try (Scanner scanner = new Scanner(System.in)) {
+    // Read input
+} 
+
+```
+
+**Why is this allowed?**
+
+Because with **try-with-resources**, the Java compiler automatically inserts an 
+implicit `finally` block under the hood to close any resource implementing `AutoCloseable`.
 
 
 -------------------
