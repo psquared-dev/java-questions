@@ -958,10 +958,53 @@ as a normal name.
 We can use `var` only for the follwing cases:
 
 - Local variables inside methods
-- Local variables inside code blocks (`if`, `while`, etc.)
+
+    ```java
+    public void processData() {
+        var message = "Hello, World!"; // Inferred as String
+        var count = 10;                 // Inferred as int
+        var list = new ArrayList<String>(); // Inferred as ArrayList<String>
+    }
+    ```
+  
+- Local Variables Inside Code Blocks (Initializer Blocks, `if`, `switch`, etc.)
+
+    ```java
+    static {
+        var config = "production"; // Inside static block
+    }
+  
+    {
+        var temp = 42; // Inside instance initializer block
+    }
+  
+    if (true) {
+        var status = "ACTIVE"; // Inside if block
+    }
+    ```
+
 - Loop variables (`for` loops)
+
+    ```java
+    // Standard for loop
+    for (var i = 0; i < 5; i++) {
+        System.out.println(i);
+    }
+    
+    // Enhanced for loop
+    List<String> names = List.of("Alice", "Bob");
+    for (var name : names) {
+        System.out.println(name);
+    }
+    ```
+
 - Variables declared in try-with-resources
 
+    ```java
+    try (var reader = new BufferedReader(new FileReader("file.txt"))) {
+        System.out.println(reader.readLine());
+    }
+    ```
 
 -----------------------------
 
