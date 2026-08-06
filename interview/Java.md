@@ -955,7 +955,16 @@ String var = "Hi";   // valid
 If `var` appears where the compiler expects a type, it is treated as LVTI. Otherwise, it is treated
 as a normal name.
 
+We can use `var` only for the follwing cases:
+
+- Local variables inside methods
+- Local variables inside code blocks (`if`, `while`, etc.)
+- Loop variables (`for` loops)
+- Variables declared in try-with-resources
+
+
 -----------------------------
+
 
 ## Q - Can you initialize a var variable with null?
 
@@ -1014,13 +1023,6 @@ class var{
 
 }
 ```
-
-We can use `var` only for the follwing cases:
-
-- Local variables inside methods
-- Local variables inside code blocks (`if`, `while`, etc.)
-- Loop variables (`for` loops)
-- Variables declared in try-with-resources
 
 
 -------------
