@@ -201,7 +201,7 @@
     * [1. The Core Purpose: Try-With-Resources](#1-the-core-purpose-try-with-resources)
     * [2. Code Example](#2-code-example)
     * [3. Senior Engineer Nuance: Exception Suppression](#3-senior-engineer-nuance-exception-suppression)
-  * [Q -  What is Closeable and how its related to AutoCloseable?](#q---what-is-closeable-and-how-its-related-to-autocloseable)
+  * [Q -  What is Closeable and how it's related to AutoCloseable?](#q---what-is-closeable-and-how-its-related-to-autocloseable)
     * [1. The Parent: `AutoCloseable` (Added in Java 7)](#1-the-parent-autocloseable-added-in-java-7)
     * [2. The Specialized Child: `Closeable` (Older, updated in Java 7)](#2-the-specialized-child-closeable-older-updated-in-java-7)
     * [The Key Differences (Interview "Slayer" Points)](#the-key-differences-interview-slayer-points)
@@ -286,11 +286,13 @@
       * [offer() — non-blocking insert](#offer--non-blocking-insert)
       * [poll() — non-blocking retrieval](#poll--non-blocking-retrieval)
     * [Types of BlockingQueue](#types-of-blockingqueue)
-      * [1. ArrayBlockingQueue](#1-arrayblockingqueue)
-      * [2. LinkedBlockingQueue](#2-linkedblockingqueue)
-      * [3. PriorityBlockingQueue](#3-priorityblockingqueue)
-      * [4. DelayQueue](#4-delayqueue)
-      * [5. SynchronousQueue](#5-synchronousqueue)
+    * [1. `ArrayBlockingQueue`](#1-arrayblockingqueue)
+    * [2. `LinkedBlockingQueue`](#2-linkedblockingqueue)
+    * [3. `PriorityBlockingQueue`](#3-priorityblockingqueue)
+    * [4. `SynchronousQueue`](#4-synchronousqueue)
+    * [5. `DelayQueue`](#5-delayqueue)
+    * [6. `LinkedTransferQueue` (Java 7+)](#6-linkedtransferqueue-java-7)
+    * [Master Comparison Table (All 6 Points)](#master-comparison-table-all-6-points)
   * [Q - List diff types of Executorservice](#q---list-diff-types-of-executorservice)
   * [Q - What are the motivations for ExecutorService?](#q---what-are-the-motivations-for-executorservice)
     * [1. Resource Management (The "Thread Explosion" Problem)](#1-resource-management-the-thread-explosion-problem)
@@ -4274,7 +4276,11 @@ The Solution (`AutoCloseable` way): If both the `try` block and the `close()` me
 
 
 
-## Q -  What is Closeable and how its related to AutoCloseable?
+-----------------------------
+
+
+
+## Q -  What is Closeable and how it's related to AutoCloseable?
 
 To explain this from the ground level, we have to look at how Java evolved. 
 Before Java 7, if you opened a stream or a socket, you were responsible for manually
@@ -5558,157 +5564,100 @@ Integer value = queue.poll();
 
 Here is the breakdown of the 5 most important `BlockingQueue` implementations in `java.util.concurrent`.
 
-#### 1. ArrayBlockingQueue
+---
 
-**What it is**
+### 1. `ArrayBlockingQueue`
 
-* A bounded blocking queue backed by an array
-* Fixed size, defined at creation
-
-```java
-BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10);
-```
-
-**Key characteristics**
-
-* FIFO order
-* Fixed capacity
-* Single lock for producers and consumers
-* Optional fairness policy
-
-**Why it exists**
-
-* To provide strict capacity control and predictable memory usage.
-
-**Use cases**
-
-* Producer–consumer systems with back-pressure
-* Systems where memory usage must be capped
-* Rate-limited pipelines
+1. **Size:** **Bounded** (Capacity is fixed at creation and cannot be modified).
+2. **Locks:** **Single `ReentrantLock**` shared by both producers and 
+    consumers (uses two conditions: `notEmpty` and `notFull`).
+3. **FIFO Preserved:** **Yes** (Strict FIFO ordering).
+4. **Characteristic:** A classic bounded buffer backed by an array. Because insertion and 
+    removal share a single lock, producers and consumers can block each other under high 
+    load, but it guarantees a predictable memory footprint.
+5. **Data Structure:** Array (`Object[]`).
+6. **Primary Use Case:** High-reliability systems with fixed memory bounds where dropping or blocking 
+    work at a capped queue length is required.
 
 ---
 
-#### 2. LinkedBlockingQueue
+### 2. `LinkedBlockingQueue`
 
-**What it is**
-
-* A linked-node based blocking queue
-* Can be bounded or unbounded
-
-```java
-BlockingQueue<Integer> queue = new LinkedBlockingQueue<>();
-```
-
-**Key characteristics**
-
-* FIFO order
-* Separate locks for put and take (better concurrency)
-* Higher throughput than array-based queues
-
-
-To allow higher concurrency between producers and consumers.
-
-**Use cases**
-
-* General-purpose producer–consumer problems
-* Task queues
-* Default queue used in many thread-pool configurations
+1. **Size:** **Optionally Bounded** (Defaults to `Integer.MAX_VALUE` if no capacity limit is specified).
+2. **Locks:** **Two Separate Locks** — `putLock` for producers and `takeLock` for consumers.
+3. **FIFO Preserved:** **Yes** (Strict FIFO ordering).
+4. **Characteristic:** Offers higher concurrent throughput than `ArrayBlockingQueue` because 
+    producers (`put`) and consumers (`take`) operate on separate locks simultaneously.
+5. **Data Structure:** Linked Nodes (`Node<E>`).
+6. **Primary Use Case:** Standard thread pool queues (like `Executors.newFixedThreadPool()`) where 
+    producer and consumer rates fluctuate independently.
 
 ---
 
-#### 3. PriorityBlockingQueue
+### 3. `PriorityBlockingQueue`
 
-**What it is**
-
-* A **priority-based**, unbounded blocking queue
-* Elements are ordered by priority, not insertion order
-
-```java
-BlockingQueue<Task> queue = new PriorityBlockingQueue<>();
-```
-
-**Key characteristics**
-
-* Uses Comparable or Comparator
-* No capacity limit
-* FIFO is NOT guaranteed
-
-**Why it exists**
-
-* To process high-priority tasks first.
-
-**Use cases**
-
-* Task schedulers
-* Job prioritization systems
-* Event processing where priority matters
+1. **Size:** **Strictly Unbounded** (Resizes its array dynamically until heap memory is exhausted).
+2. **Locks:** **Single `ReentrantLock**` with a single `notEmpty` condition (`put()` operations never block
+    because the queue never fills up).
+3. **FIFO Preserved:** **No** (Ordered based on priority using `Comparable` or a `Comparator`).
+4. **Characteristic:** Elements are dequeued based on priority order rather than arrival time. Equal priority
+    items do not guarantee FIFO order.
+5. **Data Structure:** Priority Heap (Array-based min-heap).
+6. **Primary Use Case:** Priority-based task execution (e.g., executing emergency system alerts 
+    before standard processing tasks).
 
 ---
 
-#### 4. DelayQueue
+### 4. `SynchronousQueue`
 
-**What it is**
-
-* A blocking queue where elements become available **after a delay**
-* Elements must implement Delayed
-
-```java
-DelayQueue<DelayedTask> queue = new DelayQueue<>();
-```
-
-**Key characteristics**
-
-* Time-based availability
-* Unbounded
-* Elements retrieved only after delay expires
-
-**Why it exists**
-
-* To support time-based scheduling without manual timers.
-
-**Use cases**
-
-* Retry mechanisms
-* Cache expiration
-* Scheduled task execution
+1. **Size:** **Capacity of 0** (Holds no internal storage/elements).
+2. **Locks:** **Lock-Free / CAS-based** (Uses non-blocking wait queues/stacks under the hood).
+3. **FIFO Preserved:** **Configurable** (FIFO order if `fair = true`; LIFO stack order if `fair = false`).
+4. **Characteristic:** A direct handoff mechanism. A `put()` call blocks until another thread calls `take()` to 
+    receive the element, and vice versa.
+5. **Data Structure:** Direct transfer queue/stack (No storage array or node chain).
+6. **Primary Use Case:** Cached thread pools (`Executors.newCachedThreadPool()`) to pass tasks directly to idle 
+    threads without queuing delay.
 
 ---
 
-#### 5. SynchronousQueue
+### 5. `DelayQueue`
 
-**What it is**
+1. **Size:** **Strictly Unbounded**.
+2. **Locks:** **Single `ReentrantLock**` with a `Condition` (`available`).
+3. **FIFO Preserved:** **No** (Ordered by delay expiration time).
+4. **Characteristic:** Holds elements implementing `Delayed`. An element can only be taken when its 
+    delay has expired (`getDelay() <= 0`).
+5. **Data Structure:** Priority Queue (`PriorityQueue<E>`).
+6. **Primary Use Case:** Scheduled task execution (e.g., `ScheduledThreadPoolExecutor`), retry delays, or 
+    cache eviction timeouts.
 
-* A blocking queue with zero capacity
-* No storage — direct handoff between threads
+---
 
-```java
-BlockingQueue<Integer> queue = new SynchronousQueue<>();
-```
+### 6. `LinkedTransferQueue` (Java 7+)
 
-**Key characteristics**
+1. **Size:** **Strictly Unbounded**.
+2. **Locks:** **Lock-Free / CAS-based** (No traditional lock overhead).
+3. **FIFO Preserved:** **Yes** (Strict FIFO ordering).
+4. **Characteristic:** Combines features of `LinkedBlockingQueue` and `SynchronousQueue`. 
+    Supports a `.transfer()` method that blocks until a consumer directly receives the item, bypassing 
+    queue overhead if a worker is already waiting.
+5. **Data Structure:** Dual Linked Queue (Lock-free node chain).
+6. **Primary Use Case:** Message passing systems and high-performance worker pools where producers need to 
+    know when consumers have actually consumed a message.
 
-* Each put() waits for a take()
-* No buffering
-* High throughput under load
+---
 
-**Why it exists**
+### Master Comparison Table (All 6 Points)
 
-To enable direct thread-to-thread handoff without queuing.
-
-**Use cases**
-
-* ThreadPoolExecutor (cached thread pools)
-* Task handoff scenarios
-* Low-latency systems
-
-
-| BlockingQueue         | Capacity  | Ordering   | Primary Use Case               |
-|-----------------------|-----------|------------|--------------------------------|
-| ArrayBlockingQueue    | Bounded   | FIFO       | Strict capacity control        |
-| LinkedBlockingQueue   | Optional  | FIFO       | General-purpose concurrency    |
-| PriorityBlockingQueue | Unbounded | Priority   | Priority-based task processing |
-| DelayQueue            | Unbounded | Time-based | Scheduled / delayed tasks      |
-| SynchronousQueue      | Zero      | None       | Direct thread handoff          |
+| Queue Name                  | 1. Size            | 2. Lock Mechanism         | 3. FIFO?      | 4. Characteristic                     | 5. Data Structure      | 6. Primary Use Case                 |
+|-----------------------------|--------------------|---------------------------|---------------|---------------------------------------|------------------------|-------------------------------------|
+| **`ArrayBlockingQueue`**    | Bounded            | Single Lock               | Yes           | Bounded array buffer                  | Array (`Object[]`)     | Capped-memory producers             |
+| **`LinkedBlockingQueue`**   | Optionally Bounded | Dual Locks (`put`/`take`) | Yes           | High concurrency via lock splitting   | Linked Nodes           | `FixedThreadPool` work queue        |
+| **`PriorityBlockingQueue`** | Unbounded          | Single Lock               | No (Priority) | Unbounded min-heap                    | Priority Array Heap    | Priority job processing             |
+| **`SynchronousQueue`**      | Capacity = 0       | Lock-Free (CAS)           | Configurable  | Zero-capacity direct handoff          | None (Wait nodes)      | `CachedThreadPool` direct handoff   |
+| **`DelayQueue`**            | Unbounded          | Single Lock               | No (Time)     | Time-expired retrieval                | `PriorityQueue`        | Scheduled jobs / Cache eviction     |
+| **`LinkedTransferQueue`**   | Unbounded          | Lock-Free (CAS)           | Yes           | Producer waiting handoff (`transfer`) | Lock-free Linked Nodes | Direct message-acknowledging queues |
 
 
 **Example usage of BlockingQueue with Producer-Consumer:**
