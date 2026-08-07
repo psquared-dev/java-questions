@@ -216,6 +216,13 @@
     * [Comparison Cheat Sheet](#comparison-cheat-sheet)
     * [Summary for Interview](#summary-for-interview)
   * [Q - When to Use Checked Exceptions and Unchecked Exceptions?](#q---when-to-use-checked-exceptions-and-unchecked-exceptions)
+    * [1. Checked Exceptions $\rightarrow$ Recoverable Conditions](#1-checked-exceptions-rightarrow-recoverable-conditions)
+      * [Examples of Recoverable Exceptions:](#examples-of-recoverable-exceptions)
+    * [2. Unchecked Exceptions $\rightarrow$ Unrecoverable / Programming Errors](#2-unchecked-exceptions-rightarrow-unrecoverable--programming-errors)
+      * [Examples of Unrecoverable Exceptions:](#examples-of-unrecoverable-exceptions)
+    * [️The "Senior Engineer" Nuance: Modern Java Framework Trend](#the-senior-engineer-nuance-modern-java-framework-trend)
+      * [Why did the industry shift towards Unchecked Exceptions?](#why-did-the-industry-shift-towards-unchecked-exceptions)
+    * [Summary Matrix for Interviews](#summary-matrix-for-interviews)
     * [References:](#references-1)
 * [Module 4: Generics](#module-4-generics)
   * [Q - Generics & Type Erasure: What happens to type information at runtime? Why are Generics Invariant while Arrays are Covariant?](#q---generics--type-erasure-what-happens-to-type-information-at-runtime-why-are-generics-invariant-while-arrays-are-covariant)
@@ -4466,34 +4473,85 @@ A method in the `Object` class called by the Garbage Collector before an object 
 
 ## Q - When to Use Checked Exceptions and Unchecked Exceptions?
 
-If a client can reasonably be expected to recover from an exception, make it a 
-checked exception. If a client cannot do anything to recover from the exception, 
-make it an unchecked exception.
+---
 
-For example, before we open a file, we can first validate the input file name. 
-If the user input file name is invalid, we can throw a custom checked exception:
+### 1. Checked Exceptions $\rightarrow$ Recoverable Conditions
 
-```java
-if (!isCorrectFileName(fileName)) {
-    throw new IncorrectFileNameException("Incorrect filename : " + fileName );
-}
-```
+If an application encounters an error that is **expected in normal operation** and the 
+caller can **take a corrective action** (retry, prompt the user, switch to a fallback), it should
+be a **Checked Exception** (`extends Exception`).
 
-In this way, we can recover the system by accepting another user input file name.
+* **Compiler Enforcement:** The Java compiler forces the caller to explicitly 
+   handle it (`try-catch`) or declare it (`throws`).
+* **Intent:** It acts as a mandatory warning in the API signature: *"This operation might fail 
+   due to external factors beyond code control, so you MUST prepare a recovery strategy."*
 
-However, if the input file name is a null pointer or it is an empty string, it means
-that we have some errors in the code. In this case, we should throw an unchecked exception
+#### Examples of Recoverable Exceptions:
 
-```java
-if (fileName == null || fileName.isEmpty())  {
-    throw new NullOrEmptyException("The filename is null or empty.");
-}
+| Exception                    | Reason it's Recoverable               | Recovery Strategy                                                    |
+|------------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `FileNotFoundException`      | A user entered an invalid file path.  | Prompt the user to choose a different file path.                     |
+| `InsufficientFundsException` | A bank account has low balance.       | Reject transaction and ask user to add funds or choose another card. |
+| `SocketTimeoutException`     | A network call timed out temporarily. | Retry the request after a exponential backoff delay.                 |
+
+---
+
+### 2. Unchecked Exceptions $\rightarrow$ Unrecoverable / Programming Errors
+
+If an exception represents a **bug in the code**, a **violation of a precondition**, 
+or a **catastrophic system failure** that the calling code cannot reasonably fix at 
+runtime, it should be an **Unchecked Exception** (`extends RuntimeException`).
+
+* **No Compiler Enforcement:** You do NOT need to declare it with `throws` or catch it with `try-catch`.
+* **Intent:** It indicates that the system state is corrupted or the developer made a mistake 
+   that must be fixed in code, not handled at runtime.
+
+#### Examples of Unrecoverable Exceptions:
+
+| Exception                   | Reason it's Unrecoverable                               | Why Catching It Is Bad Idea                                             |
+|-----------------------------|---------------------------------------------------------|-------------------------------------------------------------------------|
+| `NullPointerException`      | Bug: Attempted to call a method on a `null` reference.  | Fix the code logic / check for `null`. Catching it hides a code defect. |
+| `IndexOutOfBoundsException` | Bug: Tried accessing array index `5` on a size-3 array. | Fix the loop bounds in code.                                            |
+| `IllegalArgumentException`  | Developer passed an invalid parameter value.            | Fix the caller argument.                                                |
+| `OutOfMemoryError`          | JVM heap memory is exhausted.                           | The process is dying; no application code can safely recover from this. |
+
+---
+
+### ️The "Senior Engineer" Nuance: Modern Java Framework Trend
+
+While the above statement is the classical design rule, modern Java (and major 
+frameworks like **Spring**, **Hibernate**, and **Jackson**) has shifted heavily
+toward **Unchecked Exceptions everywhere**.
+
+#### Why did the industry shift towards Unchecked Exceptions?
+
+1. **API Pollution / Boilerplate:** Checked exceptions bubble up through layers, forcing 
+    intermediate methods to add `throws Exception` signatures even when they cannot recover from the error themselves.
+2. **Lambda & Stream Incompatibility:** Java 8 Streams and Functional Interfaces (like `Function`, `Predicate`, `Consumer`) **do not allow checked exceptions** in their 
+    method signatures, making checked exceptions cumbersome to use in modern Java.
+3. **Most "Recoverable" Errors Aren't Recoverable in Practice:** In modern web services/REST APIs, if a database 
+    connection fails or a service call times out, the application usually can't "recover" - it just catches the 
+    exception at the global controller level and returns an `HTTP 500 Internal Server Error`.
+
+---
+
+### Summary Matrix for Interviews
+
+```text
+                                 Is the error recoverable?
+                                       /          \
+                                     YES           NO
+                                     /              \
+                     Use CHECKED Exception         Use UNCHECKED Exception
+                     (extends Exception)          (extends RuntimeException)
+                     
+                     e.g. InvalidPasswordException  e.g. NullPointerException
+
 ```
 
 ### References:
 
 * https://www.baeldung.com/java-checked-unchecked-exceptions#when
-
 
 
 -----------------------------
