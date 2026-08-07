@@ -4320,6 +4320,10 @@ The Solution (`AutoCloseable` way): If both the `try` block and the `close()` me
 3. You can retrieve it using **mainException.getSuppressed()**.
 
 
+**Note:** When using AutoCloseable (typically with try-with-resources), resource cleanup moves from 
+the caller's finally block into the resource's close() method. If an explicit finally block is still
+needed, it should be reserved for non-resource-related actions such as logging, metrics, or other 
+best-effort cleanup, and it should avoid throwing exceptions.
 
 -----------------------------
 
