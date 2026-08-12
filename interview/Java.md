@@ -10753,9 +10753,9 @@ When you enable `-XX:+UseSerialGC`, the JVM activates:
 
 * **What lives here:** Newly created objects (e.g., `new String("hello")`, `new Customer()`).
 * **The Algorithm: Serial Mark-Copy**.
-    * It reserves a separate "Survivor Space".
-    * It pauses the app, finds the live objects in Eden, and copies them to the Survivor space.
-    * It wipes the rest of Eden clean.
+    1. **Mark**: identify live objects.
+    2. **Copy**: move live objects to the Survivor Space.
+    3. **Reclaim**: clear the remaining Eden space for new allocations.
 
 * **Why?** Most new objects die young (like temp variables in a loop). 
  Copying the few survivors is faster than scanning all the dead ones.
@@ -10764,10 +10764,9 @@ When you enable `-XX:+UseSerialGC`, the JVM activates:
 
 * **What lives here:** Objects that survived many Minor GCs (long-lived data like Caches, DB connections).
 * **The Algorithm: Serial Mark-Sweep-Compact**.
-    1. **Mark:** The single thread scans the whole Old Gen to find live objects.
-    2. **Sweep:** It identifies the empty spaces between live objects.
-    3. **Compact:** This is the heavy lifting. It moves live objects together to the beginning of 
-    the memory block so that there is one large chunk of free space at the end.
+    1. **Mark:** identify live objects.
+    2. **Sweep:** reclaim dead objects.
+    3. **Compact:** move live objects together to eliminate fragmentation.
 
 * **Why compact?** To ensure we have a large contiguous chunk of free space for future allocations.
 
@@ -10788,7 +10787,7 @@ You might think "Never," but that's wrong. It is still useful in specific cases:
 1. **Small Heaps:** If your heap is under 100MB (e.g., a tiny microservice or AWS Lambda function), 
    Serial GC is faster than G1GC because it lacks the "management overhead."
 2. **Single Core Environments:** If your Docker container is limited to 1 CPU core, using 
-   Parallel GC (multi-threaded) is useless because the OS has to "time-slice" the threads on 
+   Parallel GC (multithreaded) is useless because the OS has to "time-slice" the threads on 
    one core anyway, which is slower.
 
 **Command to enable:** `-XX:+UseSerialGC`
