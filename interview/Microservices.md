@@ -4734,6 +4734,12 @@ then introduce an Abstract Class in the middle.
 
 ----------------
 
+# Q - What is Event Sourcing
+
+Event Sourcing is an architectural pattern where you do not store the current state of an entity 
+directly in a database. Instead, you store a sequential, append-only log of immutable domain events that
+describe every state change that has ever occurred.
+
 
 # Module 8 — Database & Messaging Guarantees
 
