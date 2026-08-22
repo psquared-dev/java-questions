@@ -96,8 +96,13 @@ to the situation, hiding the logic of how exactly the object is created (so you 
 * Goal: "How do I instantiate this class comfortably?"
 * Examples:
     * **Singleton:** Ensures a class has only one instance (e.g., Database connection).
-    * **Factory Method:** Creates objects without specifying the exact class (e.g., `Calendar.getInstance()`).
+    * **Factory Method:** Creates objects without exposing the exact class to the caller (e.g., `Path.of("data.txt")` 
+       or `Paths.get("data.txt")` returns a platform-specific Path implementation like `UnixPath` or `WindowsPath`).
+    * **Abstract Factory**: Creates families of related or dependent objects without specifying their concrete
+       classes (e.g., `java.sql.Connection` creating compatible Statement and PreparedStatement instances 
+       for MySQL vs. PostgreSQL, or Toolkit.getDefaultToolkit() creating OS-specific GUI components).
     * **Builder:** Constructs complex objects step-by-step (e.g., `StringBuilder` or a Pizza builder).
+    * **Prototype**: Creates new instances by cloning an existing prototype instance.
 
 
 ### 2. Structural Patterns
@@ -110,7 +115,9 @@ classes into larger structures while keeping them flexible.
    * **Adapter:** Makes incompatible interfaces work together (e.g., Power Adapter).
    * **Decorator:** Dynamically adds behavior to an object (e.g., Adding "Scrollbars" to a Window).
    * **Facade:** Provides a simplified interface to a complex system (e.g., A "Car Start" button that 
-internally handles fuel, spark, engine).
+      internally handles fuel, spark, engine).
+   * **Proxy**: Provides a placeholder or surrogate object to control access, perform lazy 
+      initialization, or handle cross-cutting concerns (e.g., Spring's @Transactional or AOP security proxies).
 
 ### 3. Behavioral Patterns
 
@@ -120,17 +127,23 @@ interact and distribute responsibilities.
 * Goal: "How do these objects talk to each other?"
 * Examples:
     * **Observer:** A subscription mechanism to notify objects of events (e.g., YouTube notifications).
-    * **Strategy:** Defines a family of algorithms and makes them interchangeable (
-e.g., `Collections.sort()` using different Comparators).
+    * **Strategy:** Defines a family of algorithms and makes them interchangeable (e.g., `Collections.sort()` using different Comparators).
     * **Iterator:** Traversing a collection without exposing its underlying representation (e.g., `for(Item i : list)`).
+    * **Chain of Responsibility**: Passes a request along a sequential chain of handlers until one handles it or 
+       the chain ends (e.g., Spring Security SecurityFilterChain or Servlet filters).
+    * **Template Method**: Defines the skeleton of an algorithm in a base class, deferring specific steps or 
+       callbacks to subclasses without changing the structure (e.g., Spring's JdbcTemplate or TransactionTemplate).
+    * **Command**: Encapsulates a request as a standalone object with all its parameters, enabling parameterization, 
+       queuing, logging, or undo operations (e.g., Runnable execution tasks or transactional job queues).
+    * **Visitor**: Separates an algorithm from the object structure it operates on, allowing new operations to be 
+       added to classes without modifying them (e.g., AST syntax tree traversals in compilers or document structure parsers).
 
-| Category       | Focus         | Key Word        | Popular Examples             |
-|:---------------|:--------------|:----------------|:-----------------------------|
-| **Creational** | Instantiation | **"New"**       | Singleton, Factory, Builder  |
-| **Structural** | Composition   | **"Structure"** | Adapter, Decorator, Proxy    |
-| **Behavioral** | Interaction   | **"Talk"**      | Observer, Strategy, Iterator |
 
-
+| Category       | Focus                            | Key Word                   | Popular Examples                                                                         |
+|----------------|----------------------------------|----------------------------|------------------------------------------------------------------------------------------|
+| **Creational** | Instantiation / Object Creation  | **"New" / "Clone"**        | Singleton, Factory Method, Abstract Factory, Builder, Prototype                          |
+| **Structural** | Composition / Interface Assembly | **"Structure" / "Bridge"** | Adapter, Decorator, Facade, Proxy                                                        |
+| **Behavioral** | Interaction / Communication      | **"Talk" / "Delegate"**    | Observer, Strategy, Iterator, Chain of Responsibility, Template Method, Command, Visitor |
 
 ------------------------------------
 
