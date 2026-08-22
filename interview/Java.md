@@ -818,6 +818,11 @@ public class OuterClass {
 }
 ```
 
+**Takeaway:** `private` and `protected` are designed for class members, so they only make sense 
+when an enclosing class exists to define their access boundaries. Because `private` and `protected` control member
+visibility relative to a containing scope, applying them to top-level classes is meaningless without
+an enclosing class.
+
 ----------------
 
 
