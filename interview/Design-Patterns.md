@@ -1605,7 +1605,7 @@ public void pay() {
 
 First, we need a marker to tell our framework which methods need a transaction.
 
-```text
+```java
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -1618,7 +1618,7 @@ public @interface MyTransactional {
 
 For JDK Dynamic Proxies to work, your **class must implement an interface**.
 
-```text
+```java
 // 1. The Interface
 interface PaymentService {
     void pay();
