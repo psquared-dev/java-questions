@@ -57,6 +57,10 @@
     * [Real World Example of Decorator pattern in Java](#real-world-example-of-decorator-pattern-in-java)
     * [Implementation of Decorator Pattern](#implementation-of-decorator-pattern)
       * [Why your CoffeeDecorator (Abstract Class) is important](#why-your-coffeedecorator-abstract-class-is-important)
+  * [Q - What is Facade Pattern](#q---what-is-facade-pattern)
+    * [Production Java Example](#production-java-example)
+    * [Console Output:](#console-output)
+    * [Facade vs. Adapter](#facade-vs-adapter-)
   * [Q - What is Proxy pattern?](#q---what-is-proxy-pattern)
     * [Why is it required?](#why-is-it-required)
     * [Real-world Java proxies you already use](#real-world-java-proxies-you-already-use)
@@ -1393,6 +1397,136 @@ and manually write the constructor to set it.
 concrete decorators (Milk, Cream) only focus on the new behavior (adding cost/text).
 
 This is a very clean implementation!
+
+
+-----------------------------------
+
+## Q - What is Facade Pattern
+
+A **Facade Pattern** provides a single, simplified, high-level interface 
+over a complex subsystem of classes, libraries, or microservices.
+
+A practical, real-world example is an **E-Commerce Checkout Facade** that hides the complexity 
+of coordinating inventory, payment, shipping, and notification subsystems:
+
+
+### Production Java Example
+
+```java
+package practice.facade;
+
+// ==========================================
+// 1. Complex Subsystems (Internal Services)
+// ==========================================
+class InventoryService {
+    public boolean checkStock(String productId, int quantity) {
+        System.out.println("📦 Checking stock for " + productId);
+        return true;
+    }
+
+    public void reserveStock(String productId, int quantity) {
+        System.out.println("📦 Stock reserved: " + quantity + " units.");
+    }
+}
+
+class PaymentService {
+    public boolean processPayment(String customerId, double amount) {
+        System.out.println("💳 Charging $" + amount + " to customer " + customerId);
+        return true;
+    }
+}
+
+class ShippingService {
+    public String arrangeShipping(String customerId, String address) {
+        System.out.println("🚚 Shipping label generated for " + address);
+        return "TRACK-98214";
+    }
+}
+
+class NotificationService {
+    public void sendOrderConfirmation(String customerId, String trackingId) {
+        System.out.println("📧 Confirmation email sent with tracking: " + trackingId);
+    }
+}
+
+// ==========================================
+// 2. The Facade (Hides subsystem complexity)
+// ==========================================
+class OrderProcessingFacade {
+    private final InventoryService inventoryService;
+    private final PaymentService paymentService;
+    private final ShippingService shippingService;
+    private final NotificationService notificationService;
+
+    public OrderProcessingFacade() {
+        this.inventoryService = new InventoryService();
+        this.paymentService = new PaymentService();
+        this.shippingService = new ShippingService();
+        this.notificationService = new NotificationService();
+    }
+
+    // 1-Method entry point for the client
+    public boolean placeOrder(String customerId, String productId, int quantity, double amount, String address) {
+        System.out.println("--- Starting Order Checkout Flow ---");
+
+        if (!inventoryService.checkStock(productId, quantity)) {
+            System.out.println("❌ Order Failed: Out of stock");
+            return false;
+        }
+
+        if (!paymentService.processPayment(customerId, amount)) {
+            System.out.println("❌ Order Failed: Payment declined");
+            return false;
+        }
+
+        inventoryService.reserveStock(productId, quantity);
+        String trackingId = shippingService.arrangeShipping(customerId, address);
+        notificationService.sendOrderConfirmation(customerId, trackingId);
+
+        System.out.println("✅ Order Placed Successfully!");
+        return true;
+    }
+}
+
+// ==========================================
+// 3. Client Code (Clean and decoupled)
+// ==========================================
+public class FacadeDemo {
+    public static void main(String[] args) {
+        // Without Facade: Client must instantiate and orchestrate all 4 services manually.
+        // With Facade: Client calls a single, convenient method.
+        OrderProcessingFacade orderFacade = new OrderProcessingFacade();
+        
+        orderFacade.placeOrder(
+            "CUST_101", 
+            "PROD_MACBOOK_PRO", 
+            1, 
+            1999.99, 
+            "123 Tech Lane, San Francisco"
+        );
+    }
+}
+```
+
+### Console Output:
+
+```text
+--- Starting Order Checkout Flow ---
+📦 Checking stock for PROD_MACBOOK_PRO
+💳 Charging $1999.99 to customer CUST_101
+📦 Stock reserved: 1 units.
+🚚 Shipping label generated for 123 Tech Lane, San Francisco
+📧 Confirmation email sent with tracking: TRACK-98214
+✅ Order Placed Successfully!
+
+```
+
+---
+
+### Facade vs. Adapter 
+
+* **Facade:** Simplifies a complex subsystem without altering underlying interfaces (1-way high-level helper).
+* **Adapter:** Converts one incompatible interface into another expected interface (translator).
 
 
 -----------------------------------
