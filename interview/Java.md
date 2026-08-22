@@ -5,39 +5,16 @@
   * [Q - What are packages?](#q---what-are-packages)
   * [Q - Is Java Pass by Value or Pass by Reference?](#q---is-java-pass-by-value-or-pass-by-reference)
   * [Q - What is the diff b/w objects and references?](#q---what-is-the-diff-bw-objects-and-references)
-    * [Objects vs References](#objects-vs-references)
-    * [What is allocated where?](#what-is-allocated-where)
-    * [Memory Regions - Summary](#memory-regions---summary)
-    * [References](#references)
   * [Q - What is shadowing?](#q---what-is-shadowing)
   * [Q - Will the following code compile (Widening vs. Narrowing)?](#q---will-the-following-code-compile-widening-vs-narrowing)
-    * [1. Widening = implicit (safe)](#1-widening--implicit-safe)
-    * [2. Narrowing = explicit cast required (unsafe)](#2-narrowing--explicit-cast-required-unsafe)
-    * [Why `myChar = myByte` is not allowed](#why-mychar--mybyte-is-not-allowed)
-    * [Why `myShort = myChar` is not allowed](#why-myshort--mychar-is-not-allowed)
-    * [Why `myChar = myShort` is not allowed](#why-mychar--myshort-is-not-allowed)
   * [Q - var is used for Local Variable Type Inference (LVTI). Can we use it as an identifier?](#q---var-is-used-for-local-variable-type-inference-lvti-can-we-use-it-as-an-identifier)
   * [Q - Can you initialize a var variable with null?](#q---can-you-initialize-a-var-variable-with-null)
   * [Q - Mentions some other possible scenarios where we can't use the `var` (LVTI) keyword](#q---mentions-some-other-possible-scenarios-where-we-cant-use-the-var-lvti-keyword)
   * [Q - Do `double` and `float` type overflow?](#q---do-double-and-float-type-overflow)
   * [Q - Is default keyword one of the access modifier?](#q---is-default-keyword-one-of-the-access-modifier)
-    * [1. The "Default Access Modifier" (The Invisible One)](#1-the-default-access-modifier-the-invisible-one)
-    * [2. The `default` Keyword (The Actual Keyword)](#2-the-default-keyword-the-actual-keyword)
   * [Q - What are the uses of `super` keyword?](#q---what-are-the-uses-of-super-keyword)
-    * [The 3 Primary Uses of `super`](#the-3-primary-uses-of-super)
-      * [1. Calling Superclass Methods (Overridden Methods)](#1-calling-superclass-methods-overridden-methods)
-      * [2. Calling Superclass Constructors (`super()`)](#2-calling-superclass-constructors-super)
-      * [3. Accessing Superclass Fields (Hidden/Shadowed Fields)](#3-accessing-superclass-fields-hiddenshadowed-fields)
   * [Q - Can a top level class be private / protected?](#q---can-a-top-level-class-be-private--protected)
-    * [Allowed Access Modifiers for Top-Level Classes](#allowed-access-modifiers-for-top-level-classes)
-    * [Why `private` is Not Allowed at the Top Level](#why-private-is-not-allowed-at-the-top-level)
-    * [Why `protected` is Not Allowed at the Top Level](#why-protected-is-not-allowed-at-the-top-level)
-    * [Where CAN a Class Be `private` or `protected`?](#where-can-a-class-be-private-or-protected)
   * [Q - Can we override the main() method?](#q---can-we-override-the-main-method)
-    * [1. Why Can’t `main()` Be Overridden?](#1-why-cant-main-be-overridden)
-    * [2. What Happens If You Write `main()` in a Subclass? (Method Hiding)](#2-what-happens-if-you-write-main-in-a-subclass-method-hiding)
-      * [Verification:](#verification)
-    * [3. Can We OVERLOAD the `main()` Method?](#3-can-we-overload-the-main-method)
   * [Q - What is Covariant return type?](#q---what-is-covariant-return-type)
   * [Q - What if a method in child class is more restricted than a parent class?](#q---what-if-a-method-in-child-class-is-more-restricted-than-a-parent-class)
   * [Q - Does the finally block execute if there is a return statement inside try or catch?](#q---does-the-finally-block-execute-if-there-is-a-return-statement-inside-try-or-catch)
@@ -45,422 +22,105 @@
   * [Q - Can you run the code before executing main methods?](#q---can-you-run-the-code-before-executing-main-methods)
   * [Q - Is it true that main thread doesn't terminate until the child threads are done?](#q---is-it-true-that-main-thread-doesnt-terminate-until-the-child-threads-are-done)
   * [Q - What is hashCode() and how It's related to equals()?](#q---what-is-hashcode-and-how-its-related-to-equals)
-    * [The Analogy: The Sectioned Library](#the-analogy-the-sectioned-library)
-    * [How it works in a HashMap (The 3 Steps)](#how-it-works-in-a-hashmap-the-3-steps)
-    * [The Contract: The "Law" of HashCode](#the-contract-the-law-of-hashcode)
   * [Q - What is marker interface?](#q---what-is-marker-interface)
-    * [Resources](#resources)
   * [Q - What are Wrapper classes](#q---what-are-wrapper-classes)
   * [Q - Do local variables in Java have default values?](#q---do-local-variables-in-java-have-default-values)
   * [Q - What is copy constructor?](#q---what-is-copy-constructor)
-    * [Copy Constructor vs clone() — Which is better?](#copy-constructor-vs-clone--which-is-better)
-      * [1. The "Constructor Bypass" Problem (Critical)](#1-the-constructor-bypass-problem-critical)
-      * [2. The Type Casting Tax](#2-the-type-casting-tax)
-      * [3. The Exception Nightmare](#3-the-exception-nightmare)
-      * [4. The "Marker Interface" Confusion](#4-the-marker-interface-confusion)
   * [Q - What object cloning?](#q---what-object-cloning)
-    * [Why does Cloneable matter?](#why-does-cloneable-matter)
-    * [Types of Cloning](#types-of-cloning)
-      * [Shallow Clone (default)](#shallow-clone-default)
-      * [Deep Clone](#deep-clone)
-    * [Resources](#resources-1)
   * [Q - Do we have pointers in Java?](#q---do-we-have-pointers-in-java)
   * [Q - What is Java String Pool & String Interning?](#q---what-is-java-string-pool--string-interning)
-    * [1. String Literal (Automatic Interning)](#1-string-literal-automatic-interning)
-    * [2. The `new` Keyword (Forcing a New Object)](#2-the-new-keyword-forcing-a-new-object)
-    * [3. Manual Interning (`.intern()`)](#3-manual-interning-intern)
-    * [4. Why is this safe? (Immutability)](#4-why-is-this-safe-immutability)
   * [Q - Which class is thread-safe: StringBuilder or StringBuffer?](#q---which-class-is-thread-safe-stringbuilder-or-stringbuffer)
   * [Q - How many times is the finalize() method called in Java?](#q---how-many-times-is-the-finalize-method-called-in-java)
-    * [What is finalize()?](#what-is-finalize)
-    * [Key Idea 1: finalize() may run OR may not run](#key-idea-1-finalize-may-run-or-may-not-run)
-    * [Key Idea 2: finalize() runs ONCE per object](#key-idea-2-finalize-runs-once-per-object)
-    * [Why "ONLY ONCE"? (Simple explanation)](#why-only-once-simple-explanation)
   * [Q - What is Serializable interface? List some real-world use-cases for it.](#q---what-is-serializable-interface-list-some-real-world-use-cases-for-it)
-    * [Key statement](#key-statement)
-      * [Serialization code (standard)](#serialization-code-standard)
-      * [What the JVM actually does internally (THIS is the reflection part)](#what-the-jvm-actually-does-internally-this-is-the-reflection-part)
   * [Q - What are some use cases of reflection](#q---what-are-some-use-cases-of-reflection)
   * [Q - How many methods are there compare strings in Java?](#q---how-many-methods-are-there-compare-strings-in-java)
   * [Q - Will the following statement adds string to the string pool?](#q---will-the-following-statement-adds-string-to-the-string-pool)
-    * [The Nuance: The final Keyword](#the-nuance-the-final-keyword)
   * [Q - What happens when we concatenate string with different type?](#q---what-happens-when-we-concatenate-string-with-different-type)
-    * [What Actually Happens (Under the Hood)](#what-actually-happens-under-the-hood)
-      * [Case 1: Primitive Types](#case-1-primitive-types)
-      * [Case 2: Reference Types](#case-2-reference-types)
   * [Q - What is the difference b/w `equals()` and `equalsIgnoreCase()` method?](#q---what-is-the-difference-bw-equals-and-equalsignorecase-method)
   * [Q - What is the difference b/w `isEmpty()` and `isBlank()` method of String object?](#q---what-is-the-difference-bw-isempty-and-isblank-method-of-string-object)
   * [Q - Diff b/w `String`, `StringBuilder` and `StringBuffer`](#q---diff-bw-string-stringbuilder-and-stringbuffer)
   * [Q - What is CharSequence?](#q---what-is-charsequence)
-    * [Key Methods](#key-methods)
-    * [Why was CharSequence introduced?](#why-was-charsequence-introduced)
-    * [Simple Example](#simple-example)
   * [Q - What is serialVersionUID?](#q---what-is-serialversionuid)
-    * [Why do we need serialVersionUID?](#why-do-we-need-serialversionuid)
-    * [DEFAULT Behavior](#default-behavior)
-    * [What happens if serialVersionUID changes?](#what-happens-if-serialversionuid-changes)
-    * [What Happens When You Manually Define serialVersionUID](#what-happens-when-you-manually-define-serialversionuid)
-      * [Add a new field](#add-a-new-field)
-      * [Remove a field](#remove-a-field)
-      * [Change field order](#change-field-order)
-      * [Add methods](#add-methods)
-      * [Changes that break compatibility](#changes-that-break-compatibility)
   * [Q - Is serialVersionUID persisted into the serialized byte stream?](#q---is-serialversionuid-persisted-into-the-serialized-byte-stream)
-    * [1. What Happens During Serialization (`ObjectOutputStream`)](#1-what-happens-during-serialization-objectoutputstream)
-    * [2. What Happens During Deserialization (`ObjectInputStream`)](#2-what-happens-during-deserialization-objectinputstream)
   * [Q - How to prevent serialization of a field?](#q---how-to-prevent-serialization-of-a-field)
-    * [1. The transient Keyword (The Standard Way)](#1-the-transient-keyword-the-standard-way)
-    * [2. The static Modifier (The "Class-Level" Rule)](#2-the-static-modifier-the-class-level-rule)
   * [Q - Why `Object.clone()` is defined as protected?](#q---why-objectclone-is-defined-as-protected)
-    * [The "Senior" Verdict: Avoid `clone()` entirely](#the-senior-verdict-avoid-clone-entirely)
   * [Q - What are the advantages of String being immutable?](#q---what-are-the-advantages-of-string-being-immutable)
   * [Q - What's the default implementation of `Object.equals()` method?](#q---whats-the-default-implementation-of-objectequals-method)
   * [Q - Does finally block always execute in Java?](#q---does-finally-block-always-execute-in-java)
   * [Q - What are methods provided by the Object class?](#q---what-are-methods-provided-by-the-object-class)
   * [Q - Can you provide default hashcode() implementation in the interface?](#q---can-you-provide-default-hashcode-implementation-in-the-interface)
-    * [1. The Conflict Resolution Rule](#1-the-conflict-resolution-rule)
-    * [2. The Problem](#2-the-problem)
   * [Q - What is Comparable interface?](#q---what-is-comparable-interface)
   * [Q - Give a walk-through of the new features introduced since Java 8?](#q---give-a-walk-through-of-the-new-features-introduced-since-java-8)
-    * [Phase 1: Java 9 - 11 (The "Modernization" Era)](#phase-1-java-9---11-the-modernization-era)
-      * [Modules (Jigsaw)](#modules-jigsaw)
-      * [Collection Factory Methods](#collection-factory-methods)
-      * [Local Variable Type Inference (`var`)](#local-variable-type-inference-var)
-      * [New HttpClient (Standardized)](#new-httpclient-standardized)
-      * [String Methods (Life Savers)](#string-methods-life-savers)
-      * [Running Single-File Source Code](#running-single-file-source-code)
-    * [Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era)](#phase-2-java-12---17-the-syntactic-sugar-era)
-      * [Records (Data Classes)](#records-data-classes)
-      * [Text Blocks (Multi-line Strings)](#text-blocks-multi-line-strings)
-      * [Switch Expressions](#switch-expressions)
-      * [Pattern Matching for `instanceof`](#pattern-matching-for-instanceof)
-      * [Sealed Classes](#sealed-classes)
-      * [Helpful NullPointerExceptions](#helpful-nullpointerexceptions)
-    * [Phase 3: Java 18 - 21 (The "Concurrency Revolution")](#phase-3-java-18---21-the-concurrency-revolution)
-      * [Virtual Threads (Project Loom) - The Game Changer](#virtual-threads-project-loom---the-game-changer)
-      * [Structured Concurrency](#structured-concurrency)
-      * [Sequenced Collections](#sequenced-collections)
-      * [Record Patterns](#record-patterns)
-      * [Foreign Function & Memory API](#foreign-function--memory-api)
   * [Q - What is shutdown hook?](#q---what-is-shutdown-hook)
-    * [How to implement it?](#how-to-implement-it)
-    * [When does it run?](#when-does-it-run)
-    * [When does it NOT run?](#when-does-it-not-run)
 * [Module 2: OOP & Object Model](#module-2-oop--object-model)
   * [Q - What are core principles of OOP?](#q---what-are-core-principles-of-oop)
-    * [Runtime Polymorphism](#runtime-polymorphism)
-    * [Compile time Polymorphism](#compile-time-polymorphism)
-    * [Abstraction](#abstraction)
-    * [Encapsulation](#encapsulation)
-    * [Diff b/w Abstraction and Encapsulation](#diff-bw-abstraction-and-encapsulation)
   * [Q - What is association, aggregation and composition?](#q---what-is-association-aggregation-and-composition)
-    * [Association](#association)
-    * [Two forms of association](#two-forms-of-association)
-    * [Aggregation (weak ownership)](#aggregation-weak-ownership)
-    * [Composition (strong ownership)](#composition-strong-ownership)
   * [Q - Is runtime polymorphism is applicable for fields also?](#q---is-runtime-polymorphism-is-applicable-for-fields-also)
   * [Q - Define Singleton class](#q---define-singleton-class)
-    * [Sequence of events (step-by-step)](#sequence-of-events-step-by-step)
-    * [Why volatile is required?](#why-volatile-is-required)
   * [Q - How to make a class immutable?](#q---how-to-make-a-class-immutable)
   * [Q - In Java, what is the exact difference between a variable declared as final and an object that is immutable?](#q---in-java-what-is-the-exact-difference-between-a-variable-declared-as-final-and-an-object-that-is-immutable)
   * [Q - Why Java is not completely Object-Oriented?](#q---why-java-is-not-completely-object-oriented)
   * [Q - Why can't we override private and static methods?](#q---why-cant-we-override-private-and-static-methods)
-    * [Why you cannot override private methods](#why-you-cannot-override-private-methods)
-    * [Why you cannot override static methods](#why-you-cannot-override-static-methods)
-      * [1. The Binding Difference](#1-the-binding-difference)
-      * [2. They belong to the Class, not the Object](#2-they-belong-to-the-class-not-the-object)
-      * [3. What actually happens? (Method Hiding)](#3-what-actually-happens-method-hiding)
   * [Q - What is Dynamic Method Dispatch?](#q---what-is-dynamic-method-dispatch)
 * [Module 3: Exception Handling](#module-3-exception-handling)
   * [Q - Explain the hierarchy of exceptions in Java?](#q---explain-the-hierarchy-of-exceptions-in-java)
-    * [Checked Exceptions (Compile-Time)](#checked-exceptions-compile-time)
-    * [Unchecked Exceptions (Runtime)](#unchecked-exceptions-runtime)
   * [Q - Can a try block exist in Java without a catch or finally block? What are all the valid syntax combinations?](#q---can-a-try-block-exist-in-java-without-a-catch-or-finally-block-what-are-all-the-valid-syntax-combinations)
-    * [Valid Traditional `try` Block Combinations](#valid-traditional-try-block-combinations)
-      * [1. `try-catch`](#1-try-catch)
-      * [2. `try-finally`](#2-try-finally)
-      * [3. `try-catch-finally`](#3-try-catch-finally)
-    * [The One Exception to the Rule: Java 7+ `try-with-resources`](#the-one-exception-to-the-rule-java-7-try-with-resources)
   * [Q - What is Exception chaining?](#q---what-is-exception-chaining)
-    * [Why is Exception Chaining needed?](#why-is-exception-chaining-needed)
-    * [Real-World Example (ELI5)](#real-world-example-eli5)
-    * [Practical Example](#practical-example)
   * [Q - What is the exact difference between ClassNotFoundException and NoClassDefFoundError?](#q---what-is-the-exact-difference-between-classnotfoundexception-and-noclassdeffounderror)
-    * [1. ClassNotFoundException (The "Typo")](#1-classnotfoundexception-the-typo)
-    * [2. NoClassDefFoundError (The "Ghost")](#2-noclassdeffounderror-the-ghost)
-    * [Summary Table (Memorize This)](#summary-table-memorize-this)
   * [Q - What is 'Exception Masking' in traditional `try-finally` blocks, and how does `try-with-resources` solve this using Suppressed Exceptions?](#q---what-is-exception-masking-in-traditional-try-finally-blocks-and-how-does-try-with-resources-solve-this-using-suppressed-exceptions)
-    * [1. The Problem: Exception Masking in Traditional `try-finally`](#1-the-problem-exception-masking-in-traditional-try-finally)
-      * [Bad Code Example (Traditional `finally`):](#bad-code-example-traditional-finally)
-      * [Output Stack Trace:](#output-stack-trace)
-    * [2. The Solution (Preserving the Primary Exception in Traditional Java)](#2-the-solution-preserving-the-primary-exception-in-traditional-java)
-      * [Good Code Example (`try-with-resources`):](#good-code-example-try-with-resources)
-      * [Execution Output:](#execution-output)
   * [Q - What is AutoCloseable interface?](#q---what-is-autocloseable-interface)
-    * [1. The Core Purpose: Try-With-Resources](#1-the-core-purpose-try-with-resources)
-    * [2. Code Example](#2-code-example)
-    * [3. Senior Engineer Nuance: Exception Suppression](#3-senior-engineer-nuance-exception-suppression)
   * [Q -  What is Closeable and how it's related to AutoCloseable?](#q---what-is-closeable-and-how-its-related-to-autocloseable)
-    * [1. The Parent: `AutoCloseable` (Added in Java 7)](#1-the-parent-autocloseable-added-in-java-7)
-    * [2. The Specialized Child: `Closeable` (Older, updated in Java 7)](#2-the-specialized-child-closeable-older-updated-in-java-7)
-    * [The Key Differences (Interview "Slayer" Points)](#the-key-differences-interview-slayer-points)
-      * [A. The Exception Contract](#a-the-exception-contract)
-      * [B. Idempotency (The "Safety" Rule)](#b-idempotency-the-safety-rule)
-      * [C. History & Compatibility](#c-history--compatibility)
-    * [How they look in code](#how-they-look-in-code)
   * [Q - How should we handle resource cleanup in Java to prevent memory and handle leaks?](#q---how-should-we-handle-resource-cleanup-in-java-to-prevent-memory-and-handle-leaks)
-    * [1. `AutoCloseable` with Try-with-Resources (The Industry Standard)](#1-autocloseable-with-try-with-resources-the-industry-standard)
-    * [2. `finally` block (The Manual Way)](#2-finally-block-the-manual-way)
-    * [3. `finalize()` method (The "Never Use This" Way)](#3-finalize-method-the-never-use-this-way)
-    * [Comparison Cheat Sheet](#comparison-cheat-sheet)
-    * [Summary for Interview](#summary-for-interview)
   * [Q - When to Use Checked Exceptions and Unchecked Exceptions?](#q---when-to-use-checked-exceptions-and-unchecked-exceptions)
-    * [1. Checked Exceptions $\rightarrow$ Recoverable Conditions](#1-checked-exceptions-rightarrow-recoverable-conditions)
-      * [Examples of Recoverable Exceptions:](#examples-of-recoverable-exceptions)
-    * [2. Unchecked Exceptions $\rightarrow$ Unrecoverable / Programming Errors](#2-unchecked-exceptions-rightarrow-unrecoverable--programming-errors)
-      * [Examples of Unrecoverable Exceptions:](#examples-of-unrecoverable-exceptions)
-    * [️The "Senior Engineer" Nuance: Modern Java Framework Trend](#the-senior-engineer-nuance-modern-java-framework-trend)
-      * [Why did the industry shift towards Unchecked Exceptions?](#why-did-the-industry-shift-towards-unchecked-exceptions)
-    * [Summary Matrix for Interviews](#summary-matrix-for-interviews)
-    * [References:](#references-1)
 * [Module 4: Generics](#module-4-generics)
   * [Q - Generics & Type Erasure: What happens to type information at runtime? Why are Generics Invariant while Arrays are Covariant?](#q---generics--type-erasure-what-happens-to-type-information-at-runtime-why-are-generics-invariant-while-arrays-are-covariant)
-    * [1. What Problem Were Generics Solving?](#1-what-problem-were-generics-solving)
-      * [Problems:](#problems)
-    * [2. Type Erasure (Critical JVM Design Decision)](#2-type-erasure-critical-jvm-design-decision)
-      * [What You Write](#what-you-write)
-      * [What the Compiler Generates (After Erasure)](#what-the-compiler-generates-after-erasure)
-      * [What Gets Erased?](#what-gets-erased)
-      * [1. Type parameters replaced with bound](#1-type-parameters-replaced-with-bound)
-      * [2. Casts inserted automatically](#2-casts-inserted-automatically)
-    * [3. Arrays vs Generics — The Core Difference](#3-arrays-vs-generics--the-core-difference)
-      * [Arrays Are Covariant](#arrays-are-covariant)
-      * [Why?](#why)
-      * [Generics Are Invariant](#generics-are-invariant)
-      * [Why?](#why-1)
-    * [4. Why Covariance Would Break Generics](#4-why-covariance-would-break-generics)
-    * [5. The Core Principle](#5-the-core-principle)
-      * [Mutable containers cannot be safely covariant.](#mutable-containers-cannot-be-safely-covariant)
-    * [6. Controlled Variance with Wildcards](#6-controlled-variance-with-wildcards)
-    * [7. Final Interview-Ready Answer](#7-final-interview-ready-answer)
 * [Module 5: Collections Framework](#module-5-collections-framework)
   * [Q - What is diff b/w Vector and ArrayList?](#q---what-is-diff-bw-vector-and-arraylist)
   * [Q - Diff b/w Hashtable and HashMap](#q---diff-bw-hashtable-and-hashmap)
   * [Q - When would you use parallelStream()](#q---when-would-you-use-parallelstream)
-    * [Parallel Stream — Three Examples Explained (Good vs Bad vs Dangerous)](#parallel-stream--three-examples-explained-good-vs-bad-vs-dangerous)
-    * [Example 1 — ✅ GOOD use of parallelStream()](#example-1---good-use-of-parallelstream)
-      * [Why this is GOOD](#why-this-is-good)
-      * [Final judgment](#final-judgment)
-    * [Example 2 — ❌ BAD use of parallelStream()](#example-2---bad-use-of-parallelstream)
-      * [Why this is BAD](#why-this-is-bad)
-      * [Final judgment](#final-judgment-1)
-    * [Example 3 — 💀 DANGEROUS use of parallelStream()](#example-3---dangerous-use-of-parallelstream)
-      * [Why this is DANGEROUS (not just slow)](#why-this-is-dangerous-not-just-slow)
-      * [Final judgment](#final-judgment-2)
-    * [One-page Comparison (Interview Gold)](#one-page-comparison-interview-gold)
-    * [Final Rule to Say in Interview (Memorize This)](#final-rule-to-say-in-interview-memorize-this)
   * [Q - Explain collection framework hierarchy?](#q---explain-collection-framework-hierarchy)
   * [Q - Explain the evolution from SortedSet (Java 1.2) to NavigableSet (Java 6). Why was a new interface introduced instead of extending SortedSet, given that TreeSet already existed?](#q---explain-the-evolution-from-sortedset-java-12-to-navigableset-java-6-why-was-a-new-interface-introduced-instead-of-extending-sortedset-given-that-treeset-already-existed)
-    * [1. SortedSet](#1-sortedset)
-      * [What SortedSet Does Not Guarantee](#what-sortedset-does-not-guarantee)
-    * [2. TreeSet Existed Before NavigableSet](#2-treeset-existed-before-navigableset)
-    * [3. The Problem Before Java 6](#3-the-problem-before-java-6)
-    * [4. NavigableSet](#4-navigableset)
-      * [What NavigableSet Adds](#what-navigableset-adds)
-    * [5. Why NavigableSet Was Introduced (Despite Existing Capability)](#5-why-navigableset-was-introduced-despite-existing-capability)
-      * [What Changed in Java 6](#what-changed-in-java-6)
-    * [6. Summary Table (Version-Accurate)](#6-summary-table-version-accurate)
-    * [Final Interview-Ready Answer (Concise)](#final-interview-ready-answer-concise)
   * [Q - What are Fail Fast and Fail Safe Iterators?](#q---what-are-fail-fast-and-fail-safe-iterators)
-    * [Fail-Fast Iterators](#fail-fast-iterators)
-    * [Fail-Safe Iterators](#fail-safe-iterators)
   * [Q - How to create immutable collections in Java?](#q---how-to-create-immutable-collections-in-java)
-    * [1. Using the "List.of()" Factory Method (Java 9+)](#1-using-the-listof-factory-method-java-9)
-    * [2. Using Stream Collectors (Java 10+)](#2-using-stream-collectors-java-10)
-    * [3. Creating a Copy (Java 10+)](#3-creating-a-copy-java-10)
-    * [4. The "Unmodifiable View" (The Older Way)](#4-the-unmodifiable-view-the-older-way)
-    * [Comparison of Methods](#comparison-of-methods)
 * [Module 6: Concurrency & Multithreading](#module-6-concurrency--multithreading)
   * [Q - What are different thread states?](#q---what-are-different-thread-states)
   * [Q - What is daemon thread?](#q---what-is-daemon-thread)
   * [Q - What is BlockingQueue?](#q---what-is-blockingqueue)
-    * [Why was BlockingQueue introduced?](#why-was-blockingqueue-introduced)
-    * [How BlockingQueue solves the problem](#how-blockingqueue-solves-the-problem)
-    * [Core BlockingQueue methods (important)](#core-blockingqueue-methods-important)
-      * [put() — blocking insert](#put--blocking-insert)
-      * [take() — blocking retrieval](#take--blocking-retrieval)
-      * [offer() — non-blocking insert](#offer--non-blocking-insert)
-      * [poll() — non-blocking retrieval](#poll--non-blocking-retrieval)
-    * [Types of BlockingQueue](#types-of-blockingqueue)
-    * [1. `ArrayBlockingQueue`](#1-arrayblockingqueue)
-    * [2. `LinkedBlockingQueue`](#2-linkedblockingqueue)
-    * [3. `PriorityBlockingQueue`](#3-priorityblockingqueue)
-    * [4. `SynchronousQueue`](#4-synchronousqueue)
-    * [5. `DelayQueue`](#5-delayqueue)
-    * [6. `LinkedTransferQueue` (Java 7+)](#6-linkedtransferqueue-java-7)
-    * [Master Comparison Table (All 6 Points)](#master-comparison-table-all-6-points)
   * [Q - List diff types of Executorservice](#q---list-diff-types-of-executorservice)
   * [Q - What are the motivations for ExecutorService?](#q---what-are-the-motivations-for-executorservice)
-    * [1. Resource Management (The "Thread Explosion" Problem)](#1-resource-management-the-thread-explosion-problem)
-    * [2. Abstraction (The "Producer-Consumer" Problem)](#2-abstraction-the-producer-consumer-problem)
-    * [3. Returning Results (The "Void" Problem)](#3-returning-results-the-void-problem)
-    * [Summary Table](#summary-table)
   * [Q - How do you properly shut down an ExecutorService?](#q---how-do-you-properly-shut-down-an-executorservice)
-    * [Why shutdown is required](#why-shutdown-is-required)
-    * [shutdown() — Graceful shutdown](#shutdown--graceful-shutdown)
-    * [shutdownNow() — Immediate shutdown](#shutdownnow--immediate-shutdown)
-    * [awaitTermination() — Wait for shutdown to complete](#awaittermination--wait-for-shutdown-to-complete)
-    * [Proper shutdown pattern (INTERVIEW GOLD)](#proper-shutdown-pattern-interview-gold)
   * [Q - What's the diff b/w process and threads?](#q---whats-the-diff-bw-process-and-threads)
-    * [Process — Components](#process--components)
-      * [What a process owns](#what-a-process-owns)
-    * [Thread — Components (core focus)](#thread--components-core-focus)
-      * [What a thread owns (per thread)](#what-a-thread-owns-per-thread)
-    * [Thread Control Block (TCB)](#thread-control-block-tcb)
-    * [What Threads Share (inside the same process)](#what-threads-share-inside-the-same-process)
-    * [Why Threads Are Lightweight (this is critical)](#why-threads-are-lightweight-this-is-critical)
-      * [1. No separate address space](#1-no-separate-address-space)
-      * [2. Cheaper context switching](#2-cheaper-context-switching)
-      * [3. Minimal metadata](#3-minimal-metadata)
-      * [4. Fast communication](#4-fast-communication)
-    * [Interview-perfect closing line (memorize)](#interview-perfect-closing-line-memorize)
-    * [Resources:](#resources-2)
   * [Q - What is an atomic operation?](#q---what-is-an-atomic-operation)
   * [Q - Which read and write operations are atomic in Java?](#q---which-read-and-write-operations-are-atomic-in-java)
-    * [Resources](#resources-3)
   * [Q - What is deadlock?](#q---what-is-deadlock)
-    * [Resources:](#resources-4)
   * [Q - Explain synchronized keyword](#q---explain-synchronized-keyword)
-    * [Resources](#resources-5)
   * [Q - Explain synchronization problem](#q---explain-synchronization-problem)
-    * [Resources](#resources-6)
   * [Q - Explain different ways of inter-thread communication](#q---explain-different-ways-of-inter-thread-communication)
-    * [1. wait(), notify(), notifyAll() (Intrinsic Locks)](#1-wait-notify-notifyall-intrinsic-locks)
-    * [2. volatile Variables (Visibility-Based Communication)](#2-volatile-variables-visibility-based-communication)
-    * [3. Lock and Condition (java.util.concurrent.locks)](#3-lock-and-condition-javautilconcurrentlocks)
-    * [4. Blocking Queues (`BlockingQueue`)](#4-blocking-queues-blockingqueue)
-    * [5. Semaphores](#5-semaphores)
-    * [6. Latches and Barriers](#6-latches-and-barriers)
-    * [7. Atomic Variables](#7-atomic-variables)
-    * [8. Thread.join()](#8-threadjoin)
-    * [Summary Table (Interview Gold)](#summary-table-interview-gold)
-    * [Resources](#resources-7)
   * [Q - What are some key points to remember when using virtual threads](#q---what-are-some-key-points-to-remember-when-using-virtual-threads)
-    * [1. The Golden Rule: Throughput, Not Latency](#1-the-golden-rule-throughput-not-latency)
-    * [2. CPU-Bound Tasks = No Benefit](#2-cpu-bound-tasks--no-benefit)
-    * [3. The "Pinning" Problem (Critical Interview Topic)](#3-the-pinning-problem-critical-interview-topic)
-    * [4. Do NOT Pool Virtual Threads](#4-do-not-pool-virtual-threads)
-    * [5. ThreadLocal Explosion](#5-threadlocal-explosion)
-    * [Resources](#resources-8)
   * [Q - Explain the evolution of concurrency API in Java](#q---explain-the-evolution-of-concurrency-api-in-java)
   * [Q - What is CopyOnWriteArrayList and Why is it named CopyOnWriteArrayList, why don't they use something like Collections.synchronizedList()?](#q---what-is-copyonwritearraylist-and-why-is-it-named-copyonwritearraylist-why-dont-they-use-something-like-collectionssynchronizedlist)
-    * [CopyOnWriteArrayList](#copyonwritearraylist)
-    * [Collections.synchronizedList](#collectionssynchronizedlist)
   * [Q - Which threads are guaranteed to be created when a Java program starts?](#q---which-threads-are-guaranteed-to-be-created-when-a-java-program-starts)
   * [Q - Explain stack and heap memory regions in the context of threads?](#q---explain-stack-and-heap-memory-regions-in-the-context-of-threads)
-    * [1. Stack Memory (Thread-specific)](#1-stack-memory-thread-specific)
-    * [2. Heap Memory (Shared across threads)](#2-heap-memory-shared-across-threads)
-    * [3. Metaspace (not in heap)](#3-metaspace-not-in-heap)
-    * [Key clarification (interview-critical)](#key-clarification-interview-critical)
-    * [4. Why this matters for threads](#4-why-this-matters-for-threads)
-    * [Interview-perfect closing line (memorize)](#interview-perfect-closing-line-memorize-1)
   * [Q - Explain how AtomicInteger works?](#q---explain-how-atomicinteger-works)
-    * [1. The Core Concept: "Optimistic Locking"](#1-the-core-concept-optimistic-locking)
-    * [2. The Hardware Magic: CAS (Compare-And-Swap)](#2-the-hardware-magic-cas-compare-and-swap)
-    * [3. The "Retry Loop" (Spin Lock)](#3-the-retry-loop-spin-lock)
-    * [4. The Code (Under the Hood)](#4-the-code-under-the-hood)
-    * [5. Pros & Cons (Interview Gold)](#5-pros--cons-interview-gold)
   * [Q - What is Spurious Wakeup?](#q---what-is-spurious-wakeup)
   * [Q - What is class level lock?](#q---what-is-class-level-lock)
   * [Q - How threads communicate using wait() and notify()?](#q---how-threads-communicate-using-wait-and-notify)
-    * [The problem we are solving using wait() and notify()](#the-problem-we-are-solving-using-wait-and-notify)
-    * [Very important rules (must know)](#very-important-rules-must-know)
-    * [The shared resource](#the-shared-resource)
-    * [Producer logic (`put()`)](#producer-logic-put)
-      * [Step 1: Check the condition](#step-1-check-the-condition)
-      * [Step 2: Produce data](#step-2-produce-data)
-      * [Step 3: Notify waiting threads](#step-3-notify-waiting-threads)
-    * [Consumer logic (`get()`)](#consumer-logic-get)
-      * [Step 1: Check the condition](#step-1-check-the-condition-1)
-      * [Step 2: Consume data](#step-2-consume-data)
-      * [Step 3: Notify waiting threads](#step-3-notify-waiting-threads-1)
-    * [`notify()` vs `notifyAll()` (critical distinction)](#notify-vs-notifyall-critical-distinction)
-    * [Limitations of `wait()` / `notify()`](#limitations-of-wait--notify)
-    * [Thread starvation using `wait()` and `notify()`](#thread-starvation-using-wait-and-notify)
-    * [What you are observing](#what-you-are-observing)
-    * [Important concept: `notifyAll()` ≠ fairness](#important-concept-notifyall--fairness)
-    * [Revised Code (Fair Version) using ReentrantLock](#revised-code-fair-version-using-reentrantlock)
-    * [How threads communicate using Lock and Condition](#how-threads-communicate-using-lock-and-condition)
-    * [What problem this code solves](#what-problem-this-code-solves)
-    * [Why Lock and Condition are used together](#why-lock-and-condition-are-used-together)
-      * [`Lock` → mutual exclusion (who can enter)](#lock--mutual-exclusion-who-can-enter)
-      * [`Condition` → thread coordination (who should wait and wake)](#condition--thread-coordination-who-should-wait-and-wake)
-    * [Why both are required (important)](#why-both-are-required-important)
-    * [Step-by-step flow (ELI5)](#step-by-step-flow-eli5)
-      * [Producer (`put()`)](#producer-put)
-      * [Consumer (`get()`)](#consumer-get)
-    * [Why while is used instead of if](#why-while-is-used-instead-of-if)
-    * [Why signalAll() is used instead of signal()](#why-signalall-is-used-instead-of-signal)
-    * [Why fairness (new ReentrantLock(true)) matters](#why-fairness-new-reentrantlocktrue-matters)
   * [Q - What is CAS (Compare-And-Swap)?](#q---what-is-cas-compare-and-swap)
-    * [1. The Mechanics (The 3 Operands)](#1-the-mechanics-the-3-operands)
-    * [2. The Atomic Operation](#2-the-atomic-operation)
-    * [3. The Retry Loop (Spin Lock)](#3-the-retry-loop-spin-lock-1)
-    * [4. Pros & Cons (Summary)](#4-pros--cons-summary)
   * [Q - What is Structured Concurrency (Java 21 Preview)?](#q---what-is-structured-concurrency-java-21-preview)
-    * [The Core Problem It Solves](#the-core-problem-it-solves)
-    * [The Structured Concurrency Principle](#the-structured-concurrency-principle)
-    * [The API: `StructuredTaskScope`](#the-api-structuredtaskscope)
-    * [What Just Happened?](#what-just-happened)
-    * [Why This Is Powerful](#why-this-is-powerful)
-    * [Relationship with Virtual Threads](#relationship-with-virtual-threads)
-    * [Two Common Policies](#two-common-policies)
-    * [Compared to CompletableFuture](#compared-to-completablefuture)
   * [Q - How does ConcurrentHashMap work internally? (Java 7 vs Java 8)](#q---how-does-concurrenthashmap-work-internally-java-7-vs-java-8)
   * [Q - What were the limitations of the Future interface in Java 5, and how does CompletableFuture address them?](#q---what-were-the-limitations-of-the-future-interface-in-java-5-and-how-does-completablefuture-address-them)
-    * [1. The Blocking Problem (`get()`)](#1-the-blocking-problem-get)
-    * [2. Lack of Composition (Chaining)](#2-lack-of-composition-chaining)
-    * [3. Combining Multiple Futures](#3-combining-multiple-futures)
-    * [4. No Exception Handling](#4-no-exception-handling)
-    * [5. Cannot Be Manually Completed](#5-cannot-be-manually-completed)
-    * [Summary Table](#summary-table-1)
 * [Module 7: Modern Java (Java 8 to Java 21)](#module-7-modern-java-java-8-to-java-21)
   * [Q - What is functional interface.](#q---what-is-functional-interface)
-    * [Examples of Functional Interfaces in Java](#examples-of-functional-interfaces-in-java)
   * [Q - Can you tell few functional interface which is already there before java 8?](#q---can-you-tell-few-functional-interface-which-is-already-there-before-java-8)
   * [Q - What are all functional interface introduced in java 8?](#q---what-are-all-functional-interface-introduced-in-java-8)
   * [Q - What is lambda expression?](#q---what-is-lambda-expression)
   * [Q - What is Stream in java 8?](#q---what-is-stream-in-java-8)
   * [Q - How Java resolves method conflicts from multiple interfaces?](#q---how-java-resolves-method-conflicts-from-multiple-interfaces)
-    * [1. No Conflict for Abstract Methods (Pre–Java 8)](#1-no-conflict-for-abstract-methods-prejava-8)
-    * [2. Class Always Wins over Interface](#2-class-always-wins-over-interface)
-    * [3. Conflict Between Default Methods (Diamond Problem)](#3-conflict-between-default-methods-diamond-problem)
-    * [4. Interface Inheritance: Most Specific Default Wins](#4-interface-inheritance-most-specific-default-wins)
-    * [5. Abstract vs Default Method](#5-abstract-vs-default-method)
-    * [6. Static Methods in Interfaces](#6-static-methods-in-interfaces)
-    * [Conflict Resolution Priority (Memory Aid)](#conflict-resolution-priority-memory-aid)
-    * [Interview-Ready One-Liner](#interview-ready-one-liner)
   * [Q - Why default methods were introduced in interfaces?](#q---why-default-methods-were-introduced-in-interfaces)
-    * [The Problem (Before Java 8)](#the-problem-before-java-8)
-    * [The Real-World Scenario](#the-real-world-scenario)
-    * [Secondary Benefit: "Optional" Methods](#secondary-benefit-optional-methods)
-      * [The Classic "Mouse Listener" Problem](#the-classic-mouse-listener-problem)
-      * [1. The "Old Way" (Painful)](#1-the-old-way-painful)
-      * [2. The "New Way" (With Default Methods)](#2-the-new-way-with-default-methods)
   * [Q - What are sealed classes?](#q---what-are-sealed-classes)
-    * [1. The Syntax](#1-the-syntax)
-    * [2. The Three Rules for Subclasses](#2-the-three-rules-for-subclasses)
-    * [3. Why use them? (The "Killer Feature")](#3-why-use-them-the-killer-feature)
   * [Q - Why static methods inside interface were introduced in Java?](#q---why-static-methods-inside-interface-were-introduced-in-java)
-    * [Important Distinction: No Inheritance](#important-distinction-no-inheritance)
   * [Q - What is Predicate joining?](#q---what-is-predicate-joining)
-    * [How it works](#how-it-works)
-    * [Code Example](#code-example)
   * [Q - What is Functional joining?](#q---what-is-functional-joining)
-    * [The Methods](#the-methods)
-    * [Code Example](#code-example-1)
-    * [Visualizing andThen vs compose](#visualizing-andthen-vs-compose)
   * [Q - What is Consumer chaining?](#q---what-is-consumer-chaining)
   * [Q - How to use chaining with Supplier?](#q---how-to-use-chaining-with-supplier)
   * [Q - Difference between Optional.of() and Optional.ofNullable()?](#q---difference-between-optionalof-and-optionalofnullable)
@@ -470,187 +130,28 @@
   * [Q - What are different types of classloaders?](#q---what-are-different-types-of-classloaders)
   * [Q - What are the diff memory area allocated by JVM?](#q---what-are-the-diff-memory-area-allocated-by-jvm)
   * [Q - Can you explain the architectural change from PermGen to Metaspace in Java 8? Specifically, where are Class definitions and static variables stored in the modern memory model, and what happens at the OS and JVM level if Metaspace reaches its limit?](#q---can-you-explain-the-architectural-change-from-permgen-to-metaspace-in-java-8-specifically-where-are-class-definitions-and-static-variables-stored-in-the-modern-memory-model-and-what-happens-at-the-os-and-jvm-level-if-metaspace-reaches-its-limit)
-    * [1. The Old World: PermGen (Java 7 and older)](#1-the-old-world-permgen-java-7-and-older)
-    * [2. The New World: Metaspace (Java 8+)](#2-the-new-world-metaspace-java-8)
-      * [Key Difference: Location](#key-difference-location)
-    * [3. Answering Your Specific Questions](#3-answering-your-specific-questions)
-      * ["Where do Class Definitions live?"](#where-do-class-definitions-live)
-      * ["Where do Static Variables live?"](#where-do-static-variables-live)
-    * [Comparison: PermGen vs. Metaspace](#comparison-permgen-vs-metaspace)
-    * [4. What happens if Metaspace fills up?](#4-what-happens-if-metaspace-fills-up)
-      * [Common Causes of Metaspace OOM:](#common-causes-of-metaspace-oom)
-      * [Summary for the Interview](#summary-for-the-interview)
   * [Q - Explain JVM Architecture?](#q---explain-jvm-architecture)
-    * [1. JVM Language Class (.class file)](#1-jvm-language-class-class-file)
-    * [2. Class Loader — “The Librarian”](#2-class-loader--the-librarian)
-    * [3. JVM Memory (Big Box in Diagram)](#3-jvm-memory-big-box-in-diagram)
-      * [3.1 Method Area — "Class Blueprint Shelf"](#31-method-area--class-blueprint-shelf)
-      * [3.2 Heap — "Big Toy Box"](#32-heap--big-toy-box)
-      * [3.3 Stack — "Each Thread's Notebook"](#33-stack--each-threads-notebook)
-      * [3.4 PC Register — "Bookmark"](#34-pc-register--bookmark)
-      * [3.5 Native Method Stack — "Foreign Language Notes"](#35-native-method-stack--foreign-language-notes)
-    * [4. Execution Engine — "The Brain"](#4-execution-engine--the-brain)
-      * [4.1 Interpreter — "Reads Slowly"](#41-interpreter--reads-slowly)
-      * [4.2 JIT Compiler — "Learns and Gets Faster"](#42-jit-compiler--learns-and-gets-faster)
-      * [4.3 Garbage Collector — "Cleaner"](#43-garbage-collector--cleaner)
-    * [5. Native Method Interface (JNI) — "Translator"](#5-native-method-interface-jni--translator)
-    * [6 Native Method Libraries — "External Helpers"](#6-native-method-libraries--external-helpers)
-    * [How Everything Works Together (Story)](#how-everything-works-together-story)
   * [Q - Explain the JVM heap structure shown in this diagram and describe the role of each memory region.](#q---explain-the-jvm-heap-structure-shown-in-this-diagram-and-describe-the-role-of-each-memory-region)
-    * [Big Picture (ELI5)](#big-picture-eli5)
-    * [1. Young Generation](#1-young-generation)
-      * [1.1 Eden Space (Birthplace)](#11-eden-space-birthplace)
-      * [1.2 Survivor Space S0 (First Survival Test)](#12-survivor-space-s0-first-survival-test)
-      * [1.3 Survivor Space S1 (Second Survival Test)](#13-survivor-space-s1-second-survival-test)
-    * [2. Promotion to Old Generation](#2-promotion-to-old-generation)
-    * [3. Old Generation (Tenured)](#3-old-generation-tenured)
-    * [4. Why Two Survivor Spaces?](#4-why-two-survivor-spaces)
-    * [5. End-to-End Example Flow](#5-end-to-end-example-flow)
-    * [Resources](#resources-9)
   * [Q - Explain WeakHashMap](#q---explain-weakhashmap)
-    * [The Problem: The "Sticky" Metadata](#the-problem-the-sticky-metadata)
-    * [The Solution: `WeakHashMap`](#the-solution-weakhashmap)
-    * [When to use this? (The "Metadata" Use Case)](#when-to-use-this-the-metadata-use-case)
   * [Q - Explain SoftReference](#q---explain-softreference)
-    * [1. The Use Case: Building an In-Memory Cache](#1-the-use-case-building-an-in-memory-cache)
-    * [2. The Mechanics (Ground Level)](#2-the-mechanics-ground-level)
-    * [3. The Coding Pattern (The "Check-Check-Reload")](#3-the-coding-pattern-the-check-check-reload)
-    * [Summary](#summary)
 * [Module 9: Garbage Collection & Performance Tuning](#module-9-garbage-collection--performance-tuning)
   * [Q - How to manually trigger the garbage collection process?](#q---how-to-manually-trigger-the-garbage-collection-process)
   * [Q - Explain Minor GC vs Major GC vs Full GC](#q---explain-minor-gc-vs-major-gc-vs-full-gc)
-    * [1. Minor GC — "Clean the kids' room"](#1-minor-gc--clean-the-kids-room)
-      * [When does Minor GC happen?](#when-does-minor-gc-happen)
-      * [What does Minor GC actually do?](#what-does-minor-gc-actually-do)
-      * [Why Minor GC is fast](#why-minor-gc-is-fast)
-      * [Interview line (memorize)](#interview-line-memorize)
-    * [2. Major GC — "Clean the storage room"](#2-major-gc--clean-the-storage-room)
-      * [When does Major GC happen?](#when-does-major-gc-happen)
-      * [Why Major GC is slower](#why-major-gc-is-slower)
-    * [Important interview clarification](#important-interview-clarification)
-    * [3. Full GC — "Clean the entire house"](#3-full-gc--clean-the-entire-house)
-      * [When does Full GC happen?](#when-does-full-gc-happen)
-      * [Why Full GC is dangerous](#why-full-gc-is-dangerous)
-      * [Interview killer line](#interview-killer-line)
-    * [Side-by-side comparison (ELI5)](#side-by-side-comparison-eli5)
   * [Q - What is Stop-The-World(STW) problem?](#q---what-is-stop-the-worldstw-problem)
-    * [Why does JVM need STW at all?](#why-does-jvm-need-stw-at-all)
-    * [What exactly is stopped?](#what-exactly-is-stopped)
-    * [Tiny code example](#tiny-code-example)
-    * [ELI5 analogy](#eli5-analogy)
-    * [Important truth (interview gold)](#important-truth-interview-gold)
   * [Q - What is Allocation Failure?](#q---what-is-allocation-failure)
-    * [Simple code example](#simple-code-example)
-    * [Step-by-step what JVM does](#step-by-step-what-jvm-does)
   * [Q - What is Promotion Failure?](#q---what-is-promotion-failure)
-    * [Step 1: Objects are created in Eden](#step-1-objects-are-created-in-eden)
-    * [Step 2: Eden becomes full → Allocation Failure](#step-2-eden-becomes-full--allocation-failure)
-    * [Step 3: Minor GC starts (STW)](#step-3-minor-gc-starts-stw)
-    * [Step 4: JVM tries to evacuate live objects](#step-4-jvm-tries-to-evacuate-live-objects)
-    * [Step 5: JVM attempts promotion](#step-5-jvm-attempts-promotion)
-    * [Step 6: Promotion Failure occurs (THIS IS THE MOMENT)](#step-6-promotion-failure-occurs-this-is-the-moment)
-    * [Step 7: Old Generation cleanup attempt](#step-7-old-generation-cleanup-attempt)
-    * [Step 8: JVM escalates → Full GC](#step-8-jvm-escalates--full-gc)
-    * [Step 8: Why Full GC still fails here](#step-8-why-full-gc-still-fails-here)
-    * [One-sentence interview answer](#one-sentence-interview-answer)
   * [Q - Explain working of GC Roots?](#q---explain-working-of-gc-roots)
-    * [Example 1: Single thread, single object](#example-1-single-thread-single-object)
-      * [What memory looks like while main is running](#what-memory-looks-like-while-main-is-running)
-      * [How GC works here (step by step)](#how-gc-works-here-step-by-step)
-    * [Example 2: Multiple method calls (stack frames)](#example-2-multiple-method-calls-stack-frames)
-      * [GC root traversal](#gc-root-traversal)
-    * [Example 3: When stack root disappears](#example-3-when-stack-root-disappears)
-      * [GC traversal now](#gc-traversal-now)
-    * [Example 4: Static variable (class root)](#example-4-static-variable-class-root)
-      * [GC traversal](#gc-traversal)
-    * [Example 5: Multiple threads](#example-5-multiple-threads)
-      * [GC traversal](#gc-traversal-1)
-    * [Example 6: Following references (walking the graph)](#example-6-following-references-walking-the-graph)
-      * [GC traversal](#gc-traversal-2)
-    * [The single rule GC follows (memorize this)](#the-single-rule-gc-follows-memorize-this)
   * [Q - Explain the working of G1 Garbage Collector](#q---explain-the-working-of-g1-garbage-collector)
-    * [What is G1 GC?](#what-is-g1-gc)
-    * [Code example (we will use this throughout)](#code-example-we-will-use-this-throughout)
-    * [Phase 1: Object allocation (NO GC yet)](#phase-1-object-allocation-no-gc-yet)
-    * [Phase 2: Remembered Set creation (during normal execution)](#phase-2-remembered-set-creation-during-normal-execution)
-    * [Phase 3: GC starts (Stop-the-World)](#phase-3-gc-starts-stop-the-world)
-      * [Step 1: GC Root traversal (liveness)](#step-1-gc-root-traversal-liveness)
-      * [Step 2: Region accounting (THIS IS CRITICAL)](#step-2-region-accounting-this-is-critical)
-      * [Step 3: Region selection (why G1 is called "Garbage First")](#step-3-region-selection-why-g1-is-called-garbage-first)
-      * [Step 4: Safety check using remembered sets](#step-4-safety-check-using-remembered-sets)
-      * [Step 5: Cleanup result](#step-5-cleanup-result)
-    * [Now let's place this into the FULL G1 FLOW](#now-lets-place-this-into-the-full-g1-flow)
-      * [Young GC (baseline behavior)](#young-gc-baseline-behavior)
-      * [When Old Gen pressure appears](#when-old-gen-pressure-appears)
-    * [Full escalation chain (memorize this)](#full-escalation-chain-memorize-this)
-    * [When does G1 move to Full GC?](#when-does-g1-move-to-full-gc)
-    * [Why classic collectors were slower](#why-classic-collectors-were-slower)
-    * [Final interview-ready summary (perfect answer)](#final-interview-ready-summary-perfect-answer)
   * [Q - Java has automatic Garbage Collection, which is supposed to manage memory for us. However, Memory Leaks are still a very real problem in Java applications.](#q---java-has-automatic-garbage-collection-which-is-supposed-to-manage-memory-for-us-however-memory-leaks-are-still-a-very-real-problem-in-java-applications)
   * [Q - Explain Serial GC](#q---explain-serial-gc)
-    * [1. What is Serial GC?](#1-what-is-serial-gc)
-    * [2. How it Works: The "Stop-The-World" Event](#2-how-it-works-the-stop-the-world-event)
-    * [3. The Two Components (Young vs. Old)](#3-the-two-components-young-vs-old)
-      * [A. Young Generation (DefNew)](#a-young-generation-defnew)
-      * [B. Old Generation (TenuredGeneration)](#b-old-generation-tenuredgeneration)
-    * [4. Pros and Cons (Interview Material)](#4-pros-and-cons-interview-material)
-    * [5. When should you use it?](#5-when-should-you-use-it)
   * [Q - Explain Parallel GC](#q---explain-parallel-gc)
-    * [1. The Core Concept: "Strength in Numbers"](#1-the-core-concept-strength-in-numbers)
-    * [2. How it Works (Under the Hood)](#2-how-it-works-under-the-hood)
-      * [The "Stop-The-World" Sequence:](#the-stop-the-world-sequence)
-    * [3. The Two Components (Young vs. Old)](#3-the-two-components-young-vs-old-1)
-      * [A. Young Generation (PSYoungGen)](#a-young-generation-psyounggen)
-      * [B. Old Generation (ParallelOld)](#b-old-generation-parallelold)
-    * [4. The "Throughput" Focus (Important for Interviews)](#4-the-throughput-focus-important-for-interviews)
-    * [5. Pros and Cons](#5-pros-and-cons)
-    * [6. Summary Comparison](#6-summary-comparison)
   * [Q - Explain Concurrent Mark Sweep(CMS) GC](#q---explain-concurrent-mark-sweepcms-gc)
-    * [1. The Core Concept: "Concurrent"](#1-the-core-concept-concurrent)
-    * [2. The Two Components (Young vs. Old)](#2-the-two-components-young-vs-old)
-    * [3. How it Works: The 4 Phases](#3-how-it-works-the-4-phases)
-      * [Phase 1: Initial Mark (Stop-The-World)](#phase-1-initial-mark-stop-the-world)
-      * [Phase 2: Concurrent Mark (App Running)](#phase-2-concurrent-mark-app-running)
-      * [Phase 3: Remark (Stop-The-World)](#phase-3-remark-stop-the-world)
-      * [Phase 4: Concurrent Sweep (App Running)](#phase-4-concurrent-sweep-app-running)
-    * [4. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem)](#4-the-fatal-flaw-fragmentation-the-swiss-cheese-problem)
-    * [5. The "Concurrent Mode Failure"](#5-the-concurrent-mode-failure)
-    * [6. Summary for Interview](#6-summary-for-interview)
   * [Q - Explain G1 GC](#q---explain-g1-gc)
-    * [G1GC (Garbage First) – The "Predictable" Collector](#g1gc-garbage-first--the-predictable-collector)
-    * [1. The Architecture: "Regions"](#1-the-architecture-regions)
-    * [2. The Lifecycle (How it Runs)](#2-the-lifecycle-how-it-runs)
-      * [Phase A: Young Only Phase (Normal Mode)](#phase-a-young-only-phase-normal-mode)
-      * [Phase B: The Concurrent Marking Cycle (The Proactive Trigger)](#phase-b-the-concurrent-marking-cycle-the-proactive-trigger)
-      * [Phase C: The Mixed GC (The "Magic")](#phase-c-the-mixed-gc-the-magic)
-    * [3. The Killer Feature: "Predictable Pauses"](#3-the-killer-feature-predictable-pauses)
-    * [4. The Failure Mode: "Evacuation Failure"](#4-the-failure-mode-evacuation-failure)
-    * [5. Summary for the Interview](#5-summary-for-the-interview)
   * [Q - Can you compare the different Garbage Collectors in Java and explain when to use each one?](#q---can-you-compare-the-different-garbage-collectors-in-java-and-explain-when-to-use-each-one)
-    * [The Ultimate Java GC Cheat Sheet](#the-ultimate-java-gc-cheat-sheet)
-    * [Notes (Accuracy Improvements)](#notes-accuracy-improvements)
   * [Q - What is a heap dump? Why do we use it? Have you ever taken a heap dump?](#q---what-is-a-heap-dump-why-do-we-use-it-have-you-ever-taken-a-heap-dump)
-    * [1. What is a Heap Dump? (The "Crime Scene Photo")](#1-what-is-a-heap-dump-the-crime-scene-photo)
-    * [2. Why do we use it?](#2-why-do-we-use-it)
-      * [A. The `OutOfMemoryError` (OOM)](#a-the-outofmemoryerror-oom)
-      * [B. Memory Leaks](#b-memory-leaks)
-    * [3. "Have you ever taken a heap dump?" (The Interview Answer)](#3-have-you-ever-taken-a-heap-dump-the-interview-answer)
-      * [Scenario A: The Proactive Setup (Best Practice)](#scenario-a-the-proactive-setup-best-practice)
-      * [Scenario B: The Manual Inspection (Debugging a Slow App)](#scenario-b-the-manual-inspection-debugging-a-slow-app)
-    * [4. How do you analyze it? (The "Eclipse MAT" Tool)](#4-how-do-you-analyze-it-the-eclipse-mat-tool)
-    * [Summary for the Interview](#summary-for-the-interview-1)
   * [Q - What is memory management in Java?](#q---what-is-memory-management-in-java)
   * [Q - What are the types of Heap memory?](#q---what-are-the-types-of-heap-memory)
-    * [1. Young Generation (The Nursery)](#1-young-generation-the-nursery)
-    * [2. Old Generation (The Retirement Home)](#2-old-generation-the-retirement-home)
-      * [Summary Table for Interview](#summary-table-for-interview)
   * [Q - How do you optimize JVM memory?](#q---how-do-you-optimize-jvm-memory)
-    * [Step 1: Right-Sizing the Heap ( The Foundation)](#step-1-right-sizing-the-heap--the-foundation)
-    * [Step 2: Choosing the Right Collector](#step-2-choosing-the-right-collector)
-    * [Step 3: Tuning the "Pause Goal" (The Magic Knob)](#step-3-tuning-the-pause-goal-the-magic-knob)
-    * [Step 4: Handling "Metaspace" (The Hidden Memory)](#step-4-handling-metaspace-the-hidden-memory)
-      * [Step 5: Enable GC Logging (The Black Box)](#step-5-enable-gc-logging-the-black-box)
-      * [Summary for the Interview](#summary-for-the-interview-2)
 <!-- TOC -->
 
 # Module 1: Core Java
@@ -741,7 +242,7 @@ Here:
 * `e2` → another reference pointing to the same object
 
 
-### Objects vs References
+<h3> Objects vs References </h3>
 
 References != Objects
 
@@ -766,7 +267,7 @@ graph LR
   style title fill:#ffffff,stroke:#ffffff,color:black,font-size:18px,font-weight:bold
 ```
 
-### What is allocated where?
+<h3> What is allocated where? </h3>
 
 * References:
   * Can be allocated on the stack (e.g., as local variables).
@@ -776,7 +277,7 @@ graph LR
   * Are always allocated on the heap.
 
 
-### Memory Regions - Summary
+<h3> Memory Regions - Summary </h3>
 
 | **Heap (Shared)**                           | **Stack (Exclusive)**                                  |
 |---------------------------------------------|--------------------------------------------------------|
@@ -785,7 +286,7 @@ graph LR
 | • **Static variables**                      |                                                        |
 
 
-### References
+<h3> References </h3>
 
 * https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199598#notes
 
@@ -878,13 +379,13 @@ Here is the general rule:
 > explicit cast, except when assigning a compile-time constant that fits in the target type.
 >
 
-### 1. Widening = implicit (safe)
+<h3> 1. Widening = implicit (safe) </h3>
 
 * Target type can represent all possible values of the source type
 * Sign is preserved
 * No overflow possible
 
-### 2. Narrowing = explicit cast required (unsafe)
+<h3> 2. Narrowing = explicit cast required (unsafe) </h3>
 
 * Target type cannot represent all values
 * Sign may change
@@ -892,7 +393,7 @@ Here is the general rule:
 
 ---
 
-### Why `myChar = myByte` is not allowed
+<h3> Why `myChar = myByte` is not allowed </h3>
 
 > Because byte → char is not a widening primitive conversion.
 >
@@ -904,7 +405,7 @@ Here is the general rule:
 * Some `byte` values (negative ones) cannot be represented by `char`
 
 
-### Why `myShort = myChar` is not allowed
+<h3> Why `myShort = myChar` is not allowed </h3>
 
 > Because char → short is not a widening primitive conversion.
 >
@@ -917,7 +418,7 @@ Here is the general rule:
 * Many valid `char` values cannot fit into `short`
 
 
-### Why `myChar = myShort` is not allowed
+<h3> Why `myChar = myShort` is not allowed </h3>
 
 > Because short → char is not a widening primitive conversion.
 >
@@ -1115,7 +616,7 @@ No, the `default` keyword is NOT an access modifier keyword.
 
 Here is the breakdown of the confusion:
 
-### 1. The "Default Access Modifier" (The Invisible One)
+<h3> 1. The "Default Access Modifier" (The Invisible One) </h3>
 
 When people talk about the Default Access Modifier (also called Package-Private),
 they are talking about the absence of a keyword.
@@ -1135,7 +636,7 @@ class Student {
 }
 ```
 
-### 2. The `default` Keyword (The Actual Keyword)
+<h3> 2. The `default` Keyword (The Actual Keyword) </h3>
 
 The word `default` does exist as a keyword in Java, but it is used for completely
 different things:
@@ -1173,9 +674,9 @@ to the **immediate parent class (superclass)** object.
 
 ---
 
-### The 3 Primary Uses of `super`
+<h3> The 3 Primary Uses of `super` </h3>
 
-#### 1. Calling Superclass Methods (Overridden Methods)
+<h4> 1. Calling Superclass Methods (Overridden Methods) </h4>
 
 Used to invoke a parent class method that has been **overridden** in the subclass.
 
@@ -1198,7 +699,7 @@ class Dog extends Animal {
 
 ---
 
-#### 2. Calling Superclass Constructors (`super()`)
+<h4> 2. Calling Superclass Constructors (`super()`) </h4>
 
 Used to invoke the parent class constructor.
 
@@ -1226,7 +727,7 @@ class Employee extends Person {
 
 ---
 
-#### 3. Accessing Superclass Fields (Hidden/Shadowed Fields)
+<h4> 3. Accessing Superclass Fields (Hidden/Shadowed Fields) </h4>
 
 Used to access a field of the parent class if the subclass has defined a field 
 with the **same name** (field shadowing).
@@ -1253,7 +754,7 @@ class Child extends Parent {
 
 No, a top-level class cannot be declared as `private` (or `protected`).
 
-### Allowed Access Modifiers for Top-Level Classes
+<h3> Allowed Access Modifiers for Top-Level Classes </h3>
 
 A top-level class in Java can only have **two** access levels:
 
@@ -1277,7 +778,7 @@ protected class Steering { }
 
 ---
 
-### Why `private` is Not Allowed at the Top Level
+<h3> Why `private` is Not Allowed at the Top Level </h3>
 
 1. **Meaning of `private`:** The `private` modifier limits visibility to the **enclosing class body**.
 2. **No Outer Scope:** A top-level class is sitting directly inside a package—it 
@@ -1288,7 +789,7 @@ protected class Steering { }
 
 ---
 
-### Why `protected` is Not Allowed at the Top Level
+<h3> Why `protected` is Not Allowed at the Top Level </h3>
 
 `protected` grants access to:
 
@@ -1300,7 +801,7 @@ level without an outer enclosing class hierarchy makes no sense to the Java comp
 
 ---
 
-### Where CAN a Class Be `private` or `protected`?
+<h3> Where CAN a Class Be `private` or `protected`? </h3>
 
 **Nested (Inner) Classes!** Because a nested class lives inside an outer containing class, 
 it has an enclosing scope. Therefore, inner classes can use all 4 access modifiers 
@@ -1327,7 +828,7 @@ why, along with what you *can* do instead (Method Hiding and Method Overloading)
 
 ---
 
-### 1. Why Can’t `main()` Be Overridden?
+<h3> 1. Why Can’t `main()` Be Overridden? </h3>
 
 To override a method in Java, it must be an **instance method** (resolved at runtime via 
 dynamic binding/polymorphism).
@@ -1340,7 +841,7 @@ Because the standard `main` method is declared as `static`:
 
 ---
 
-### 2. What Happens If You Write `main()` in a Subclass? (Method Hiding)
+<h3> 2. What Happens If You Write `main()` in a Subclass? (Method Hiding) </h3>
 
 If you declare a `main` method with the exact same signature in a subclass, the 
 code **will compile**, but it is **Method Hiding**, NOT Method Overriding.
@@ -1361,7 +862,7 @@ class Child extends Parent {
 
 ```
 
-#### Verification:
+<h4> Verification: </h4>
 
 If you invoke `main` through a parent reference pointing to a child object, it calls
 the `Parent` version because static methods are resolved by reference type, not actual object type:
@@ -1374,7 +875,7 @@ p.main(args); // Prints "Parent main execution" (Proves NO runtime overriding oc
 
 ---
 
-### 3. Can We OVERLOAD the `main()` Method?
+<h3> 3. Can We OVERLOAD the `main()` Method? </h3>
 
 **YES!** You can overload the `main()` method by providing different parameter types or
 counts within the same class.
@@ -1652,7 +1153,7 @@ The `hashCode()` method returns an integer that acts as a **category label** or
 "bucket address" for an object. It is designed to speed up lookups in
 hash-based collections (`HashMap`, `HashSet`, `Hashtable`).
 
-### The Analogy: The Sectioned Library
+<h3> The Analogy: The Sectioned Library </h3>
 
 Imagine a library with 1,000,000 books.
 
@@ -1666,7 +1167,7 @@ Imagine a library with 1,000,000 books.
 
 
 
-### How it works in a HashMap (The 3 Steps)
+<h3> How it works in a HashMap (The 3 Steps) </h3>
 
 When you call `map.put(key, value)`, the JVM follows this precise sequence:
 
@@ -1681,7 +1182,7 @@ When you call `map.put(key, value)`, the JVM follows this precise sequence:
       a Red-Black Tree. This improves performance from `O(n)` to `O(log n)` during high collisions.
 
 
-### The Contract: The "Law" of HashCode
+<h3> The Contract: The "Law" of HashCode </h3>
 
 If you override `equals()`, you **MUST** override `hashCode()`. Breaking this contract leads to "Lost Objects."
 
@@ -1744,7 +1245,7 @@ class Employee implements Cloneable {
 
 Without this badge, `clone()` throws `CloneNotSupportedException`.
 
-### Resources
+<h3> Resources </h3>
 
 * [Marker Interface in Java (Tutorial) e.g. Serialization, Remote](https://www.youtube.com/watch?v=qeGCxKCWFcQ)
 
@@ -1823,14 +1324,14 @@ Employee e1 = new Employee(1, "Alice");
 Employee e2 = new Employee(e1); // copy created
 ```
 
-### Copy Constructor vs clone() — Which is better?
+<h3> Copy Constructor vs clone() — Which is better? </h3>
 
 > Copy constructors are generally preferred over `clone()` in Java.
 >
 
 Here is the breakdown of why `clone()` is generally hated and Copy Constructors are preferred:
 
-#### 1. The "Constructor Bypass" Problem (Critical)
+<h4> 1. The "Constructor Bypass" Problem (Critical) </h4>
 
 `clone()` does not call the constructor. It performs a direct memory copy of the object.
 This is dangerous because:
@@ -1873,7 +1374,7 @@ class User {
 }
 ```
 
-#### 2. The Type Casting Tax
+<h4> 2. The Type Casting Tax </h4>
 
 `clone()`: It returns an `Object`. You must manually cast it back to your specific class every time.
 
@@ -1890,7 +1391,7 @@ User u2 = new User(u1);
 ```
 
 
-#### 3. The Exception Nightmare
+<h4> 3. The Exception Nightmare </h4>
 
 `clone()`: It forces you to handle `CloneNotSupportedException`. This is a **Checked Exception**, meaning you
 must wrap it in a try-catch block, even if you know your class implements Cloneable.
@@ -1899,7 +1400,7 @@ It creates noisy, ugly code.
 **Copy Constructor:** No exceptions. It just works.
 
 
-#### 4. The "Marker Interface" Confusion
+<h4> 4. The "Marker Interface" Confusion </h4>
 
 The design of `clone()` is weird.
 
@@ -1921,15 +1422,15 @@ duplicating its memory state, without invoking any constructors.
 Cloning is done using the `clone()` method, usually with the class implementing
 the `Cloneable` marker interface.
 
-### Why does Cloneable matter?
+<h3> Why does Cloneable matter? </h3>
 
 `Cloneable` is just a permission badge.
 
 If a class does not implement it, calling `clone()` throws `CloneNotSupportedException`.
 
-### Types of Cloning
+<h3> Types of Cloning </h3>
 
-#### Shallow Clone (default)
+<h4> Shallow Clone (default) </h4>
 
 * Creates a new object
 * All primitive fields are copied by value, meaning each primitive is duplicated as an
@@ -1951,7 +1452,7 @@ protected Object clone() throws CloneNotSupportedException {
 If the object contains references, both clones share the same internal objects.
 
 
-#### Deep Clone
+<h4> Deep Clone </h4>
 
 * Creates a new object
 * Also creates new copies of all nested objects
@@ -1966,7 +1467,7 @@ copy.address = new Address(this.address); // deep copy
 
 Deep clone must be implemented manually.
 
-### Resources
+<h3> Resources </h3>
 
 1. Video 1: https://www.youtube.com/watch?v=b2uFL4BFDYg
 1. Video 2: https://www.youtube.com/watch?v=WIh-TVq4ifI
@@ -1995,7 +1496,7 @@ The Pool solves this by reusing instances.
 To fully understand this, you must distinguish between creating a String
 with a **Literal** versus the **`new` keyword**.
 
-### 1. String Literal (Automatic Interning)
+<h3> 1. String Literal (Automatic Interning) </h3>
 
 When you create a string using double quotes, Java automatically checks the pool.
 
@@ -2013,7 +1514,7 @@ String s2 = "Hello";
 
 ---
 
-### 2. The `new` Keyword (Forcing a New Object)
+<h3> 2. The `new` Keyword (Forcing a New Object) </h3>
 
 Using `new` bypasses the pool check for the returned reference.
 
@@ -2034,7 +1535,7 @@ String s3 = new String("Hello");
 
 
 
-### 3. Manual Interning (`.intern()`)
+<h3> 3. Manual Interning (`.intern()`) </h3>
 
 You can manually move a heap string into the pool (or retrieve its pool reference) using `.intern()`.
 
@@ -2050,7 +1551,7 @@ String s4 = s3.intern();         // Returns the Pool object
 
 ---
 
-### 4. Why is this safe? (Immutability)
+<h3> 4. Why is this safe? (Immutability) </h3>
 
 The only reason Java can safely share one `"Hello"` object among 100 different variables
 is because **Strings are Immutable**.
@@ -2074,7 +1575,7 @@ can be safely shared without thread-safety issues.
 
 ## Q - How many times is the finalize() method called in Java?
 
-### What is finalize()?
+<h3> What is finalize()? </h3>
 
 Imagine you throw an object into the garbage bin (make it eligible for Garbage Collection).
 
@@ -2086,13 +1587,13 @@ Think of this as:
 
 But this happens at most once per object.
 
-### Key Idea 1: finalize() may run OR may not run
+<h3> Key Idea 1: finalize() may run OR may not run </h3>
 
 * JVM decides when GC runs.
 * JVM decides if finalize() should run.
 * So `finalize()` is NOT guaranteed.
 
-### Key Idea 2: finalize() runs ONCE per object
+<h3> Key Idea 2: finalize() runs ONCE per object </h3>
 
 Even if the object becomes garbage again later, `finalize()` will NOT run a second time.
 
@@ -2130,7 +1631,7 @@ Or you might see nothing (GC didn't run).
 
 Either output is normal.
 
-### Why "ONLY ONCE"? (Simple explanation)
+<h3> Why "ONLY ONCE"? (Simple explanation) </h3>
 
 Let's add a twist.
 
@@ -2183,7 +1684,7 @@ It is primarily used when objects need to:
 * Cross JVM boundaries
 
 
-### Key statement
+<h3> Key statement </h3>
 
 During serialization, the JVM uses reflection to inspect an object's fields and convert their values
 into a byte stream, even though `Serializable` has no methods.
@@ -2210,7 +1711,7 @@ Notice:
 * We did not write any serialization logic
 
 
-#### Serialization code (standard)
+<h4> Serialization code (standard) </h4>
 
 ```java
 import java.io.*;
@@ -2229,7 +1730,7 @@ public class Test {
 }
 ```
 
-#### What the JVM actually does internally (THIS is the reflection part)
+<h4> What the JVM actually does internally (THIS is the reflection part) </h4>
 
 When this line runs:
 
@@ -2333,7 +1834,7 @@ The Explanation:
     ```
    **This creates a new object on the Heap**, not the Pool.
 
-### The Nuance: The final Keyword
+<h3> The Nuance: The final Keyword </h3>
 
 Follow-up question: "How can you force `s2` into the pool without using `.intern()`?"
 
@@ -2361,7 +1862,7 @@ other operand to a String.
 * For primitive types, Java does not box them; instead, it uses `String.valueOf()` to convert them to a String.
 
 
-### What Actually Happens (Under the Hood)
+<h3> What Actually Happens (Under the Hood) </h3>
 
 The compiler rewrites string concatenation into something like:
 
@@ -2375,7 +1876,7 @@ new StringBuilder()
 And each `append()` internally calls `String.valueOf(...)`.
 
 
-#### Case 1: Primitive Types
+<h4> Case 1: Primitive Types </h4>
 
 ```java
 String s = "Value: " + 10;
@@ -2397,7 +1898,7 @@ What happens:
 >
 
 
-#### Case 2: Reference Types
+<h4> Case 2: Reference Types </h4>
 
 ```java
 Object obj = new User();
@@ -2489,7 +1990,7 @@ The primary difference is case sensitivity.
 `CharSequence` is the root interface that defines a readable sequence of characters.
 
 
-### Key Methods
+<h3> Key Methods </h3>
 
 Every CharSequence must implement:
 
@@ -2502,14 +2003,14 @@ String toString();
 
 These methods allow reading characters, but not modifying them.
 
-### Why was CharSequence introduced?
+<h3> Why was CharSequence introduced? </h3>
 
 * To allow methods to accept any type of character data, not just `String`.
 * To provide flexibility — code can work with `String`, `StringBuilder`, `StringBuffer` and `CharBuffer`.
 * To reduce strict type dependencies and increase polymorphism.
 
 
-### Simple Example
+<h3> Simple Example </h3>
 
 ```java
 public void print(CharSequence cs) {
@@ -2538,7 +2039,7 @@ It is used in classes that implement:
 class Employee implements Serializable { ... }
 ```
 
-### Why do we need serialVersionUID?
+<h3> Why do we need serialVersionUID? </h3>
 
 When you serialize an object:
 
@@ -2550,7 +2051,7 @@ whether the classes are still compatible.
 
 This is where `serialVersionUID` helps.
 
-### DEFAULT Behavior
+<h3> DEFAULT Behavior </h3>
 
 If you do not define `serialVersionUID`, Java **generates one automatically** based on:
 
@@ -2560,7 +2061,7 @@ If you do not define `serialVersionUID`, Java **generates one automatically** ba
 
 If the class changes (even tiny change), Java generates a **different** serialVersionUID → deserialization fails.
 
-### What happens if serialVersionUID changes?
+<h3> What happens if serialVersionUID changes? </h3>
 
 If mismatched:
 
@@ -2572,7 +2073,7 @@ Meaning:
 
 "Serialized object belongs to version X, but class is version Y."
 
-### What Happens When You Manually Define serialVersionUID
+<h3> What Happens When You Manually Define serialVersionUID </h3>
 
 ```java
 private static final long serialVersionUID = 1L;
@@ -2584,7 +2085,7 @@ After this, you can
 
 ---
 
-#### Add a new field
+<h4> Add a new field </h4>
 
 No error.
 New field gets its default value on deserialization.
@@ -2602,7 +2103,7 @@ When deserialized → `age = 0`.
 
 ---
 
-#### Remove a field
+<h4> Remove a field </h4>
 
 No error.
 Extra data in the serialized stream is ignored.
@@ -2615,19 +2116,19 @@ Deserialization → the old field is ignored.
 
 ---
 
-#### Change field order
+<h4> Change field order </h4>
 
 No issue. Order does not matter.
 
 ---
 
-#### Add methods
+<h4> Add methods </h4>
 
 No issue - methods are not serialized.
 
 ---
 
-#### Changes that break compatibility
+<h4> Changes that break compatibility </h4>
 
 * Changing the type of field
 * Changing the class hierarchy
@@ -2646,7 +2147,7 @@ the hood during Java serialization and deserialization.
 
 ---
 
-### 1. What Happens During Serialization (`ObjectOutputStream`)
+<h3> 1. What Happens During Serialization (`ObjectOutputStream`) </h3>
 
 When you serialize an object using `ObjectOutputStream.writeObject(obj)`:
 
@@ -2661,7 +2162,7 @@ When you serialize an object using `ObjectOutputStream.writeObject(obj)`:
 
 ---
 
-### 2. What Happens During Deserialization (`ObjectInputStream`)
+<h3> 2. What Happens During Deserialization (`ObjectInputStream`) </h3>
 
 When another application or process tries to read those bytes using `ObjectInputStream.readObject()`:
 
@@ -2686,7 +2187,7 @@ $$\text{Persisted } \mathtt{serialVersionUID} \stackrel{?}{=} \text{Local } \mat
 To prevent a field from being serialized in Java, you have two primary options
 depending on the nature of the field.
 
-### 1. The transient Keyword (The Standard Way)
+<h3> 1. The transient Keyword (The Standard Way) </h3>
 
 You explicitly mark the field with the `transient` keyword.
 This tells the JVM: "Ignore this field when writing the object state to a stream."
@@ -2702,7 +2203,7 @@ A `transient` field is excluded from Java's default serialization process.
 Its value is not written to the serialization stream, and upon deserialization, it is
 initialized to its default value.
 
-### 2. The static Modifier (The "Class-Level" Rule)
+<h3> 2. The static Modifier (The "Class-Level" Rule) </h3>
 
 Static fields are never serialized. Because serialization saves the state of an Object (instance), and
 static fields belong to the Class, they are ignored by the serialization process entirely.
@@ -2726,7 +2227,7 @@ class User implements Serializable {
     For a **Deep Copy** (like cloning a `List` inside your object), you must manually write 
     that logic inside your override.
 
-### The "Senior" Verdict: Avoid `clone()` entirely
+<h3> The "Senior" Verdict: Avoid `clone()` entirely </h3>
 
 In a real interview, once you explain the technicalities above, you should finish with:
 
@@ -2818,7 +2319,7 @@ The "Why" behind this rule
 It might seem useful to provide a standard `toString()` for all your objects,
 but Java forbids it for a very specific architectural reason: "Class Wins."
 
-### 1. The Conflict Resolution Rule
+<h3> 1. The Conflict Resolution Rule </h3>
 
 In Java, a class can inherit behavior from two places:
 
@@ -2828,7 +2329,7 @@ In Java, a class can inherit behavior from two places:
 The Rule: If a method exists in both a parent class and an 
 interface, the **parent class's version always wins**.
 
-### 2. The Problem
+<h3> 2. The Problem </h3>
 
 Since every Java class automatically extends `Object`, every single class
 you ever create already has a version of `hashCode()` inherited from `Object`.
@@ -2922,11 +2423,11 @@ Here is the "Executive Summary" of the evolution from Java 8.
 
 ---
 
-### Phase 1: Java 9 - 11 (The "Modernization" Era)
+<h3> Phase 1: Java 9 - 11 (The "Modernization" Era) </h3>
 
 *Focus: Removing boilerplate and modernizing APIs.*
 
-#### Modules (Jigsaw)
+<h4> Modules (Jigsaw) </h4>
 
 The Change: Java 9 broke the massive monolithic JDK into small, manageable modules.
 
@@ -2938,7 +2439,7 @@ The Change: Java 9 broke the massive monolithic JDK into small, manageable modul
   2. **Scalability:** You can create custom, tiny Java runtimes (using jlink) that only contain
      the modules your app actually needs (e.g., a 30MB JRE instead of 200MB).
 
-#### Collection Factory Methods
+<h4> Collection Factory Methods </h4>
 
 The Change: Finally, a clean one-line syntax to create immutable lists, sets, and maps.
 
@@ -2954,7 +2455,7 @@ The Change: Finally, a clean one-line syntax to create immutable lists, sets, an
 * **Note:** These collections are Immutable. Calling `.add()` throws `UnsupportedOperationException`.
   They also reject null values.
 
-#### Local Variable Type Inference (`var`)
+<h4> Local Variable Type Inference (`var`) </h4>
 
 **The Change:** You don't need to repeat the type name on the left side.
 
@@ -2962,7 +2463,7 @@ The Change: Finally, a clean one-line syntax to create immutable lists, sets, an
 * **Java 11:** `var users = new HashMap<String, List<User>>();`
 * *Note:* Still strongly typed! The compiler just infers it.
 
-#### New HttpClient (Standardized)
+<h4> New HttpClient (Standardized) </h4>
 
 **The Change:** Finally, a built-in, non-blocking HTTP client. No need for
 Apache `HttpClient` or `OkHttp` for simple tasks.
@@ -2973,14 +2474,14 @@ HttpRequest request = HttpRequest.newBuilder().uri(URI.create("https://api.com")
 HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 ```
 
-#### String Methods (Life Savers)
+<h4> String Methods (Life Savers) </h4>
 
 * `isBlank()`: Checks if a string is empty OR just whitespace.
 * `lines()`: Returns a Stream of lines from a multi-line string.
 * `strip()`: Unicode-aware `trim()`.
 * `repeat(n)`: Repeats the string n times.
 
-#### Running Single-File Source Code
+<h4> Running Single-File Source Code </h4>
 
 You can now run a file without compiling it first!
 
@@ -2988,11 +2489,11 @@ You can now run a file without compiling it first!
 
 ---
 
-### Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era)
+<h3> Phase 2: Java 12 - 17 (The "Syntactic Sugar" Era) </h3>
 
 *Focus: Developer productivity and reducing code noise.*
 
-#### Records (Data Classes)
+<h4> Records (Data Classes) </h4>
 
 Immutable data carriers without boilerplate (`getters`, `equals`, `hashCode`, `toString`).
 
@@ -3002,7 +2503,7 @@ public record User(String name, int id) {}
 
 ```
 
-#### Text Blocks (Multi-line Strings)
+<h4> Text Blocks (Multi-line Strings) </h4>
 
 No more `\n` and `+` concatenation for JSON/SQL.
 
@@ -3016,7 +2517,7 @@ String json = """
 
 ```
 
-#### Switch Expressions
+<h4> Switch Expressions </h4>
 
 Arrow syntax, no fall-through, can return values.
 
@@ -3029,7 +2530,7 @@ var result = switch(day) {
 
 ```
 
-#### Pattern Matching for `instanceof`
+<h4> Pattern Matching for `instanceof` </h4>
 
 Smart casting.
 
@@ -3040,7 +2541,7 @@ if (obj instanceof String s) {
 
 ```
 
-#### Sealed Classes
+<h4> Sealed Classes </h4>
 
 Control exactly who can extend your class (critical for domain modeling).
 
@@ -3049,18 +2550,18 @@ public sealed interface Shape permits Circle, Square {}
 
 ```
 
-#### Helpful NullPointerExceptions
+<h4> Helpful NullPointerExceptions </h4>
 
 * **Old:** `NullPointerException at line 45` (Where? Who?)
 * **New:** `Cannot invoke "String.length()" because "user.name" is null`.
 
 ---
 
-### Phase 3: Java 18 - 21 (The "Concurrency Revolution")
+<h3> Phase 3: Java 18 - 21 (The "Concurrency Revolution") </h3>
 
 *Focus: High-throughput concurrency and simplification.*
 
-#### Virtual Threads (Project Loom) - The Game Changer
+<h4> Virtual Threads (Project Loom) - The Game Changer </h4>
 
 **The Problem:** Java threads map 1:1 to OS threads. OS threads are heavy (2MB RAM).
 You can only have ~5,000 active threads before the server crashes.
@@ -3078,7 +2579,7 @@ Thread.startVirtualThread(() -> {
 });
 ```
 
-#### Structured Concurrency
+<h4> Structured Concurrency </h4>
 
 **The Problem:** In traditional concurrency, if you spawn 3 threads to do a task and
 one fails, the others keep running (leaking resources), and handling errors across them is a nightmare.
@@ -3100,14 +2601,14 @@ Supplier<Integer> order = scope.fork(() -> fetchOrder());
 }
 ```
 
-#### Sequenced Collections
+<h4> Sequenced Collections </h4>
 
 Java finally unified how we access the "first" and "last" elements of a list, set, or deque.
 
 * **Old:** `list.get(0)`, `deque.getFirst()`, `sortedSet.first()`. (Inconsistent).
 * **New:** `collection.getFirst()`, `collection.getLast()`, `collection.addFirst()`. (Uniform).
 
-#### Record Patterns
+<h4> Record Patterns </h4>
 
 Deconstructs records directly in `instanceof` or `switch`.
 
@@ -3118,7 +2619,7 @@ if (obj instanceof Point(int x, int y)) {
 ```
 
 
-#### Foreign Function & Memory API
+<h4> Foreign Function & Memory API </h4>
 
 Foreign Function & Memory API (Java 21)
 
@@ -3140,7 +2641,7 @@ The Change: A safe, standard way to access memory outside of the Java heap (off-
 A Shutdown Hook is a special thread that you register with the Java Virtual Machine (JVM).
 The JVM promises to run this thread just before it shuts down.
 
-### How to implement it?
+<h3> How to implement it? </h3>
 
 You use the `Runtime` class to add a new Thread.
 
@@ -3169,7 +2670,7 @@ public class ShutdownExample {
 }
 ```
 
-### When does it run?
+<h3> When does it run? </h3>
 
 The Shutdown Hook runs in these scenarios:
 
@@ -3178,7 +2679,7 @@ The Shutdown Hook runs in these scenarios:
 3. **User Interrupt**: You press `Ctrl+C` in the terminal.
 4. OS Signal: The OS sends a `SIGTERM` (standard kill signal).
 
-### When does it NOT run?
+<h3> When does it NOT run? </h3>
 
 If the JVM is killed violently, the hook is skipped.
 
@@ -3211,7 +2712,7 @@ Doing the same thing in different ways is called polymorhphism. There are two ty
 1. Runtime polymorphism
 1. Compile time polymorphism
 
-### Runtime Polymorphism
+<h3> Runtime Polymorphism </h3>
 
 Consider an `Animal` class with an `eat()` method. Next, create a `Dog` class by extending `Animal` class
 and override the `eat()` method. Now create an object of type `Animal` and `Dog` and assign it to base class reference.
@@ -3228,7 +2729,7 @@ At runtime, the JVM decides which version of `eat()` method should be called (i.
 This is called **Runtime polymorhphism**.
 
 
-### Compile time Polymorphism
+<h3> Compile time Polymorphism </h3>
 
 Method overloading is called **Compile time polymorhphism**.
 
@@ -3239,7 +2740,7 @@ signature (the number and types of parameters).
 Video Polymorphism: https://www.youtube.com/watch?v=jhDUxynEQRI&t=340s
 
 
-### Abstraction
+<h3> Abstraction </h3>
 
 Abstraction in object-oriented programming (OOP) is the concept of hiding the complex
 implementation details and exposing only the essential features of an object or a system. This
@@ -3258,7 +2759,7 @@ We start by creating a interface called `Set` with two methods `add()` and `remo
 Video abstraction: https://www.youtube.com/watch?v=L1-zCdrx8Lk
 
 
-### Encapsulation
+<h3> Encapsulation </h3>
 
 Encapsulation is the ability of an object to hide parts of its state and behavior from the outside world.
 To encapculate something means to make it `private`, and thus accessible only from within if the methods if
@@ -3267,7 +2768,7 @@ subclass as well.
 
 Encapsulation helps us to change implementation without of the class without affecting the users of the class.
 
-### Diff b/w Abstraction and Encapsulation
+<h3> Diff b/w Abstraction and Encapsulation </h3>
 
 Consider the following analogy:
 
@@ -3280,7 +2781,7 @@ This is encapsulation.
 
 ## Q - What is association, aggregation and composition?
 
-### Association
+<h3> Association </h3>
 
 Association is the general relationship where one class knows about or interacts with another class.
 
@@ -3292,12 +2793,12 @@ without implying ownership or lifecycle control.
 Association often means a class has a field referencing another object -
 but not always (it can also be through a method).
 
-### Two forms of association
+<h3> Two forms of association </h3>
 
 1. Aggregation
 2. Composition
 
-### Aggregation (weak ownership)
+<h3> Aggregation (weak ownership) </h3>
 
 * Has-a relationship
 * Class stores a field referencing another object
@@ -3331,7 +2832,7 @@ Why is this aggregation, not composition?
 
 4. **Team only stores a reference to Player**, not creating or destroying players.
 
-###  Composition (strong ownership)
+<h3>  Composition (strong ownership) </h3>
 
 * Stronger has-a relationship
 * Whole–part relationship
@@ -3574,7 +3075,7 @@ public class Example12 {
 
 Here is why how double check works and why `volatile` is needed:
 
-### Sequence of events (step-by-step)
+<h3> Sequence of events (step-by-step) </h3>
 
 Initial state:
 
@@ -3625,7 +3126,7 @@ Had there been no second check, `T2` would have created another instance overwri
 
 This is why **double-checked locking** is needed.
 
-### Why volatile is required?
+<h3> Why volatile is required? </h3>
 
 The line `instance = new Config(1, "Default");` looks like one instruction, but at the bytecode level, it is actually three:
 
@@ -3735,17 +3236,17 @@ Because of primitive types like `int`, `char`, `float` etc.
 
 ## Q - Why can't we override private and static methods?
 
-### Why you cannot override private methods
+<h3> Why you cannot override private methods </h3>
 
 Private methods are NOT visible to subclasses. If a subclass cannot see a method, it cannot override it.
 
-### Why you cannot override static methods
+<h3> Why you cannot override static methods </h3>
 
 Because static methods are bound at Compile Time, while overriding is a Runtime phenomenon.
 
 Here is the detailed breakdown:
 
-#### 1. The Binding Difference
+<h4> 1. The Binding Difference </h4>
 
 * **Instance Methods (Overriding)**: Use **Dynamic Binding**. The JVM waits until the code is
   actually running to check "What kind of object is this really?" (e.g., is it a Dog or a Cat?) before deciding which method to run.
@@ -3753,12 +3254,12 @@ Here is the detailed breakdown:
 * **Static Methods (Hiding)**: Use **Static Binding**. The Compiler decides which method to call
   **before the program even runs** based solely on the **Reference Type** (the class name you wrote)
 
-#### 2. They belong to the Class, not the Object
+<h4> 2. They belong to the Class, not the Object </h4>
 
 Overriding is all about Polymorphism (objects acting differently).
 Since static methods belong to the class definition itself, they don't care about the object instance.
 
-#### 3. What actually happens? (Method Hiding)
+<h4> 3. What actually happens? (Method Hiding) </h4>
 
 If you try to "override" a static method, Java doesn't give you an error, but it does something different
 called Method Hiding.
@@ -3905,7 +3406,7 @@ This branch is further divided into two critical categories:
 2. Unchecked Exceptions (Runtime Exceptions)
 
 
-### Checked Exceptions (Compile-Time)
+<h3> Checked Exceptions (Compile-Time) </h3>
 
 * **Parent:** Directly extends `Exception` (but not `RuntimeException`).
 * **The Rule:** The Compiler checks these. You are forced to handle them (using `try-catch`) or declare them
@@ -3917,7 +3418,7 @@ This branch is further divided into two critical categories:
   * `SQLException` (Database issues).
   * `ClassNotFoundException`.
 
-### Unchecked Exceptions (Runtime)
+<h3> Unchecked Exceptions (Runtime) </h3>
 
 * **Parent:** Extends `RuntimeException`.
 * **The Rule:** The compiler does not check these. You can compile your code without handling them.
@@ -3940,9 +3441,9 @@ It must be paired with at least one `catch` block, a `finally` block, or both.
 
 ---
 
-### Valid Traditional `try` Block Combinations
+<h3> Valid Traditional `try` Block Combinations </h3>
 
-#### 1. `try-catch`
+<h4> 1. `try-catch` </h4>
 
 Used when you want to handle exceptions immediately.
 
@@ -3954,7 +3455,7 @@ try {
 }
 ```
 
-#### 2. `try-finally`
+<h4> 2. `try-finally` </h4>
 
 Used when you don't handle the exception here (letting it propagate up), but 
 you **must** execute cleanup code (like closing a stream or unlocking a lock).
@@ -3968,7 +3469,7 @@ try {
 
 ```
 
-#### 3. `try-catch-finally`
+<h4> 3. `try-catch-finally` </h4>
 
 Used when you want to handle exceptions **and** ensure cleanup code runs regardless of outcome.
 
@@ -3985,7 +3486,7 @@ try {
 
 ---
 
-### The One Exception to the Rule: Java 7+ `try-with-resources`
+<h3> The One Exception to the Rule: Java 7+ `try-with-resources` </h3>
 
 There is **one special case** in modern Java where a `try` block appears to stand 
 without an explicit `catch` or `finally` block:
@@ -4019,7 +3520,7 @@ In simple words:
 Java supports this through the `Throwable(Throwable cause)` and `Throwable(String message, Throwable cause)` 
 constructor and `getCause()` method.
 
-### Why is Exception Chaining needed?
+<h3> Why is Exception Chaining needed? </h3>
 
 1\. Convert low-level exceptions to meaningful high-level ones
 * Example: Wrap `SQLException` in a `UserNotFoundException`.
@@ -4030,14 +3531,14 @@ constructor and `getCause()` method.
 3\. Avoid losing important context
 * If you throw a new exception without chaining, the original stack trace is lost.
 
-### Real-World Example (ELI5)
+<h3> Real-World Example (ELI5) </h3>
 
 Imagine this situation:
 * _The database throws an `SQLException`._
 * Your service should not expose SQL details to callers.
 * So you wrap the low-level exception into a clean business exception.
 
-### Practical Example
+<h3> Practical Example </h3>
 
 ```java
 public User findUser(int id) {
@@ -4075,7 +3576,7 @@ They sound identical, but the **root cause** is completely different.
 
 Here is the breakdown:
 
-### 1. ClassNotFoundException (The "Typo")
+<h3> 1. ClassNotFoundException (The "Typo") </h3>
 
 * **What it is:** A **Checked Exception**. You (the developer) explicitly asked the JVM
   to load a class by its string name, and the JVM said, "I can't find anything with that name."
@@ -4098,7 +3599,7 @@ try {
 }
 ```
 
-### 2. NoClassDefFoundError (The "Ghost")
+<h3> 2. NoClassDefFoundError (The "Ghost") </h3>
 
 * **What it is:** An **Error** (Critical Failure). This is much nastier. It means the
   class **was present** when you compiled your code, but it is **missing** now
@@ -4129,7 +3630,7 @@ public class GhostDemo {
 
 ```
 
-### Summary Table (Memorize This)
+<h3> Summary Table (Memorize This) </h3>
 
 | Feature     | `ClassNotFoundException`                          | `NoClassDefFoundError`                                                      |
 |-------------|---------------------------------------------------|-----------------------------------------------------------------------------|
@@ -4144,7 +3645,7 @@ public class GhostDemo {
 
 ## Q - What is 'Exception Masking' in traditional `try-finally` blocks, and how does `try-with-resources` solve this using Suppressed Exceptions?
 
-###  1. The Problem: Exception Masking in Traditional `try-finally`
+<h3>  1. The Problem: Exception Masking in Traditional `try-finally` </h3>
 
 In traditional Java resource handling, if an exception is thrown inside 
 the `try` block **AND** a secondary exception is thrown inside the `finally` block (e.g., while 
@@ -4153,7 +3654,7 @@ closing a stream or database connection), **the JVM discards the primary excepti
 The secondary exception from `finally` overwrites the original error, swallowing the root cause 
 and making debugging extremely difficult.
 
-#### Bad Code Example (Traditional `finally`):
+<h4> Bad Code Example (Traditional `finally`): </h4>
 
 ```java
 public class ExceptionMaskingDemo {
@@ -4178,7 +3679,7 @@ public class ExceptionMaskingDemo {
 }
 ```
 
-#### Output Stack Trace:
+<h4> Output Stack Trace: </h4>
 
 ```text
 Exception in thread "main" java.lang.Exception: Secondary Error: Cleanup failed!
@@ -4192,7 +3693,7 @@ Anyone inspecting logs or debugging will only see the Secondary Error, hiding th
 
 ---
 
-### 2. The Solution (Preserving the Primary Exception in Traditional Java)
+<h3> 2. The Solution (Preserving the Primary Exception in Traditional Java) </h3>
 
 If you cannot or do not want to use `try-with-resources` (or `AutoCloseable`), you must 
 manually handle the cleanup inside a `try-catch` within the `finally` block and manually 
@@ -4200,7 +3701,7 @@ attach the cleanup error using `Throwable.addSuppressed()`:
 
 
 
-#### Good Code Example (`try-with-resources`):
+<h4> Good Code Example (`try-with-resources`): </h4>
 
 ```java
 public class ExceptionMaskingSolution {
@@ -4238,7 +3739,7 @@ public class ExceptionMaskingSolution {
 }
 ```
 
-#### Execution Output:
+<h4> Execution Output: </h4>
 
 ```text
 Exception in thread "main" java.lang.RuntimeException: Primary Error: Business logic failed!
@@ -4262,7 +3763,7 @@ used in the try-with-resources statement.
 Its single method, void `close() throws Exception`, is called automatically when the `try` block exits
 (whether normally or due to an exception).
 
-### 1. The Core Purpose: Try-With-Resources
+<h3> 1. The Core Purpose: Try-With-Resources </h3>
 
 Before Java 7, you had to close resources (files, sockets, DB connections) manually in
 a finally block. This was verbose and error-prone.
@@ -4277,7 +3778,7 @@ public interface AutoCloseable {
 }
 ```
 
-### 2. Code Example
+<h3> 2. Code Example </h3>
 
 Here is how you implement it and use it.
 
@@ -4314,7 +3815,7 @@ exiting the try block, before control ever reaches any `catch` or `finally` bloc
 Therefore, the `catch` block executes only after `close()` has already freed
 the resource, handling exceptions from either the try block, the `close()` method itself, or both.
 
-### 3. Senior Engineer Nuance: Exception Suppression
+<h3> 3. Senior Engineer Nuance: Exception Suppression </h3>
 
 **The Problem (Old finally way):** If your code throws an exception (e.g., `RuntimeException`) AND
 your `finally` block throws an exception (e.g., `IOException` while closing), the original exception is lost.
@@ -4345,7 +3846,7 @@ eventually crashed the system.
 
 Java introduced two interfaces to standardize how we "clean up" after ourselves.
 
-### 1. The Parent: `AutoCloseable` (Added in Java 7)
+<h3> 1. The Parent: `AutoCloseable` (Added in Java 7) </h3>
 
 `AutoCloseable` is the most basic contract. It was created specifically to 
 support the **Try-with-Resources** statement.
@@ -4357,7 +3858,7 @@ support the **Try-with-Resources** statement.
    so that it can be used for *anything*—database connections, cloud clients, etc. - not just I/O.
 
 
-### 2. The Specialized Child: `Closeable` (Older, updated in Java 7)
+<h3> 2. The Specialized Child: `Closeable` (Older, updated in Java 7) </h3>
 
 `Closeable` actually existed since Java 5, but it was retrofitted to 
 extend `AutoCloseable` when Java 7 arrived.
@@ -4369,31 +3870,31 @@ extend `AutoCloseable` when Java 7 arrived.
 
 ---
 
-### The Key Differences (Interview "Slayer" Points)
+<h3> The Key Differences (Interview "Slayer" Points) </h3>
 
 If an interviewer asks, "Why have both?" you give them these three distinctions:
 
-#### A. The Exception Contract
+<h4> A. The Exception Contract </h4>
 
 * `AutoCloseable.close()` throws `Exception`.
 * `Closeable.close()` throws `IOException`.
 * **Why it matters:** Because `Closeable` is a subtype, it obeys the rule that an 
    overriding method can throw a *more specific* exception, but not a broader one.
 
-#### B. Idempotency (The "Safety" Rule)
+<h4> B. Idempotency (The "Safety" Rule) </h4>
 
 * **`Closeable`** *must* be idempotent. This means you can call `close()` ten times 
    in a row, and the first call closes it, while the other nine do absolutely nothing.
 * **`AutoCloseable`** is only *recommended* to be idempotent. It is technically allowed 
    to throw an exception if you try to close it twice (though most devs make it idempotent anyway).
 
-#### C. History & Compatibility
+<h4> C. History & Compatibility </h4>
 
 `Closeable` belongs to the `java.io` package. `AutoCloseable` belongs to `java.lang`. By creating a new parent (`AutoCloseable`), Java was able to introduce Try-with-Resources to everything (like JDBC) without forcing database drivers to depend on the `java.io` package.
 
 ---
 
-### How they look in code
+<h3> How they look in code </h3>
 
 When you use Try-with-Resources, the compiler doesn't care if 
 it's `Closeable` or `AutoCloseable`. It just looks for that `close()` method.
@@ -4415,7 +3916,7 @@ try (MyResource res = new MyResource()) {
 Java provides multiple ways to clean up resources (file handles, sockets, database connections), 
 but they differ significantly in safety and modern standards.
 
-### 1. `AutoCloseable` with Try-with-Resources (The Industry Standard)
+<h3> 1. `AutoCloseable` with Try-with-Resources (The Industry Standard) </h3>
 
 Introduced in Java 7, this is the **most recommended** approach.
 
@@ -4427,7 +3928,7 @@ Introduced in Java 7, this is the **most recommended** approach.
 
 ---
 
-### 2. `finally` block (The Manual Way)
+<h3> 2. `finally` block (The Manual Way) </h3>
 
 The traditional method before Java 7.
 
@@ -4438,7 +3939,7 @@ The traditional method before Java 7.
 
 ---
 
-### 3. `finalize()` method (The "Never Use This" Way)
+<h3> 3. `finalize()` method (The "Never Use This" Way) </h3>
 
 A method in the `Object` class called by the Garbage Collector before an object is destroyed.
 
@@ -4448,7 +3949,7 @@ A method in the `Object` class called by the Garbage Collector before an object 
 
 ---
 
-### Comparison Cheat Sheet
+<h3> Comparison Cheat Sheet </h3>
 
 | Mechanism           | Safety        | Boilerplate | Recommended Use                                       |
 |---------------------|---------------|-------------|-------------------------------------------------------|
@@ -4458,7 +3959,7 @@ A method in the `Object` class called by the Garbage Collector before an object 
 
 ---
 
-### Summary for Interview
+<h3> Summary for Interview </h3>
 
 > "I always prioritize **AutoCloseable** with **Try-with-Resources**. 
 > It ensures deterministic cleanup and handles suppressed exceptions safely without 
@@ -4475,7 +3976,7 @@ A method in the `Object` class called by the Garbage Collector before an object 
 
 ---
 
-### 1. Checked Exceptions $\rightarrow$ Recoverable Conditions
+<h3> 1. Checked Exceptions $\rightarrow$ Recoverable Conditions </h3>
 
 If an application encounters an error that is **expected in normal operation** and the 
 caller can **take a corrective action** (retry, prompt the user, switch to a fallback), it should
@@ -4486,7 +3987,7 @@ be a **Checked Exception** (`extends Exception`).
 * **Intent:** It acts as a mandatory warning in the API signature: *"This operation might fail 
    due to external factors beyond code control, so you MUST prepare a recovery strategy."*
 
-#### Examples of Recoverable Exceptions:
+<h4> Examples of Recoverable Exceptions: </h4>
 
 | Exception                    | Reason it's Recoverable               | Recovery Strategy                                                    |
 |------------------------------|---------------------------------------|----------------------------------------------------------------------|
@@ -4496,7 +3997,7 @@ be a **Checked Exception** (`extends Exception`).
 
 ---
 
-### 2. Unchecked Exceptions $\rightarrow$ Unrecoverable / Programming Errors
+<h3> 2. Unchecked Exceptions $\rightarrow$ Unrecoverable / Programming Errors </h3>
 
 If an exception represents a **bug in the code**, a **violation of a precondition**, 
 or a **catastrophic system failure** that the calling code cannot reasonably fix at 
@@ -4506,7 +4007,7 @@ runtime, it should be an **Unchecked Exception** (`extends RuntimeException`).
 * **Intent:** It indicates that the system state is corrupted or the developer made a mistake 
    that must be fixed in code, not handled at runtime.
 
-#### Examples of Unrecoverable Exceptions:
+<h4> Examples of Unrecoverable Exceptions: </h4>
 
 | Exception                   | Reason it's Unrecoverable                               | Why Catching It Is Bad Idea                                             |
 |-----------------------------|---------------------------------------------------------|-------------------------------------------------------------------------|
@@ -4517,13 +4018,13 @@ runtime, it should be an **Unchecked Exception** (`extends RuntimeException`).
 
 ---
 
-### ️The "Senior Engineer" Nuance: Modern Java Framework Trend
+<h3> ️The "Senior Engineer" Nuance: Modern Java Framework Trend </h3>
 
 While the above statement is the classical design rule, modern Java (and major 
 frameworks like **Spring**, **Hibernate**, and **Jackson**) has shifted heavily
 toward **Unchecked Exceptions everywhere**.
 
-#### Why did the industry shift towards Unchecked Exceptions?
+<h4> Why did the industry shift towards Unchecked Exceptions? </h4>
 
 1. **API Pollution / Boilerplate:** Checked exceptions bubble up through layers, forcing 
     intermediate methods to add `throws Exception` signatures even when they cannot recover from the error themselves.
@@ -4535,7 +4036,7 @@ toward **Unchecked Exceptions everywhere**.
 
 ---
 
-### Summary Matrix for Interviews
+<h3> Summary Matrix for Interviews </h3>
 
 ```text
                                  Is the error recoverable?
@@ -4549,7 +4050,7 @@ toward **Unchecked Exceptions everywhere**.
 
 ```
 
-### References:
+<h3> References: </h3>
 
 * https://www.baeldung.com/java-checked-unchecked-exceptions#when
 
@@ -4562,7 +4063,7 @@ toward **Unchecked Exceptions everywhere**.
 
 ## Q - Generics & Type Erasure: What happens to type information at runtime? Why are Generics Invariant while Arrays are Covariant?
 
-### 1. What Problem Were Generics Solving?
+<h3> 1. What Problem Were Generics Solving? </h3>
 
 Before Java 5, collections stored `Object`.
 
@@ -4574,7 +4075,7 @@ list.add(10);  // Allowed
 String s = (String) list.get(0);  // Manual cast
 ```
 
-#### Problems:
+<h4> Problems: </h4>
 
 * No compile-time type safety
 * Frequent `ClassCastException`
@@ -4592,7 +4093,7 @@ Now type errors are caught at compile time.
 
 ---
 
-### 2. Type Erasure (Critical JVM Design Decision)
+<h3> 2. Type Erasure (Critical JVM Design Decision) </h3>
 
 Java generics are implemented using **Type Erasure**.
 
@@ -4600,14 +4101,14 @@ Generic type information exists only at compile time.
 
 ---
 
-#### What You Write
+<h4> What You Write </h4>
 
 ```java
 List<String> list = new ArrayList<>();
 list.add("Hello");
 ```
 
-#### What the Compiler Generates (After Erasure)
+<h4> What the Compiler Generates (After Erasure) </h4>
 
 ```java
 List list = new ArrayList();
@@ -4618,9 +4119,9 @@ The `<String>` part is removed.
 
 ---
 
-#### What Gets Erased?
+<h4> What Gets Erased? </h4>
 
-#### 1. Type parameters replaced with bound
+<h4> 1. Type parameters replaced with bound </h4>
 
 Unbounded:
 
@@ -4661,7 +4162,7 @@ Rule:
 
 ---
 
-#### 2. Casts inserted automatically
+<h4> 2. Casts inserted automatically </h4>
 
 ```java
 List<String> list = new ArrayList<>();
@@ -4682,11 +4183,11 @@ So:
 
 ---
 
-### 3. Arrays vs Generics — The Core Difference
+<h3> 3. Arrays vs Generics — The Core Difference </h3>
 
 ---
 
-#### Arrays Are Covariant
+<h4> Arrays Are Covariant </h4>
 
 If:
 
@@ -4719,7 +4220,7 @@ Throws:
 ArrayStoreException
 ```
 
-#### Why?
+<h4> Why? </h4>
 
 Arrays are:
 
@@ -4731,7 +4232,7 @@ The JVM checks element type at insertion time.
 
 ---
 
-#### Generics Are Invariant
+<h4> Generics Are Invariant </h4>
 
 Even though:
 
@@ -4748,7 +4249,7 @@ List<Object> objects = strings;  // compile-time error
 
 ---
 
-#### Why?
+<h4> Why? </h4>
 
 Because generics use **type erasure**.
 
@@ -4765,7 +4266,7 @@ The JVM cannot distinguish them.
 
 ---
 
-### 4. Why Covariance Would Break Generics
+<h3> 4. Why Covariance Would Break Generics </h3>
 
 Assume covariance was allowed:
 
@@ -4798,9 +4299,9 @@ Therefore:
 
 ---
 
-### 5. The Core Principle
+<h3> 5. The Core Principle </h3>
 
-#### Mutable containers cannot be safely covariant.
+<h4> Mutable containers cannot be safely covariant. </h4>
 
 Because:
 
@@ -4812,7 +4313,7 @@ So Java makes generic types invariant by default.
 
 ---
 
-### 6. Controlled Variance with Wildcards
+<h3> 6. Controlled Variance with Wildcards </h3>
 
 Java allows safe variance using wildcards.
 
@@ -4841,7 +4342,7 @@ This follows:
 
 ---
 
-### 7. Final Interview-Ready Answer
+<h3> 7. Final Interview-Ready Answer </h3>
 
 If asked:
 
@@ -4893,9 +4394,9 @@ uses segment locking/CAS instead of locking the entire object).
 
 ## Q - When would you use parallelStream()
 
-### Parallel Stream — Three Examples Explained (Good vs Bad vs Dangerous)
+<h3> Parallel Stream — Three Examples Explained (Good vs Bad vs Dangerous) </h3>
 
-### Example 1 — ✅ GOOD use of parallelStream()
+<h3> Example 1 — ✅ GOOD use of parallelStream() </h3>
 
 ```java
 List<Integer> numbers = getOneMillionIntegers();
@@ -4905,7 +4406,7 @@ long count = numbers.parallelStream()
                     .count();
 ```
 
-#### Why this is GOOD
+<h4> Why this is GOOD </h4>
 
 **What the code is doing**
 
@@ -4930,7 +4431,7 @@ long count = numbers.parallelStream()
 * Results are combined at the end
 
 
-#### Final judgment
+<h4> Final judgment </h4>
 
 * ✅ Correct use of parallelStream
 * ✅ CPU-bound
@@ -4944,7 +4445,7 @@ long count = numbers.parallelStream()
 > large enough to amortize parallel overhead.
 >
 
-### Example 2 — ❌ BAD use of parallelStream()
+<h3> Example 2 — ❌ BAD use of parallelStream() </h3>
 
 ```java
 List<Integer> numbers = Arrays.asList(1, 2, 3, ... 1000);
@@ -4954,7 +4455,7 @@ int sum = numbers.parallelStream()
                  .sum();
 ```
 
-#### Why this is BAD
+<h4> Why this is BAD </h4>
 
 **What the code is doing**
 
@@ -4984,7 +4485,7 @@ You hired 8 workers to:
 * Add very small numbers
 * Spent more time organizing workers than doing work
 
-#### Final judgment
+<h4> Final judgment </h4>
 
 * ❌ Computation too small
 * ❌ Dataset too small
@@ -4996,7 +4497,7 @@ You hired 8 workers to:
 > trivial computation being performed.
 
 
-### Example 3 — 💀 DANGEROUS use of parallelStream()
+<h3> Example 3 — 💀 DANGEROUS use of parallelStream() </h3>
 
 ```java
 List<String> userIds = Arrays.asList("101", "102", ... "200");
@@ -5006,7 +4507,7 @@ userIds.parallelStream()
        .collect(Collectors.toList());
 ```
 
-#### Why this is DANGEROUS (not just slow)
+<h4> Why this is DANGEROUS (not just slow) </h4>
 
 **What the code is doing**
 
@@ -5042,7 +4543,7 @@ Result:
 * ❌ App slowdown
 * ❌ Unpredictable production failures
 
-#### Final judgment
+<h4> Final judgment </h4>
 
 * 💀 Blocking I/O in shared ForkJoinPool
 * 💀 Can break unrelated parts of the application
@@ -5054,7 +4555,7 @@ Result:
 > ForkJoinPool, starving unrelated parallel tasks across the JVM.
 >
 
-### One-page Comparison (Interview Gold)
+<h3> One-page Comparison (Interview Gold) </h3>
 
 | Example            | Verdict      | Reason                                  |
 |--------------------|--------------|-----------------------------------------|
@@ -5063,7 +4564,7 @@ Result:
 | Database calls     | 💀 DANGEROUS | Blocks shared ForkJoinPool              |
 
 
-### Final Rule to Say in Interview (Memorize This)
+<h3> Final Rule to Say in Interview (Memorize This) </h3>
 
 > Use parallelStream() only for large, CPU-bound, stateless operations.
 > Avoid it for small workloads and never use it for blocking I/O.
@@ -5258,7 +4759,7 @@ Legend:
 
 ## Q - Explain the evolution from SortedSet (Java 1.2) to NavigableSet (Java 6). Why was a new interface introduced instead of extending SortedSet, given that TreeSet already existed?
 
-### 1. SortedSet
+<h3> 1. SortedSet </h3>
 
 **What is SortedSet?**
 
@@ -5284,7 +4785,7 @@ These allow:
 * Creating range-based views
 
 
-#### What SortedSet Does Not Guarantee
+<h4> What SortedSet Does Not Guarantee </h4>
 
 SortedSet does **not** define:
 
@@ -5297,7 +4798,7 @@ SortedSet does **not** define:
 Even if an implementation can do these things, the **interface does not promise them**.
 
 
-### 2. TreeSet Existed Before NavigableSet
+<h3> 2. TreeSet Existed Before NavigableSet </h3>
 
 **Important clarification**
 > Yes, `TreeSet` already existed when `NavigableSet` was introduced.
@@ -5320,7 +4821,7 @@ A Red-Black Tree already supports:
 So **the underlying data structure already had the capability**.
 
 
-### 3. The Problem Before Java 6
+<h3> 3. The Problem Before Java 6 </h3>
 
 Before Java 6, developers commonly wrote patterns like:
 
@@ -5340,7 +4841,7 @@ Most importantly:
 > These navigation operations were not part of the `SortedSet` contract.
 
 
-### 4. NavigableSet
+<h3> 4. NavigableSet </h3>
 
 **What is NavigableSet?**
 > `NavigableSet` extends `SortedSet` by formally defining navigation operations over a sorted set.
@@ -5350,7 +4851,7 @@ Most importantly:
 * Introduced in Java 6
 
 
-#### What NavigableSet Adds
+<h4> What NavigableSet Adds </h4>
 
 Navigation methods:
 
@@ -5375,7 +4876,7 @@ These operations are now:
 * Single-operation semantics
 
 
-### 5. Why NavigableSet Was Introduced (Despite Existing Capability)
+<h3> 5. Why NavigableSet Was Introduced (Despite Existing Capability) </h3>
 
 The key reason (very important)
 
@@ -5390,7 +4891,7 @@ Specifically:
 * Adding methods to `SortedSet` would break backward compatibility
 * Java chose to extend the API safely via a new interface
 
-#### What Changed in Java 6
+<h4> What Changed in Java 6 </h4>
 
 * `NavigableSet` was added
 * `TreeSet` was updated to implement `NavigableSet`
@@ -5403,7 +4904,7 @@ This preserved:
 * API clarity
 * Future extensibility
 
-### 6. Summary Table (Version-Accurate)
+<h3> 6. Summary Table (Version-Accurate) </h3>
 
 | Aspect                          | SortedSet    | NavigableSet                  |
 |---------------------------------|--------------|-------------------------------|
@@ -5415,7 +4916,7 @@ This preserved:
 | TreeSet present at introduction | Yes          | Yes (updated to implement it) |
 
 
-### Final Interview-Ready Answer (Concise)
+<h3> Final Interview-Ready Answer (Concise) </h3>
 
 `SortedSet`, introduced in Java 1.2, guarantees only sorted order and basic range views.
 Its primary implementation, `TreeSet`, already existed and was backed by a Red-Black Tree that
@@ -5434,7 +4935,7 @@ backward compatibility. `TreeSet` was then updated to implement `NavigableSet`.
 
 ## Q - What are Fail Fast and Fail Safe Iterators?
 
-### Fail-Fast Iterators
+<h3> Fail-Fast Iterators </h3>
 
 Fail-fast iterators immediately throw a `ConcurrentModificationException` if the
 underlying collection is structurally modified during iteration(except through the
@@ -5453,7 +4954,7 @@ Key points:
 * Not thread-safe
 
 
-### Fail-Safe Iterators
+<h3> Fail-Safe Iterators </h3>
 
 Fail-safe iterators do not throw `ConcurrentModificationException` because they iterate
 over a snapshot or a copy of the collection.
@@ -5482,7 +4983,7 @@ Here is a breakdown of the most common methods:
 
 ---
 
-### 1. Using the "List.of()" Factory Method (Java 9+)
+<h3> 1. Using the "List.of()" Factory Method (Java 9+) </h3>
 
 This is the cleanest and most common way to create a small, fixed-size 
 immutable list from scratch. These collections are truly immutable; attempting
@@ -5493,7 +4994,7 @@ List<String> fruits = List.of("Apple", "Banana", "Cherry");
 
 ```
 
-### 2. Using Stream Collectors (Java 10+)
+<h3> 2. Using Stream Collectors (Java 10+) </h3>
 
 If you are processing data through a stream and want the result 
 to be immutable, use the collector you mentioned:
@@ -5505,7 +5006,7 @@ List<String> immutableList = items.stream()
 
 ```
 
-### 3. Creating a Copy (Java 10+)
+<h3> 3. Creating a Copy (Java 10+) </h3>
 
 If you already have a mutable list and want to create an immutable snapshot of it:
 
@@ -5514,7 +5015,7 @@ List<String> copy = List.copyOf(existingList);
 
 ```
 
-### 4. The "Unmodifiable View" (The Older Way)
+<h3> 4. The "Unmodifiable View" (The Older Way) </h3>
 
 Before Java 9, we used `Collections.unmodifiableList()`. It is important 
 to note that this is a **wrapper**. If the underlying original list changes, 
@@ -5530,7 +5031,7 @@ mutable.add("New Item");
 
 ---
 
-### Comparison of Methods
+<h3> Comparison of Methods </h3>
 
 | Method                            | Java Version | Truly Immutable?     | Allows Nulls? |
 |-----------------------------------|--------------|----------------------|---------------|
@@ -5592,7 +5093,7 @@ cleanup.start();
 A `BlockingQueue` is a thread-safe queue that automatically coordinates producer and consumer threads
 by handling waiting and notification when the queue is empty or full.
 
-### Why was BlockingQueue introduced?
+<h3> Why was BlockingQueue introduced? </h3>
 
 Although Java already provided `synchronized`, `wait()`, and `notify()`, writing correct and reusable
 producer–consumer logic using these low-level primitives was complex and error-prone.
@@ -5607,7 +5108,7 @@ BlockingQueue was introduced to:
 
 In short, it encodes **correct concurrency patterns** so developers don't have to reimplement them.
 
-### How BlockingQueue solves the problem
+<h3> How BlockingQueue solves the problem </h3>
 
 `BlockingQueue` automatically:
 
@@ -5619,9 +5120,9 @@ In short, it encodes **correct concurrency patterns** so developers don't have t
 This removes the need for explicit locks and condition handling.
 
 
-### Core BlockingQueue methods (important)
+<h3> Core BlockingQueue methods (important) </h3>
 
-#### put() — blocking insert
+<h4> put() — blocking insert </h4>
 
 * Inserts an element
 * Waits if the queue is full
@@ -5630,7 +5131,7 @@ This removes the need for explicit locks and condition handling.
 queue.put(item);
 ```
 
-#### take() — blocking retrieval
+<h4> take() — blocking retrieval </h4>
 
 * Removes and returns an element
 * Waits if the queue is empty
@@ -5639,7 +5140,7 @@ queue.put(item);
 queue.take();
 ```
 
-#### offer() — non-blocking insert
+<h4> offer() — non-blocking insert </h4>
 
 * Attempts to insert an element
 * Returns immediately
@@ -5649,7 +5150,7 @@ queue.take();
 boolean added = queue.offer(item);
 ```
 
-#### poll() — non-blocking retrieval
+<h4> poll() — non-blocking retrieval </h4>
 
 * Attempts to retrieve an element
 * Returns immediately
@@ -5667,13 +5168,13 @@ Integer value = queue.poll();
 | `poll()`  | No     | Returns `null`  |
 
 
-### Types of BlockingQueue
+<h3> Types of BlockingQueue </h3>
 
 Here is the breakdown of the 5 most important `BlockingQueue` implementations in `java.util.concurrent`.
 
 ---
 
-### 1. `ArrayBlockingQueue`
+<h3> 1. `ArrayBlockingQueue` </h3>
 
 1. **Size:** **Bounded** (Capacity is fixed at creation and cannot be modified).
 2. **Locks:** **Single `ReentrantLock**` shared by both producers and 
@@ -5688,7 +5189,7 @@ Here is the breakdown of the 5 most important `BlockingQueue` implementations in
 
 ---
 
-### 2. `LinkedBlockingQueue`
+<h3> 2. `LinkedBlockingQueue` </h3>
 
 1. **Size:** **Optionally Bounded** (Defaults to `Integer.MAX_VALUE` if no capacity limit is specified).
 2. **Locks:** **Two Separate Locks** — `putLock` for producers and `takeLock` for consumers.
@@ -5701,7 +5202,7 @@ Here is the breakdown of the 5 most important `BlockingQueue` implementations in
 
 ---
 
-### 3. `PriorityBlockingQueue`
+<h3> 3. `PriorityBlockingQueue` </h3>
 
 1. **Size:** **Strictly Unbounded** (Resizes its array dynamically until heap memory is exhausted).
 2. **Locks:** **Single `ReentrantLock**` with a single `notEmpty` condition (`put()` operations never block
@@ -5715,7 +5216,7 @@ Here is the breakdown of the 5 most important `BlockingQueue` implementations in
 
 ---
 
-### 4. `SynchronousQueue`
+<h3> 4. `SynchronousQueue` </h3>
 
 1. **Size:** **Capacity of 0** (Holds no internal storage/elements).
 2. **Locks:** **Lock-Free / CAS-based** (Uses non-blocking wait queues/stacks under the hood).
@@ -5728,7 +5229,7 @@ Here is the breakdown of the 5 most important `BlockingQueue` implementations in
 
 ---
 
-### 5. `DelayQueue`
+<h3> 5. `DelayQueue` </h3>
 
 1. **Size:** **Strictly Unbounded**.
 2. **Locks:** **Single `ReentrantLock**` with a `Condition` (`available`).
@@ -5741,7 +5242,7 @@ Here is the breakdown of the 5 most important `BlockingQueue` implementations in
 
 ---
 
-### 6. `LinkedTransferQueue` (Java 7+)
+<h3> 6. `LinkedTransferQueue` (Java 7+) </h3>
 
 1. **Size:** **Strictly Unbounded**.
 2. **Locks:** **Lock-Free / CAS-based** (No traditional lock overhead).
@@ -5755,7 +5256,7 @@ Here is the breakdown of the 5 most important `BlockingQueue` implementations in
 
 ---
 
-### Master Comparison Table (All 6 Points)
+<h3> Master Comparison Table (All 6 Points) </h3>
 
 | Queue Name                  | 1. Size            | 2. Lock Mechanism         | 3. FIFO?      | 4. Characteristic                     | 5. Data Structure      | 6. Primary Use Case                 |
 |-----------------------------|--------------------|---------------------------|---------------|---------------------------------------|------------------------|-------------------------------------|
@@ -5850,7 +5351,7 @@ public class PizzaShop {
 The `ExecutorService` framework was introduced (in Java 5) to solve three major problems
 with manual `new Thread()` management:
 
-### 1. Resource Management (The "Thread Explosion" Problem)
+<h3> 1. Resource Management (The "Thread Explosion" Problem) </h3>
 
 Your note about creating 1,000 threads is spot on.
 
@@ -5861,7 +5362,7 @@ Your note about creating 1,000 threads is spot on.
 * **The Fix:** The ExecutorService uses a **Worker Pool**. The threads don't die after a task;
   they go back to the "bench" and wait for the next job.
 
-### 2. Abstraction (The "Producer-Consumer" Problem)
+<h3> 2. Abstraction (The "Producer-Consumer" Problem) </h3>
 
 Before `ExecutorService`, if you wanted to pass tasks to a background thread safely, you had
 to write your own synchronized queue.
@@ -5872,7 +5373,7 @@ to write your own synchronized queue.
   You (the Producer) just `submit()`, and the internal `BlockingQueue` handles the hand-off to
   the Threads (the Consumers) safely.
 
-### 3. Returning Results (The "Void" Problem)
+<h3> 3. Returning Results (The "Void" Problem) </h3>
 
 This is often the most appreciated feature for day-to-day coding.
 
@@ -5884,7 +5385,7 @@ This is often the most appreciated feature for day-to-day coding.
   your dry cleaning. You hold the ticket (Future), and when the work is done, you trade the
   ticket for the result.
 
-### Summary Table
+<h3> Summary Table </h3>
 
 | Feature             | `new Thread()` (The Old Way)               | `ExecutorService` (The New Way) |
 |---------------------|--------------------------------------------|---------------------------------|
@@ -5898,7 +5399,7 @@ This is often the most appreciated feature for day-to-day coding.
 
 ## Q - How do you properly shut down an ExecutorService?
 
-### Why shutdown is required
+<h3> Why shutdown is required </h3>
 
 An `ExecutorService` manages non-daemon threads.
 
@@ -5910,7 +5411,7 @@ If you do not shut it down:
 
 So shutdown is **mandatory** in production code.
 
-### shutdown() — Graceful shutdown
+<h3> shutdown() — Graceful shutdown </h3>
 
 **What it does:**
 
@@ -5932,7 +5433,7 @@ executor.shutdown();
 * When task completion is important
 
 
-### shutdownNow() — Immediate shutdown
+<h3> shutdownNow() — Immediate shutdown </h3>
 
 **What it does**
 
@@ -5958,7 +5459,7 @@ List<Runnable> pending = executor.shutdownNow();
 * Application failure scenarios
 
 
-### awaitTermination() — Wait for shutdown to complete
+<h3> awaitTermination() — Wait for shutdown to complete </h3>
 
 **What it does**
 
@@ -5983,7 +5484,7 @@ executor.awaitTermination(10, TimeUnit.SECONDS);
 >"Wait until everyone is done or time runs out."
 
 
-### Proper shutdown pattern (INTERVIEW GOLD)
+<h3> Proper shutdown pattern (INTERVIEW GOLD) </h3>
 
 ```java
 executor.shutdown(); // graceful
@@ -6019,9 +5520,9 @@ It exists within a process and shares the process's
 resources (Heap memory, File handles, Code segment) while maintaining
 its own private execution context (Stack, Registers, and Program Counter).
 
-### Process — Components
+<h3> Process — Components </h3>
 
-#### What a process owns
+<h4> What a process owns </h4>
 
 🧠 Process Virtual Address Space
 
@@ -6042,9 +5543,9 @@ its own private execution context (Stack, Registers, and Program Counter).
   * Scheduling info
 
 
-### Thread — Components (core focus)
+<h3> Thread — Components (core focus) </h3>
 
-#### What a thread owns (per thread)
+<h4> What a thread owns (per thread) </h4>
 🧠 Execution State
 
 1. Stack
@@ -6060,7 +5561,7 @@ its own private execution context (Stack, Registers, and Program Counter).
 3. Thread Control Block (TCB) ← IMPORTANT
 
 
-### Thread Control Block (TCB)
+<h3> Thread Control Block (TCB) </h3>
 
 The TCB is the OS data structure that describes a thread.
 
@@ -6084,7 +5585,7 @@ ELI5
 >
 >
 
-### What Threads Share (inside the same process)
+<h3> What Threads Share (inside the same process) </h3>
 
 All threads inside one process share:
 
@@ -6096,16 +5597,16 @@ All threads inside one process share:
 This sharing is why threads exist.
 
 
-### Why Threads Are Lightweight (this is critical)
+<h3> Why Threads Are Lightweight (this is critical) </h3>
 
 Threads are lightweight because they reuse almost everything.
 
-#### 1. No separate address space
+<h4> 1. No separate address space </h4>
 
 * Process creation → new virtual memory
 * Thread creation → reuse existing memory
 
-#### 2. Cheaper context switching
+<h4> 2. Cheaper context switching </h4>
 
 Process switch requires:
 
@@ -6121,19 +5622,19 @@ Thread switch requires only:
 Much less OS work.
 
 
-#### 3. Minimal metadata
+<h4> 3. Minimal metadata </h4>
 
 * PCB = large, complex
 * TCB = small and simple
 
 
-#### 4. Fast communication
+<h4> 4. Fast communication </h4>
 
 * Processes → IPC (pipes, sockets)
 * Threads → shared variables (heap)
 
 
-### Interview-perfect closing line (memorize)
+<h3> Interview-perfect closing line (memorize) </h3>
 
 Threads are lightweight because they share the process's memory and resources, requiring only a stack,
 registers, and a Thread Control Block, making creation and context switching much cheaper than processes.
@@ -6142,7 +5643,7 @@ registers, and a Thread Control Block, making creation and context switching muc
 
 ![threads vs process](../images/threads-vs-process.png)
 
-### Resources:
+<h3> Resources: </h3>
 
 * https://www.scaler.com/topics/course/free-operating-system-course/video/1443/
 
@@ -6182,7 +5683,7 @@ Atomic Read/Write Operations
    * Lock acquisition and release are atomic operations
 
 
-### Resources
+<h3> Resources </h3>
 
 * https://www.oreilly.com/library/view/the-java-r-language/9780133260335/ch17lev1sec7.html
 
@@ -6194,7 +5695,7 @@ Deadlock is a situation where two or more threads are stuck forever, because eac
 one is waiting for the other to release something.
 
 
-### Resources:
+<h3> Resources: </h3>
 
 * https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/quiz/4476614#notes
 
@@ -6205,7 +5706,7 @@ one is waiting for the other to release something.
 The `synchronized` keyword provides **Mutual Exclusion and Visibility for critical sections of code**.
 It ensures that only one thread can execute a protected block of code at a time, preventing race conditions.
 
-### Resources
+<h3> Resources </h3>
 
 * https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11200008#notes
 
@@ -6220,7 +5721,7 @@ or unpredictable results.
 In essence, it is the problem of controlling concurrent access to shared data so that data
 integrity and correctness are preserved.
 
-### Resources
+<h3> Resources </h3>
 
 * https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
 
@@ -6233,7 +5734,7 @@ safely, and signal events without busy-waiting or race conditions.
 
 Below are the primary, interview-relevant mechanisms in Java, grouped by abstraction level.
 
-### 1. wait(), notify(), notifyAll() (Intrinsic Locks)
+<h3> 1. wait(), notify(), notifyAll() (Intrinsic Locks) </h3>
 
 These methods enable threads to communicate via object monitors.
 
@@ -6263,7 +5764,7 @@ Cons:
 * Error-prone (missed signals, spurious wakeups)
 
 
-### 2. volatile Variables (Visibility-Based Communication)
+<h3> 2. volatile Variables (Visibility-Based Communication) </h3>
 
 Used when one thread needs to **signal state changes** to others.
 
@@ -6280,7 +5781,7 @@ volatile boolean stopped = false;
 * Simple flags (stop signals, readiness indicators)
 
 
-### 3. Lock and Condition (java.util.concurrent.locks)
+<h3> 3. Lock and Condition (java.util.concurrent.locks) </h3>
 
 A more flexible alternative to `synchronized` + `wait/notify`.
 
@@ -6304,7 +5805,7 @@ try {
 * Better control and readability
 
 
-### 4. Blocking Queues (`BlockingQueue`)
+<h3> 4. Blocking Queues (`BlockingQueue`) </h3>
 
 High-level, built-in inter-thread communication.
 
@@ -6323,7 +5824,7 @@ BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10);
 * Eliminates manual synchronization
 
 
-### 5. Semaphores
+<h3> 5. Semaphores </h3>
 
 Used to **control access to a limited number of resources**.
 
@@ -6343,7 +5844,7 @@ Semaphore semaphore = new Semaphore(3);
 * Rate limiting
 
 
-### 6. Latches and Barriers
+<h3> 6. Latches and Barriers </h3>
 
 **CountDownLatch**
 
@@ -6356,7 +5857,7 @@ Semaphore semaphore = new Semaphore(3);
 * All threads wait until everyone arrives
 
 
-### 7. Atomic Variables
+<h3> 7. Atomic Variables </h3>
 
 Used for **lock-free communication** using CAS (Compare-And-Swap).
 
@@ -6371,7 +5872,7 @@ counter.incrementAndGet();
 * Non-blocking coordination
 
 
-### 8. Thread.join()
+<h3> 8. Thread.join() </h3>
 
 Allows one thread to **wait for another thread to complete**.
 
@@ -6383,7 +5884,7 @@ t.join();
 
 * Dependency sequencing
 
-### Summary Table (Interview Gold)
+<h3> Summary Table (Interview Gold) </h3>
 
 | Mechanism          | Communication Style   | Blocking | Level  |
 |--------------------|-----------------------|----------|--------|
@@ -6398,7 +5899,7 @@ t.join();
 | `join()`           | Completion dependency | Yes      | Low    |
 
 
-### Resources
+<h3> Resources </h3>
 
 * https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
 
@@ -6410,7 +5911,7 @@ t.join();
 
 **Key Points:**
 
-### 1. The Golden Rule: Throughput, Not Latency
+<h3> 1. The Golden Rule: Throughput, Not Latency </h3>
 
 * **Throughput (YES):** Virtual Threads allow you to handle **Millions** of concurrent connections
   instead of thousands. This massively increases system throughput (requests per second).
@@ -6421,7 +5922,7 @@ t.join();
 * **Key Phrase:** "Virtual threads scale concurrency, not speed."
 
 
-### 2. CPU-Bound Tasks = No Benefit
+<h3> 2. CPU-Bound Tasks = No Benefit </h3>
 
 * **Why:** Virtual threads rely on yielding (unmounting) when they hit a blocking I/O
   operation (like waiting for a DB query).
@@ -6432,7 +5933,7 @@ t.join();
 * **Advice:** Stick to Platform Threads for heavy computation (e.g., video processing, encryption).
 
 
-### 3. The "Pinning" Problem (Critical Interview Topic)
+<h3> 3. The "Pinning" Problem (Critical Interview Topic) </h3>
 
 This is the most common "gotcha" in Virtual Threads.
 
@@ -6443,7 +5944,7 @@ This is the most common "gotcha" in Virtual Threads.
   JDK team is working on fixing this limitation.
 
 
-### 4. Do NOT Pool Virtual Threads
+<h3> 4. Do NOT Pool Virtual Threads </h3>
 
 * **Old Habit:** With Platform threads, we used `ExecutorService` pools because creating threads was
   expensive (2MB memory + OS calls).
@@ -6452,7 +5953,7 @@ This is the most common "gotcha" in Virtual Threads.
 
 * **Code:** Use `Executors.newVirtualThreadPerTaskExecutor()`, never `newFixedThreadPool()`.
 
-### 5. ThreadLocal Explosion
+<h3> 5. ThreadLocal Explosion </h3>
 
 * **The Danger:** In the old world, we had 200 threads, so 200 `ThreadLocal` variables were fine.
 
@@ -6462,7 +5963,7 @@ This is the most common "gotcha" in Virtual Threads.
 * **Advice:** Use `ScopedValues` (Preview feature) instead of `ThreadLocal` for passing context.
 
 
-### Resources
+<h3> Resources </h3>
 
 * https://marcelclasses.udemy.com/course/java-multithreading-concurrency-performance-optimization/learn/lecture/11199990#notes
 
@@ -6480,7 +5981,7 @@ This is the most common "gotcha" in Virtual Threads.
 
 ## Q - What is CopyOnWriteArrayList and Why is it named CopyOnWriteArrayList, why don't they use something like Collections.synchronizedList()?
 
-### CopyOnWriteArrayList
+<h3> CopyOnWriteArrayList </h3>
 
 Whenever a modification operation is performed on the Array list, the existing array is copied internally,
 the modification operation is performed on the new copy and then the new array is returned.
@@ -6489,7 +5990,7 @@ The old array will be discarded. Hence, the name, Copy on write.
 Modification operations include add, addAll, remove, removeAll, addIf, removeIf, subList etc.
 
 
-### Collections.synchronizedList
+<h3> Collections.synchronizedList </h3>
 
 `Collections.synchronizedList()` provides a synchronized (thread-safe) list backed by the specified list.
 
@@ -6574,7 +6075,7 @@ Therefore, they are **not guaranteed**.
 
 ## Q - Explain stack and heap memory regions in the context of threads?
 
-### 1. Stack Memory (Thread-specific)
+<h3> 1. Stack Memory (Thread-specific) </h3>
 
 The stack stores the execution state of a thread.
 
@@ -6606,7 +6107,7 @@ void foo() {
 Each thread has its own stack, so local variables are isolated by default.
 
 
-### 2. Heap Memory (Shared across threads)
+<h3> 2. Heap Memory (Shared across threads) </h3>
 
 The heap stores objects and shared data that can be accessed by multiple threads.
 
@@ -6646,7 +6147,7 @@ class Counter {
 * Needs synchronization if mutable
 
 
-### 3. Metaspace (not in heap)
+<h3> 3. Metaspace (not in heap) </h3>
 
 **What is Metaspace?**
 
@@ -6678,14 +6179,14 @@ class A {
 * Actual value of `x` and objects containing `y`
 
 
-### Key clarification (interview-critical)
+<h3> Key clarification (interview-critical) </h3>
 
 * ❌ Static variables are NOT stored in Metaspace
 * ✅ Static variable values are stored on the heap
 * ✅ Only metadata is in Metaspace
 
 
-### 4. Why this matters for threads
+<h3> 4. Why this matters for threads </h3>
 
 * Stack → isolated → safe
 * Heap → shared → needs synchronization
@@ -6698,7 +6199,7 @@ This explains:
 * Why static fields cause race conditions
 
 
-### Interview-perfect closing line (memorize)
+<h3> Interview-perfect closing line (memorize) </h3>
 
 In a multithreaded application, each thread has its own stack for execution state, all threads
 share the heap where objects and static variable values reside, and class metadata is stored
@@ -6711,7 +6212,7 @@ separately in Metaspace.
 
 ## Q - Explain how AtomicInteger works?
 
-### 1. The Core Concept: "Optimistic Locking"
+<h3> 1. The Core Concept: "Optimistic Locking" </h3>
 
 * **Synchronized (Pessimistic):** "I assume someone else is going to mess with this
   variable, so I will lock the door before I even touch it. No one enters
@@ -6722,7 +6223,7 @@ separately in Metaspace.
 
 ---
 
-### 2. The Hardware Magic: CAS (Compare-And-Swap)
+<h3> 2. The Hardware Magic: CAS (Compare-And-Swap) </h3>
 
 `AtomicInteger` does not use Java locks. It uses a specific **CPU instruction** called
 **CAS** (Compare-And-Swap).
@@ -6752,7 +6253,7 @@ if (V == E) {
 
 ---
 
-### 3. The "Retry Loop" (Spin Lock)
+<h3> 3. The "Retry Loop" (Spin Lock) </h3>
 
 This is what happens inside `incrementAndGet()` when two threads compete.
 
@@ -6786,7 +6287,7 @@ It does **NOT** sleep or block. It enters a `while` loop:
 
 ---
 
-### 4. The Code (Under the Hood)
+<h3> 4. The Code (Under the Hood) </h3>
 
 If you open the source code of `AtomicInteger` (Java 8 version for clarity), you see this pattern
 using the infamous `Unsafe` class:
@@ -6811,7 +6312,7 @@ public final int getAndIncrement() {
 
 ```
 
-### 5. Pros & Cons (Interview Gold)
+<h3> 5. Pros & Cons (Interview Gold) </h3>
 
 | Feature             | Synchronized             | AtomicInteger (CAS)           |
 |---------------------|--------------------------|-------------------------------|
@@ -6983,7 +6484,7 @@ public class Example14 {
 }
 ```
 
-### The problem we are solving using wait() and notify()
+<h3> The problem we are solving using wait() and notify() </h3>
 
 In multithreaded programs, threads often need to coordinate.
 
@@ -7004,7 +6505,7 @@ Core idea (in simple words)
 > wait() makes a thread pause and release the lock until another thread signals it.
 notify() or notifyAll() are used to signal waiting threads that the state has changed.
 
-### Very important rules (must know)
+<h3> Very important rules (must know) </h3>
 
 * `wait()`, `notify()`, and `notifyAll()` must be called inside a synchronized context
 * They work on the same object's lock (monitor)
@@ -7013,7 +6514,7 @@ notify() or notifyAll() are used to signal waiting threads that the state has ch
 * `notify()` and `notifyAll()` do NOT release the lock immediately
 * Woken threads must re-acquire the same lock before continuing
 
-### The shared resource
+<h3> The shared resource </h3>
 
 ```java
 class Resource {
@@ -7027,13 +6528,13 @@ class Resource {
   * `false` → consumer must wait
 
 
-### Producer logic (`put()`)
+<h3> Producer logic (`put()`) </h3>
 
 ```java
 public synchronized void put(int i) {
 ```
 
-#### Step 1: Check the condition
+<h4> Step 1: Check the condition </h4>
 
 ```java
 while (hasData) {
@@ -7052,7 +6553,7 @@ while (hasData) {
 * Multiple threads may wake up
 * Condition must always be re-checked
 
-#### Step 2: Produce data
+<h4> Step 2: Produce data </h4>
 
 ```java
 data = i;
@@ -7063,7 +6564,7 @@ System.out.println("Data produced: " + data);
 Now data is available.
 
 
-#### Step 3: Notify waiting threads
+<h4> Step 3: Notify waiting threads </h4>
 
 ```java
 notify();
@@ -7078,13 +6579,13 @@ Key points:
 * It must first re-acquire the same lock
 * Which thread wakes up is not guaranteed
 
-### Consumer logic (`get()`)
+<h3> Consumer logic (`get()`) </h3>
 
 ```java
 public synchronized void get() {
 ```
 
-#### Step 1: Check the condition
+<h4> Step 1: Check the condition </h4>
 
 ```java
 while (!hasData) {
@@ -7095,7 +6596,7 @@ while (!hasData) {
 * If no data exists, consumer waits
 * Lock is released so producer can run
 
-#### Step 2: Consume data
+<h4> Step 2: Consume data </h4>
 
 ```java
 System.out.println("Data consumed: " + data);
@@ -7104,7 +6605,7 @@ hasData = false;
 
 Data is now consumed.
 
-#### Step 3: Notify waiting threads
+<h4> Step 3: Notify waiting threads </h4>
 
 ```java
 notify();
@@ -7114,7 +6615,7 @@ Again:
 > `notify()` wakes **one thread waiting on the same object's lock**, typically the producer.
 
 
-### `notify()` vs `notifyAll()` (critical distinction)
+<h3> `notify()` vs `notifyAll()` (critical distinction) </h3>
 
 notify()
 
@@ -7134,14 +6635,14 @@ notifyAll()
 notifyAll(); // wakes all threads waiting on this object's monitor
 ```
 
-### Limitations of `wait()` / `notify()`
+<h3> Limitations of `wait()` / `notify()` </h3>
 
 * No fairness guarantee
 * Single waiting queue per object
 * Easy to misuse
 * Hard to scale with many threads
 
-### Thread starvation using `wait()` and `notify()`
+<h3> Thread starvation using `wait()` and `notify()` </h3>
 
 The following is an example of thread starvation using `wait()` and `notify()`/`notifyAll()`.
 
@@ -7340,7 +6841,7 @@ This behavior is expected, and it reveals two very important concurrency concept
 * `notify()` / `notifyAll()` does NOT guarantee fairness
 * Sleeping while holding a lock causes thread starvation
 
-### What you are observing
+<h3> What you are observing </h3>
 
 You have:
 * 1 Producer
@@ -7351,7 +6852,7 @@ But only `c2` consumes all items.
 
 This feels wrong at first, but the JVM is behaving correctly.
 
-### Important concept: `notifyAll()` ≠ fairness
+<h3> Important concept: `notifyAll()` ≠ fairness </h3>
 
 Even though you use:
 
@@ -7377,7 +6878,7 @@ To fix this, you must stop using `synchronized` and switch to `ReentrantLock` wi
 This forces the lock to act like a polite queue (FIFO - First In, First Out). If c1 has been waiting longer,
 c1 will get the lock next, guaranteed.
 
-### Revised Code (Fair Version) using ReentrantLock
+<h3> Revised Code (Fair Version) using ReentrantLock </h3>
 
 ```java
 class Resource {
@@ -7479,12 +6980,12 @@ public class Example14 {
 }
 ```
 
-### How threads communicate using Lock and Condition
+<h3> How threads communicate using Lock and Condition </h3>
 
 This example demonstrates thread coordination between one producer and multiple
 consumers using `ReentrantLock` and `Condition`.
 
-### What problem this code solves
+<h3> What problem this code solves </h3>
 
 We have:
 
@@ -7499,9 +7000,9 @@ Rules:
 * Only one thread may access the resource at a time
 * No thread should waste CPU by busy waiting
 
-### Why Lock and Condition are used together
+<h3> Why Lock and Condition are used together </h3>
 
-#### `Lock` → mutual exclusion (who can enter)
+<h4> `Lock` → mutual exclusion (who can enter) </h4>
 
 ```java
 private final Lock lock = new ReentrantLock(true);
@@ -7522,7 +7023,7 @@ Without `Lock`:
 
 👉 **Lock ensures only one thread enters the critical section at a time**.
 
-#### `Condition` → thread coordination (who should wait and wake)
+<h4> `Condition` → thread coordination (who should wait and wake) </h4>
 
 ```java
 private final Condition condition = lock.newCondition();
@@ -7545,7 +7046,7 @@ Without Condition:
 
 👉 **Condition enables threads to wait until a specific condition is met**.
 
-### Why both are required (important)
+<h3> Why both are required (important) </h3>
 
 | Concern              | Solved by             |
 |----------------------|-----------------------|
@@ -7560,9 +7061,9 @@ Without Condition:
 
 They are designed to be used **together**.
 
-### Step-by-step flow (ELI5)
+<h3> Step-by-step flow (ELI5) </h3>
 
-#### Producer (`put()`)
+<h4> Producer (`put()`) </h4>
 
 1. Acquires the lock (enters the room)
 2. If data already exists:
@@ -7573,7 +7074,7 @@ They are designed to be used **together**.
   * Wakes all waiting consumers
 5. Releases the lock
 
-#### Consumer (`get()`)
+<h4> Consumer (`get()`) </h4>
 
 1. Acquires the lock
 2. If no data exists:
@@ -7584,7 +7085,7 @@ They are designed to be used **together**.
   * Wakes producer and other consumers
 5. Releases the lock
 
-### Why while is used instead of if
+<h3> Why while is used instead of if </h3>
 
 ```java
 while (!hasData) {
@@ -7600,7 +7101,7 @@ Because:
 
 This is **mandatory best practice**.
 
-### Why signalAll() is used instead of signal()
+<h3> Why signalAll() is used instead of signal() </h3>
 
 Because:
 
@@ -7610,7 +7111,7 @@ Because:
 
 Fair lock + `signalAll()` prevents starvation.
 
-### Why fairness (new ReentrantLock(true)) matters
+<h3> Why fairness (new ReentrantLock(true)) matters </h3>
 
 ```java
 new ReentrantLock(true)
@@ -7635,7 +7136,7 @@ using heavy locks (synchronized). It is the foundation of **Optimistic Locking**
 
 It powers classes like `AtomicInteger`, `AtomicReference`, and `ConcurrentHashMap`.
 
-### 1. The Mechanics (The 3 Operands)
+<h3> 1. The Mechanics (The 3 Operands) </h3>
 
 The CPU instruction takes three arguments:
 
@@ -7643,7 +7144,7 @@ The CPU instruction takes three arguments:
 2. **E (Expected Value):** What you *think* is currently there.
 3. **N (New Value):** What you want to write.
 
-### 2. The Atomic Operation
+<h3> 2. The Atomic Operation </h3>
 
 The CPU performs this logic as a **single, indivisible step**:
 
@@ -7657,7 +7158,7 @@ if (Value_at_Memory_V == Expected_E) {
 
 ```
 
-### 3. The Retry Loop (Spin Lock)
+<h3> 3. The Retry Loop (Spin Lock) </h3>
 
 Because CAS is optimistic, it might fail if another thread modified the variable 
 while we were calculating. Therefore, Java wraps the CAS instruction in a `while` loop 
@@ -7681,7 +7182,7 @@ public int incrementAndGet() {
 }
 ```
 
-### 4. Pros & Cons (Summary)
+<h3> 4. Pros & Cons (Summary) </h3>
 
 | Feature          | CAS (Optimistic)                                       | Locking (Pessimistic)                   |
 |------------------|--------------------------------------------------------|-----------------------------------------|
@@ -7708,7 +7209,7 @@ It brings structure to concurrent code the same way structured programming broug
 
 ---
 
-### The Core Problem It Solves
+<h3> The Core Problem It Solves </h3>
 
 Traditional Java concurrency (ExecutorService, CompletableFuture) allows you to:
 
@@ -7735,7 +7236,7 @@ There is **no lifecycle boundary** tying these tasks together.
 
 ---
 
-### The Structured Concurrency Principle
+<h3> The Structured Concurrency Principle </h3>
 
 A parent task:
 
@@ -7752,7 +7253,7 @@ Just like method calls:
 
 ---
 
-###  The API: `StructuredTaskScope`
+<h3>  The API: `StructuredTaskScope` </h3>
 
 Structured Concurrency is built around:
 
@@ -7776,7 +7277,7 @@ try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
 ```
 
 
-### What Just Happened?
+<h3> What Just Happened? </h3>
 
 Inside that scope:
 
@@ -7790,7 +7291,7 @@ This is lifecycle containment.
 
 ---
 
-###  Why This Is Powerful
+<h3>  Why This Is Powerful </h3>
 
 Without structured concurrency:
 
@@ -7808,13 +7309,13 @@ With structured concurrency:
 
 ---
 
-###  Relationship with Virtual Threads
+<h3>  Relationship with Virtual Threads </h3>
 
 Structured concurrency  uses virtual threads by default
 
 ---
 
-### Two Common Policies
+<h3> Two Common Policies </h3>
 
 **1 ShutdownOnFailure**
 
@@ -7831,7 +7332,7 @@ Useful for:
 
 ---
 
-### Compared to CompletableFuture
+<h3> Compared to CompletableFuture </h3>
 
 | CompletableFuture        | Structured Concurrency |
 |--------------------------|------------------------|
@@ -7884,7 +7385,7 @@ specifically to resolve these issues.
 
 Here are the technical limitations of `Future` and how `CompletableFuture` addresses them.
 
-### 1. The Blocking Problem (`get()`)
+<h3> 1. The Blocking Problem (`get()`) </h3>
 
 * **Issue with Future:** The only way to retrieve the result from a `Future` is to call the `.get()` method. 
    This method is **blocking**. The thread calling `.get()` is forced to wait (idle) until the 
@@ -7895,7 +7396,7 @@ Here are the technical limitations of `Future` and how `CompletableFuture` addre
    that the system automatically executes once the result is available. The main thread remains unblocked.
 
 
-### 2. Lack of Composition (Chaining)
+<h3> 2. Lack of Composition (Chaining) </h3>
 
 * **Issue with Future:** You cannot create a pipeline of asynchronous steps. If you want to take the 
    result of `Future A` and pass it as input to `Future B`, you must manually block on `A.get()`, retrieve 
@@ -7906,7 +7407,7 @@ Here are the technical limitations of `Future` and how `CompletableFuture` addre
    the input to the next stage without any blocking code in between.
 
 
-### 3. Combining Multiple Futures
+<h3> 3. Combining Multiple Futures </h3>
 
 * **Issue with Future:** There is no native API to manage multiple futures simultaneously. 
    If you spawn 5 independent tasks and want to run a final task only when **all** of them are finished, 
@@ -7918,7 +7419,7 @@ Here are the technical limitations of `Future` and how `CompletableFuture` addre
         as **any one** of the input futures completes.
 
 
-### 4. No Exception Handling
+<h3> 4. No Exception Handling </h3>
 
 * **Issue with Future:** If an exception occurs inside the asynchronous task, there is no way to 
    handle it gracefully within the future object itself. The exception is trapped until you 
@@ -7930,7 +7431,7 @@ Here are the technical limitations of `Future` and how `CompletableFuture` addre
    without crashing.
 
 
-### 5. Cannot Be Manually Completed
+<h3> 5. Cannot Be Manually Completed </h3>
 
 * **Issue with Future:** A `Future` represents the result of a background task submitted to 
    an `ExecutorService`. It is passive; you cannot externally force a value into it. 
@@ -7941,7 +7442,7 @@ Here are the technical limitations of `Future` and how `CompletableFuture` addre
    modern `Future` workflow.
 
 
-### Summary Table
+<h3> Summary Table </h3>
 
 | Limitation in Future                      | Solution in CompletableFuture                            |
 |-------------------------------------------|----------------------------------------------------------|
@@ -7970,7 +7471,7 @@ But it must have **only one abstract method**.
 
 Functional Interfaces are the foundation of lambda expressions and method references in Java.
 
-### Examples of Functional Interfaces in Java
+<h3> Examples of Functional Interfaces in Java </h3>
 
 1. Runnable - `run()`
 2. Callable - `call()`
@@ -8031,7 +7532,7 @@ Java resolves method conflicts from multiple interfaces using well-defined rules
 introduced primarily with default methods (Java 8).
 
 
-### 1. No Conflict for Abstract Methods (Pre–Java 8)
+<h3> 1. No Conflict for Abstract Methods (Pre–Java 8) </h3>
 
 If multiple interfaces declare the same abstract method:
 
@@ -8055,7 +7556,7 @@ class C implements A, B {
 * Method signatures are identical
 
 
-### 2. Class Always Wins over Interface
+<h3> 2. Class Always Wins over Interface </h3>
 
 If a class (or superclass) provides a concrete implementation:
 
@@ -8081,7 +7582,7 @@ class C extends Base implements A {}
 >
 
 
-### 3. Conflict Between Default Methods (Diamond Problem)
+<h3> 3. Conflict Between Default Methods (Diamond Problem) </h3>
 
 If two interfaces define the **same default method**:
 
@@ -8118,7 +7619,7 @@ class C implements A, B {
 >
 
 
-### 4. Interface Inheritance: Most Specific Default Wins
+<h3> 4. Interface Inheritance: Most Specific Default Wins </h3>
 
 If one interface extends another:
 
@@ -8142,7 +7643,7 @@ class C implements B {}
 > Rule: Subinterface > Superinterface
 
 
-### 5. Abstract vs Default Method
+<h3> 5. Abstract vs Default Method </h3>
 
 If one interface provides a default method and another declares it abstract:
 
@@ -8164,7 +7665,7 @@ class C implements A, B {
 * Abstract declaration forces implementation
 
 
-### 6. Static Methods in Interfaces
+<h3> 6. Static Methods in Interfaces </h3>
 
 ```java
 interface A {
@@ -8182,7 +7683,7 @@ interface B {
 * Static methods are **not inherited**
 * Must be called using interface name
 
-### Conflict Resolution Priority (Memory Aid)
+<h3> Conflict Resolution Priority (Memory Aid) </h3>
 
 ```text
 Class
@@ -8192,7 +7693,7 @@ Subinterface
 Interface
 ```
 
-### Interview-Ready One-Liner
+<h3> Interview-Ready One-Liner </h3>
 
 > Java resolves multiple interface method conflicts by giving priority to
 > class implementations, requiring explicit overrides for conflicting default methods, and selecting
@@ -8206,13 +7707,13 @@ Interface
 
 The primary reason default methods were introduced in Java 8 was Backward Compatibility.
 
-### The Problem (Before Java 8)
+<h3> The Problem (Before Java 8) </h3>
 
 In previous versions of Java, if you modified an interface (e.g., added a new method),
 you broke **every single class** that implemented that interface. All those classes would fail to
 compile until they implemented the new method.
 
-### The Real-World Scenario
+<h3> The Real-World Scenario </h3>
 
 When Java 8 introduced Streams (`.stream()`), the architects wanted to add
 the `stream()` method to the standard Collection interface so that every
@@ -8223,12 +7724,12 @@ the `stream()` method to the standard Collection interface so that every
 * With Default Methods: The `Collection` interface could provide a default implementation
   of `stream()`, so existing classes continued to work without any changes.
 
-### Secondary Benefit: "Optional" Methods
+<h3> Secondary Benefit: "Optional" Methods </h3>
 
 Before Java 8, interfaces were strict: if an interface had 10 methods, you had to write code for
 all 10, even if you only needed one.
 
-#### The Classic "Mouse Listener" Problem
+<h4> The Classic "Mouse Listener" Problem </h4>
 
 Imagine you are writing a UI app and want to detect a mouse click. You use the `MouseListener` interface.
 
@@ -8244,7 +7745,7 @@ interface MouseListener {
 }
 ```
 
-#### 1. The "Old Way" (Painful)
+<h4> 1. The "Old Way" (Painful) </h4>
 
 Because the interface rules were strict, your class became filled with "dummy" empty methods
 just to satisfy the compiler.
@@ -8264,7 +7765,7 @@ class MyButtonHandler implements MouseListener {
 }
 ```
 
-#### 2. The "New Way" (With Default Methods)
+<h4> 2. The "New Way" (With Default Methods) </h4>
 
 With Java 8, the interface creator can mark those less-common methods as default with an empty body `{}`.
 This tells the compiler: "If the class doesn't implement this, just do nothing. Don't throw an error."
@@ -8307,7 +7808,7 @@ other classes may extend or implement it.
 
 In simple terms: A parent class decides exactly who its children are.
 
-### 1. The Syntax
+<h3> 1. The Syntax </h3>
 
 You use the `sealed` keyword to define the class and the `permits` keyword to list the allowed subclasses.
 
@@ -8323,7 +7824,7 @@ public non-sealed class Square extends Shape { }
 ```
 
 
-### 2. The Three Rules for Subclasses
+<h3> 2. The Three Rules for Subclasses </h3>
 
 Every class that extends a sealed class must specify how it relates to inheritance.
 It must choose exactly one of these three modifiers:
@@ -8333,7 +7834,7 @@ It must choose exactly one of these three modifiers:
 * `non-sealed`: "I am open." It breaks the seal and allows anyone to extend it from this point down.
 
 
-### 3. Why use them? (The "Killer Feature")
+<h3> 3. Why use them? (The "Killer Feature") </h3>
 
 The biggest advantage is Exhaustive Pattern Matching in switch statements.
 
@@ -8388,7 +7889,7 @@ This allows API designers to put the helper tools inside the interface itself, k
   namespaced under the interface name. They do not hold state, making them
   cheap in terms of memory and performance.
 
-### Important Distinction: No Inheritance
+<h3> Important Distinction: No Inheritance </h3>
 
 Unlike `default` methods, static methods in interfaces are NOT inherited.
 
@@ -8458,7 +7959,7 @@ to combine multiple Predicate conditions into a single, complex logical test.
 It allows you to take small, simple logic units and "glue" them together using
 logical operators like `AND`, `OR`, and `NOT`.
 
-### How it works
+<h3> How it works </h3>
 
 The Predicate interface contains default methods that let you join them:
 
@@ -8466,7 +7967,7 @@ The Predicate interface contains default methods that let you join them:
 * `p1.or(p2)` - Returns a predicate that is true if either is true.
 * `p1.negate()` - Returns the opposite (inverse) of the predicate.
 
-### Code Example
+<h3> Code Example </h3>
 
 Imagine you want to filter a list of names. You have two rules:
 
@@ -8519,14 +8020,14 @@ in Java 8. It allows you to combine multiple functions into a single processing 
 
 This is widely used to create complex data transformations from small, reusable steps.
 
-### The Methods
+<h3> The Methods </h3>
 
 There are two default methods used for chaining:
 
 * `andThen(after)`: Runs the current function first, and then uses its result as input for the next function.
 * `compose(before)`: Runs the other function first, and then uses its result as input for the current function.
 
-### Code Example
+<h3> Code Example </h3>
 
 Imagine a data pipeline: Input → Multiply by 2 → Add 10 → Result.
 
@@ -8560,7 +8061,7 @@ public class FunctionJoinExample {
 }
 ```
 
-### Visualizing andThen vs compose
+<h3> Visualizing andThen vs compose </h3>
 
 | Method  | 	Syntax         | 	Execution Order | 	Math Equivalent |
 |---------|-----------------|------------------|------------------|
@@ -8797,7 +8298,7 @@ to **Metaspace**, and exactly where your data lives now.
 
 ---
 
-### 1. The Old World: PermGen (Java 7 and older)
+<h3> 1. The Old World: PermGen (Java 7 and older) </h3>
 
 In older versions of Java, the JVM had a memory area called **PermGen**. It was a special part
 of the Heap (technically separate, but contiguous) where the JVM stored "permanent" data that
@@ -8808,26 +8309,26 @@ the running program didn't modify often.
   too many huge static maps, you would crash with the infamous `java.lang.OutOfMemoryError: PermGen space`.
   Tuning this size (`-XX:MaxPermSize`) was a headache for developers.
 
-### 2. The New World: Metaspace (Java 8+)
+<h3> 2. The New World: Metaspace (Java 8+) </h3>
 
 In Java 8, Oracle completely removed PermGen. It was replaced by a new memory area called **Metaspace**.
 
-#### Key Difference: Location
+<h4> Key Difference: Location </h4>
 
 * **PermGen** lived inside the JVM's pre-allocated memory.
 * **Metaspace** lives in **Native Memory** (OS Memory). This means it is **not** part of the
   Java Heap. It is allocated directly from the RAM available on the server, outside the
   JVM's specific constraints.
 
-### 3. Answering Your Specific Questions
+<h3> 3. Answering Your Specific Questions </h3>
 
-#### "Where do Class Definitions live?"
+<h4> "Where do Class Definitions live?" </h4>
 
 **Answer: Metaspace (Native Memory).**
 The metadata that describes a class (methods, bytecode, field descriptions) lives here.
 Because Metaspace uses native memory, it can grow dynamically as long as the underlying OS has RAM available.
 
-#### "Where do Static Variables live?"
+<h4> "Where do Static Variables live?" </h4>
 
 **Answer: The Heap.**
 This is a critical distinction and a common interview trap.
@@ -8840,7 +8341,7 @@ This is a critical distinction and a common interview trap.
 
 ---
 
-### Comparison: PermGen vs. Metaspace
+<h3> Comparison: PermGen vs. Metaspace </h3>
 
 | Feature                | PermGen (Java 7)            | Metaspace (Java 8+)                       |
 |------------------------|-----------------------------|-------------------------------------------|
@@ -8853,7 +8354,7 @@ This is a critical distinction and a common interview trap.
 
 ---
 
-### 4. What happens if Metaspace fills up?
+<h3> 4. What happens if Metaspace fills up? </h3>
 
 Even though Metaspace is "dynamic," it is not infinite. Here is the chain of events:
 
@@ -8867,14 +8368,14 @@ Even though Metaspace is "dynamic," it is not infinite. Here is the chain of eve
 4. **The Crash:** If the GC runs and *cannot* free up enough space for new class metadata, the JVM throws:
    `java.lang.OutOfMemoryError: Metaspace`
 
-#### Common Causes of Metaspace OOM:
+<h4> Common Causes of Metaspace OOM: </h4>
 
 * **Leaking ClassLoaders:** Frequent hot-deployments in servers (like Tomcat) where old
   versions of the application (and their classes) aren't fully unloaded.
 * **Dynamic Class Generation:** Frameworks like Hibernate, Spring, or Mockito generate proxy
   classes on the fly. If they generate too many without cleaning up, Metaspace fills up.
 
-#### Summary for the Interview
+<h4> Summary for the Interview </h4>
 
 * **PermGen** is gone.
 * **Class Metadata** is in **Metaspace** (Native Memory).
@@ -8894,7 +8395,7 @@ SRC: https://www.geeksforgeeks.org/java/how-jvm-works-jvm-architecture/
 
 Think of the JVM as a factory that takes Java bytecode and safely runs it on your computer.
 
-### 1. JVM Language Class (.class file)
+<h3> 1. JVM Language Class (.class file) </h3>
 
 **What it is (ELI5)**
 
@@ -8905,7 +8406,7 @@ This is the instruction manual written in a language the JVM understands (byteco
 * JVM reads this file
 
 
-### 2. Class Loader — “The Librarian”
+<h3> 2. Class Loader — “The Librarian” </h3>
 
 **What it does**
 
@@ -8928,9 +8429,9 @@ There are multiple loaders, but conceptually:
 * Bootstrap → core Java (String, Object)
 * Application → your code
 
-### 3. JVM Memory (Big Box in Diagram)
+<h3> 3. JVM Memory (Big Box in Diagram) </h3>
 
-#### 3.1 Method Area — "Class Blueprint Shelf"
+<h4> 3.1 Method Area — "Class Blueprint Shelf" </h4>
 
 **What it stores**
 
@@ -8953,7 +8454,7 @@ There are multiple loaders, but conceptually:
 
 ---
 
-#### 3.2 Heap — "Big Toy Box"
+<h4> 3.2 Heap — "Big Toy Box" </h4>
 
 **What it stores**
 
@@ -8972,7 +8473,7 @@ There are multiple loaders, but conceptually:
 
 ---
 
-#### 3.3 Stack — "Each Thread's Notebook"
+<h4> 3.3 Stack — "Each Thread's Notebook" </h4>
 
 **What it stores**
 
@@ -8993,7 +8494,7 @@ There are multiple loaders, but conceptually:
 
 ---
 
-#### 3.4 PC Register — "Bookmark"
+<h4> 3.4 PC Register — "Bookmark" </h4>
 
 **What it stores**
 
@@ -9012,7 +8513,7 @@ There are multiple loaders, but conceptually:
 
 ---
 
-#### 3.5 Native Method Stack — "Foreign Language Notes"
+<h4> 3.5 Native Method Stack — "Foreign Language Notes" </h4>
 
 **What it stores**
 
@@ -9023,11 +8524,11 @@ There are multiple loaders, but conceptually:
 🗒️ Notes written in another language.
 
 
-### 4. Execution Engine — "The Brain"
+<h3> 4. Execution Engine — "The Brain" </h3>
 
 This is where code actually runs.
 
-####  4.1 Interpreter — "Reads Slowly"
+<h4>  4.1 Interpreter — "Reads Slowly" </h4>
 What it does
 
 * Reads bytecode line by line
@@ -9044,7 +8545,7 @@ What it does
 
 ---
 
-#### 4.2 JIT Compiler — "Learns and Gets Faster"
+<h4> 4.2 JIT Compiler — "Learns and Gets Faster" </h4>
 
 **What it does**
 
@@ -9062,7 +8563,7 @@ What it does
 
 ---
 
-#### 4.3 Garbage Collector — "Cleaner"
+<h4> 4.3 Garbage Collector — "Cleaner" </h4>
 
 **What it does**
 
@@ -9074,7 +8575,7 @@ What it does
 🧹 Cleans toys no one is playing with.
 
 
-### 5. Native Method Interface (JNI) — "Translator"
+<h3> 5. Native Method Interface (JNI) — "Translator" </h3>
 
 **What it does**
 
@@ -9085,7 +8586,7 @@ What it does
 🌍 A translator between Java and C/C++.
 
 
-### 6 Native Method Libraries — "External Helpers"
+<h3> 6 Native Method Libraries — "External Helpers" </h3>
 
 **What they are**
 
@@ -9097,7 +8598,7 @@ What it does
 🧰 Outside helpers that Java can call when needed.
 
 
-### How Everything Works Together (Story)
+<h3> How Everything Works Together (Story) </h3>
 
 1. `.class` file is given to JVM
 2. **Class Loader** loads it
@@ -9127,7 +8628,7 @@ Heap
 Below is an ELI5, step-by-step explanation of each heap area, using a single simple story so the behavior is
 intuitive rather than abstract.
 
-### Big Picture (ELI5)
+<h3> Big Picture (ELI5) </h3>
 
 Imagine the JVM heap as a **school system** for objects.
 
@@ -9140,11 +8641,11 @@ Imagine the JVM heap as a **school system** for objects.
 * Most don't live long.
 * Only the survivors grow old.
 
-### 1. Young Generation
+<h3> 1. Young Generation </h3>
 
 This is where all new objects are born.
 
-#### 1.1 Eden Space (Birthplace)
+<h4> 1.1 Eden Space (Birthplace) </h4>
 
 **What it is (ELI5):**
 
@@ -9177,7 +8678,7 @@ Most toys kids ask for are forgotten in 5 minutes.
 
 ---
 
-#### 1.2 Survivor Space S0 (First Survival Test)
+<h4> 1.2 Survivor Space S0 (First Survival Test) </h4>
 
 **What it is:**
 
@@ -9205,7 +8706,7 @@ Kids who didn’t quit school move to Grade 1.
 
 ---
 
-#### 1.3 Survivor Space S1 (Second Survival Test)
+<h4> 1.3 Survivor Space S1 (Second Survival Test) </h4>
 
 **What it is:**
 Objects keep hopping between S0 and S1 while aging.
@@ -9229,7 +8730,7 @@ GC #3 → age = 3
 Students move class to class every year.
 
 
-### 2. Promotion to Old Generation
+<h3> 2. Promotion to Old Generation </h3>
 
 **When does promotion happen?**
 
@@ -9255,7 +8756,7 @@ This object:
 Student graduates and starts working.
 
 
-### 3. Old Generation (Tenured)
+<h3> 3. Old Generation (Tenured) </h3>
 
 **What it is:**
 
@@ -9279,7 +8780,7 @@ Home for **long-living objects**.
 Adults change houses rarely—but moving is painful.
 
 
-### 4. Why Two Survivor Spaces?
+<h3> 4. Why Two Survivor Spaces? </h3>
 
 **Simple reason:**
 
@@ -9295,7 +8796,7 @@ To avoid fragmentation and keep copying clean.
 You move students from Classroom A to Classroom B every year, never mixing old desks.
 
 
-### 5. End-to-End Example Flow
+<h3> 5. End-to-End Example Flow </h3>
 
 ```java
 public void process() {
@@ -9314,7 +8815,7 @@ public void process() {
 6. If reference removed → collected in Major GC
 
 
-### Resources
+<h3> Resources </h3>
 
 * [Garbage collection in Java, with Animation and discussion of G1 GC](https://www.youtube.com/watch?v=UnaNQgzw4zY)
 
@@ -9328,7 +8829,7 @@ This is a great specific question. `WeakHashMap` is the "magic self-cleaning map
 
 To understand it, let's look at the **Memory Leak** problem it solves.
 
-### The Problem: The "Sticky" Metadata
+<h3> The Problem: The "Sticky" Metadata </h3>
 
 Imagine you are using a third-party library that gives you `Socket` objects.
 You want to associate some metadata (like a "User ID") with each socket, but you
@@ -9355,7 +8856,7 @@ metadata.put(clientSocket, "User-123");
 
 ---
 
-### The Solution: `WeakHashMap`
+<h3> The Solution: `WeakHashMap` </h3>
 
 `WeakHashMap` wraps the **Key** (the Socket) in a `WeakReference`.
 
@@ -9376,7 +8877,7 @@ metadata.put(clientSocket, "User-123");
 5. **Cleanup:** The `WeakHashMap` notices the key is gone and automatically removes the entire
    entry (Key & Value) from the map.
 
-### When to use this? (The "Metadata" Use Case)
+<h3> When to use this? (The "Metadata" Use Case) </h3>
 
 You use `WeakHashMap` when you want to attach extra information to an
 object, but **the lifespan of that information should be tied to the lifespan of the object itself.**
@@ -9402,7 +8903,7 @@ If `StrongReference` is "Do not delete this under any circumstances," and `WeakR
 > **Keep this in memory as long as you can. But if you are about to run
 > out of RAM (throw an OutOfMemoryError), then delete this first to save the application.**
 
-### 1. The Use Case: Building an In-Memory Cache
+<h3> 1. The Use Case: Building an In-Memory Cache </h3>
 
 Imagine you are building a **Photo Gallery App** (like Google Photos).
 
@@ -9429,7 +8930,7 @@ bigImage = null;
 // Now, the ONLY thing holding the image is the SoftReference.
 ```
 
-### 2. The Mechanics (Ground Level)
+<h3> 2. The Mechanics (Ground Level) </h3>
 
 How does the Garbage Collector (GC) decide when to clear it?
 
@@ -9449,7 +8950,7 @@ It uses a formula based on **Free Memory** vs. **Time Since Last Access**.
 
 
 
-### 3. The Coding Pattern (The "Check-Check-Reload")
+<h3> 3. The Coding Pattern (The "Check-Check-Reload") </h3>
 
 Because a `SoftReference` can disappear at any moment, you **must** check if it's still there before using it.
 
@@ -9476,7 +8977,7 @@ public Image getImage(String key) {
 
 ```
 
-### Summary
+<h3> Summary </h3>
 
 * **Strong:** "I need this. Keep it or crash."
 * **Soft:** "I'd *like* to keep this (Cache). But delete it if you need space."
@@ -9510,7 +9011,7 @@ House (Heap)
 
 Garbage Collection is **cleaning**.
 
-### 1. Minor GC — "Clean the kids' room"
+<h3> 1. Minor GC — "Clean the kids' room" </h3>
 
 **What it is (ELI5)**
 
@@ -9523,7 +9024,7 @@ That means:
 
 It **does NOT touch Old Generation**.
 
-#### When does Minor GC happen?
+<h4> When does Minor GC happen? </h4>
 
 When Eden gets full.
 
@@ -9545,7 +9046,7 @@ What happens?
 
 👉 Minor GC happens
 
-#### What does Minor GC actually do?
+<h4> What does Minor GC actually do? </h4>
 
 Step by step:
 
@@ -9557,19 +9058,19 @@ Step by step:
 5. Eden is cleared
 
 
-#### Why Minor GC is fast
+<h4> Why Minor GC is fast </h4>
 
 * Young Gen is small
 * Most objects are dead
 * Copying few live objects is cheap
 
-#### Interview line (memorize)
+<h4> Interview line (memorize) </h4>
 
 > Minor GC collects only the Young Generation and is fast because most objects die young.
 > 
 > 
 
-### 2. Major GC — "Clean the storage room"
+<h3> 2. Major GC — "Clean the storage room" </h3>
 
 **What it is (ELI5)**
 
@@ -9581,7 +9082,7 @@ This means:
 * Caches
 * Large objects
 
-#### When does Major GC happen?
+<h4> When does Major GC happen? </h4>
 
 When:
 
@@ -9609,19 +9110,19 @@ public static void main(String[] args) {
 👉 Major GC happens
 
 
-#### Why Major GC is slower
+<h4> Why Major GC is slower </h4>
 
 * Old Gen is large
 * Objects live longer
 * More references to traverse
 
 
-### Important interview clarification
+<h3> Important interview clarification </h3>
 
 ⚠️ Major GC ≠ Full GC (always)
 
 
-### 3. Full GC — "Clean the entire house"
+<h3> 3. Full GC — "Clean the entire house" </h3>
 
 **What it is (ELI5)**
 
@@ -9634,7 +9135,7 @@ It includes:
 * Metaspace (class metadata)
 
 
-#### When does Full GC happen?
+<h4> When does Full GC happen? </h4>
 
 Common causes:
 
@@ -9676,19 +9177,19 @@ public static void main(String[] args) {
 
 👉 Full GC
 
-#### Why Full GC is dangerous
+<h4> Why Full GC is dangerous </h4>
 
 * Long Stop-the-World
 * Application freezes
 * SLA violations
 
 
-#### Interview killer line
+<h4> Interview killer line </h4>
 
 > Full GC pauses the entire application and should be avoided in latency-sensitive systems.
 >
 
-### Side-by-side comparison (ELI5)
+<h3> Side-by-side comparison (ELI5) </h3>
 
 | GC Type  | Cleans      | Speed     | STW     | Risk   |
 |----------|-------------|-----------|---------|--------|
@@ -9705,7 +9206,7 @@ public static void main(String[] args) {
 
 That's it.
 
-### Why does JVM need STW at all?
+<h3> Why does JVM need STW at all? </h3>
 
 Because **your program is changing memory constantly**.
 
@@ -9722,7 +9223,7 @@ So JVM says:
 > "Everyone stop touching memory for a moment."
 >
 
-### What exactly is stopped?
+<h3> What exactly is stopped? </h3>
 
 * Your main() logic
 * Your web requests
@@ -9730,7 +9231,7 @@ So JVM says:
 * Everything except GC threads
 
 
-### Tiny code example
+<h3> Tiny code example </h3>
 
 ```java
 public static void main(String[] args) {
@@ -9749,7 +9250,7 @@ When Eden fills:
 That pause is **STW**.
 
 
-### ELI5 analogy
+<h3> ELI5 analogy </h3>
 
 🧹 Cleaning a room
 
@@ -9760,7 +9261,7 @@ That pause is **STW**.
 STW = "Everyone freeze for 5 ms"
 
 
-### Important truth (interview gold)
+<h3> Important truth (interview gold) </h3>
 
 > STW is unavoidable, but modern GC tries to make it short.
 
@@ -9782,7 +9283,7 @@ So JVM says:
 
 That situation is called **Allocation Failure**.
 
-### Simple code example
+<h3> Simple code example </h3>
 
 ```java
 public static void main(String[] args) {
@@ -9792,7 +9293,7 @@ public static void main(String[] args) {
 }
 ```
 
-### Step-by-step what JVM does
+<h3> Step-by-step what JVM does </h3>
 
 **Step 1: Object creation**
 * `new Object()` goes to Eden
@@ -9833,7 +9334,7 @@ Key facts:
 * Nothing ever becomes unreachable
 
 
-### Step 1: Objects are created in Eden
+<h3> Step 1: Objects are created in Eden </h3>
 
 Each iteration:
 
@@ -9847,7 +9348,7 @@ JVM does:
 * Eden fills quickly
 
 
-### Step 2: Eden becomes full → Allocation Failure
+<h3> Step 2: Eden becomes full → Allocation Failure </h3>
 
 JVM tries to allocate a new object but:
 
@@ -9862,7 +9363,7 @@ So JVM says:
 
 
 
-### Step 3: Minor GC starts (STW)
+<h3> Step 3: Minor GC starts (STW) </h3>
 
 During Minor GC, JVM does:
 
@@ -9884,7 +9385,7 @@ list → object3
 👉 Nothing is dead
 
 
-### Step 4: JVM tries to evacuate live objects
+<h3> Step 4: JVM tries to evacuate live objects </h3>
 
 Minor GC uses copying.
 
@@ -9904,7 +9405,7 @@ So JVM says:
 >
 
 
-### Step 5: JVM attempts promotion
+<h3> Step 5: JVM attempts promotion </h3>
 
 Promotion means:
 
@@ -9944,7 +9445,7 @@ So JVM sees:
 Old Gen: ❌ insufficient space
 ```
 
-### Step 6: Promotion Failure occurs (THIS IS THE MOMENT)
+<h3> Step 6: Promotion Failure occurs (THIS IS THE MOMENT) </h3>
 
 > Promotion Failure = JVM tried to move surviving Young objects to Old Gen, but Old Gen had no space
 >
@@ -9959,7 +9460,7 @@ At this exact point:
 JVM has **no safe place** to put live objects.
 
 
-### Step 7: Old Generation cleanup attempt
+<h3> Step 7: Old Generation cleanup attempt </h3>
 
 Because the prior Young/Minor GC and promotion attempt did not reclaim enough memory to accommodate 
 surviving objects, the JVM detects Old Generation pressure and attempts to free space in the Old Generation.
@@ -9974,7 +9475,7 @@ surviving objects, the JVM detects Old Generation pressure and attempts to free 
     high amount of garbage.
 
 
-### Step 8: JVM escalates → Full GC
+<h3> Step 8: JVM escalates → Full GC </h3>
 
 Only if Major GC / Mixed GC cannot free enough space, then:
 
@@ -9994,7 +9495,7 @@ Full GC:
 * Tries to free anything
 
 
-### Step 8: Why Full GC still fails here
+<h3> Step 8: Why Full GC still fails here </h3>
 
 In your code:
 
@@ -10010,7 +9511,7 @@ So after Full GC:
     OutOfMemoryError: Java heap space
     ```
 
-### One-sentence interview answer
+<h3> One-sentence interview answer </h3>
 
 > Promotion failure happens when a Minor GC cannot free enough space because surviving objects need to be 
 > promoted, but the Old Generation does not have sufficient free space, forcing a Full GC.
@@ -10047,7 +9548,7 @@ We want to see:
 * How it decides what stays and what goes
 
 
-### Example 1: Single thread, single object
+<h3> Example 1: Single thread, single object </h3>
 
 Code
 
@@ -10060,7 +9561,7 @@ public class Demo {
 }
 ```
 
-#### What memory looks like while main is running
+<h4> What memory looks like while main is running </h4>
 
 **Thread stack (main thread)**
 
@@ -10078,7 +9579,7 @@ Heap
 Object@1
 ```
 
-#### How GC works here (step by step)
+<h4> How GC works here (step by step) </h4>
 
 1. JVM pauses the program
 2. JVM looks at active threads
@@ -10094,7 +9595,7 @@ Nothing else is checked.
 
 ---
 
-### Example 2: Multiple method calls (stack frames)
+<h3> Example 2: Multiple method calls (stack frames) </h3>
 
 Code
 
@@ -10126,7 +9627,7 @@ foo()
 main()
 ```
 
-#### GC root traversal
+<h4> GC root traversal </h4>
 
 GC does this:
 
@@ -10144,7 +9645,7 @@ GC does this:
 
 ---
 
-### Example 3: When stack root disappears
+<h3> Example 3: When stack root disappears </h3>
 
 Code
 
@@ -10174,7 +9675,7 @@ main()
 Object@1
 ```
 
-#### GC traversal now
+<h4> GC traversal now </h4>
 
 1. JVM pauses program
 2. JVM scans thread stack
@@ -10186,7 +9687,7 @@ Object@1
 ---
 
 
-### Example 4: Static variable (class root)
+<h3> Example 4: Static variable (class root) </h3>
 
 Code
 
@@ -10215,7 +9716,7 @@ Store.shared ───► Object@2
 Object@2
 ```
 
-#### GC traversal
+<h4> GC traversal </h4>
 
 1. JVM pauses program
 2. JVM scans thread stacks
@@ -10229,7 +9730,7 @@ Even if no thread variable points to it, it stays.
 ---
 
 
-### Example 5: Multiple threads
+<h3> Example 5: Multiple threads </h3>
 
 Code
 
@@ -10261,7 +9762,7 @@ Thread-2 stack
 b ───► Object@B
 ```
 
-#### GC traversal
+<h4> GC traversal </h4>
 
 GC does:
 
@@ -10276,7 +9777,7 @@ If a thread ends, its stack disappears, and so do its roots.
 
 ---
 
-### Example 6: Following references (walking the graph)
+<h3> Example 6: Following references (walking the graph) </h3>
 
 Code
 
@@ -10305,7 +9806,7 @@ Object@A   (no references)
 Object@B
 ```
 
-#### GC traversal
+<h4> GC traversal </h4>
 
 1. Start from stack
 2. Follow `a` → Object@B
@@ -10315,7 +9816,7 @@ Object@B
 
 GC does not care that Object@A was created first.
 
-### The single rule GC follows (memorize this)
+<h3> The single rule GC follows (memorize this) </h3>
 
 > GC starts from known references and follows pointers.
 Anything it can reach stays.
@@ -10331,7 +9832,7 @@ That's all.
 
 ## Q - Explain the working of G1 Garbage Collector
 
-### What is G1 GC?
+<h3> What is G1 GC? </h3>
 
 G1 GC divides the heap into small regions and incrementally cleans the most garbage-heavy regions to avoid long pauses.
 
@@ -10359,7 +9860,7 @@ Important:
 > 
 
 
-### Code example (we will use this throughout)
+<h3> Code example (we will use this throughout) </h3>
 
 ```java
 class Demo {
@@ -10377,7 +9878,7 @@ class Demo {
 }
 ```
 
-### Phase 1: Object allocation (NO GC yet)
+<h3> Phase 1: Object allocation (NO GC yet) </h3>
 
 Assume objects land like this:
 
@@ -10395,7 +9896,7 @@ GC Root → A (R1)
 A (R1) → B (R3)
 ```
 
-### Phase 2: Remembered Set creation (during normal execution)
+<h3> Phase 2: Remembered Set creation (during normal execution) </h3>
 
 When this line runs:
 
@@ -10421,7 +9922,7 @@ Key point:
 > Remembered sets are created during normal execution, not during GC.
 
 
-### Phase 3: GC starts (Stop-the-World)
+<h3> Phase 3: GC starts (Stop-the-World) </h3>
 
 GC always does two distinct jobs:
 
@@ -10429,7 +9930,7 @@ GC always does two distinct jobs:
 2. Decide which regions to clean
 
 
-#### Step 1: GC Root traversal (liveness)
+<h4> Step 1: GC Root traversal (liveness) </h4>
 
 GC looks ONLY at GC roots:
 
@@ -10457,7 +9958,7 @@ C (R3)
 D (R3)
 ```
 
-#### Step 2: Region accounting (THIS IS CRITICAL)
+<h4> Step 2: Region accounting (THIS IS CRITICAL) </h4>
 
 GC now summarizes per region.
 
@@ -10499,7 +10000,7 @@ R4: empty (ignored)
 This accounting is **not guessed** - it comes directly from marking.
 
 
-#### Step 3: Region selection (why G1 is called "Garbage First")
+<h4> Step 3: Region selection (why G1 is called "Garbage First") </h4>
 
 GC asks:
 
@@ -10517,7 +10018,7 @@ So:
 > 
 
 
-#### Step 4: Safety check using remembered sets
+<h4> Step 4: Safety check using remembered sets </h4>
 
 Before deleting anything in R3, GC must ensure:
 
@@ -10543,7 +10044,7 @@ So:
 * C and D can be deleted
 
 
-#### Step 5: Cleanup result
+<h4> Step 5: Cleanup result </h4>
 
 After cleanup:
 
@@ -10554,9 +10055,9 @@ R3: B
 Memory reclaimed safely.
 
 
-### Now let's place this into the FULL G1 FLOW
+<h3> Now let's place this into the FULL G1 FLOW </h3>
 
-#### Young GC (baseline behavior)
+<h4> Young GC (baseline behavior) </h4>
 
 Trigger:
 
@@ -10573,7 +10074,7 @@ Action:
 This is equivalent to Minor GC.
 
 
-#### When Old Gen pressure appears
+<h4> When Old Gen pressure appears </h4>
 
 Symptoms:
 
@@ -10594,7 +10095,7 @@ This combined operation is called **Mixed GC**.
 Mixed GC = Young GC + selected Old Gen cleanup
 ```
 
-### Full escalation chain (memorize this)
+<h3> Full escalation chain (memorize this) </h3>
 
 ```text
 Eden fills
@@ -10613,7 +10114,7 @@ Full GC fails
 → OutOfMemoryError
 ```
 
-### When does G1 move to Full GC?
+<h3> When does G1 move to Full GC? </h3>
 
 > Only when repeated Mixed GCs fail to reclaim enough Old Gen space.
 
@@ -10625,7 +10126,7 @@ Common reasons:
 * Extreme fragmentation
 
 
-### Why classic collectors were slower
+<h3> Why classic collectors were slower </h3>
 
 Serial / Parallel GC:
 
@@ -10642,7 +10143,7 @@ Result:
 * Poor latency
 
 
-### Final interview-ready summary (perfect answer)
+<h3> Final interview-ready summary (perfect answer) </h3>
 
 > G1 divides the heap into regions, marks live objects starting from GC roots, computes garbage per region, and 
 > performs Mixed GCs—Young GC plus selected garbage-heavy Old regions—using remembered sets for safety, escalating
@@ -10696,7 +10197,7 @@ public class LeakyApp {
 
 ## Q - Explain Serial GC
 
-### 1. What is Serial GC?
+<h3> 1. What is Serial GC? </h3>
 
 **The Concept:**
 Serial Garbage Collector is the simplest, oldest, and most basic implementation of garbage collection in Java.
@@ -10708,7 +10209,7 @@ Serial Garbage Collector is the simplest, oldest, and most basic implementation 
 
 ---
 
-### 2. How it Works: The "Stop-The-World" Event
+<h3> 2. How it Works: The "Stop-The-World" Event </h3>
 
 This is the most critical concept to understand for Serial GC.
 
@@ -10737,7 +10238,7 @@ Only after it finishes do the application threads resume.
 
 ---
 
-### 3. The Two Components (Young vs. Old)
+<h3> 3. The Two Components (Young vs. Old) </h3>
 
 Serial GC divides the Heap into two main physical areas (Generations). It handles them differently.
 
@@ -10749,7 +10250,7 @@ When you enable `-XX:+UseSerialGC`, the JVM activates:
 | **Young Gen** | **DefNew** (Default New) | **Serial Mark-Copy**          |
 | **Old Gen**   | **TenuredGeneration**    | **Serial Mark-Sweep-Compact** |
 
-#### A. Young Generation (DefNew)
+<h4> A. Young Generation (DefNew) </h4>
 
 * **What lives here:** Newly created objects (e.g., `new String("hello")`, `new Customer()`).
 * **The Algorithm: Serial Mark-Copy**.
@@ -10760,7 +10261,7 @@ When you enable `-XX:+UseSerialGC`, the JVM activates:
 * **Why?** Most new objects die young (like temp variables in a loop). 
  Copying the few survivors is faster than scanning all the dead ones.
 
-#### B. Old Generation (TenuredGeneration)
+<h4> B. Old Generation (TenuredGeneration) </h4>
 
 * **What lives here:** Objects that survived many Minor GCs (long-lived data like Caches, DB connections).
 * **The Algorithm: Serial Mark-Sweep-Compact**.
@@ -10772,7 +10273,7 @@ When you enable `-XX:+UseSerialGC`, the JVM activates:
 
 ---
 
-### 4. Pros and Cons (Interview Material)
+<h3> 4. Pros and Cons (Interview Material) </h3>
 
 | Feature             | Description                                                                                                                                  |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
@@ -10780,7 +10281,7 @@ When you enable `-XX:+UseSerialGC`, the JVM activates:
 | **Low Overhead**    | It doesn't use extra CPU for managing multiple GC threads.                                                                                   |
 | **The Dealbreaker** | **Long Pauses.** Because one thread does everything, if you have a large Heap (e.g., 2GB+), the "Stop-The-World" pause can last for seconds. |
 
-### 5. When should you use it?
+<h3> 5. When should you use it? </h3>
 
 You might think "Never," but that's wrong. It is still useful in specific cases:
 
@@ -10802,7 +10303,7 @@ You might think "Never," but that's wrong. It is still useful in specific cases:
 This is the natural evolution of Serial GC. It was the default garbage collector 
 for a long time (up until Java 9) because it solves the biggest problem of Serial GC: **Speed.**
 
-### 1. The Core Concept: "Strength in Numbers"
+<h3> 1. The Core Concept: "Strength in Numbers" </h3>
 
 If Serial GC is one janitor cleaning a messy building, **Parallel GC is a whole cleaning crew.**
 
@@ -10815,12 +10316,12 @@ However, because multiple threads are working together, the freeze time is much 
 
 ---
 
-### 2. How it Works (Under the Hood)
+<h3> 2. How it Works (Under the Hood) </h3>
 
 Parallel GC uses a "Divide and Conquer" approach. It splits the heap into smaller 
 chunks and assigns them to different threads.
 
-#### The "Stop-The-World" Sequence:
+<h4> The "Stop-The-World" Sequence: </h4>
 
 1. **Trigger:** The Heap (Young or Old) gets full.
 2. **Pause:** The JVM pauses all application threads.
@@ -10842,7 +10343,7 @@ chunks and assigns them to different threads.
 
 ---
 
-### 3. The Two Components (Young vs. Old)
+<h3> 3. The Two Components (Young vs. Old) </h3>
 
 Just like Serial GC, Parallel GC treats Young and Old generations differently, but now with multi-threading.
 When you enable `-XX:+UseParallelGC`, the JVM activates:
@@ -10852,7 +10353,7 @@ When you enable `-XX:+UseParallelGC`, the JVM activates:
 | **Young Gen** | **PSYoungGen** (Parallel Scavenge) | **Parallel Mark-Copy**          |
 | **Old Gen**   | **ParallelOld**                    | **Parallel Mark-Sweep-Compact** |
 
-#### A. Young Generation (PSYoungGen)
+<h4> A. Young Generation (PSYoungGen) </h4>
 
 * **Goal:** Speed. New objects die fast.
 * **Algorithm: Parallel Mark-Copy**.
@@ -10861,7 +10362,7 @@ When you enable `-XX:+UseParallelGC`, the JVM activates:
 * **Why it's fast:** Copying is CPU-intensive. By splitting the work across 8 or 16 cores, we 
    can clear Eden much faster than Serial GC.
 
-#### B. Old Generation (ParallelOld)
+<h4> B. Old Generation (ParallelOld) </h4>
 
 * **Goal:** Space efficiency.
 * **Algorithm: Parallel Mark-Sweep-Compact.**
@@ -10873,7 +10374,7 @@ When you enable `-XX:+UseParallelGC`, the JVM activates:
 
 ---
 
-### 4. The "Throughput" Focus (Important for Interviews)
+<h3> 4. The "Throughput" Focus (Important for Interviews) </h3>
 
 Parallel GC is often called the **"Throughput Collector."**
 
@@ -10882,7 +10383,7 @@ Parallel GC is often called the **"Throughput Collector."**
 * **Example:** It might pause for 1 second every hour. That is a long pause, but it's 
   very efficient because it cleaned a huge amount of memory in that 1 second.
 
-### 5. Pros and Cons
+<h3> 5. Pros and Cons </h3>
 
 | Feature             | Description                                                                                                                                                                         |
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -10890,7 +10391,7 @@ Parallel GC is often called the **"Throughput Collector."**
 | **Scalable**        | It scales well with hardware. If you add more CPU cores, GC gets faster.                                                                                                            |
 | **The Downside**    | **Pauses are still unpredictable.** If you have a massive heap (e.g., 64GB), even with 16 threads, scanning and compacting it takes time. You might see "GC Pauses" of 3-5 seconds. |
 
-### 6. Summary Comparison
+<h3> 6. Summary Comparison </h3>
 
 * **Serial:** 1 Thread. Slow pause. Good for tiny heaps/single core.
 * **Parallel:** N Threads. Fast pause (for medium heaps). Good for batch jobs.
@@ -10910,7 +10411,7 @@ Now we enter the era of **"Low Latency."**
 If Parallel GC is a "Cleaning Crew" that shuts down the building to 
 clean, **CMS is a "Janitor" who cleans quietly in the background while people are still working.**
 
-### 1. The Core Concept: "Concurrent"
+<h3> 1. The Core Concept: "Concurrent" </h3>
 
 This is the most important word in modern GC.
 
@@ -10925,7 +10426,7 @@ This is the most important word in modern GC.
 
 ---
 
-### 2. The Two Components (Young vs. Old)
+<h3> 2. The Two Components (Young vs. Old) </h3>
 
 **Crucial Detail:** CMS is strictly an Old Generation collector. **It cannot handle the 
 Young Generation alone**. When you enable -XX:+UseConcMarkSweepGC, the JVM activates this specific pair:
@@ -10944,12 +10445,12 @@ Young Generation alone**. When you enable -XX:+UseConcMarkSweepGC, the JVM activ
 
 ---
 
-### 3. How it Works: The 4 Phases
+<h3> 3. How it Works: The 4 Phases </h3>
 
 CMS is more complex than Parallel GC. It breaks the job into 
 four distinct phases to minimize pausing.
 
-#### Phase 1: Initial Mark (Stop-The-World)
+<h4> Phase 1: Initial Mark (Stop-The-World) </h4>
 
 * **Action:** The JVM pauses the application.
 * **Task:** The GC scans **only the "Root" objects** (static variables, thread stacks). It just 
@@ -10957,7 +10458,7 @@ four distinct phases to minimize pausing.
 * **Duration:** extremely fast (milliseconds).
 * **App Status:** **Frozen.**
 
-#### Phase 2: Concurrent Mark (App Running)
+<h4> Phase 2: Concurrent Mark (App Running) </h4>
 
 * **Action:** The application resumes.
 * **Task:** The GC thread follows all the references from those Roots to find all live objects in the heap.
@@ -10965,7 +10466,7 @@ four distinct phases to minimize pausing.
   looking at them. (e.g., "I just marked Object A as live, but the app just deleted the reference to it!").
 * **App Status:** **Running** (but slightly slower due to CPU sharing).
 
-#### Phase 3: Remark (Stop-The-World)
+<h4> Phase 3: Remark (Stop-The-World) </h4>
 
 * **Action:** The JVM pauses the application again.
 * **Task:** The GC fixes the mistakes from Phase 2. It looks for objects that were 
@@ -10973,7 +10474,7 @@ four distinct phases to minimize pausing.
 * **Duration:** Short (but longer than Initial Mark).
 * **App Status:** **Frozen.**
 
-#### Phase 4: Concurrent Sweep (App Running)
+<h4> Phase 4: Concurrent Sweep (App Running) </h4>
 
 * **Action:** The application resumes.
 * **Task:** The GC goes through the heap and reclaims the memory of dead objects.
@@ -10981,7 +10482,7 @@ four distinct phases to minimize pausing.
 
 ---
 
-### 4. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem)
+<h3> 4. The Fatal Flaw: "Fragmentation" (The Swiss Cheese Problem) </h3>
 
 You might notice something missing. **CMS does NOT Compact.**
 
@@ -10998,7 +10499,7 @@ Imagine your memory is a row of parking spots.
 If you try to park a **Bus** (allocate a large object) and there are only small "Car" spots 
 available scattered around, allocation fails.
 
-### 5. The "Concurrent Mode Failure"
+<h3> 5. The "Concurrent Mode Failure" </h3>
 
 When fragmentation gets too bad, or if the Old Gen fills up faster than the 
 background thread can clean it, CMS panics.
@@ -11008,7 +10509,7 @@ background thread can clean it, CMS panics.
 3. **The Result:** A massive Stop-The-World pause (often 10+ seconds) to fully compact 
    the heap using a single thread.
 
-### 6. Summary for Interview
+<h3> 6. Summary for Interview </h3>
 
 * **Goal:** Minimize pause times.
 * **Method:** Does marking and sweeping concurrently (while app runs).
@@ -11027,7 +10528,7 @@ perfectly into why **G1GC** was invented (to solve fragmentation).
 ## Q - Explain G1 GC
 
 
-### G1GC (Garbage First) – The "Predictable" Collector
+<h3> G1GC (Garbage First) – The "Predictable" Collector </h3>
 
 **The Problem it Solves:**
 
@@ -11040,7 +10541,7 @@ for **Large Heaps (6GB+)** with a focus on **Low Latency** (short pauses).
 
 ---
 
-### 1. The Architecture: "Regions"
+<h3> 1. The Architecture: "Regions" </h3>
 
 Instead of three massive, contiguous blocks (Eden, Survivor, Old), G1GC chops the 
 entire Heap into equal-sized chunks called "Regions"** (1MB - 32MB each).
@@ -11062,11 +10563,11 @@ G1GC is a single unified engine.
 
 ---
 
-### 2. The Lifecycle (How it Runs)
+<h3> 2. The Lifecycle (How it Runs) </h3>
 
 G1GC operates in a loop consisting of three distinct phases.
 
-#### Phase A: Young Only Phase (Normal Mode)
+<h4> Phase A: Young Only Phase (Normal Mode) </h4>
 
 * **Trigger:** The set of Eden regions is full.
 * **Action:** A standard **Stop-The-World (STW)** pause.
@@ -11079,7 +10580,7 @@ G1GC operates in a loop consisting of three distinct phases.
 
 * **Result:** Eden is empty. The application resumes.
 
-#### Phase B: The Concurrent Marking Cycle (The Proactive Trigger)
+<h4> Phase B: The Concurrent Marking Cycle (The Proactive Trigger) </h4>
 
 * **Trigger:** This does *not* wait for the Old Gen to be full. It starts 
   when the **Total Heap Occupancy** hits a threshold called **IHOP** (Initiating Heap Occupancy Percent).
@@ -11091,7 +10592,7 @@ G1GC operates in a loop consisting of three distinct phases.
 
 * **Result:** G1GC now has a list of "Candidate Regions" (mostly garbage) that are worth cleaning.
 
-#### Phase C: The Mixed GC (The "Magic")
+<h4> Phase C: The Mixed GC (The "Magic") </h4>
 
 * **Trigger:** Occurs *after* the Concurrent Marking is done.
 * **Action:** The next time Eden fills up, G1GC switches from a "Young Only" GC to a **"Mixed" GC**.
@@ -11104,7 +10605,7 @@ G1GC operates in a loop consisting of three distinct phases.
 
 ---
 
-### 3. The Killer Feature: "Predictable Pauses"
+<h3> 3. The Killer Feature: "Predictable Pauses" </h3>
 
 This is what makes G1GC the "Gold Standard" for production.
 
@@ -11123,7 +10624,7 @@ You give the JVM a target: ` -XX:MaxGCPauseMillis=200` (Don't pause for more tha
 
 ---
 
-### 4. The Failure Mode: "Evacuation Failure"
+<h3> 4. The Failure Mode: "Evacuation Failure" </h3>
 
 Just like CMS has "Concurrent Mode Failure," G1 has a failure mode.
 
@@ -11138,7 +10639,7 @@ Just like CMS has "Concurrent Mode Failure," G1 has a failure mode.
 
 ---
 
-### 5. Summary for the Interview
+<h3> 5. Summary for the Interview </h3>
 
 If asked to explain G1GC, use this structure:
 
@@ -11157,7 +10658,7 @@ If asked to explain G1GC, use this structure:
 
 ## Q - Can you compare the different Garbage Collectors in Java and explain when to use each one?
 
-### The Ultimate Java GC Cheat Sheet
+<h3> The Ultimate Java GC Cheat Sheet </h3>
 
 | Collector       | Young Gen *(Component & Algo)*                | Old Gen *(Component & Algo)*                               | Goal & Characteristic                                                                                  | When to Use?                                                                              | Default In                         | JVM Flag                  |
 |-----------------|-----------------------------------------------|------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|------------------------------------|---------------------------|
@@ -11168,7 +10669,7 @@ If asked to explain G1GC, use this structure:
 | **ZGC**         | **ZGC**<br>Colored Pointers                   | **ZGC**<br>Load Barriers                                   | **Ultra-Low Latency**<br>Pauses <1ms regardless of heap size (even multi-TB).                          | • Massive Heaps (>32GB)<br>• Real-time Systems<br>• Gaming / Trading                      | Java 15+ (Production ready in 17+) | `-XX:+UseZGC`             |
 
 
-### Notes (Accuracy Improvements)
+<h3> Notes (Accuracy Improvements) </h3>
 
 * ZGC is production-ready since **Java 17**, not “future only”.
 * CMS was removed in **Java 14**.
@@ -11186,7 +10687,7 @@ This is a quintessential production troubleshooting question.
 Here is the ground-level breakdown of **Heap Dumps**, why they are 
 the "Black Box" of Java debugging, and exactly how to answer the "Have you ever taken one?" part.
 
-### 1. What is a Heap Dump? (The "Crime Scene Photo")
+<h3> 1. What is a Heap Dump? (The "Crime Scene Photo") </h3>
 
 Think of your running Java application as a busy city.
 A **Heap Dump** is like freezing time and taking a high-resolution 3D photo of the entire city.
@@ -11199,14 +10700,14 @@ A **Heap Dump** is like freezing time and taking a high-resolution 3D photo of t
 
 * **Format:** usually a binary file with a `.hprof` extension.
 
-### 2. Why do we use it?
+<h3> 2. Why do we use it? </h3>
 
 We rarely take heap dumps when things are going well because they are 
 heavy (if you have a 16GB heap, the file is ~16GB, and writing it pauses the app).
 
 We use them for two main reasons:
 
-#### A. The `OutOfMemoryError` (OOM)
+<h4> A. The `OutOfMemoryError` (OOM) </h4>
 
 Your application crashes with `java.lang.OutOfMemoryError: Java heap space`.
 
@@ -11214,7 +10715,7 @@ Your application crashes with `java.lang.OutOfMemoryError: Java heap space`.
 * **The Heap Dump:** Shows you exactly what was consuming that 16GB of RAM at the moment of death. 
   Usually, it's one specific `List` or `Map` that grew uncontrollably.
 
-#### B. Memory Leaks
+<h4> B. Memory Leaks </h4>
 
 The application starts fast but gets slower and slower over 3 days until it crashes.
 
@@ -11224,7 +10725,7 @@ The application starts fast but gets slower and slower over 3 days until it cras
 
 ---
 
-### 3. "Have you ever taken a heap dump?" (The Interview Answer)
+<h3> 3. "Have you ever taken a heap dump?" (The Interview Answer) </h3>
 
 **Do not just say "Yes."** You need to describe the *process* to show you’ve actually battled production issues.
 
@@ -11234,14 +10735,14 @@ Here is a Senior Developer level answer:
 > Typically, I use two approaches depending on the urgency."
 > 
 
-#### Scenario A: The Proactive Setup (Best Practice)
+<h4> Scenario A: The Proactive Setup (Best Practice) </h4>
 
 > "In our production scripts, we always pass the flag `-XX:+HeapDumpOnOutOfMemoryError`.
 > This is critical because when the JVM crashes at 3 AM, it automatically generates a 
 > snapshot right before it dies. I can then analyze that file (`java_pid.hprof`) the next 
 > morning to see exactly what killed the application."
 
-#### Scenario B: The Manual Inspection (Debugging a Slow App)
+<h4> Scenario B: The Manual Inspection (Debugging a Slow App) </h4>
 
 > "If an app is running slowly but hasn't crashed yet, I use the command line tool **`jmap`**."
 > 
@@ -11254,7 +10755,7 @@ Here is a Senior Developer level answer:
 
 ---
 
-### 4. How do you analyze it? (The "Eclipse MAT" Tool)
+<h3> 4. How do you analyze it? (The "Eclipse MAT" Tool) </h3>
 
 You cannot open a 10GB file in Notepad. You need a tool. The industry 
 standard is **Eclipse MAT (Memory Analyzer Tool)**.
@@ -11272,7 +10773,7 @@ If asked **"How do you read it?"**:
     * *Conclusion:* "Ah, we forgot to clear the cache! That's the leak."
 
 
-### Summary for the Interview
+<h3> Summary for the Interview </h3>
 
 1. **Definition:** A snapshot of memory at a specific point in time.
 2. **Usage:** To debug OOM errors and find Memory Leaks.
@@ -11328,7 +10829,7 @@ Java divides the Heap into two main areas based on the **age** of the objects (h
 
 Here is the breakdown of the 3 specific spaces inside the Heap:
 
-### 1. Young Generation (The Nursery)
+<h3> 1. Young Generation (The Nursery) </h3>
 
 This is where **new objects are born**. It is small and designed for speed because 
 most objects die very quickly (e.g., temporary variables in a loop).
@@ -11350,7 +10851,7 @@ It is further divided into three sub-spaces:
     Objects ping-pong between S0 and S1).
 
 
-### 2. Old Generation (The Retirement Home)
+<h3> 2. Old Generation (The Retirement Home) </h3>
 
 Also called **Tenured Space**.
 
@@ -11361,7 +10862,7 @@ Also called **Tenured Space**.
 
 ---
 
-#### Summary Table for Interview
+<h4> Summary Table for Interview </h4>
 
 | Memory Type   | Sub-Type             | What lives there?              | GC Type         |
 |---------------|----------------------|--------------------------------|-----------------|
@@ -11388,7 +10889,7 @@ Here is the step-by-step process senior engineers use to optimize JVM memory.
 
 ---
 
-### Step 1: Right-Sizing the Heap ( The Foundation)
+<h3> Step 1: Right-Sizing the Heap ( The Foundation) </h3>
 
 The most common problem is simply having the wrong heap size.
 
@@ -11403,7 +10904,7 @@ The most common problem is simply having the wrong heap size.
     * This forces the JVM to allocate all 4GB at startup, eliminating resizing overhead.
 
 
-### Step 2: Choosing the Right Collector
+<h3> Step 2: Choosing the Right Collector </h3>
 
 You don't bring a Ferrari to a mud race. Choosing the GC depends on your goal.
 
@@ -11417,7 +10918,7 @@ You don't bring a Ferrari to a mud race. Choosing the GC depends on your goal.
     * *Why:* You don't care if the app freezes for 5 seconds as long as the job 
     * finishes 10 minutes faster overall.
 
-### Step 3: Tuning the "Pause Goal" (The Magic Knob)
+<h3> Step 3: Tuning the "Pause Goal" (The Magic Knob) </h3>
 
 If you are using **G1GC**, this is the single most important optimization you can make.
 
@@ -11430,7 +10931,7 @@ If you are using **G1GC**, this is the single most important optimization you ca
     * *Standard Start:* 200ms is a safe default.
 
 
-### Step 4: Handling "Metaspace" (The Hidden Memory)
+<h3> Step 4: Handling "Metaspace" (The Hidden Memory) </h3>
 
 Since Java 8, class metadata is stored in native memory (Metaspace). If you have a memory 
 leak here, it can crash your *entire server*, not just the JVM.
@@ -11439,7 +10940,7 @@ leak here, it can crash your *entire server*, not just the JVM.
 * **Optimization:** Always set a cap. If you don't, a buggy app (generating infinite dynamic classes) 
   will eat all the RAM on the physical machine until the OS kills the process.
 
-#### Step 5: Enable GC Logging (The Black Box)
+<h4> Step 5: Enable GC Logging (The Black Box) </h4>
 
 You cannot optimize if you don't know what's happening. Always enable logging in production.
 
@@ -11449,7 +10950,7 @@ You cannot optimize if you don't know what's happening. Always enable logging in
 
 ---
 
-#### Summary for the Interview
+<h4> Summary for the Interview </h4>
 
 "I approach optimization in three phases:
 
