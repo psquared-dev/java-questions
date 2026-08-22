@@ -322,6 +322,7 @@ Instance is now created.
 ```text
 synchronized (Config.class){
     if (null == instance) {         // 2nd check
+}    
 ```
 
 Since `instance` is now not `null`, `T2` skips instance creation and returns the same instance created by `T1`.
@@ -463,6 +464,10 @@ public class CheckoutService {
 **Critique:** The Simple Factory is great for small sets of classes (3-5 types). However, if you have 50
 different payment types, the switch statement becomes a "god method" and is hard to maintain.
 In that case, you would upgrade to the Factory Method or use a Map-based registry.
+
+
+-----------------------------
+
 
 ## Q - How to implement Abstract Factory Pattern?
 
