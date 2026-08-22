@@ -141,11 +141,11 @@ interact and distribute responsibilities.
        added to classes without modifying them (e.g., AST syntax tree traversals in compilers or document structure parsers).
 
 
-| Category       | Focus                            | Key Word                   | Popular Examples                                                                         |
-|----------------|----------------------------------|----------------------------|------------------------------------------------------------------------------------------|
-| **Creational** | Instantiation / Object Creation  | **"New" / "Clone"**        | Singleton, Factory Method, Abstract Factory, Builder, Prototype                          |
-| **Structural** | Composition / Interface Assembly | **"Structure" / "Bridge"** | Adapter, Decorator, Facade, Proxy                                                        |
-| **Behavioral** | Interaction / Communication      | **"Talk" / "Delegate"**    | Observer, Strategy, Iterator, Chain of Responsibility, Template Method, Command, Visitor |
+| Category       | Focus                            | Key Word                   | Popular Examples                                                                                                 |
+|----------------|----------------------------------|----------------------------|------------------------------------------------------------------------------------------------------------------|
+| **Creational** | Instantiation / Object Creation  | **"New" / "Clone"**        | Singleton<br/> Factory Method<br/> Abstract Factory<br/> Builder<br/> Prototype                                  |
+| **Structural** | Composition / Interface Assembly | **"Structure" / "Bridge"** | Adapter<br/> Decorator<br/> Facade<br/> Proxy                                                                    |
+| **Behavioral** | Interaction / Communication      | **"Talk" / "Delegate"**    | Observer<br/> Strategy<br/> Iterator<br/> Chain of Responsibility<br/> Template Method<br/> Command<br/> Visitor |
 
 ------------------------------------
 
