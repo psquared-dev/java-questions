@@ -19,47 +19,6 @@
     * [3. Why would anyone do this?](#3-why-would-anyone-do-this)
     * [4. The "Fixed" Formula (Strong Consistency)](#4-the-fixed-formula-strong-consistency)
   * [Q - What are Vector Clocks?](#q---what-are-vector-clocks)
-  * [Q - What are Bloom Filters?](#q---what-are-bloom-filters)
-    * [1. The problem (ELI5)](#1-the-problem-eli5)
-    * [2. What a Bloom Filter is (ELI5)](#2-what-a-bloom-filter-is-eli5)
-    * [3. The light-bulb board (visual example)](#3-the-light-bulb-board-visual-example)
-    * [4. Adding an item (example 1)](#4-adding-an-item-example-1)
-    * [5. Adding another item (example 2)](#5-adding-another-item-example-2)
-    * [6. Checking if an item exists (example)](#6-checking-if-an-item-exists-example)
-    * [7. Checking something that is NOT there](#7-checking-something-that-is-not-there)
-    * [8. The golden rule (important)](#8-the-golden-rule-important)
-    * [9. Why false positives are okay](#9-why-false-positives-are-okay)
-  * [Q - What are LSM Trees?](#q---what-are-lsm-trees)
-    * [Step 1: The problem LSM Trees solve (ELI5)](#step-1-the-problem-lsm-trees-solve-eli5)
-    * [Step 2: The key rule (lock this in)](#step-2-the-key-rule-lock-this-in)
-    * [Step 3: Start with memory (MemTable)](#step-3-start-with-memory-memtable)
-      * [MemTable (sorted in RAM)](#memtable-sorted-in-ram)
-    * [Step 4: MemTable fills up → flush to disk](#step-4-memtable-fills-up--flush-to-disk)
-    * [Step 5: First SSTable on disk](#step-5-first-sstable-on-disk)
-    * [Step 6: More writes come in](#step-6-more-writes-come-in)
-    * [Step 7: Flush again → another SSTable](#step-7-flush-again--another-sstable)
-    * [Step 8: How READ works (very important)](#step-8-how-read-works-very-important)
-    * [Step 9: Bloom Filters help speed reads](#step-9-bloom-filters-help-speed-reads)
-    * [Step 10: Deletes (tombstones)](#step-10-deletes-tombstones)
-    * [Step 11: Problem: Too many SSTables](#step-11-problem-too-many-sstables)
-    * [Step 12: Compaction (cleanup)](#step-12-compaction-cleanup)
-    * [Step 13: Why LSM Trees are fast](#step-13-why-lsm-trees-are-fast)
-    * [Step 14: One-sentence ELI5 summary (memorize this)](#step-14-one-sentence-eli5-summary-memorize-this)
-  * [Q - MemTable and SSTable: Structure and Layout](#q---memtable-and-sstable-structure-and-layout)
-    * [1. What a MemTable looks like (in memory)](#1-what-a-memtable-looks-like-in-memory)
-      * [How it’s actually implemented](#how-its-actually-implemented)
-      * [What happens on write](#what-happens-on-write)
-    * [2. What happens when MemTable is flushed](#2-what-happens-when-memtable-is-flushed)
-    * [3. What an SSTable looks like (on disk)](#3-what-an-sstable-looks-like-on-disk)
-      * [SSTable (high-level layout)](#sstable-high-level-layout)
-      * [3.1 Data Blocks (the actual data)](#31-data-blocks-the-actual-data)
-      * [3.2 Index Block (how SSTable is searched)](#32-index-block-how-sstable-is-searched)
-      * [3.3 Bloom Filter (quick "not here" check)](#33-bloom-filter-quick-not-here-check)
-      * [3.4 Footer](#34-footer)
-    * [4. SSTable example (full picture)](#4-sstable-example-full-picture)
-    * [5. How reads actually happen (step-by-step)](#5-how-reads-actually-happen-step-by-step)
-    * [6. Deletes (tombstones) in MemTable and SSTable](#6-deletes-tombstones-in-memtable-and-sstable)
-    * [7. Key difference (very important)](#7-key-difference-very-important)
   * [Q - What is Consistent hashing?](#q---what-is-consistent-hashing)
     * [Consistent hashing: the core idea](#consistent-hashing-the-core-idea)
     * [The hash space (horizontal line)](#the-hash-space-horizontal-line)
@@ -119,7 +78,49 @@
     * [25. Why this design is correct](#25-why-this-design-is-correct)
     * [26. Perfect interview summary (one sentence)](#26-perfect-interview-summary-one-sentence)
     * [27. Ultra-short version (interrupt-safe)](#27-ultra-short-version-interrupt-safe)
-* [Module 2 — System Performance & Scalability](#module-2--system-performance--scalability)
+  * [Q - What are Bloom Filters?](#q---what-are-bloom-filters)
+    * [1. The problem (ELI5)](#1-the-problem-eli5)
+    * [2. What a Bloom Filter is (ELI5)](#2-what-a-bloom-filter-is-eli5)
+    * [3. The light-bulb board (visual example)](#3-the-light-bulb-board-visual-example)
+    * [4. Adding an item (example 1)](#4-adding-an-item-example-1)
+    * [5. Adding another item (example 2)](#5-adding-another-item-example-2)
+    * [6. Checking if an item exists (example)](#6-checking-if-an-item-exists-example)
+    * [7. Checking something that is NOT there](#7-checking-something-that-is-not-there)
+    * [8. The golden rule (important)](#8-the-golden-rule-important)
+    * [9. Why false positives are okay](#9-why-false-positives-are-okay)
+* [Module 2 — Storage Engines & Low-Level Data Structures](#module-2--storage-engines--low-level-data-structures)
+  * [Q - What are LSM Trees?](#q---what-are-lsm-trees)
+    * [Step 1: The problem LSM Trees solve (ELI5)](#step-1-the-problem-lsm-trees-solve-eli5)
+    * [Step 2: The key rule (lock this in)](#step-2-the-key-rule-lock-this-in)
+    * [Step 3: Start with memory (MemTable)](#step-3-start-with-memory-memtable)
+      * [MemTable (sorted in RAM)](#memtable-sorted-in-ram)
+    * [Step 4: MemTable fills up → flush to disk](#step-4-memtable-fills-up--flush-to-disk)
+    * [Step 5: First SSTable on disk](#step-5-first-sstable-on-disk)
+    * [Step 6: More writes come in](#step-6-more-writes-come-in)
+    * [Step 7: Flush again → another SSTable](#step-7-flush-again--another-sstable)
+    * [Step 8: How READ works (very important)](#step-8-how-read-works-very-important)
+    * [Step 9: Bloom Filters help speed reads](#step-9-bloom-filters-help-speed-reads)
+    * [Step 10: Deletes (tombstones)](#step-10-deletes-tombstones)
+    * [Step 11: Problem: Too many SSTables](#step-11-problem-too-many-sstables)
+    * [Step 12: Compaction (cleanup)](#step-12-compaction-cleanup)
+    * [Step 13: Why LSM Trees are fast](#step-13-why-lsm-trees-are-fast)
+    * [Step 14: One-sentence ELI5 summary (memorize this)](#step-14-one-sentence-eli5-summary-memorize-this)
+  * [Q - MemTable and SSTable: Structure and Layout](#q---memtable-and-sstable-structure-and-layout)
+    * [1. What a MemTable looks like (in memory)](#1-what-a-memtable-looks-like-in-memory)
+      * [How it’s actually implemented](#how-its-actually-implemented)
+      * [What happens on write](#what-happens-on-write)
+    * [2. What happens when MemTable is flushed](#2-what-happens-when-memtable-is-flushed)
+    * [3. What an SSTable looks like (on disk)](#3-what-an-sstable-looks-like-on-disk)
+      * [SSTable (high-level layout)](#sstable-high-level-layout)
+      * [3.1 Data Blocks (the actual data)](#31-data-blocks-the-actual-data)
+      * [3.2 Index Block (how SSTable is searched)](#32-index-block-how-sstable-is-searched)
+      * [3.3 Bloom Filter (quick "not here" check)](#33-bloom-filter-quick-not-here-check)
+      * [3.4 Footer](#34-footer)
+    * [4. SSTable example (full picture)](#4-sstable-example-full-picture)
+    * [5. How reads actually happen (step-by-step)](#5-how-reads-actually-happen-step-by-step)
+    * [6. Deletes (tombstones) in MemTable and SSTable](#6-deletes-tombstones-in-memtable-and-sstable)
+    * [7. Key difference (very important)](#7-key-difference-very-important)
+* [Module 3 — System Performance & Scalability](#module-3--system-performance--scalability)
   * [Q - What is N+1 problem?](#q---what-is-n1-problem)
     * [1. The Scenario: "Authors and Books"](#1-the-scenario-authors-and-books)
     * [2. The Bad Code (The Trap)](#2-the-bad-code-the-trap)
@@ -158,7 +159,27 @@
       * [2. How it works (Step-by-Step)](#2-how-it-works-step-by-step-4)
       * [3. Deep Dive: Why this wins](#3-deep-dive-why-this-wins)
     * [Summary Table (Quick Reference)](#summary-table-quick-reference)
-* [Module 3 — Resilience Patterns](#module-3--resilience-patterns)
+* [Module 4 — Micorservice Design Patterns](#module-4--micorservice-design-patterns)
+  * [Q - What are common microserivces design patterns?](#q---what-are-common-microserivces-design-patterns)
+    * [1. Decomposition Patterns (How to break the Monolith)](#1-decomposition-patterns-how-to-break-the-monolith)
+      * [A. Strangler Fig Pattern](#a-strangler-fig-pattern)
+      * [B. Decompose by Subdomain (DDD)](#b-decompose-by-subdomain-ddd)
+    * [2. Integration Patterns (How services talk)](#2-integration-patterns-how-services-talk)
+      * [A. API Gateway Pattern](#a-api-gateway-pattern)
+      * [B. Aggregator Pattern](#b-aggregator-pattern)
+    * [3. Database Patterns (The hardest part)](#3-database-patterns-the-hardest-part)
+      * [A. Database per Service](#a-database-per-service)
+      * [B. Saga Pattern (Distributed Transactions)](#b-saga-pattern-distributed-transactions)
+      * [C. CQRS (Command Query Responsibility Segregation)](#c-cqrs-command-query-responsibility-segregation)
+    * [4. Cross-Cutting Concern Patterns](#4-cross-cutting-concern-patterns)
+      * [A. Circuit Breaker](#a-circuit-breaker)
+      * [B. Bulkhead Pattern](#b-bulkhead-pattern)
+    * [5. Observability Patterns (How to see inside the black box)](#5-observability-patterns-how-to-see-inside-the-black-box)
+      * [A. Distributed Tracing](#a-distributed-tracing)
+      * [B. Log Aggregation](#b-log-aggregation)
+      * [C. Health Check API](#c-health-check-api)
+    * [Summary for the Interview (The "Must-Haves")](#summary-for-the-interview-the-must-haves)
+    * [References](#references)
   * [Q - Explain Bulkhead Pattern](#q---explain-bulkhead-pattern)
     * [The Problem: "Resource Exhaustion" (The Sinking Ship)](#the-problem-resource-exhaustion-the-sinking-ship)
     * [The Solution: The Bulkhead Pattern](#the-solution-the-bulkhead-pattern)
@@ -190,32 +211,17 @@
       * [3. What if something fails? (Compensating Transactions)](#3-what-if-something-fails-compensating-transactions)
     * [Comparison Cheat Sheet](#comparison-cheat-sheet)
     * [Summary for Interview](#summary-for-interview)
+  * [Q - In what scenario, you should prefer orchestration saga pattern over choreography pattern?](#q---in-what-scenario-you-should-prefer-orchestration-saga-pattern-over-choreography-pattern)
+    * [1. The Workflow is Complex (More than 4 steps)](#1-the-workflow-is-complex-more-than-4-steps)
+    * [2. You Need Centralized Monitoring & Control](#2-you-need-centralized-monitoring--control)
+    * [3. The Flow Has Cyclic Dependencies](#3-the-flow-has-cyclic-dependencies)
+    * [4. Compensation (Rollback) Logic is Critical](#4-compensation-rollback-logic-is-critical)
+    * [Summary Table](#summary-table)
   * [Q - Explain Transactional outbox pattern](#q---explain-transactional-outbox-pattern)
     * [The Problem: The "Dual Write" Dilemma](#the-problem-the-dual-write-dilemma)
     * [The Solution: The Outbox Pattern](#the-solution-the-outbox-pattern)
     * [Why use it? (Interview Key Points)](#why-use-it-interview-key-points)
     * [Summary](#summary)
-* [Module 4 — Microservices Architecture](#module-4--microservices-architecture)
-  * [Q - What are common microserivces design pattern?](#q---what-are-common-microserivces-design-pattern)
-    * [1. Decomposition Patterns (How to break the Monolith)](#1-decomposition-patterns-how-to-break-the-monolith)
-      * [A. Strangler Fig Pattern](#a-strangler-fig-pattern)
-      * [B. Decompose by Subdomain (DDD)](#b-decompose-by-subdomain-ddd)
-    * [2. Integration Patterns (How services talk)](#2-integration-patterns-how-services-talk)
-      * [A. API Gateway Pattern](#a-api-gateway-pattern)
-      * [B. Aggregator Pattern](#b-aggregator-pattern)
-    * [3. Database Patterns (The hardest part)](#3-database-patterns-the-hardest-part)
-      * [A. Database per Service](#a-database-per-service)
-      * [B. Saga Pattern (Distributed Transactions)](#b-saga-pattern-distributed-transactions)
-      * [C. CQRS (Command Query Responsibility Segregation)](#c-cqrs-command-query-responsibility-segregation)
-    * [4. Cross-Cutting Concern Patterns](#4-cross-cutting-concern-patterns)
-      * [A. Circuit Breaker](#a-circuit-breaker)
-      * [B. Bulkhead Pattern](#b-bulkhead-pattern)
-    * [5. Observability Patterns (How to see inside the black box)](#5-observability-patterns-how-to-see-inside-the-black-box)
-      * [A. Distributed Tracing](#a-distributed-tracing)
-      * [B. Log Aggregation](#b-log-aggregation)
-      * [C. Health Check API](#c-health-check-api)
-    * [Summary for the Interview (The "Must-Haves")](#summary-for-the-interview-the-must-haves)
-    * [References](#references)
   * [Q - Explain CQRS Pattern](#q---explain-cqrs-pattern)
     * [CQRS (Command Query Responsibility Segregation)](#cqrs-command-query-responsibility-segregation)
     * [The Scenario: "The PlayStation 5 Launch"](#the-scenario-the-playstation-5-launch)
@@ -223,12 +229,7 @@
     * [2. The "Sanity" of CQRS (The Fix)](#2-the-sanity-of-cqrs-the-fix)
     * [3. The Trade-off (The Glue)](#3-the-trade-off-the-glue)
     * [Summary](#summary-1)
-  * [Q - In what scenario, you should prefer orchestration saga pattern over choreography pattern?](#q---in-what-scenario-you-should-prefer-orchestration-saga-pattern-over-choreography-pattern)
-    * [1. The Workflow is Complex (More than 4 steps)](#1-the-workflow-is-complex-more-than-4-steps)
-    * [2. You Need Centralized Monitoring & Control](#2-you-need-centralized-monitoring--control)
-    * [3. The Flow Has Cyclic Dependencies](#3-the-flow-has-cyclic-dependencies)
-    * [4. Compensation (Rollback) Logic is Critical](#4-compensation-rollback-logic-is-critical)
-    * [Summary Table](#summary-table)
+  * [Q - What is Event Sourcing](#q---what-is-event-sourcing)
 * [Module 5 — API & REST Semantics](#module-5--api--rest-semantics)
   * [Q - What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems](#q---what-is-an-idempotent-api-which-http-methods-are-idempotent-and-why-does-idempotency-matter-in-restful-systems)
     * [What does idempotent mean? (Very basics)](#what-does-idempotent-mean-very-basics)
@@ -278,6 +279,8 @@
     * [L - Liskov Substitution Principle (LSP)](#l---liskov-substitution-principle-lsp)
     * [I - Interface Segregation Principle (ISP)](#i---interface-segregation-principle-isp)
     * [D - Dependency Inversion Principle (DIP)](#d---dependency-inversion-principle-dip)
+      * [Without Dependency Inversion](#without-dependency-inversion)
+      * [With Dependency Inversion](#with-dependency-inversion)
     * [Summary Cheat Sheet](#summary-cheat-sheet)
   * [Q - When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?](#q---when-should-i-use-an-interface-vs-an-abstract-class-while-designing-a-file-uploader-with-multiple-implementations-eg-s3-gcp)
     * [Use an INTERFACE when the goal is “capability” or “contract”](#use-an-interface-when-the-goal-is-capability-or-contract)
@@ -573,659 +576,6 @@ If you want to guarantee that your friend always sees "The sky is Green," you mu
 
 
 ## Q - What are Vector Clocks?
-
-
-
-----------------
-
-## Q - What are Bloom Filters?
-
-### 1. The problem (ELI5)
-
-Imagine you have a huge toy box with millions of toys.
-
-A kid asks:
-
-> "Is the red dinosaur toy inside?"
-
-You don't want to:
-
-* open the box every time (slow)
-* guess randomly (wrong)
-
-You want a quick hint that tells you:
-
-* ❌ “Definitely NOT inside”
-* 🤔 “Maybe inside”
-
-That hint is a Bloom Filter.
-
-### 2. What a Bloom Filter is (ELI5)
-
-> A Bloom Filter is a quick checker that can tell you
-"Definitely no" or "Maybe yes."
->
-
-It never says:
-
-* "Yes, for sure"
-
-### 3. The light-bulb board (visual example)
-
-Imagine a board with 8 light bulbs:
-
-```text
-[ 0 0 0 0 0 0 0 0 ]
-```
-
-* `0` = OFF
-* `1` = ON
-
-All bulbs start OFF.
-
-### 4. Adding an item (example 1)
-
-You add the word:
-
-```text
-"apple"
-```
-
-You pass "apple" through 2 magic machines (hash functions).
-
-They say:
-
-* Turn ON bulb #2
-* Turn ON bulb #5
-
-Board becomes:
-
-```text
-[ 0 0 1 0 0 1 0 0 ]
-```
-
-You did not store "apple" — you only flipped bulbs.
-
-### 5. Adding another item (example 2)
-
-Add:
-
-```text
-"banana"
-```
-
-Magic machines say:
-
-* Turn ON bulb #3
-* Turn ON bulb #5
-
-Board becomes:
-
-```text
-[ 0 0 1 1 0 1 0 0 ]
-```
-
-Note:
-
-* Bulb #5 was already ON — that's fine.
-
-### 6. Checking if an item exists (example)
-
-Someone asks:
-> "Do you have ‘apple’?"
->
-
-You:
-
-1. Run "apple" through the same machines
-2. Check bulbs #2 and #5
-
-Both are ON →
-👉 Maybe yes
-
-You now go check the real toy box.
-
-### 7. Checking something that is NOT there
-
-Someone asks:
-> "Do you have ‘dragon’?"
->
-
-Machines say:
-
-* Check bulb #1
-* Check bulb #6
-
-Board:
-
-```text
-[ 0 0 1 1 0 1 0 0 ]
-```
-
-Bulb #1 is OFF →
-👉 Definitely NOT there
-
-You skip checking the box entirely.
-
-### 8. The golden rule (important)
-
-| Bloom Filter answer | Meaning                |
-|---------------------|------------------------|
-| ❌ No                | Definitely not present |
-| 🤔 Yes              | Might be present       |
-
-It never lies about "no."
-It can lie about "yes."
-
-This lie is called a false positive.
-
-### 9. Why false positives are okay
-
-If Bloom Filter says:
-
-> "Maybe yes"
-
-Worst case:
-
-* You checked the box unnecessarily
-
-If Bloom Filter says:
-
-> "No"
-
-You saved time and avoided work.
-
-So Bloom Filters trade:
-
-* tiny uncertainty
-* for huge speed gains
-
-
-----------------
-
-
-## Q - What are LSM Trees?
-
-### Step 1: The problem LSM Trees solve (ELI5)
-
-Imagine you keep a notebook on disk.
-
-Every time you want to update a value, you must:
-
-* open the notebook
-* erase a line
-* rewrite it
-
-Disk hates this.
-
-
-So databases asked:
-
-> "What if we never erase and only append?"
-
-That idea leads to **LSM Trees**.
-
-### Step 2: The key rule (lock this in)
-
-> Never update data in place. Always write new data.
->
-
-Old data stays. New data is written on top.
-
-### Step 3: Start with memory (MemTable)
-
-When a write comes in:
-
-```text
-PUT(cat, 10)
-PUT(dog, 20)
-PUT(apple, 5)
-```
-
-Instead of disk, we write to memory.
-
-#### MemTable (sorted in RAM)
-
-```text
-apple → 5
-cat   → 10
-dog   → 20
-```
-
-Fast. No disk yet.
-
-###  Step 4: MemTable fills up → flush to disk
-
-Memory is limited.
-
-When MemTable is full:
-
-* freeze it
-* write it to disk
-* start a new MemTable
-
-The disk file is called an SSTable.
-
-
-### Step 5: First SSTable on disk
-
-```text
-SSTable_1 (on disk)
-------------------
-apple → 5
-cat   → 10
-dog   → 20
-```
-
-Important:
-
-* Sorted
-* Immutable (never changes)
-
-
-### Step 6: More writes come in
-
-Now we write more data:
-
-```text
-PUT(cat, 15)   // update
-PUT(egg, 3)
-```
-
-New MemTable:
-
-```text
-cat → 15
-egg → 3
-```
-
-### Step 7: Flush again → another SSTable
-
-```text
-SSTable_2 (newer)
------------------
-cat → 15
-egg → 3
-```
-
-Disk now has:
-
-```text
-SSTable_2 (newest)
-SSTable_1 (older)
-```
-
-### Step 8: How READ works (very important)
-
-Suppose we do:
-
-```text
-GET(cat)
-```
-
-Database checks:
-
-* MemTable (if exists)
-* SSTable_2
-* SSTable_1
-
-Finds:
-
-```text
-cat → 15
-```
-
-Stops immediately.
-
-Newer data always wins.
-
-
-### Step 9: Bloom Filters help speed reads
-
-Before reading an SSTable:
-
-* Bloom Filter says:
-  * ❌ "Not here" → skip
-  * 🤔 "Maybe here" → check
-
-So we don't scan every file.
-
-
-### Step 10: Deletes (tombstones)
-
-If you do:
-
-```text
-DELETE(dog)
-```
-
-The MemTable records a tombstone entry:
-
-```text
-dog → TOMBSTONE
-```
-
-Later SSTable:
-
-```text
-SSTable_3
----------
-dog → <tombstone>
-```
-
-This hides old values.
-
-### Step 11: Problem: Too many SSTables
-
-Over time:
-
-* Many SSTables
-* Reads get slower
-* Disk usage grows
-
-### Step 12: Compaction (cleanup)
-
-Background process:
-
-1. Read multiple SSTables
-2. Merge them (like merge sort)
-3. Keep only latest value per key
-4. Remove tombstones
-5. Write a new SSTable
-
-Example:
-
-Before compaction:
-
-```text
-SSTable_2: cat → 15
-SSTable_1: cat → 10
-```
-
-After:
-
-```text
-SSTable_compacted: cat → 15
-```
-
-Old files are deleted.
-
-
-### Step 13: Why LSM Trees are fast
-
-Writes:
-
-* In-memory
-* Sequential disk writes
-* No random IO
-
-Reads:
-
-* More complex
-* Fixed by Bloom filters + compaction
-
-LSM trades:
-
-> Write speed for read complexity
-
-### Step 14: One-sentence ELI5 summary (memorize this)
-
-> An LSM Tree stores new data in memory, writes it to disk as immutable sorted files, and later merges
-> those files to keep reads fast.
->
-
-
-------------------
-
-
-## Q - MemTable and SSTable: Structure and Layout
-
-### 1. What a MemTable looks like (in memory)
-
-A MemTable is just an in-memory sorted map.
-
-Think of it as:
-
-```text
-SortedMap<Key, Value>
-```
-
-Example: MemTable contents
-
-```text
-MemTable
---------
-apple   → 10
-banana  → 20
-cat     → 30
-dog     → 40
-```
-
-Important properties:
-
-* Sorted by key
-* Lives entirely in RAM
-* Mutable (can change)
-* Fast inserts and updates
-
-#### How it’s actually implemented
-
-In real systems (RocksDB, Cassandra):
-
-* Skip List (most common)
-* Red-Black Tree
-* AVL Tree
-
-You don't need to know how its implemented — the key point is:
-> Keys are always kept sorted.
-
-#### What happens on write
-
-```text
-PUT(cat, 99)
-```
-
-MemTable becomes:
-
-```text
-apple   → 10
-banana  → 20
-cat     → 99   (newer value)
-dog     → 40
-```
-
-No disk touched yet.
-
-### 2. What happens when MemTable is flushed
-
-When MemTable gets full:
-
-* It is frozen (read-only)
-* Written to disk
-* Turned into an `SSTable`
-
-
-### 3. What an SSTable looks like (on disk)
-
-An SSTable is **immutable** and **sorted**.
-
-But it’s not just a flat file. It has **structure**.
-
-#### SSTable (high-level layout)
-
-```text
-+--------------------+
-| Data Blocks        |
-+--------------------+
-| Index Block        |
-+--------------------+
-| Bloom Filter       |
-+--------------------+
-| Footer             |
-+--------------------+
-```
-
-Let's go piece by piece.
-
-#### 3.1 Data Blocks (the actual data)
-
-Data is stored in **blocks**, not one giant list.
-
-Example:
-
-```text
-Data Block 1
-------------
-apple  → 10
-banana → 20
-
-Data Block 2
-------------
-cat → 99
-dog → 40
-```
-
-Properties:
-
-* Sorted within the block
-* Fixed-size (e.g., 4 KB)
-* Read sequentially from disk
-
-
-#### 3.2 Index Block (how SSTable is searched)
-
-The index tells you which block to read.
-
-Example:
-
-```text
-Index Block
------------
-apple → Block 1
-cat   → Block 2
-```
-
-Meaning:
-
-* If key < cat → look in Block 1
-* Else → Block 2
-
-This avoids scanning the whole file.
-
-
-#### 3.3 Bloom Filter (quick "not here" check)
-
-Each SSTable has a Bloom filter.
-
-Example logic:
-
-```text
-GET("elephant")
-Bloom Filter → definitely NOT present
-→ skip this SSTable entirely
-```
-
-This avoids disk reads.
-
-#### 3.4 Footer
-
-Stores:
-
-* Pointers to index
-* Metadata
-* Version info
-
-Used when opening the file.
-
-
-### 4. SSTable example (full picture)
-
-```text
-SSTable-42
-----------
-Data Blocks:
-  [apple → 10, banana → 20]
-  [cat → 99, dog → 40]
-
-Index:
-  apple → block-0
-  cat   → block-1
-
-Bloom Filter:
-  bits = 101011001...
-
-Footer:
-  index_offset = 8192
-```
-
-Once written:
-
-* ❌ Cannot be modified
-* ❌ Cannot be appended
-* ✅ Can be read efficiently
-
-
-### 5. How reads actually happen (step-by-step)
-
-Let's do:
-
-```text
-GET(cat)
-```
-
-**Step 1: Check MemTable**
-
-* If found → return immediately
-
-**Step 2: Check newest SSTable**
-
-* Bloom filter → maybe present
-* Index → find correct block
-* Read block → binary search inside block
-
-**Step 3: Stop at first match**
-
-* Newest value wins
-
-
-### 6. Deletes (tombstones) in MemTable and SSTable
-
-Delete is just another entry.
-
-**MemTable after delete**
-
-```text
-cat → TOMBSTONE
-```
-
-**SSTable on disk**
-
-```text
-SSTable (on disk)
------------------
-apple → 10
-banana → 20
-cat → TOMBSTONE
-dog → 40
-```
-
-
-
-During compaction:
-
-* Older values are removed
-* Tombstone may disappear
-
-
-### 7. Key difference (very important)
-
-| MemTable      | SSTable               |
-|---------------|-----------------------|
-| In memory     | On disk               |
-| Mutable       | Immutable             |
-| Fast writes   | Fast sequential reads |
-| One at a time | Many files            |
-| Temporary     | Long-lived            |
 
 
 ----------------
@@ -2071,8 +1421,8 @@ DEAD
 
 ### 26. Perfect interview summary (one sentence)
 
-> Gossip maintains a single membership map where nodes transition from ALIVE to SUSPECT 
-> to DEAD based on timed suspicion and corroborated failures, and incarnation numbers—owned 
+> Gossip maintains a single membership map where nodes transition from ALIVE to SUSPECT
+> to DEAD based on timed suspicion and corroborated failures, and incarnation numbers—owned
 > and incremented by the node itself—ensure newer liveness information always overrides stale gossip.
 
 ---
@@ -2083,10 +1433,666 @@ DEAD
 > use incarnation numbers to resolve conflicts and allow safe recovery.
 
 
+
+
+
+----------------
+
+## Q - What are Bloom Filters?
+
+### 1. The problem (ELI5)
+
+Imagine you have a huge toy box with millions of toys.
+
+A kid asks:
+
+> "Is the red dinosaur toy inside?"
+
+You don't want to:
+
+* open the box every time (slow)
+* guess randomly (wrong)
+
+You want a quick hint that tells you:
+
+* ❌ “Definitely NOT inside”
+* 🤔 “Maybe inside”
+
+That hint is a Bloom Filter.
+
+### 2. What a Bloom Filter is (ELI5)
+
+> A Bloom Filter is a quick checker that can tell you
+"Definitely no" or "Maybe yes."
+>
+
+It never says:
+
+* "Yes, for sure"
+
+### 3. The light-bulb board (visual example)
+
+Imagine a board with 8 light bulbs:
+
+```text
+[ 0 0 0 0 0 0 0 0 ]
+```
+
+* `0` = OFF
+* `1` = ON
+
+All bulbs start OFF.
+
+### 4. Adding an item (example 1)
+
+You add the word:
+
+```text
+"apple"
+```
+
+You pass "apple" through 2 magic machines (hash functions).
+
+They say:
+
+* Turn ON bulb #2
+* Turn ON bulb #5
+
+Board becomes:
+
+```text
+[ 0 0 1 0 0 1 0 0 ]
+```
+
+You did not store "apple" — you only flipped bulbs.
+
+### 5. Adding another item (example 2)
+
+Add:
+
+```text
+"banana"
+```
+
+Magic machines say:
+
+* Turn ON bulb #3
+* Turn ON bulb #5
+
+Board becomes:
+
+```text
+[ 0 0 1 1 0 1 0 0 ]
+```
+
+Note:
+
+* Bulb #5 was already ON — that's fine.
+
+### 6. Checking if an item exists (example)
+
+Someone asks:
+> "Do you have ‘apple’?"
+>
+
+You:
+
+1. Run "apple" through the same machines
+2. Check bulbs #2 and #5
+
+Both are ON →
+👉 Maybe yes
+
+You now go check the real toy box.
+
+### 7. Checking something that is NOT there
+
+Someone asks:
+> "Do you have ‘dragon’?"
+>
+
+Machines say:
+
+* Check bulb #1
+* Check bulb #6
+
+Board:
+
+```text
+[ 0 0 1 1 0 1 0 0 ]
+```
+
+Bulb #1 is OFF →
+👉 Definitely NOT there
+
+You skip checking the box entirely.
+
+### 8. The golden rule (important)
+
+| Bloom Filter answer | Meaning                |
+|---------------------|------------------------|
+| ❌ No                | Definitely not present |
+| 🤔 Yes              | Might be present       |
+
+It never lies about "no."
+It can lie about "yes."
+
+This lie is called a false positive.
+
+### 9. Why false positives are okay
+
+If Bloom Filter says:
+
+> "Maybe yes"
+
+Worst case:
+
+* You checked the box unnecessarily
+
+If Bloom Filter says:
+
+> "No"
+
+You saved time and avoided work.
+
+So Bloom Filters trade:
+
+* tiny uncertainty
+* for huge speed gains
+
+
+----------------
+
+# Module 2 — Storage Engines & Low-Level Data Structures
+
+## Q - What are LSM Trees?
+
+### Step 1: The problem LSM Trees solve (ELI5)
+
+Imagine you keep a notebook on disk.
+
+Every time you want to update a value, you must:
+
+* open the notebook
+* erase a line
+* rewrite it
+
+Disk hates this.
+
+
+So databases asked:
+
+> "What if we never erase and only append?"
+
+That idea leads to **LSM Trees**.
+
+### Step 2: The key rule (lock this in)
+
+> Never update data in place. Always write new data.
+>
+
+Old data stays. New data is written on top.
+
+### Step 3: Start with memory (MemTable)
+
+When a write comes in:
+
+```text
+PUT(cat, 10)
+PUT(dog, 20)
+PUT(apple, 5)
+```
+
+Instead of disk, we write to memory.
+
+#### MemTable (sorted in RAM)
+
+```text
+apple → 5
+cat   → 10
+dog   → 20
+```
+
+Fast. No disk yet.
+
+###  Step 4: MemTable fills up → flush to disk
+
+Memory is limited.
+
+When MemTable is full:
+
+* freeze it
+* write it to disk
+* start a new MemTable
+
+The disk file is called an SSTable.
+
+
+### Step 5: First SSTable on disk
+
+```text
+SSTable_1 (on disk)
+------------------
+apple → 5
+cat   → 10
+dog   → 20
+```
+
+Important:
+
+* Sorted
+* Immutable (never changes)
+
+
+### Step 6: More writes come in
+
+Now we write more data:
+
+```text
+PUT(cat, 15)   // update
+PUT(egg, 3)
+```
+
+New MemTable:
+
+```text
+cat → 15
+egg → 3
+```
+
+### Step 7: Flush again → another SSTable
+
+```text
+SSTable_2 (newer)
+-----------------
+cat → 15
+egg → 3
+```
+
+Disk now has:
+
+```text
+SSTable_2 (newest)
+SSTable_1 (older)
+```
+
+### Step 8: How READ works (very important)
+
+Suppose we do:
+
+```text
+GET(cat)
+```
+
+Database checks:
+
+* MemTable (if exists)
+* SSTable_2
+* SSTable_1
+
+Finds:
+
+```text
+cat → 15
+```
+
+Stops immediately.
+
+Newer data always wins.
+
+
+### Step 9: Bloom Filters help speed reads
+
+Before reading an SSTable:
+
+* Bloom Filter says:
+  * ❌ "Not here" → skip
+  * 🤔 "Maybe here" → check
+
+So we don't scan every file.
+
+
+### Step 10: Deletes (tombstones)
+
+If you do:
+
+```text
+DELETE(dog)
+```
+
+The MemTable records a tombstone entry:
+
+```text
+dog → TOMBSTONE
+```
+
+Later SSTable:
+
+```text
+SSTable_3
+---------
+dog → <tombstone>
+```
+
+This hides old values.
+
+### Step 11: Problem: Too many SSTables
+
+Over time:
+
+* Many SSTables
+* Reads get slower
+* Disk usage grows
+
+### Step 12: Compaction (cleanup)
+
+Background process:
+
+1. Read multiple SSTables
+2. Merge them (like merge sort)
+3. Keep only latest value per key
+4. Remove tombstones
+5. Write a new SSTable
+
+Example:
+
+Before compaction:
+
+```text
+SSTable_2: cat → 15
+SSTable_1: cat → 10
+```
+
+After:
+
+```text
+SSTable_compacted: cat → 15
+```
+
+Old files are deleted.
+
+
+### Step 13: Why LSM Trees are fast
+
+Writes:
+
+* In-memory
+* Sequential disk writes
+* No random IO
+
+Reads:
+
+* More complex
+* Fixed by Bloom filters + compaction
+
+LSM trades:
+
+> Write speed for read complexity
+
+### Step 14: One-sentence ELI5 summary (memorize this)
+
+> An LSM Tree stores new data in memory, writes it to disk as immutable sorted files, and later merges
+> those files to keep reads fast.
+>
+
+
+------------------
+
+
+## Q - MemTable and SSTable: Structure and Layout
+
+### 1. What a MemTable looks like (in memory)
+
+A MemTable is just an in-memory sorted map.
+
+Think of it as:
+
+```text
+SortedMap<Key, Value>
+```
+
+Example: MemTable contents
+
+```text
+MemTable
+--------
+apple   → 10
+banana  → 20
+cat     → 30
+dog     → 40
+```
+
+Important properties:
+
+* Sorted by key
+* Lives entirely in RAM
+* Mutable (can change)
+* Fast inserts and updates
+
+#### How it’s actually implemented
+
+In real systems (RocksDB, Cassandra):
+
+* Skip List (most common)
+* Red-Black Tree
+* AVL Tree
+
+You don't need to know how its implemented — the key point is:
+> Keys are always kept sorted.
+
+#### What happens on write
+
+```text
+PUT(cat, 99)
+```
+
+MemTable becomes:
+
+```text
+apple   → 10
+banana  → 20
+cat     → 99   (newer value)
+dog     → 40
+```
+
+No disk touched yet.
+
+### 2. What happens when MemTable is flushed
+
+When MemTable gets full:
+
+* It is frozen (read-only)
+* Written to disk
+* Turned into an `SSTable`
+
+
+### 3. What an SSTable looks like (on disk)
+
+An SSTable is **immutable** and **sorted**.
+
+But it’s not just a flat file. It has **structure**.
+
+#### SSTable (high-level layout)
+
+```text
++--------------------+
+| Data Blocks        |
++--------------------+
+| Index Block        |
++--------------------+
+| Bloom Filter       |
++--------------------+
+| Footer             |
++--------------------+
+```
+
+Let's go piece by piece.
+
+#### 3.1 Data Blocks (the actual data)
+
+Data is stored in **blocks**, not one giant list.
+
+Example:
+
+```text
+Data Block 1
+------------
+apple  → 10
+banana → 20
+
+Data Block 2
+------------
+cat → 99
+dog → 40
+```
+
+Properties:
+
+* Sorted within the block
+* Fixed-size (e.g., 4 KB)
+* Read sequentially from disk
+
+
+#### 3.2 Index Block (how SSTable is searched)
+
+The index tells you which block to read.
+
+Example:
+
+```text
+Index Block
+-----------
+apple → Block 1
+cat   → Block 2
+```
+
+Meaning:
+
+* If key < cat → look in Block 1
+* Else → Block 2
+
+This avoids scanning the whole file.
+
+
+#### 3.3 Bloom Filter (quick "not here" check)
+
+Each SSTable has a Bloom filter.
+
+Example logic:
+
+```text
+GET("elephant")
+Bloom Filter → definitely NOT present
+→ skip this SSTable entirely
+```
+
+This avoids disk reads.
+
+#### 3.4 Footer
+
+Stores:
+
+* Pointers to index
+* Metadata
+* Version info
+
+Used when opening the file.
+
+
+### 4. SSTable example (full picture)
+
+```text
+SSTable-42
+----------
+Data Blocks:
+  [apple → 10, banana → 20]
+  [cat → 99, dog → 40]
+
+Index:
+  apple → block-0
+  cat   → block-1
+
+Bloom Filter:
+  bits = 101011001...
+
+Footer:
+  index_offset = 8192
+```
+
+Once written:
+
+* ❌ Cannot be modified
+* ❌ Cannot be appended
+* ✅ Can be read efficiently
+
+
+### 5. How reads actually happen (step-by-step)
+
+Let's do:
+
+```text
+GET(cat)
+```
+
+**Step 1: Check MemTable**
+
+* If found → return immediately
+
+**Step 2: Check newest SSTable**
+
+* Bloom filter → maybe present
+* Index → find correct block
+* Read block → binary search inside block
+
+**Step 3: Stop at first match**
+
+* Newest value wins
+
+
+### 6. Deletes (tombstones) in MemTable and SSTable
+
+Delete is just another entry.
+
+**MemTable after delete**
+
+```text
+cat → TOMBSTONE
+```
+
+**SSTable on disk**
+
+```text
+SSTable (on disk)
+-----------------
+apple → 10
+banana → 20
+cat → TOMBSTONE
+dog → 40
+```
+
+
+
+During compaction:
+
+* Older values are removed
+* Tombstone may disappear
+
+
+### 7. Key difference (very important)
+
+| MemTable      | SSTable               |
+|---------------|-----------------------|
+| In memory     | On disk               |
+| Mutable       | Immutable             |
+| Fast writes   | Fast sequential reads |
+| One at a time | Many files            |
+| Temporary     | Long-lived            |
+
+
 ----------------
 
 
-# Module 2 — System Performance & Scalability
+# Module 3 — System Performance & Scalability
 
 
 ## Q - What is N+1 problem?
@@ -2673,7 +2679,199 @@ We want to estimate how many requests happened in the *last rolling 60 seconds*.
 ----------------
 
 
-# Module 3 — Resilience Patterns
+# Module 4 — Micorservice Design Patterns
+
+## Q - What are common microserivces design patterns?
+
+This is a massive topic. To ace this in an interview, do not just list them. **Categorize them**
+based on the problem they solve.
+
+Here are the top 4 categories of patterns you must know, explained from the ground up.
+
+1. Decomposition Patterns
+2. Integration Patterns
+3. Database Patterns
+4. Cross-Cutting Concern Patterns
+5. Observability Patterns
+
+---
+
+### 1. Decomposition Patterns (How to break the Monolith)
+
+The first challenge is: "How do we split a 10-year-old application into small pieces?"
+
+#### A. Strangler Fig Pattern
+
+**The Problem:** You cannot rewrite a massive legacy system from scratch. It’s too risky.
+
+**The Solution:** You create a new microservice for *one specific feature* (e.g., "Search"). You put a proxy in front.
+
+* Calls to `/search` go to the **New Microservice**.
+* Calls to `/everything-else` go to the **Old Monolith**.
+* Over time, the new system "strangles" the old one until the monolith is gone.
+
+#### B. Decompose by Subdomain (DDD)
+
+**The Problem:** "Where do I draw the lines?"
+
+**The Solution:** Use Domain-Driven Design. Break services based on **Business Capabilities**, not technical layers.
+
+* *Bad:* `UserDBService`, `LogicService` (Technical layers).
+* *Good:* `OrderService`, `PaymentService`, `InventoryService` (Business subdomains).
+
+
+---
+
+
+### 2. Integration Patterns (How services talk)
+
+Once split, these services need to communicate without creating a "spaghetti mess."
+
+#### A. API Gateway Pattern
+
+**The Problem:** If you have 50 services, your Front End (React/Mobile) shouldn't
+know about all 50 IP addresses. It’s a security nightmare.
+
+**The Solution:** Put a single entry point (The Gatekeeper) in front.
+
+* The client talks **only** to the Gateway.
+* The Gateway routes the request to the correct internal service.
+* **Bonus:** It handles Authentication, SSL, and Rate Limiting centrally.
+
+#### B. Aggregator Pattern
+
+**The Problem:** To build a "Profile Page," the client needs
+data from `User`, `Orders`, and `Rewards` services. Making 3 calls from the mobile app is slow.
+
+**The Solution:** Create a helper service (or use GraphQL on the Gateway) that calls
+all 3 services, combines the data into one JSON, and sends it back in **one** response.
+
+
+---
+
+
+### 3. Database Patterns (The hardest part)
+
+In a monolith, you have one big SQL DB with JOINs. In microservices, **sharing a database is a sin.**
+
+#### A. Database per Service
+
+**The Problem:** If Service A and Service B share a DB, and Service A changes a
+table schema, Service B breaks. Tightly coupled.
+
+**The Solution:** Each service has its **own private database**. `OrderService` cannot
+read `CustomerService`'s tables directly. It must call the API.
+
+#### B. Saga Pattern (Distributed Transactions)
+
+**The Problem:** You need a transaction that spans multiple services.
+
+* *Scenario:* "Place Order" -> "Deduct Inventory" -> "Charge Payment".
+* If "Charge Payment" fails, you must **undo** the "Deduct Inventory" step.
+  You can't use `ROLLBACK` because they are different DBs.
+
+**The Solution:** A sequence of local transactions.
+
+* If a step fails, you execute a **Compensating Transaction** (a localized "Undo" command) to
+  reverse the previous steps.
+* *Types:* **Choreography** (Events) vs. **Orchestration** (Central Controller).
+
+#### C. CQRS (Command Query Responsibility Segregation)
+
+**The Problem:** "Reads" are vastly different from "Writes."
+
+* *Write:* Complex validation (Create Order).
+* *Read:* Fast lookup (Get Order History).
+* Using the same model for both is inefficient.
+
+**The Solution:** Split the application into two parts:
+
+* **Command Side:** Handles Creates/Updates (optimized for consistency).
+* **Query Side:** Handles Reads (optimized for speed, maybe using a NoSQL view).
+
+---
+
+### 4. Cross-Cutting Concern Patterns
+
+#### A. Circuit Breaker
+
+**The Problem:** Service A calls Service B. Service B is down or slow. Service A keeps
+waiting, threads pile up, and eventually Service A crashes too (Cascading Failure).
+
+**The Solution:** Install a "Circuit Breaker."
+
+* If calls to Service B fail 5 times in a row, the breaker **Trips (Opens)**.
+* For the next 60 seconds, Service A **immediately fails** calls to B without waiting (Fast Fail).
+* After 60 seconds, it lets one call through to check if B is back online.
+
+#### B. Bulkhead Pattern
+
+**The Problem:** One heavy feature (e.g., Image Processing) uses up all threads/connections, starving
+the critical features (e.g., Login).
+
+**The Solution:** Isolate resources into pools (like watertight compartments in a ship).
+
+* "Image Processing" gets a max of 10 threads.
+* "Login" gets a max of 20 threads.
+* If Image Processing fills up, Login is unaffected.
+
+---
+
+### 5. Observability Patterns (How to see inside the black box)
+
+In a monolith, you just check one log file. In microservices, a single
+request hits 10 services. Debugging is a nightmare without these.
+
+#### A. Distributed Tracing
+
+**The Problem:** A user reports "The app is slow," but you have no idea which
+of the 10 services in the chain is the bottleneck.
+
+**The Solution:** Assign a **Unique Trace ID** to the request at the entry point (Gateway).
+
+* This ID (`X-Trace-Id`) is passed in the headers to every internal service.
+* Tools like **Zipkin** or **Jaeger** visualize the entire "waterfall" of the request, showing exactly how many milliseconds each hop took.
+
+#### B. Log Aggregation
+
+**The Problem:** You have 50 services running on different containers. SSH-ing into each one to `grep` logs is impossible.
+
+**The Solution:** Centralize your logs (e.g., ELK Stack - Elasticsearch, Logstash, Kibana).
+
+* Every service pushes logs to a central collector asynchronously.
+* You search "ErrorID: 123" in one dashboard and see the full story across all services.
+
+#### C. Health Check API
+
+**The Problem:** The Orchestrator (Kubernetes) needs to know if a service is actually alive before sending traffic.
+
+**The Solution:** Every service exposes a specific endpoint (e.g., `/actuator/health`).
+
+* It checks DB connectivity and disk space.
+* If it returns `DOWN` (503), Kubernetes kills the pod and restarts it.
+
+---
+
+### Summary for the Interview (The "Must-Haves")
+
+If asked **"What patterns have you used?"**, pick 3-4 you are comfortable with:
+
+> "In my experience, the most critical patterns I've used are:
+> 1. **API Gateway** for centralized routing and security.
+> 2. **Database per Service** to ensure loose coupling.
+> 3. **Circuit Breaker** (using Resilience4j) to prevent cascading failures.
+> 4. **Saga Pattern** for handling distributed transactions like Order Processing."
+>
+>
+
+
+### References
+
+* https://www.openlegacy.com/blog/microservices-architecture-patterns/
+
+
+------------------------------------
+
 
 ## Q - Explain Bulkhead Pattern
 
@@ -3162,6 +3360,65 @@ This is where the Orchestrator earns its keep. If Step B fails (e.g., Inventory 
 
 ------------------
 
+## Q - In what scenario, you should prefer orchestration saga pattern over choreography pattern?
+
+This is a classic system design question. The choice between **Orchestration** (Central Conductor)
+and **Choreography** (Dancers listening to music) defines how your microservices couple.
+
+You should prefer **Orchestration** in the following specific scenarios:
+
+### 1. The Workflow is Complex (More than 4 steps)
+
+If your transaction involves many services (e.g., Order  Inventory  Payment  Shipping
+Rewards  Notification), **Choreography** becomes a "Distributed Spaghetti" mess.
+
+* **Choreography:** It is hard to visualize the flow just by looking at the code. You have to
+  jump between 6 different repositories to understand who listens to what event.
+* **Orchestration:** You have a central class (or tool like Camunda/Temporal) that defines
+  the flow: `Step 1 -> Step 2 -> Step 3`. It is readable and maintainable.
+
+### 2. You Need Centralized Monitoring & Control
+
+In a banking or e-commerce system, if a transaction is stuck, you need to know **exactly** where it stopped.
+
+* **Orchestration:** The Orchestrator holds the **State**. You can query it: *"Show me all Orders
+  stuck at the 'Payment' stage."*
+* **Choreography:** The state is distributed. You have to query logs from 5 different services to
+  piece together what happened.
+
+### 3. The Flow Has Cyclic Dependencies
+
+* **Scenario:** Service A triggers Service B, which might need to update something back in Service A.
+* **Choreography:** This creates an event loop (Ping-Pong) that is very dangerous and hard to debug.
+* **Orchestration:** The Orchestrator calls A, then B, then A again. It handles the cycle logic
+  internally without creating infinite event loops.
+
+### 4. Compensation (Rollback) Logic is Critical
+
+* If the "Shipping" step fails, you must refund the "Payment" and release the "Inventory."
+* **Choreography:** Service D emits `ShippingFailed`. Service C listens and refunds. Service B listens and
+  releases stock. If one of them misses the event, your data is corrupted.
+* **Orchestration:** The Orchestrator catches the error and actively **commands** the
+  rollback: `paymentService.refund()`, `inventoryService.release()`. It guarantees the cleanup happens.
+
+### Summary Table
+
+| Feature        | **Choreography** (Events) | **Orchestration** (Controller) |
+|----------------|---------------------------|--------------------------------|
+| **Coupling**   | Loose (Good)              | Tighter (Bad)                  |
+| **Complexity** | Simple for 2-3 steps.     | Better for 4+ steps.           |
+| **Visibility** | Low (Hard to track).      | High (Central Dashboard).      |
+| **Rollback**   | Hard (Event chains).      | Easy (Command based).          |
+
+**The Senior Engineer Rule:**
+
+> "Start with Choreography for simple, linear flows. Switch to Orchestration (e.g., Temporal.io,
+> Camunda, or a custom Saga Manager) as soon as the business logic spans more than 4 microservices
+> or requires complex branching."
+>
+>
+
+-----------------------------
 
 
 ## Q - Explain Transactional outbox pattern
@@ -3240,202 +3497,6 @@ messages to the Message Broker (Kafka).
 
 ------------
 
-
-
-# Module 4 — Microservices Architecture
-
-## Q - What are common microserivces design pattern?
-
-This is a massive topic. To ace this in an interview, do not just list them. **Categorize them**
-based on the problem they solve.
-
-Here are the top 4 categories of patterns you must know, explained from the ground up.
-
-1. Decomposition Patterns
-2. Integration Patterns
-3. Database Patterns
-4. Cross-Cutting Concern Patterns
-5. Observability Patterns
-
----
-
-### 1. Decomposition Patterns (How to break the Monolith)
-
-The first challenge is: "How do we split a 10-year-old application into small pieces?"
-
-#### A. Strangler Fig Pattern
-
-**The Problem:** You cannot rewrite a massive legacy system from scratch. It’s too risky.
-
-**The Solution:** You create a new microservice for *one specific feature* (e.g., "Search"). You put a proxy in front.
-
-* Calls to `/search` go to the **New Microservice**.
-* Calls to `/everything-else` go to the **Old Monolith**.
-* Over time, the new system "strangles" the old one until the monolith is gone.
-
-#### B. Decompose by Subdomain (DDD)
-
-**The Problem:** "Where do I draw the lines?"
-
-**The Solution:** Use Domain-Driven Design. Break services based on **Business Capabilities**, not technical layers.
-
-* *Bad:* `UserDBService`, `LogicService` (Technical layers).
-* *Good:* `OrderService`, `PaymentService`, `InventoryService` (Business subdomains).
-
-
----
-
-
-### 2. Integration Patterns (How services talk)
-
-Once split, these services need to communicate without creating a "spaghetti mess."
-
-#### A. API Gateway Pattern
-
-**The Problem:** If you have 50 services, your Front End (React/Mobile) shouldn't
-know about all 50 IP addresses. It’s a security nightmare.
-
-**The Solution:** Put a single entry point (The Gatekeeper) in front.
-
-* The client talks **only** to the Gateway.
-* The Gateway routes the request to the correct internal service.
-* **Bonus:** It handles Authentication, SSL, and Rate Limiting centrally.
-
-#### B. Aggregator Pattern
-
-**The Problem:** To build a "Profile Page," the client needs
-data from `User`, `Orders`, and `Rewards` services. Making 3 calls from the mobile app is slow.
-
-**The Solution:** Create a helper service (or use GraphQL on the Gateway) that calls
-all 3 services, combines the data into one JSON, and sends it back in **one** response.
-
-
----
-
-
-### 3. Database Patterns (The hardest part)
-
-In a monolith, you have one big SQL DB with JOINs. In microservices, **sharing a database is a sin.**
-
-#### A. Database per Service
-
-**The Problem:** If Service A and Service B share a DB, and Service A changes a
-table schema, Service B breaks. Tightly coupled.
-
-**The Solution:** Each service has its **own private database**. `OrderService` cannot
-read `CustomerService`'s tables directly. It must call the API.
-
-#### B. Saga Pattern (Distributed Transactions)
-
-**The Problem:** You need a transaction that spans multiple services.
-
-* *Scenario:* "Place Order" -> "Deduct Inventory" -> "Charge Payment".
-* If "Charge Payment" fails, you must **undo** the "Deduct Inventory" step.
-  You can't use `ROLLBACK` because they are different DBs.
-
-**The Solution:** A sequence of local transactions.
-
-* If a step fails, you execute a **Compensating Transaction** (a localized "Undo" command) to
-  reverse the previous steps.
-* *Types:* **Choreography** (Events) vs. **Orchestration** (Central Controller).
-
-#### C. CQRS (Command Query Responsibility Segregation)
-
-**The Problem:** "Reads" are vastly different from "Writes."
-
-* *Write:* Complex validation (Create Order).
-* *Read:* Fast lookup (Get Order History).
-* Using the same model for both is inefficient.
-
-**The Solution:** Split the application into two parts:
-
-* **Command Side:** Handles Creates/Updates (optimized for consistency).
-* **Query Side:** Handles Reads (optimized for speed, maybe using a NoSQL view).
-
----
-
-### 4. Cross-Cutting Concern Patterns
-
-#### A. Circuit Breaker
-
-**The Problem:** Service A calls Service B. Service B is down or slow. Service A keeps
-waiting, threads pile up, and eventually Service A crashes too (Cascading Failure).
-
-**The Solution:** Install a "Circuit Breaker."
-
-* If calls to Service B fail 5 times in a row, the breaker **Trips (Opens)**.
-* For the next 60 seconds, Service A **immediately fails** calls to B without waiting (Fast Fail).
-* After 60 seconds, it lets one call through to check if B is back online.
-
-#### B. Bulkhead Pattern
-
-**The Problem:** One heavy feature (e.g., Image Processing) uses up all threads/connections, starving
-the critical features (e.g., Login).
-
-**The Solution:** Isolate resources into pools (like watertight compartments in a ship).
-
-* "Image Processing" gets a max of 10 threads.
-* "Login" gets a max of 20 threads.
-* If Image Processing fills up, Login is unaffected.
-
----
-
-### 5. Observability Patterns (How to see inside the black box)
-
-In a monolith, you just check one log file. In microservices, a single
-request hits 10 services. Debugging is a nightmare without these.
-
-#### A. Distributed Tracing
-
-**The Problem:** A user reports "The app is slow," but you have no idea which
-of the 10 services in the chain is the bottleneck.
-
-**The Solution:** Assign a **Unique Trace ID** to the request at the entry point (Gateway).
-
-* This ID (`X-Trace-Id`) is passed in the headers to every internal service.
-* Tools like **Zipkin** or **Jaeger** visualize the entire "waterfall" of the request, showing exactly how many milliseconds each hop took.
-
-#### B. Log Aggregation
-
-**The Problem:** You have 50 services running on different containers. SSH-ing into each one to `grep` logs is impossible.
-
-**The Solution:** Centralize your logs (e.g., ELK Stack - Elasticsearch, Logstash, Kibana).
-
-* Every service pushes logs to a central collector asynchronously.
-* You search "ErrorID: 123" in one dashboard and see the full story across all services.
-
-#### C. Health Check API
-
-**The Problem:** The Orchestrator (Kubernetes) needs to know if a service is actually alive before sending traffic.
-
-**The Solution:** Every service exposes a specific endpoint (e.g., `/actuator/health`).
-
-* It checks DB connectivity and disk space.
-* If it returns `DOWN` (503), Kubernetes kills the pod and restarts it.
-
----
-
-### Summary for the Interview (The "Must-Haves")
-
-If asked **"What patterns have you used?"**, pick 3-4 you are comfortable with:
-
-> "In my experience, the most critical patterns I've used are:
-> 1. **API Gateway** for centralized routing and security.
-> 2. **Database per Service** to ensure loose coupling.
-> 3. **Circuit Breaker** (using Resilience4j) to prevent cascading failures.
-> 4. **Saga Pattern** for handling distributed transactions like Order Processing."
->
->
-
-
-### References
-
-* https://www.openlegacy.com/blog/microservices-architecture-patterns/
-
-
-----------------
-
-
 ## Q - Explain CQRS Pattern
 
 Here is the concise, interview-ready introduction for your notes.
@@ -3455,16 +3516,17 @@ bottlenecks (complex JOINs lock the DB) and complex code (validation logic mixed
 **The Architecture:**
 
 1. **Command Side ( The "Writer"):**
-  * **Responsibility:** Handles Create/Update/Delete.
-  * **Focus:** Complex Business Logic & Validation.
-  * **Database:** Normalized **SQL** (Strict ACID consistency).
-  * **Output:** Returns `void` or `ID`. Publishes an **Event** on success.
+    * **Responsibility:** Handles Create/Update/Delete.
+    * **Focus:** Complex Business Logic & Validation.
+    * **Database:** Normalized **SQL** (Strict ACID consistency).
+    * **Output:** Returns `void` or `ID`. Publishes an **Event** on success.
 
 2. **Query Side (The "Reader"):**
-  * **Responsibility:** Handles Reads only.
-  * **Focus:** Speed & Data Projection.
-  * **Database:** Denormalized **NoSQL/Cache** (e.g., Redis, ElasticSearch, Pre-calculated Views).
-  * **Output:** Returns **DTOs** (Data Transfer Objects) tailored exactly for the UI.
+    * **Responsibility:** Handles Reads only.
+    * **Focus:** Speed & Data Projection.
+    * **Database:** Denormalized **NoSQL/Cache** (e.g., Redis, ElasticSearch, Pre-calculated Views).
+    * **Output:** Returns **DTOs** (Data Transfer Objects) tailored exactly for the UI.
+
 
 **Data Synchronization:**
 
@@ -3578,65 +3640,15 @@ CQRS is "sane" when:
 ----------------
 
 
-## Q - In what scenario, you should prefer orchestration saga pattern over choreography pattern?
+## Q - What is Event Sourcing
 
-This is a classic system design question. The choice between **Orchestration** (Central Conductor)
-and **Choreography** (Dancers listening to music) defines how your microservices couple.
+Event Sourcing is an architectural pattern where you do not store the current state of an entity
+directly in a database. Instead, you store a sequential, append-only log of immutable domain events that
+describe every state change that has ever occurred.
 
-You should prefer **Orchestration** in the following specific scenarios:
 
-### 1. The Workflow is Complex (More than 4 steps)
+------------
 
-If your transaction involves many services (e.g., Order  Inventory  Payment  Shipping
-Rewards  Notification), **Choreography** becomes a "Distributed Spaghetti" mess.
-
-* **Choreography:** It is hard to visualize the flow just by looking at the code. You have to
-  jump between 6 different repositories to understand who listens to what event.
-* **Orchestration:** You have a central class (or tool like Camunda/Temporal) that defines
-  the flow: `Step 1 -> Step 2 -> Step 3`. It is readable and maintainable.
-
-### 2. You Need Centralized Monitoring & Control
-
-In a banking or e-commerce system, if a transaction is stuck, you need to know **exactly** where it stopped.
-
-* **Orchestration:** The Orchestrator holds the **State**. You can query it: *"Show me all Orders
-  stuck at the 'Payment' stage."*
-* **Choreography:** The state is distributed. You have to query logs from 5 different services to
-  piece together what happened.
-
-### 3. The Flow Has Cyclic Dependencies
-
-* **Scenario:** Service A triggers Service B, which might need to update something back in Service A.
-* **Choreography:** This creates an event loop (Ping-Pong) that is very dangerous and hard to debug.
-* **Orchestration:** The Orchestrator calls A, then B, then A again. It handles the cycle logic
-  internally without creating infinite event loops.
-
-### 4. Compensation (Rollback) Logic is Critical
-
-* If the "Shipping" step fails, you must refund the "Payment" and release the "Inventory."
-* **Choreography:** Service D emits `ShippingFailed`. Service C listens and refunds. Service B listens and
-  releases stock. If one of them misses the event, your data is corrupted.
-* **Orchestration:** The Orchestrator catches the error and actively **commands** the
-  rollback: `paymentService.refund()`, `inventoryService.release()`. It guarantees the cleanup happens.
-
-### Summary Table
-
-| Feature        | **Choreography** (Events) | **Orchestration** (Controller) |
-|----------------|---------------------------|--------------------------------|
-| **Coupling**   | Loose (Good)              | Tighter (Bad)                  |
-| **Complexity** | Simple for 2-3 steps.     | Better for 4+ steps.           |
-| **Visibility** | Low (Hard to track).      | High (Central Dashboard).      |
-| **Rollback**   | Hard (Event chains).      | Easy (Command based).          |
-
-**The Senior Engineer Rule:**
-
-> "Start with Choreography for simple, linear flows. Switch to Orchestration (e.g., Temporal.io,
-> Camunda, or a custom Saga Manager) as soon as the business logic spans more than 4 microservices
-> or requires complex branching."
->
->
-
------------------------------
 
 
 # Module 5 — API & REST Semantics
@@ -4733,12 +4745,6 @@ then introduce an Abstract Class in the middle.
 
 
 ----------------
-
-# Q - What is Event Sourcing
-
-Event Sourcing is an architectural pattern where you do not store the current state of an entity 
-directly in a database. Instead, you store a sequential, append-only log of immutable domain events that
-describe every state change that has ever occurred.
 
 
 # Module 8 — Database & Messaging Guarantees
