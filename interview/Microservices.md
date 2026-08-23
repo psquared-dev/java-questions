@@ -43,7 +43,9 @@
 * [Module 8 — Database & Messaging Guarantees](#module-8--database--messaging-guarantees)
   * [Q - What is Kafka transaction management and why is it needed?](#q---what-is-kafka-transaction-management-and-why-is-it-needed)
   * [Q - What are the different types of Row Level locks (in postgres)](#q---what-are-the-different-types-of-row-level-locks-in-postgres)
-  * [Q - What is SELECT ... FOR UPDATE lock?](#q---what-is-select--for-update-lock)
+  * [Q - What is `SELECT ... FOR UPDATE` lock?](#q---what-is-select--for-update-lock)
+  * [Q - What is `SELECT ... FOR NO KEY UPDATE` lock?](#q---what-is-select--for-no-key-update-lock)
+  * [Q - What is `SELECT ... FOR SHARE`?](#q---what-is-select--for-share)
 <!-- TOC -->
 
 ---
@@ -4518,7 +4520,7 @@ then introduce an Abstract Class in the middle.
 -----------------
 
 
-## Q - What is SELECT ... FOR UPDATE lock?
+## Q - What is `SELECT ... FOR UPDATE` lock?
 
 In standard SQL, a regular `SELECT` query only reads data—it places no lock on the row.
 
@@ -4715,3 +4717,237 @@ COMMIT;
 | **Simple decrement / increment** (e.g., ticket booking, simple counters)                                                     | **Direct `UPDATE ... WHERE ... > 0**`   | Single round-trip to the DB; fully atomic; minimal lock duration.                                                             |
 | **Complex App Logic Before Write** (e.g., user tiered discounts, calling Stripe/payment gateway, checking multi-table rules) | **`SELECT ... FOR UPDATE`**             | You need to hold and lock the row's state in memory while running application-level validation before deciding what to write. |
 | **Batch Worker / Queue Fetching**                                                                                            | **`SELECT ... FOR UPDATE SKIP LOCKED`** | Allows multiple workers to pop different available jobs without blocking each other.                                          |
+
+
+
+---------------------
+
+
+## Q - What is `SELECT ... FOR NO KEY UPDATE` lock?
+
+
+Here is a ground-level breakdown of **`FOR NO KEY UPDATE`**, why Postgres invented it, and the
+exact production disaster it prevents.
+
+---
+
+<h3> The Big Picture (ELI5 Analogy) </h3>
+
+Imagine a parent record: **Company** (`id = 10`, `name = 'Acme Inc'`).
+And a child record: **Employee** (`id = 500`, `company_id = 10`).
+
+* When you hire a new employee (insert into child table), the database must check: *"Does Company 10 actually exist?"*
+* If someone is currently **deleting** Company 10 or **changing its ID** from `10` to `99`, the employee 
+    insert must wait.
+* But what if someone is just editing Company 10's **phone number or address**? The Company ID `10` is not changing 
+    at all! Why should a company address update freeze all new employee hirings?
+
+Before Postgres 9.3, **it did freeze them**. `FOR NO KEY UPDATE` was invented to fix this flaw.
+
+---
+
+<h3> The Real Problem (The Pre-Postgres 9.3 Flaw) </h3>
+
+In relational databases, when you insert into a child table:
+
+```sql
+INSERT INTO orders (id, user_id, amount) VALUES (101, 1, 50.00);
+
+```
+
+Under the hood, Postgres must verify the foreign key `user_id = 1`. To guarantee `user_id = 1` isn't deleted
+before the insert completes, Postgres places an automatic read-lock on the parent row (`users WHERE id = 1`).
+
+* **`FOR UPDATE` is aggressive:** It locks the entire row against **all** concurrent readers/checkers.
+* **The Bottleneck:** If a background process or API request locked the `users` row with `FOR UPDATE` (e.g., to 
+    update the user's `bio` or `last_login`), **every single order placed by that user across your entire website
+     was completely blocked and frozen** until the profile update committed.
+
+
+<h3> Practical Real-World Example: Updating a User's Wallet Balance </h3>
+
+Imagine a high-throughput e-commerce / fintech system.
+
+<h4> The Setup </h4>
+
+```sql
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    wallet_balance NUMERIC,
+    name TEXT
+);
+
+CREATE TABLE transactions (
+    id INT PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    amount NUMERIC,
+    created_at TIMESTAMP
+);
+
+```
+
+---
+
+<h3> Scenario A: The Bad Way (Using `FOR UPDATE`) </h3>
+
+Two separate background jobs run concurrently for `user_id = 1`:
+
+* **Job 1 (User App):** Deducting $10 from `wallet_balance` after reading it.
+* **Job 2 (Payment Webhook):** Stripe webhook inserting a new record into `transactions` for `user_id = 1`.
+
+```text
+Time   Job 1 (Updating Wallet Balance)         Job 2 (Stripe Webhook Inserting Transaction)
+--------------------------------------------------------------------------------------------------
+T1     BEGIN;                                  BEGIN;
+
+T2     SELECT wallet_balance FROM users        
+       WHERE id = 1 FOR UPDATE;                
+       --> 💥 Takes heavy lock on User 1
+
+T3                                             INSERT INTO transactions (id, user_id, amount)
+                                               VALUES (901, 1, 100.00);
+                                               --> ⏳ BLOCKED! 
+                                               (Cannot verify FK because User 1 is locked by FOR UPDATE!)
+
+T4     -- Doing slow work / API calls...       --> Still waiting...
+       UPDATE users SET wallet_balance = 90;
+       COMMIT; -- (Lock released)
+
+T5                                             --> 🔓 UNBLOCKED! FK validated.
+                                               COMMIT;
+```
+
+**The Pain:** Job 2 is just creating an audit log / transaction row. It does not touch `wallet_balance`. 
+Yet it was completely stalled because Job 1 used `FOR UPDATE`.
+
+
+<h3> Scenario B: The Optimized Way (Using `FOR NO KEY UPDATE`) </h3>
+
+```text
+Time   Job 1 (Updating Wallet Balance)             Job 2 (Stripe Webhook Inserting Transaction)
+------------------------------------------------------------------------------------------------------
+T1     BEGIN;                                      BEGIN;
+
+T2     SELECT wallet_balance FROM users            
+       WHERE id = 1 FOR NO KEY UPDATE;             
+       --> 🛡️ Locks row, but promises:
+           "I will NOT touch the Primary Key (id)"
+
+T3                                                 INSERT INTO transactions (id, user_id, amount)
+                                                   VALUES (901, 1, 100.00);
+                                                   --> ✅ SUCCEEDS INSTANTLY! (No blocking!)
+
+T4     UPDATE users SET wallet_balance = 90;
+       COMMIT;
+
+T5                                                 COMMIT;
+
+```
+
+**The Win:**
+
+* Another thread trying to update the *same user's wallet* will still wait (race condition on 
+    wallet balance is prevented).
+* Any thread trying to *insert child records* referencing `user_id = 1` runs concurrently with zero lag.
+
+---
+
+<h3> The Crux </h3>
+
+* Use **`FOR UPDATE`** only if your transaction might **delete the row** or **modify a primary/unique key**.
+* Use **`FOR NO KEY UPDATE`** whenever you need to lock a row to update **regular data columns** 
+    (balances, statuses, names, timestamps) without blocking concurrent child table inserts (`FOREIGN KEY` checks).
+
+
+
+-----------------
+
+
+## Q - What is `SELECT ... FOR SHARE`?
+
+`SELECT ... FOR SHARE` acquires a **shared read lock** on the selected rows.
+
+It tells PostgreSQL:
+
+> *"I am reading this row, and I need a guarantee that nobody will modify or delete it until 
+> my transaction finishes. However, other transactions are welcome to read or place their own 
+> shared locks on this row at the same time."*
+
+---
+
+When reading a critical record to calculate dependent data (like calculating invoice totals, running 
+audit checks, or computing discounts), a standard `SELECT` does not protect you if another transaction
+modifies or deletes that parent record before you commit.
+
+* **Regular `SELECT`:** Places **no lock**. Another transaction can `UPDATE` or `DELETE` the row right 
+    under your feet.
+* **`FOR UPDATE`:** Locks the row **exclusively**. It prevents updates, but also stops other read-lockers from 
+    reading concurrently (creates a bottleneck).
+* **`FOR SHARE`:** Multiple transactions can read and lock the exact same row simultaneously, 
+    while **blocking any write/delete operations** until all shared readers are done.
+
+---
+
+Imagine an order billing process where you read a `tax_rates` row and calculate the total amount to charge.
+
+```sql
+CREATE TABLE tax_rates (
+    region_id INT PRIMARY KEY,
+    rate NUMERIC
+);
+
+CREATE TABLE invoices (
+    id INT PRIMARY KEY,
+    order_id INT,
+    total_tax NUMERIC
+);
+
+INSERT INTO tax_rates VALUES (10, 0.18); -- 18% tax for Region 10
+
+```
+
+Suppose **Worker 1** and **Worker 2** are generating invoices for different customers 
+in Region 10 at the exact same time, while an **Admin** tries to change the tax rate for Region 10.
+
+```text
+Time   Worker 1 (Generate Invoice A)        Worker 2 (Generate Invoice B)        Admin (Update Tax Rate)
+-------------------------------------------------------------------------------------------------------------------
+T1     BEGIN;                               BEGIN;                               BEGIN;
+
+T2     SELECT rate FROM tax_rates           SELECT rate FROM tax_rates           
+       WHERE region_id = 10 FOR SHARE;      WHERE region_id = 10 FOR SHARE;      
+       --> Returns 0.18                     --> Returns 0.18                     
+       (Shared lock acquired)               (Shared lock acquired)               
+
+T3     -- Worker 1 & 2 run concurrently                                          UPDATE tax_rates 
+       -- without blocking each other                                            SET rate = 0.20 
+                                                                                 WHERE region_id = 10;
+                                                                                 --> ⏳ BLOCKED! 
+                                                                                 (Must wait for shared locks)
+
+T4     INSERT INTO invoices                                                      --> Still waiting...
+       VALUES (1, 1001, 100 * 0.18);                                             
+       COMMIT; -- (Worker 1 lock released)                                       
+
+T5                                          INSERT INTO invoices                 --> Still waiting...
+                                            VALUES (2, 1002, 200 * 0.18);        
+                                            COMMIT; -- (Worker 2 lock released)  
+
+T6                                                                               --> 🔓 UNBLOCKED!
+                                                                                 UPDATE completes.
+                                                                                 COMMIT;
+
+```
+
+---
+
+If Worker 1 used a plain `SELECT`:
+
+1. Worker 1 reads `rate = 0.18`.
+2. Admin immediately updates `tax_rates` to `0.20` and commits.
+3. Worker 1 finishes its calculation and writes an invoice referencing the old rate `0.18`, creating a data
+     inconsistency between the audit log and the active tax rules.
+
+
+------------------
+
