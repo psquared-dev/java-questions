@@ -17,7 +17,7 @@
   * [Q - Types of caches](#q---types-of-caches)
   * [Q - What are different cache eviction policies?](#q---what-are-different-cache-eviction-policies)
   * [Q - What are different Rate Limiting Algorithms?](#q---what-are-different-rate-limiting-algorithms)
-* [Module 4 — Microservice Design Patterns](#module-4--micorservice-design-patterns)
+* [Module 4 — Micorservice Design Patterns](#module-4--micorservice-design-patterns)
   * [Q - What are common microserivces design patterns?](#q---what-are-common-microserivces-design-patterns)
   * [Q - Explain Bulkhead Pattern](#q---explain-bulkhead-pattern)
   * [Q - Explain Circuit Breaker pattern](#q---explain-circuit-breaker-pattern)
@@ -29,12 +29,12 @@
   * [Q - What is Event Sourcing](#q---what-is-event-sourcing)
 * [Module 5 — API & REST Semantics](#module-5--api--rest-semantics)
   * [Q - What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems](#q---what-is-an-idempotent-api-which-http-methods-are-idempotent-and-why-does-idempotency-matter-in-restful-systems)
-  * [Q - Which http status code you should pass when request is accepted but an async job is still running?](#q---which-http-status-code-you-should-pass-when-request-is-accepted-but-an-async-job-is-still-running)
+  * [Q -  Which http status code you should pass when request is accepted but an async job is still running?](#q---which-http-status-code-you-should-pass-when-request-is-accepted-but-an-async-job-is-still-running)
   * [Q - Which http status code you should pass when a request from a client is invalid?](#q---which-http-status-code-you-should-pass-when-a-request-from-a-client-is-invalid)
 * [Module 6 — Deployment & DevOps](#module-6--deployment--devops)
   * [Q - Mention a few Deployment strategies](#q---mention-a-few-deployment-strategies)
   * [Q - Explain the deployment process you use in the previous project](#q---explain-the-deployment-process-you-use-in-the-previous-project)
-  * [Q - Follow-up question from the interviewer - What if some logs into the k8s cluster and manually scaled replica?](#q---follow-up-question-from-the-interviewer---what-if-some-logs-into-the-k8s-cluster-and-manually-scaled-replica)
+  * [Q - Follow-up question from the interviewer -  What if some logs into the k8s cluster and manually scaled replica?](#q---follow-up-question-from-the-interviewer---what-if-some-logs-into-the-k8s-cluster-and-manually-scaled-replica)
   * [Q - Explain the architecture of your previous project](#q---explain-the-architecture-of-your-previous-project)
 * [Module 7 — Software Design Principles](#module-7--software-design-principles)
   * [Q - Difference between Coupling and Cohesion?](#q---difference-between-coupling-and-cohesion)
@@ -42,6 +42,8 @@
   * [Q - When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?](#q---when-should-i-use-an-interface-vs-an-abstract-class-while-designing-a-file-uploader-with-multiple-implementations-eg-s3-gcp)
 * [Module 8 — Database & Messaging Guarantees](#module-8--database--messaging-guarantees)
   * [Q - What is Kafka transaction management and why is it needed?](#q---what-is-kafka-transaction-management-and-why-is-it-needed)
+  * [Q - What are the different types of Row Level locks (in postgres)](#q---what-are-the-different-types-of-row-level-locks-in-postgres)
+  * [Q - What is SELECT ... FOR UPDATE lock?](#q---what-is-select--for-update-lock)
 <!-- TOC -->
 
 ---
@@ -78,7 +80,7 @@ You cannot have both. Partition tolerance is not optional in distributed systems
 
 **Note:** ✅ CAP is only about distributed systems
 
-### Why Partition Tolerance is mandatory
+<h3> Why Partition Tolerance is mandatory </h3>
 
 If your system has:
 
@@ -98,7 +100,7 @@ Choose C or A
 
 Not all three. Let's see the choices.
 
-### Case 1: Choose Consistency
+<h3> Case 1: Choose Consistency </h3>
 
 Network breaks.
 
@@ -119,7 +121,7 @@ Result:
 
 This is CP (Consistency + Partition Tolerance).
 
-### Case 2: Choose Availability
+<h3> Case 2: Choose Availability </h3>
 
 Network breaks.
 
@@ -143,13 +145,13 @@ Result:
 This is AP (Availability + Partition Tolerance).
 
 
-### What is missing in the CAP theorem?
+<h3> What is missing in the CAP theorem? </h3>
 
 One place where the CAP theorem is silent is what happens when there is no 
 network partition? What choices does a distributed system have when there is no partition?
 
 
-### PACELC theorem to the rescue
+<h3> PACELC theorem to the rescue </h3>
 
 The PACELC theorem states that:
 
@@ -165,7 +167,7 @@ you must accept lower consistency (syncing in the background).
 
 ![](../images/cap.png)
 
-### Important Correction
+<h3> Important Correction </h3>
 
 The CAP theorem was a bit too simple - it assumed that if there was 
 no partition, you just "got" Consistency and Availability for free. 
@@ -176,7 +178,7 @@ In other words, in real-world:
 > "You can never have all three, even if there network is 100% healthy"
 
 
-### Real-world mapping (intuition)
+<h3> Real-world mapping (intuition) </h3>
 
 If there is partition then:
 
@@ -200,7 +202,7 @@ If no network partition:
 1. Primary–Replica (Leader–Follower)
 2. Quorum-based Replication (Leaderless / Multi-Replica)
 
-### Primary–Replica (Leader–Follower)
+<h3> Primary–Replica (Leader–Follower) </h3>
 
 **How it works**
 
@@ -240,7 +242,7 @@ If no network partition:
 
 ---
 
-### Quorum-based Replication (Leaderless / Multi-Replica)
+<h3> Quorum-based Replication (Leaderless / Multi-Replica) </h3>
 
 **How it works**
 
@@ -280,13 +282,13 @@ are **NOT guaranteed to see the latest data**.
 
 Here is the ELI5 breakdown using The Notebook Analogy.
 
-### 1. The Variables
+<h3> 1. The Variables </h3>
 
 * N (Total Copies): You have 3 notebooks (Replicas) where you store secrets.
 * W (Write Quorum): When you want to save a secret, you write it in W of them.
 * R (Read Quorum): When you want to read a secret, you check R of them.
 
-### 2. The Scenario: `R + W ≤ N`
+<h3> 2. The Scenario: `R + W ≤ N` </h3>
 
 Let's say `N=3` (3 notebooks). You decide: "I want to be fast, so I will only write to 1 notebook (`W=1`) and
 read from 1 notebook (`R=1`)."
@@ -298,7 +300,7 @@ What happens?
 * **The Read:** Your friend comes along and picks **Notebook C** to read (`R=1`).
 * **The Result:** Notebook C is blank (or says "The sky is Blue"). Your friend sees stale (old) data.
 
-### 3. Why would anyone do this?
+<h3> 3. Why would anyone do this? </h3>
 
 If this formula leads to errors, why do engineers use it? Speed.
 
@@ -307,7 +309,7 @@ If this formula leads to errors, why do engineers use it? Speed.
 * This is called **Eventual Consistency**. You are betting that eventually Notebook A will copy
   the data to B and C in the background. But for a few milliseconds, the data is wrong.
 
-### 4. The "Fixed" Formula (Strong Consistency)
+<h3> 4. The "Fixed" Formula (Strong Consistency) </h3>
 
 If you want to guarantee that your friend always sees "The sky is Green," you must use the opposite formula:
 
@@ -373,7 +375,7 @@ What problem Consistent Hashing solves
 
 That's it. That’s the whole reason it exists.
 
-### Consistent hashing: the core idea
+<h3> Consistent hashing: the core idea </h3>
 
 Instead of mapping **keys to shard numbers**, we map:
 
@@ -385,7 +387,7 @@ Then we use a simple rule:
 
 That's it.
 
-### The hash space (horizontal line)
+<h3> The hash space (horizontal line) </h3>
 
 Assume a hash space from 0 to 99 (small for clarity):
 
@@ -396,7 +398,7 @@ Assume a hash space from 0 to 99 (small for clarity):
 This line wraps around:
 * after 99 comes 0 again
 
-### Place shards on the line
+<h3> Place shards on the line </h3>
 
 Suppose we have 3 shards.
 
@@ -411,7 +413,7 @@ S1(10)       S2(40)                 S3(70)
 Each shard "owns" keys to its left, up to the previous shard.
 
 
-### Place keys on the same line
+<h3> Place keys on the same line </h3>
 
 Now hash some keys:
 
@@ -431,7 +433,7 @@ S1(10)       S2(40)                 S3(70)
       cat(35)
 ```
 
-### Assign keys to shards (very important)
+<h3> Assign keys to shards (very important) </h3>
 
 Rule again:
 
@@ -453,7 +455,7 @@ S3 owns (40 → 70]
 ```
 
 
-### Adding a shard (this is where consistent hashing shines)
+<h3> Adding a shard (this is where consistent hashing shines) </h3>
 
 Now add S4, hashed to position 50.
 
@@ -481,7 +483,7 @@ All other keys stay where they are.
 * ✅ This is minimal movement
 * ❌ No massive reshuffle
 
-### So far so good… but here's the problem
+<h3> So far so good… but here's the problem </h3>
 
 What if shard positions are uneven?
 
@@ -507,14 +509,14 @@ This happens because:
 * Shard positions are random
 
 
-### Enter virtual nodes (this is the key)
+<h3> Enter virtual nodes (this is the key) </h3>
 
 Instead of placing **one point per shard**, we place **many points per shard**.
 
 These points are called **virtual nodes (vnodes)**.
 
 
-### Setup: hash space and virtual nodes
+<h3> Setup: hash space and virtual nodes </h3>
 
 Assume hash space 0–99.
 
@@ -536,7 +538,7 @@ Legend:
 * `B1, B2, B3` → physical node B
 * `C1, C2, C3` → physical node C
 
-### Ownership rule (recap)
+<h3> Ownership rule (recap) </h3>
 
 > A key goes to the **next virtual node on the right**
 (wrap around at 99 → 0)
@@ -544,7 +546,7 @@ Legend:
 Each virtual node owns the range from the previous vnode (exclusive) to itself (inclusive).
 
 
-### Initial ownership ranges
+<h3> Initial ownership ranges </h3>
 
 Let's list them clearly:
 
@@ -566,7 +568,7 @@ Each physical node owns **three small ranges**, spread across the space.
 
 Balanced load.
 
-### Add a new physical node D
+<h3> Add a new physical node D </h3>
 
 Node D joins with 3 virtual nodes:
 
@@ -586,7 +588,7 @@ D3 = 82
 A1  D1  B1  C1  A2  B2  D2  C2  A3  B3  D3  C3
 ```
 
-### What moves when node D is added?
+<h3> What moves when node D is added? </h3>
 
 **Rule:**
 Only ranges **immediately before D's virtual nodes** move.
@@ -602,7 +604,7 @@ Only ranges **immediately before D's virtual nodes** move.
 
 Everything else stays exactly the same.
 
-### Ownership after adding D
+<h3> Ownership after adding D </h3>
 
 Now node D owns:
 
@@ -618,7 +620,7 @@ Each existing node:
 This is the **core benefit of virtual nodes**.
 
 
-### Remove physical node B
+<h3> Remove physical node B </h3>
 
 Node B goes down → all its virtual nodes disappear:
 
@@ -637,7 +639,7 @@ A1  D1  C1  A2  D2  C2  A3  D3  C3
 ```
 
 
-### What happens to B’s ranges?
+<h3> What happens to B’s ranges? </h3>
 
 Each range owned by B is taken over by the next vnode.
 
@@ -652,7 +654,7 @@ Again:
 * no global reshuffle
 * only local reassignment
 
-### Why virtual nodes make this smooth
+<h3> Why virtual nodes make this smooth </h3>
 
 Without virtual nodes:
 
@@ -669,7 +671,7 @@ With virtual nodes:
 
 Load redistribution is **even**.
 
-### Key insight (this is the “aha”)
+<h3> Key insight (this is the “aha”) </h3>
 
 > Virtual nodes turn big, dangerous rebalances into many tiny, safe ones.
 
@@ -685,7 +687,7 @@ They are what makes consistent hashing usable in production.
 
 ---
 
-### 1. What problem Gossip solves
+<h3> 1. What problem Gossip solves </h3>
 
 In a distributed system, every node must know:
 
@@ -702,7 +704,7 @@ Gossip achieves this using **peer-to-peer, probabilistic information exchange** 
 
 ---
 
-### 2. Core data structures (very important)
+<h3> 2. Core data structures (very important) </h3>
 
 Each node maintains **one membership map** that tracks *other* nodes.
 
@@ -725,9 +727,9 @@ Key clarifications:
 
 ---
 
-### 3. Incarnation number — what it is and why it exists
+<h3> 3. Incarnation number — what it is and why it exists </h3>
 
-#### What is an incarnation?
+<h4> What is an incarnation? </h4>
 
 An **incarnation number** is a **version counter owned by a node about itself**.
 
@@ -735,7 +737,7 @@ It answers:
 
 > “Is this information newer or older than what I already know?”
 
-#### Critical rules
+<h4> Critical rules </h4>
 
 * Only the **node itself** can increment its incarnation
 * Other nodes only **copy** the value they hear
@@ -751,7 +753,7 @@ This is how nodes safely recover from false death.
 
 ---
 
-### 4. How a node gets its initial incarnation
+<h3> 4. How a node gets its initial incarnation </h3>
 
 When a node starts **for the very first time**:
 
@@ -773,7 +775,7 @@ On restart:
 
 ---
 
-### 5. Bootstrap phase (addresses only)
+<h3> 5. Bootstrap phase (addresses only) </h3>
 
 Every node is deployed with a static list:
 
@@ -789,7 +791,7 @@ Important:
 
 ---
 
-### 6. Node A starts
+<h3> 6. Node A starts </h3>
 
 Initial state of A:
 
@@ -807,7 +809,7 @@ At this point:
 
 ---
 
-### 7. How gossip rounds work (high level)
+<h3> 7. How gossip rounds work (high level) </h3>
 
 Each gossip round:
 
@@ -818,7 +820,7 @@ Each gossip round:
 
 ---
 
-### 8. Message handling order (critical)
+<h3> 8. Message handling order (critical) </h3>
 
 When a node receives gossip:
 
@@ -831,9 +833,9 @@ Replies always contain the **freshest known state**.
 
 ---
 
-### 9. Membership discovery example
+<h3> 9. Membership discovery example </h3>
 
-#### A contacts C and E
+<h4> A contacts C and E </h4>
 
 ```text
 A → C : membership={}
@@ -847,7 +849,7 @@ Explanation:
 
 ---
 
-#### C and E process A’s message
+<h4> C and E process A’s message </h4>
 
 C updates its membership:
 
@@ -866,7 +868,7 @@ E does the same.
 
 ---
 
-#### C and E reply
+<h4> C and E reply </h4>
 
 ```text
 C → A : membership={A(1)}
@@ -877,7 +879,7 @@ Replies reflect **post-merge state**, not stale state.
 
 ---
 
-#### A merges replies
+<h4> A merges replies </h4>
 
 ```text
 membership = {
@@ -893,7 +895,7 @@ Explanation:
 
 ---
 
-### 10. Discovery continues (A meets B)
+<h3> 10. Discovery continues (A meets B) </h3>
 
 ```text
 A → B : membership={C(1), E(1)}
@@ -917,7 +919,7 @@ A merges and adds B.
 
 ---
 
-### 11. Stable cluster view
+<h3> 11. Stable cluster view </h3>
 
 Eventually, after multiple rounds:
 
@@ -934,11 +936,11 @@ All nodes converge to the same view.
 
 ---
 
-### FAILURE DETECTION (MOST IMPORTANT PART)
+<h3> FAILURE DETECTION (MOST IMPORTANT PART) </h3>
 
 ---
 
-### 12. Node D crashes silently
+<h3> 12. Node D crashes silently </h3>
 
 * D stops responding
 * No death message is sent
@@ -947,7 +949,7 @@ This is the hardest failure type.
 
 ---
 
-### 13. A probes D
+<h3> 13. A probes D </h3>
 
 ```text
 A → D : ping
@@ -962,7 +964,7 @@ Explanation:
 
 ---
 
-### 14. A marks D as SUSPECT
+<h3> 14. A marks D as SUSPECT </h3>
 
 ```text
 membership[D] = {
@@ -979,18 +981,18 @@ Explanation:
 
 ---
 
-### 15. A gossips suspicion and performs indirect probes
+<h3> 15. A gossips suspicion and performs indirect probes </h3>
 
 A does two things in parallel.
 
-#### Gossip suspicion
+<h4> Gossip suspicion </h4>
 
 ```text
 A → B : D is SUSPECT (1)
 A → C : D is SUSPECT (1)
 ```
 
-#### Indirect probes
+<h4> Indirect probes </h4>
 
 ```text
 A → B : "Ping D"
@@ -1004,9 +1006,9 @@ Explanation:
 
 ---
 
-### 16. Two possible outcomes
+<h3> 16. Two possible outcomes </h3>
 
-#### Case 1: D responds to someone
+<h4> Case 1: D responds to someone </h4>
 
 If B receives:
 
@@ -1030,14 +1032,14 @@ Explanation:
 
 ---
 
-#### Case 2: D responds to no one
+<h4> Case 2: D responds to no one </h4>
 
 * All indirect probes fail
 * No ALIVE update arrives
 
 ---
 
-### 17. Suspect timeout (`T_suspect`)
+<h3> 17. Suspect timeout (`T_suspect`) </h3>
 
 Each SUSPECT entry must remain suspected for a minimum time:
 
@@ -1057,7 +1059,7 @@ Explanation:
 
 ---
 
-### 18. A marks D as DEAD
+<h3> 18. A marks D as DEAD </h3>
 
 ```text
 membership[D] = {
@@ -1073,7 +1075,7 @@ Explanation:
 
 ---
 
-### 19. Death information is gossiped
+<h3> 19. Death information is gossiped </h3>
 
 ```text
 A → B : D is DEAD (1)
@@ -1085,7 +1087,7 @@ Other nodes merge this state.
 
 ---
 
-### 20. Cluster converges again
+<h3> 20. Cluster converges again </h3>
 
 Eventually all nodes have:
 
@@ -1100,11 +1102,11 @@ D is removed from active membership.
 
 ---
 
-### NODE REVIVAL (WHY INCARNATION MATTERS)
+<h3> NODE REVIVAL (WHY INCARNATION MATTERS) </h3>
 
 ---
 
-### 21. D restarts
+<h3> 21. D restarts </h3>
 
 On restart:
 
@@ -1121,7 +1123,7 @@ Explanation:
 
 ---
 
-### 22. D gossips ALIVE with higher incarnation
+<h3> 22. D gossips ALIVE with higher incarnation </h3>
 
 ```text
 D → A : D is ALIVE (2)
@@ -1129,7 +1131,7 @@ D → A : D is ALIVE (2)
 
 ---
 
-### 23. A compares incarnation
+<h3> 23. A compares incarnation </h3>
 
 Comparison:
 
@@ -1150,7 +1152,7 @@ This update spreads cluster-wide.
 
 ---
 
-### 24. Final state machine (memorize)
+<h3> 24. Final state machine (memorize) </h3>
 
 ```text
 ALIVE
@@ -1163,7 +1165,7 @@ DEAD
 
 ---
 
-### 25. Why this design is correct
+<h3> 25. Why this design is correct </h3>
 
 | Problem          | Mechanism                 |
 |------------------|---------------------------|
@@ -1174,7 +1176,7 @@ DEAD
 
 ---
 
-### 26. Perfect interview summary (one sentence)
+<h3> 26. Perfect interview summary (one sentence) </h3>
 
 > Gossip maintains a single membership map where nodes transition from ALIVE to SUSPECT
 > to DEAD based on timed suspicion and corroborated failures, and incarnation numbers—owned
@@ -1182,7 +1184,7 @@ DEAD
 
 ---
 
-### 27. Ultra-short version (interrupt-safe)
+<h3> 27. Ultra-short version (interrupt-safe) </h3>
 
 > Nodes gossip membership, mark failures as SUSPECT, declare DEAD only after a timeout, and
 > use incarnation numbers to resolve conflicts and allow safe recovery.
@@ -1195,7 +1197,7 @@ DEAD
 
 ## Q - What are Bloom Filters?
 
-### 1. The problem (ELI5)
+<h3> 1. The problem (ELI5) </h3>
 
 Imagine you have a huge toy box with millions of toys.
 
@@ -1215,7 +1217,7 @@ You want a quick hint that tells you:
 
 That hint is a Bloom Filter.
 
-### 2. What a Bloom Filter is (ELI5)
+<h3> 2. What a Bloom Filter is (ELI5) </h3>
 
 > A Bloom Filter is a quick checker that can tell you
 "Definitely no" or "Maybe yes."
@@ -1225,7 +1227,7 @@ It never says:
 
 * "Yes, for sure"
 
-### 3. The light-bulb board (visual example)
+<h3> 3. The light-bulb board (visual example) </h3>
 
 Imagine a board with 8 light bulbs:
 
@@ -1238,7 +1240,7 @@ Imagine a board with 8 light bulbs:
 
 All bulbs start OFF.
 
-### 4. Adding an item (example 1)
+<h3> 4. Adding an item (example 1) </h3>
 
 You add the word:
 
@@ -1261,7 +1263,7 @@ Board becomes:
 
 You did not store "apple" — you only flipped bulbs.
 
-### 5. Adding another item (example 2)
+<h3> 5. Adding another item (example 2) </h3>
 
 Add:
 
@@ -1284,7 +1286,7 @@ Note:
 
 * Bulb #5 was already ON — that's fine.
 
-### 6. Checking if an item exists (example)
+<h3> 6. Checking if an item exists (example) </h3>
 
 Someone asks:
 > "Do you have ‘apple’?"
@@ -1300,7 +1302,7 @@ Both are ON →
 
 You now go check the real toy box.
 
-### 7. Checking something that is NOT there
+<h3> 7. Checking something that is NOT there </h3>
 
 Someone asks:
 > "Do you have ‘dragon’?"
@@ -1322,7 +1324,7 @@ Bulb #1 is OFF →
 
 You skip checking the box entirely.
 
-### 8. The golden rule (important)
+<h3> 8. The golden rule (important) </h3>
 
 | Bloom Filter answer | Meaning                |
 |---------------------|------------------------|
@@ -1334,7 +1336,7 @@ It can lie about "yes."
 
 This lie is called a false positive.
 
-### 9. Why false positives are okay
+<h3> 9. Why false positives are okay </h3>
 
 If Bloom Filter says:
 
@@ -1362,7 +1364,7 @@ So Bloom Filters trade:
 
 ## Q - What are LSM Trees?
 
-### Step 1: The problem LSM Trees solve (ELI5)
+<h3> Step 1: The problem LSM Trees solve (ELI5) </h3>
 
 Imagine you keep a notebook on disk.
 
@@ -1381,14 +1383,14 @@ So databases asked:
 
 That idea leads to **LSM Trees**.
 
-### Step 2: The key rule (lock this in)
+<h3> Step 2: The key rule (lock this in) </h3>
 
 > Never update data in place. Always write new data.
 >
 
 Old data stays. New data is written on top.
 
-### Step 3: Start with memory (MemTable)
+<h3> Step 3: Start with memory (MemTable) </h3>
 
 When a write comes in:
 
@@ -1400,7 +1402,7 @@ PUT(apple, 5)
 
 Instead of disk, we write to memory.
 
-#### MemTable (sorted in RAM)
+<h4> MemTable (sorted in RAM) </h4>
 
 ```text
 apple → 5
@@ -1410,7 +1412,7 @@ dog   → 20
 
 Fast. No disk yet.
 
-###  Step 4: MemTable fills up → flush to disk
+<h3>  Step 4: MemTable fills up → flush to disk </h3>
 
 Memory is limited.
 
@@ -1423,7 +1425,7 @@ When MemTable is full:
 The disk file is called an SSTable.
 
 
-### Step 5: First SSTable on disk
+<h3> Step 5: First SSTable on disk </h3>
 
 ```text
 SSTable_1 (on disk)
@@ -1439,7 +1441,7 @@ Important:
 * Immutable (never changes)
 
 
-### Step 6: More writes come in
+<h3> Step 6: More writes come in </h3>
 
 Now we write more data:
 
@@ -1455,7 +1457,7 @@ cat → 15
 egg → 3
 ```
 
-### Step 7: Flush again → another SSTable
+<h3> Step 7: Flush again → another SSTable </h3>
 
 ```text
 SSTable_2 (newer)
@@ -1471,7 +1473,7 @@ SSTable_2 (newest)
 SSTable_1 (older)
 ```
 
-### Step 8: How READ works (very important)
+<h3> Step 8: How READ works (very important) </h3>
 
 Suppose we do:
 
@@ -1496,7 +1498,7 @@ Stops immediately.
 Newer data always wins.
 
 
-### Step 9: Bloom Filters help speed reads
+<h3> Step 9: Bloom Filters help speed reads </h3>
 
 Before reading an SSTable:
 
@@ -1507,7 +1509,7 @@ Before reading an SSTable:
 So we don't scan every file.
 
 
-### Step 10: Deletes (tombstones)
+<h3> Step 10: Deletes (tombstones) </h3>
 
 If you do:
 
@@ -1531,7 +1533,7 @@ dog → <tombstone>
 
 This hides old values.
 
-### Step 11: Problem: Too many SSTables
+<h3> Step 11: Problem: Too many SSTables </h3>
 
 Over time:
 
@@ -1539,7 +1541,7 @@ Over time:
 * Reads get slower
 * Disk usage grows
 
-### Step 12: Compaction (cleanup)
+<h3> Step 12: Compaction (cleanup) </h3>
 
 Background process:
 
@@ -1567,7 +1569,7 @@ SSTable_compacted: cat → 15
 Old files are deleted.
 
 
-### Step 13: Why LSM Trees are fast
+<h3> Step 13: Why LSM Trees are fast </h3>
 
 Writes:
 
@@ -1584,7 +1586,7 @@ LSM trades:
 
 > Write speed for read complexity
 
-### Step 14: One-sentence ELI5 summary (memorize this)
+<h3> Step 14: One-sentence ELI5 summary (memorize this) </h3>
 
 > An LSM Tree stores new data in memory, writes it to disk as immutable sorted files, and later merges
 > those files to keep reads fast.
@@ -1596,7 +1598,7 @@ LSM trades:
 
 ## Q - MemTable and SSTable: Structure and Layout
 
-### 1. What a MemTable looks like (in memory)
+<h3> 1. What a MemTable looks like (in memory) </h3>
 
 A MemTable is just an in-memory sorted map.
 
@@ -1624,7 +1626,7 @@ Important properties:
 * Mutable (can change)
 * Fast inserts and updates
 
-#### How it’s actually implemented
+<h4> How it’s actually implemented </h4>
 
 In real systems (RocksDB, Cassandra):
 
@@ -1635,7 +1637,7 @@ In real systems (RocksDB, Cassandra):
 You don't need to know how its implemented — the key point is:
 > Keys are always kept sorted.
 
-#### What happens on write
+<h4> What happens on write </h4>
 
 ```text
 PUT(cat, 99)
@@ -1652,7 +1654,7 @@ dog     → 40
 
 No disk touched yet.
 
-### 2. What happens when MemTable is flushed
+<h3> 2. What happens when MemTable is flushed </h3>
 
 When MemTable gets full:
 
@@ -1661,13 +1663,13 @@ When MemTable gets full:
 * Turned into an `SSTable`
 
 
-### 3. What an SSTable looks like (on disk)
+<h3> 3. What an SSTable looks like (on disk) </h3>
 
 An SSTable is **immutable** and **sorted**.
 
 But it’s not just a flat file. It has **structure**.
 
-#### SSTable (high-level layout)
+<h4> SSTable (high-level layout) </h4>
 
 ```text
 +--------------------+
@@ -1683,7 +1685,7 @@ But it’s not just a flat file. It has **structure**.
 
 Let's go piece by piece.
 
-#### 3.1 Data Blocks (the actual data)
+<h4> 3.1 Data Blocks (the actual data) </h4>
 
 Data is stored in **blocks**, not one giant list.
 
@@ -1708,7 +1710,7 @@ Properties:
 * Read sequentially from disk
 
 
-#### 3.2 Index Block (how SSTable is searched)
+<h4> 3.2 Index Block (how SSTable is searched) </h4>
 
 The index tells you which block to read.
 
@@ -1729,7 +1731,7 @@ Meaning:
 This avoids scanning the whole file.
 
 
-#### 3.3 Bloom Filter (quick "not here" check)
+<h4> 3.3 Bloom Filter (quick "not here" check) </h4>
 
 Each SSTable has a Bloom filter.
 
@@ -1743,7 +1745,7 @@ Bloom Filter → definitely NOT present
 
 This avoids disk reads.
 
-#### 3.4 Footer
+<h4> 3.4 Footer </h4>
 
 Stores:
 
@@ -1754,7 +1756,7 @@ Stores:
 Used when opening the file.
 
 
-### 4. SSTable example (full picture)
+<h3> 4. SSTable example (full picture) </h3>
 
 ```text
 SSTable-42
@@ -1781,7 +1783,7 @@ Once written:
 * ✅ Can be read efficiently
 
 
-### 5. How reads actually happen (step-by-step)
+<h3> 5. How reads actually happen (step-by-step) </h3>
 
 Let's do:
 
@@ -1804,7 +1806,7 @@ GET(cat)
 * Newest value wins
 
 
-### 6. Deletes (tombstones) in MemTable and SSTable
+<h3> 6. Deletes (tombstones) in MemTable and SSTable </h3>
 
 Delete is just another entry.
 
@@ -1833,7 +1835,7 @@ During compaction:
 * Tombstone may disappear
 
 
-### 7. Key difference (very important)
+<h3> 7. Key difference (very important) </h3>
 
 | MemTable      | SSTable               |
 |---------------|-----------------------|
@@ -1855,7 +1857,7 @@ During compaction:
 
 This is the most famous performance issue in ORMs (like Hibernate/JPA).
 
-### 1. The Scenario: "Authors and Books"
+<h3> 1. The Scenario: "Authors and Books" </h3>
 
 Imagine you have a database with **Authors** and **Books**.
 
@@ -1863,7 +1865,7 @@ Imagine you have a database with **Authors** and **Books**.
 
 You want to print every Author's name and the title of their first book.
 
-### 2. The Bad Code (The Trap)
+<h3> 2. The Bad Code (The Trap) </h3>
 
 You write this simple Java code:
 
@@ -1879,7 +1881,7 @@ for (Author author : authors) {
 
 ```
 
-### 3. The Problem (The Math)
+<h3> 3. The Problem (The Math) </h3>
 
 Here is what happens in the database logs:
 
@@ -1899,7 +1901,7 @@ Here is what happens in the database logs:
 
 If you have 1,000 authors, you just ran **1,001 database queries** for a single screen. This kills performance.
 
-### 4. The Solution: "JOIN FETCH"
+<h3> 4. The Solution: "JOIN FETCH" </h3>
 
 You need to tell Hibernate: *"When you get the Authors, get their Books at the same time."*
 
@@ -1921,7 +1923,7 @@ Hibernate runs **1 single query**:
 
 ## Q - Types of caches
 
-### Write through cache
+<h3> Write through cache </h3>
 
 The application writes data to the cache, which then synchronously 
 replicates that data to the main database or disk. The operation is 
@@ -1929,13 +1931,13 @@ only considered complete once the information has been successfully persisted to
 
 ![](../images/write-through-cache.png)
 
-### Write around cache
+<h3> Write around cache </h3>
 
 Writes go directly to the storage (skipping the cache). Cache is only updated on a read miss later.
 
 ![](../images/write-around-cache.png)
 
-### Write back cache
+<h3> Write back cache </h3>
 
 Writes go to the cache only at first, and are marked as "dirty". Later, the dirty data
 is flushed (written back) to storage asynchronously.
@@ -1954,7 +1956,7 @@ is flushed (written back) to storage asynchronously.
 
 ## Q - What are different Rate Limiting Algorithms?
 
-### The Problem: Why do we need this?
+<h3> The Problem: Why do we need this? </h3>
 
 Imagine you own a popular coffee shop. If 1,000 people enter at the exact same second
 and shout their orders, your baristas will collapse, and no coffee gets made.
@@ -1963,11 +1965,11 @@ and shout their orders, your baristas will collapse, and no coffee gets made.
 only 5 people can order per minute." This protects your server (the barista) from crashing under load.
 
 
-### Algorithm 1: Token Bucket
+<h3> Algorithm 1: Token Bucket </h3>
 
 **The Standard Choice (Used by AWS, Stripe)**
 
-#### 1. The ELI5 Metaphor
+<h4> 1. The ELI5 Metaphor </h4>
 
 Imagine a bucket next to the door.
 
@@ -1977,7 +1979,7 @@ Imagine a bucket next to the door.
 * If the bucket is empty, the customer must wait (or go away).
 
 
-#### 2. How it works (Step-by-Step)
+<h4> 2. How it works (Step-by-Step) </h4>
 
 You track two things: `current_tokens` and `last_refill_timestamp`.
 
@@ -2006,7 +2008,7 @@ On every request:
 | `refill_rate`           | Tokens added **per unit time**         |
 | `new_tokens`            | Tokens to add now                      |
 
-#### 3. Deep Dive: "Burstiness"
+<h4> 3. Deep Dive: "Burstiness" </h4>
 
 This algorithm allows bursts.
 
@@ -2016,7 +2018,7 @@ This algorithm allows bursts.
 * **Why this matters:** It's great for user experience (letting users do quick bursts of activity) but
   potentially dangerous for your database if the burst is too large.
 
-#### Example
+<h4> Example </h4>
 
 Assume:
 
@@ -2086,11 +2088,11 @@ Bucket is now full.
 ---
 
 
-### Algorithm 2: Leaky Bucket
+<h3> Algorithm 2: Leaky Bucket </h3>
 
 **The Traffic Smoother (Used by NGINX)**
 
-#### 1. The ELI5 Metaphor
+<h4> 1. The ELI5 Metaphor </h4>
 
 Imagine a bucket with a small hole in the bottom.
 
@@ -2098,7 +2100,7 @@ Imagine a bucket with a small hole in the bottom.
 * The bucket processes requests (drips them out the bottom) at a **constant speed**.
 * If the bucket is full (overflowing), new requests are discarded immediately.
 
-#### 2. How it works (Step-by-Step)
+<h4> 2. How it works (Step-by-Step) </h4>
 
 This is actually a **Queue (FIFO)**.
 
@@ -2111,7 +2113,7 @@ This is actually a **Queue (FIFO)**.
     * A separate process pulls requests from the queue at a fixed rate (e.g., 1 request every 200ms).
 
 
-#### 3. Deep Dive: The Trade-off
+<h4> 3. Deep Dive: The Trade-off </h4>
 
 * **Advantage:** This smooths out traffic perfectly. Your database sees a steady stream, never a spike.
 * **Disadvantage:** **Latency**. If the bucket is nearly full, a new request sits in the queue waiting
@@ -2121,11 +2123,11 @@ This is actually a **Queue (FIFO)**.
 ---
 
 
-### Algorithm 3: Fixed Window Counter
+<h3> Algorithm 3: Fixed Window Counter </h3>
 
 **The Simple but Flawed Approach**
 
-#### 1. The ELI5 Metaphor
+<h4> 1. The ELI5 Metaphor </h4>
 
 You have a whiteboard with the current minute written on it (e.g., "10:00 AM").
 
@@ -2134,7 +2136,7 @@ You have a whiteboard with the current minute written on it (e.g., "10:00 AM").
 * If the count hits the limit (e.g., 5), stop everyone.
 * When the clock hits "10:01 AM", erase the board and start over.
 
-#### 2. How it works (Step-by-Step)
+<h4> 2. How it works (Step-by-Step) </h4>
 
 1. **Calculate Window Key:** Get the current time window (e.g., `floor(timestamp / 60)`).
 2. **Get Counter:** Read the counter for that key (e.g., Redis key `user_123:10:00`).
@@ -2144,7 +2146,7 @@ You have a whiteboard with the current minute written on it (e.g., "10:00 AM").
 
 
 
-#### 3. Deep Dive: The "Edge of Window" Problem
+<h4> 3. Deep Dive: The "Edge of Window" Problem </h4>
 
 This algorithm is dangerous because of **double bursts**.
 
@@ -2155,7 +2157,7 @@ This algorithm is dangerous because of **double bursts**.
 * *Result:* The user sent **10 requests in 2 seconds**. This defeats the purpose of rate limiting.
 
 
-#### Example - Where it works
+<h4> Example - Where it works </h4>
 
 **Step 1: Calculate Window Key**
 
@@ -2174,7 +2176,7 @@ Where:
 
 ---
 
-#### Example (Real Numbers)
+<h4> Example (Real Numbers) </h4>
 
 Assume:
 
@@ -2266,7 +2268,7 @@ Meaning:
 
 ---
 
-#### What Happens on Each Request
+<h4> What Happens on Each Request </h4>
 
 Example: Limit = 5 requests / minute
 
@@ -2290,7 +2292,7 @@ So far, correct behavior.
 
 ---
 
-#### Example - Where the Algorithm Breaks (Edge Case)
+<h4> Example - Where the Algorithm Breaks (Edge Case) </h4>
 
 Let's replay your **double-burst** example using keys.
 
@@ -2344,11 +2346,11 @@ Even though the limit was:
 
 ---
 
-### Algorithm 4: Sliding Window Log
+<h3> Algorithm 4: Sliding Window Log </h3>
 
 **The "Perfect Accuracy" Approach**
 
-#### 1. The ELI5 Metaphor
+<h4> 1. The ELI5 Metaphor </h4>
 
 The bouncer keeps a logbook of **every single timestamp** a person entered.
 
@@ -2357,7 +2359,7 @@ The bouncer keeps a logbook of **every single timestamp** a person entered.
   in the logbook. They cross out (ignore) anything older than that. Then they count the remaining entries.
 * If the count < 5, write the new time and let them in.
 
-#### 2. How it works (Step-by-Step)
+<h4> 2. How it works (Step-by-Step) </h4>
 
 You store a **Sorted Set** of timestamps for every user.
 
@@ -2369,7 +2371,7 @@ You store a **Sorted Set** of timestamps for every user.
 
 
 
-#### 3. Deep Dive: The Cost
+<h4> 3. Deep Dive: The Cost </h4>
 
 * **Accuracy:** 100%. It completely solves the "Edge of Window" problem.
 * **Performance:** Terrible at scale. If your limit is 1,000 requests/hour, you are storing and
@@ -2379,18 +2381,18 @@ You store a **Sorted Set** of timestamps for every user.
 ---
 
 
-### Algorithm 5: Sliding Window Counter (Hybrid)
+<h3> Algorithm 5: Sliding Window Counter (Hybrid) </h3>
 
 **The Industry Standard (Best of Both Worlds)**
 
-#### 1. The ELI5 Metaphor
+<h4> 1. The ELI5 Metaphor </h4>
 
 You combine the whiteboard (Fixed Window) with some math to approximate the Log.
 
 * You look at the count for the **current minute** AND the **previous minute**.
 * You calculate a "weighted average" based on how far into the current minute you are.
 
-#### 2. How it works (Step-by-Step)
+<h4> 2. How it works (Step-by-Step) </h4>
 
 * **Limit:** 10 requests / minute.
 * **Current Time:** `10:01:15` (We are 25% into the current window).
@@ -2412,14 +2414,14 @@ We want to estimate how many requests happened in the *last rolling 60 seconds*.
 
 4. Check: Allow request.
 
-#### 3. Deep Dive: Why this wins
+<h4> 3. Deep Dive: Why this wins </h4>
 
 * **Memory:** You only store 2 numbers (previous count, current count). Efficient like Fixed Window.
 * **Accuracy:** It solves the "Edge of Window" spike problem mathematically. It is not *perfectly* accurate (it assumes even distribution), but it's 99.9% good enough for production.
 
 ---
 
-### Summary Table (Quick Reference)
+<h3> Summary Table (Quick Reference) </h3>
 
 | Algorithm           | Pros                            | Cons                                    | Use Case                               |
 |---------------------|---------------------------------|-----------------------------------------|----------------------------------------|
@@ -2451,11 +2453,11 @@ Here are the top 4 categories of patterns you must know, explained from the grou
 
 ---
 
-### 1. Decomposition Patterns (How to break the Monolith)
+<h3> 1. Decomposition Patterns (How to break the Monolith) </h3>
 
 The first challenge is: "How do we split a 10-year-old application into small pieces?"
 
-#### A. Strangler Fig Pattern
+<h4> A. Strangler Fig Pattern </h4>
 
 **The Problem:** You cannot rewrite a massive legacy system from scratch. It’s too risky.
 
@@ -2465,7 +2467,7 @@ The first challenge is: "How do we split a 10-year-old application into small pi
 * Calls to `/everything-else` go to the **Old Monolith**.
 * Over time, the new system "strangles" the old one until the monolith is gone.
 
-#### B. Decompose by Subdomain (DDD)
+<h4> B. Decompose by Subdomain (DDD) </h4>
 
 **The Problem:** "Where do I draw the lines?"
 
@@ -2478,11 +2480,11 @@ The first challenge is: "How do we split a 10-year-old application into small pi
 ---
 
 
-### 2. Integration Patterns (How services talk)
+<h3> 2. Integration Patterns (How services talk) </h3>
 
 Once split, these services need to communicate without creating a "spaghetti mess."
 
-#### A. API Gateway Pattern
+<h4> A. API Gateway Pattern </h4>
 
 **The Problem:** If you have 50 services, your Front End (React/Mobile) shouldn't
 know about all 50 IP addresses. It’s a security nightmare.
@@ -2493,7 +2495,7 @@ know about all 50 IP addresses. It’s a security nightmare.
 * The Gateway routes the request to the correct internal service.
 * **Bonus:** It handles Authentication, SSL, and Rate Limiting centrally.
 
-#### B. Aggregator Pattern
+<h4> B. Aggregator Pattern </h4>
 
 **The Problem:** To build a "Profile Page," the client needs
 data from `User`, `Orders`, and `Rewards` services. Making 3 calls from the mobile app is slow.
@@ -2505,11 +2507,11 @@ all 3 services, combines the data into one JSON, and sends it back in **one** re
 ---
 
 
-### 3. Database Patterns (The hardest part)
+<h3> 3. Database Patterns (The hardest part) </h3>
 
 In a monolith, you have one big SQL DB with JOINs. In microservices, **sharing a database is a sin.**
 
-#### A. Database per Service
+<h4> A. Database per Service </h4>
 
 **The Problem:** If Service A and Service B share a DB, and Service A changes a
 table schema, Service B breaks. Tightly coupled.
@@ -2517,7 +2519,7 @@ table schema, Service B breaks. Tightly coupled.
 **The Solution:** Each service has its **own private database**. `OrderService` cannot
 read `CustomerService`'s tables directly. It must call the API.
 
-#### B. Saga Pattern (Distributed Transactions)
+<h4> B. Saga Pattern (Distributed Transactions) </h4>
 
 **The Problem:** You need a transaction that spans multiple services.
 
@@ -2531,7 +2533,7 @@ read `CustomerService`'s tables directly. It must call the API.
   reverse the previous steps.
 * *Types:* **Choreography** (Events) vs. **Orchestration** (Central Controller).
 
-#### C. CQRS (Command Query Responsibility Segregation)
+<h4> C. CQRS (Command Query Responsibility Segregation) </h4>
 
 **The Problem:** "Reads" are vastly different from "Writes."
 
@@ -2546,9 +2548,9 @@ read `CustomerService`'s tables directly. It must call the API.
 
 ---
 
-### 4. Cross-Cutting Concern Patterns
+<h3> 4. Cross-Cutting Concern Patterns </h3>
 
-#### A. Circuit Breaker
+<h4> A. Circuit Breaker </h4>
 
 **The Problem:** Service A calls Service B. Service B is down or slow. Service A keeps
 waiting, threads pile up, and eventually Service A crashes too (Cascading Failure).
@@ -2559,7 +2561,7 @@ waiting, threads pile up, and eventually Service A crashes too (Cascading Failur
 * For the next 60 seconds, Service A **immediately fails** calls to B without waiting (Fast Fail).
 * After 60 seconds, it lets one call through to check if B is back online.
 
-#### B. Bulkhead Pattern
+<h4> B. Bulkhead Pattern </h4>
 
 **The Problem:** One heavy feature (e.g., Image Processing) uses up all threads/connections, starving
 the critical features (e.g., Login).
@@ -2572,12 +2574,12 @@ the critical features (e.g., Login).
 
 ---
 
-### 5. Observability Patterns (How to see inside the black box)
+<h3> 5. Observability Patterns (How to see inside the black box) </h3>
 
 In a monolith, you just check one log file. In microservices, a single
 request hits 10 services. Debugging is a nightmare without these.
 
-#### A. Distributed Tracing
+<h4> A. Distributed Tracing </h4>
 
 **The Problem:** A user reports "The app is slow," but you have no idea which
 of the 10 services in the chain is the bottleneck.
@@ -2587,7 +2589,7 @@ of the 10 services in the chain is the bottleneck.
 * This ID (`X-Trace-Id`) is passed in the headers to every internal service.
 * Tools like **Zipkin** or **Jaeger** visualize the entire "waterfall" of the request, showing exactly how many milliseconds each hop took.
 
-#### B. Log Aggregation
+<h4> B. Log Aggregation </h4>
 
 **The Problem:** You have 50 services running on different containers. SSH-ing into each one to `grep` logs is impossible.
 
@@ -2596,7 +2598,7 @@ of the 10 services in the chain is the bottleneck.
 * Every service pushes logs to a central collector asynchronously.
 * You search "ErrorID: 123" in one dashboard and see the full story across all services.
 
-#### C. Health Check API
+<h4> C. Health Check API </h4>
 
 **The Problem:** The Orchestrator (Kubernetes) needs to know if a service is actually alive before sending traffic.
 
@@ -2607,7 +2609,7 @@ of the 10 services in the chain is the bottleneck.
 
 ---
 
-### Summary for the Interview (The "Must-Haves")
+<h3> Summary for the Interview (The "Must-Haves") </h3>
 
 If asked **"What patterns have you used?"**, pick 3-4 you are comfortable with:
 
@@ -2620,7 +2622,7 @@ If asked **"What patterns have you used?"**, pick 3-4 you are comfortable with:
 >
 
 
-### References
+<h3> References </h3>
 
 * https://www.openlegacy.com/blog/microservices-architecture-patterns/
 
@@ -2643,7 +2645,7 @@ don't want it to sink the whole container.
 
 ---
 
-### The Problem: "Resource Exhaustion" (The Sinking Ship)
+<h3> The Problem: "Resource Exhaustion" (The Sinking Ship) </h3>
 
 Imagine you have a Tomcat server with **100 Threads** total. Your app has two features:
 
@@ -2660,7 +2662,7 @@ Imagine you have a Tomcat server with **100 Threads** total. Your app has two fe
 
 ---
 
-### The Solution: The Bulkhead Pattern
+<h3> The Solution: The Bulkhead Pattern </h3>
 
 We artificially restrict how many resources (threads) each feature can use.
 
@@ -2680,7 +2682,7 @@ We split the 100 Tomcat threads into distinct pools:
 
 ---
 
-### Java Implementation (Resilience4j)
+<h3> Java Implementation (Resilience4j) </h3>
 
 In Spring Boot, we use the `@Bulkhead` annotation to enforce this.
 
@@ -2709,7 +2711,7 @@ public class InvoiceService {
 }
 ```
 
-### Execution Flow
+<h3> Execution Flow </h3>
 
 * **Capacity Check:** The 6th thread arrives and checks for an available slot (out of 5).
 * **Immediate Action:** Since all slots are full, **it fails fast**. It does not block or wait.
@@ -2729,7 +2731,7 @@ timeouts on every request, it fails fast and protects your service.
 
 Here is the **Circuit Breaker Pattern**, explained with the same structure.
 
-### The core idea
+<h3> The core idea </h3>
 
 ```text
 Detect failures → stop calls temporarily → probe for recovery → resume safely
@@ -2737,7 +2739,7 @@ Detect failures → stop calls temporarily → probe for recovery → resume saf
 
 ---
 
-### The Problem: "Cascading Failure" ( The Domino Effect)
+<h3> The Problem: "Cascading Failure" ( The Domino Effect) </h3>
 
 Imagine **Order Service** calls **Payment Service**.
 
@@ -2751,25 +2753,25 @@ Imagine **Order Service** calls **Payment Service**.
 
 ---
 
-### The Solution: The State Machine
+<h3> The Solution: The State Machine </h3>
 
 
 We wrap the dangerous call in a **Circuit Breaker** object. It monitors failures and
 transitions between three distinct states based on the health of the downstream service.
 
-### A. CLOSED (Normal Operation)
+<h3> A. CLOSED (Normal Operation) </h3>
 
 * **Behavior:** Requests flow through normally to the external service.
 * **Monitoring:** The breaker counts failures. If the failure rate exceeds the
   threshold (e.g., 50%) within a specific window, the breaker **Trips** to OPEN.
 
-### B. OPEN (The "Cut-Off")
+<h3> B. OPEN (The "Cut-Off") </h3>
 
 * **Behavior:** The breaker blocks **ALL** requests immediately. It does not even try to call the external service.
 * **Response:** It throws a `CallNotPermittedException` (or executes a fallback method) instantly. **No waiting.**
 * **Duration:** It stays open for a configurable time (e.g., 10 seconds) to give the struggling service time to recover.
 
-### C. HALF-OPEN (The "Probing Phase")
+<h3> C. HALF-OPEN (The "Probing Phase") </h3>
 
 * **Behavior:** After the wait duration expires, the breaker transitions to **HALF-OPEN**.
 * **The Test:** It allows a **limited, configurable number of requests** (e.g., 3 calls) to pass through to test
@@ -2780,7 +2782,7 @@ transitions between three distinct states based on the health of the downstream 
 
 ---
 
-### Configuration (Resilience4j via `application.yml`)
+<h3> Configuration (Resilience4j via `application.yml`) </h3>
 
 This configuration controls exactly when the state changes happen.
 
@@ -2802,7 +2804,7 @@ resilience4j:
 
 ---
 
-### Java Implementation (Resilience4j)
+<h3> Java Implementation (Resilience4j) </h3>
 
 In Spring Boot, we use the `@CircuitBreaker` annotation.
 
@@ -2834,7 +2836,7 @@ the failure is likely **transient** (temporary), such as a brief network glitch 
 
 ---
 
-### The Core Idea
+<h3> The Core Idea </h3>
 
 > **Some failures are temporary — retrying after a short delay can succeed.**
 >
@@ -2843,7 +2845,7 @@ But retries must be **controlled**, or they make outages worse.
 
 ---
 
-### When retries make sense (important)
+<h3> When retries make sense (important) </h3>
 
 * ✅ Network timeouts
 * ✅ Connection resets
@@ -2856,7 +2858,7 @@ But retries must be **controlled**, or they make outages worse.
 
 ---
 
-### Retry strategies (from naive → correct)
+<h3> Retry strategies (from naive → correct) </h3>
 
 **1. Immediate retry (bad)**
 
@@ -2902,7 +2904,7 @@ random(0, base * 2^n)
 
 ---
 
-### Key configuration knobs
+<h3> Key configuration knobs </h3>
 
 * **Max attempts** (e.g. 3–5)
 * **Initial delay**
@@ -2912,7 +2914,7 @@ random(0, base * 2^n)
 
 ---
 
-### Retry + Circuit Breaker (must be combined carefully)
+<h3> Retry + Circuit Breaker (must be combined carefully) </h3>
 
 Correct order:
 
@@ -2935,7 +2937,7 @@ Retry without circuit breaker
 
 ---
 
-### Retry vs Circuit Breaker vs Bulkhead
+<h3> Retry vs Circuit Breaker vs Bulkhead </h3>
 
 | Pattern         | Purpose                          |
 |-----------------|----------------------------------|
@@ -2948,7 +2950,7 @@ Retry without circuit breaker
 
 ---
 
-### Java Implementation (Resilience4j)
+<h3> Java Implementation (Resilience4j) </h3>
 
 In Spring Boot, we use the `@Retry` annotation.
 
@@ -2986,7 +2988,7 @@ resilience4j:
 
 ## Q - Explain Saga pattern
 
-### Saga Pattern: Distributed Transactions
+<h3> Saga Pattern: Distributed Transactions </h3>
 
 **The Problem:**
 
@@ -3010,7 +3012,7 @@ changes made by the previous steps.
 
 ---
 
-### Approach 1: Choreography (The "Dance")
+<h3> Approach 1: Choreography (The "Dance") </h3>
 
 **Concept:** Decentralized. No central manager. Services listen for events and decide what to do.
 
@@ -3031,12 +3033,12 @@ changes made by the previous steps.
 
 ---
 
-### Approach 2: Orchestration (The "Conductor")
+<h3> Approach 2: Orchestration (The "Conductor") </h3>
 
 **Concept:** Centralized. An **Orchestrator** (e.g., a specific Class or Service) tells every
 participant what to do.
 
-#### 1. How the Orchestrator is Triggered
+<h4> 1. How the Orchestrator is Triggered </h4>
 
 The Orchestrator doesn't just wake up on its own. It is triggered by a **State Change**.
 
@@ -3048,7 +3050,7 @@ The Orchestrator doesn't just wake up on its own. It is triggered by a **State C
 
 ---
 
-#### 2. The Step-by-Step Flow
+<h4> 2. The Step-by-Step Flow </h4>
 
 **Step A: Orchestrator to Payment**
 
@@ -3081,7 +3083,7 @@ The Orchestrator sends a final **Command** back to the **Order Service**: *"Succ
 
 ---
 
-#### 3. What if something fails? (Compensating Transactions)
+<h4> 3. What if something fails? (Compensating Transactions) </h4>
 
 This is where the Orchestrator earns its keep. If Step B fails (e.g., Inventory is out of stock):
 
@@ -3092,7 +3094,7 @@ This is where the Orchestrator earns its keep. If Step B fails (e.g., Inventory 
 
 ---
 
-### Comparison Cheat Sheet
+<h3> Comparison Cheat Sheet </h3>
 
 | Feature        | Choreography (Events)                     | Orchestration (Command)                   |
 |----------------|-------------------------------------------|-------------------------------------------|
@@ -3102,7 +3104,7 @@ This is where the Orchestrator earns its keep. If Step B fails (e.g., Inventory 
 | **Best For**   | Simple flows (2-3 steps).                 | Complex flows (4+ steps).                 |
 
 
-### Summary for Interview
+<h3> Summary for Interview </h3>
 
 >
 > "The Saga pattern manages distributed transactions by breaking them into local steps.
@@ -3122,7 +3124,7 @@ and **Choreography** (Dancers listening to music) defines how your microservices
 
 You should prefer **Orchestration** in the following specific scenarios:
 
-### 1. The Workflow is Complex (More than 4 steps)
+<h3> 1. The Workflow is Complex (More than 4 steps) </h3>
 
 If your transaction involves many services (e.g., Order  Inventory  Payment  Shipping
 Rewards  Notification), **Choreography** becomes a "Distributed Spaghetti" mess.
@@ -3132,7 +3134,7 @@ Rewards  Notification), **Choreography** becomes a "Distributed Spaghetti" mess.
 * **Orchestration:** You have a central class (or tool like Camunda/Temporal) that defines
   the flow: `Step 1 -> Step 2 -> Step 3`. It is readable and maintainable.
 
-### 2. You Need Centralized Monitoring & Control
+<h3> 2. You Need Centralized Monitoring & Control </h3>
 
 In a banking or e-commerce system, if a transaction is stuck, you need to know **exactly** where it stopped.
 
@@ -3141,14 +3143,14 @@ In a banking or e-commerce system, if a transaction is stuck, you need to know *
 * **Choreography:** The state is distributed. You have to query logs from 5 different services to
   piece together what happened.
 
-### 3. The Flow Has Cyclic Dependencies
+<h3> 3. The Flow Has Cyclic Dependencies </h3>
 
 * **Scenario:** Service A triggers Service B, which might need to update something back in Service A.
 * **Choreography:** This creates an event loop (Ping-Pong) that is very dangerous and hard to debug.
 * **Orchestration:** The Orchestrator calls A, then B, then A again. It handles the cycle logic
   internally without creating infinite event loops.
 
-### 4. Compensation (Rollback) Logic is Critical
+<h3> 4. Compensation (Rollback) Logic is Critical </h3>
 
 * If the "Shipping" step fails, you must refund the "Payment" and release the "Inventory."
 * **Choreography:** Service D emits `ShippingFailed`. Service C listens and refunds. Service B listens and
@@ -3156,7 +3158,7 @@ In a banking or e-commerce system, if a transaction is stuck, you need to know *
 * **Orchestration:** The Orchestrator catches the error and actively **commands** the
   rollback: `paymentService.refund()`, `inventoryService.release()`. It guarantees the cleanup happens.
 
-### Summary Table
+<h3> Summary Table </h3>
 
 | Feature        | **Choreography** (Events) | **Orchestration** (Controller) |
 |----------------|---------------------------|--------------------------------|
@@ -3180,7 +3182,7 @@ In a banking or e-commerce system, if a transaction is stuck, you need to know *
 
 Here is the definitive guide to the **Transactional Outbox Pattern**.
 
-### The Problem: The "Dual Write" Dilemma
+<h3> The Problem: The "Dual Write" Dilemma </h3>
 
 In a microservice, you often need to do two things at once:
 
@@ -3203,7 +3205,7 @@ transaction.commit();
 
 ---
 
-### The Solution: The Outbox Pattern
+<h3> The Solution: The Outbox Pattern </h3>
 
 Instead of sending the message directly to the broker, you save the
 message **inside the same database transaction** as your business data.
@@ -3232,7 +3234,7 @@ messages to the Message Broker (Kafka).
 
 ---
 
-### Why use it? (Interview Key Points)
+<h3> Why use it? (Interview Key Points) </h3>
 
 1. **Guaranteed Delivery:** You never lose a message, even if the Message Broker
    is down when the user clicks "Buy".
@@ -3241,7 +3243,7 @@ messages to the Message Broker (Kafka).
   * *Constraint:* The consumers **must be Idempotent** (handle duplicates).
 
 
-### Summary
+<h3> Summary </h3>
 
 > "The Outbox Pattern solves the distributed data consistency problem.
 > Instead of writing to the database and the network (broker) simultaneously, we write
@@ -3256,7 +3258,7 @@ messages to the Message Broker (Kafka).
 
 Here is the concise, interview-ready introduction for your notes.
 
-### CQRS (Command Query Responsibility Segregation)
+<h3> CQRS (Command Query Responsibility Segregation) </h3>
 
 **Definition:**
 A design pattern that segregates the application into two distinct parts:
@@ -3308,14 +3310,14 @@ Here is the classic, undeniable use case where CQRS is the **only** sane option:
 
 If you tried to build Amazon using a standard "Monolith CRUD" approach, it would crash in seconds. Here is why.
 
-### The Scenario: "The PlayStation 5 Launch"
+<h3> The Scenario: "The PlayStation 5 Launch" </h3>
 
 Imagine the PlayStation 5 product page.
 
 * **Writes (Sellers):** 1 seller (Sony) updates the inventory count once every few hours.
 * **Reads (Buyers):** 10 million people refresh the page *every second* to see if it’s in stock.
 
-### 1. The "Insanity" of the Normal Approach (CRUD)
+<h3> 1. The "Insanity" of the Normal Approach (CRUD) </h3>
 
 In a normal app, you have one `Product` table in a SQL database.
 
@@ -3329,7 +3331,7 @@ When a user loads the page, the database has to execute a massive **JOIN**:
 
 ---
 
-### 2. The "Sanity" of CQRS (The Fix)
+<h3> 2. The "Sanity" of CQRS (The Fix) </h3>
 
 Amazon separates this into two completely different systems.
 
@@ -3362,7 +3364,7 @@ Amazon separates this into two completely different systems.
   * **Load:** It can handle 100 million requests easily because there are no JOINs and no calculations.
 
 
-### 3. The Trade-off (The Glue)
+<h3> 3. The Trade-off (The Glue) </h3>
 
 So how does the `Product_PS5_View` get updated?
 
@@ -3383,7 +3385,7 @@ There is a 1-second delay.
 * For a **Blog**? **NO.** (Insanity).
 * For **Amazon**? **YES.** It is the *only* way to survive the traffic.
 
-### Summary
+<h3> Summary </h3>
 
 CQRS is "sane" when:
 
@@ -3410,7 +3412,7 @@ describe every state change that has ever occurred.
 
 ## Q - What is an idempotent API? Which HTTP methods are idempotent, and why does idempotency matter in RESTful systems
 
-### What does idempotent mean? (Very basics)
+<h3> What does idempotent mean? (Very basics) </h3>
 
 Idempotence is a fancy mathematical word that means:
 
@@ -3426,7 +3428,7 @@ Key clarifications:
 * Internal side effects (logs, timestamps) are ignored
 * Idempotency is about **safe retries**
 
-### The "Retry Test" (Interview Explanation)
+<h3> The "Retry Test" (Interview Explanation) </h3>
 
 The best way to explain this to an interviewer is the Network Timeout Scenario:
 
@@ -3439,7 +3441,7 @@ if the server processed the payment or not.
 
 * If the method is Non-Idempotent, retrying is dangerous. It might charge the user twice.
 
-### Why idempotency matters
+<h3> Why idempotency matters </h3>
 
 Idempotency is critical because retries are unavoidable:
 
@@ -3455,7 +3457,7 @@ Without idempotency:
 * Duplicate records or actions occur
 
 
-### Idempotent ≠ Safe (important distinction)
+<h3> Idempotent ≠ Safe (important distinction) </h3>
 
 | Term       | Meaning                        |
 |------------|--------------------------------|
@@ -3469,7 +3471,7 @@ Examples:
 * PUT → idempotent but not safe
 
 
-### HTTP Methods — Idempotency Overview
+<h3> HTTP Methods — Idempotency Overview </h3>
 
 | HTTP Method | Idempotent?        | Why                  |
 |-------------|--------------------|----------------------|
@@ -3483,7 +3485,7 @@ Examples:
 
 
 
-### Method-by-method explanation
+<h3> Method-by-method explanation </h3>
 
 **GET – Idempotent**
 
@@ -3611,12 +3613,12 @@ Repeating:
 
 The correct HTTP status code is **202 Accepted**.
 
-### Why 202?
+<h3> Why 202? </h3>
 
 It specifically indicates that "The request has been accepted for processing, but the
 processing has not been completed."
 
-### Best Practice Implementation
+<h3> Best Practice Implementation </h3>
 
 When returning a `202 Accepted`, you should not just leave the client hanging. You should
 provide a way for them to check the status of the job.
@@ -3655,7 +3657,7 @@ the catch-all for "Client Error," specific scenarios often demand more precise c
 
 ## Q - Mention a few Deployment strategies
 
-### 1. Blue-Green Deployment (The "Instant Switch")
+<h3> 1. Blue-Green Deployment (The "Instant Switch") </h3>
 
 **Concept:** You have two identical environments: **Blue** (Live/Prod) and **Green** (Idle/Staging).
 
@@ -3671,7 +3673,7 @@ the catch-all for "Client Error," specific scenarios often demand more precise c
 
 ---
 
-### 2. Canary Deployment (The "Risk Averse")
+<h3> 2. Canary Deployment (The "Risk Averse") </h3>
 
 **Concept:** Like a "canary in a coal mine." You expose the new version to a small subset of users to test safety.
 
@@ -3687,7 +3689,7 @@ the catch-all for "Client Error," specific scenarios often demand more precise c
 
 ---
 
-### 3. Rolling Deployment (The "K8s Default")
+<h3> 3. Rolling Deployment (The "K8s Default") </h3>
 
 **Concept:** You replace instances (Pods) one by one.
 
@@ -3703,7 +3705,7 @@ the catch-all for "Client Error," specific scenarios often demand more precise c
 
 ---
 
-### 4. Feature Toggles (The "Senior Dev" Strategy)
+<h3> 4. Feature Toggles (The "Senior Dev" Strategy) </h3>
 
 **Concept:** You deploy the code, but you hide it behind a standard `if/else` block.
 
@@ -3715,7 +3717,7 @@ the catch-all for "Client Error," specific scenarios often demand more precise c
 
 ---
 
-### Summary Table for Interview
+<h3> Summary Table for Interview </h3>
 
 | Strategy          | Cost      | Rollback Speed | Complexity    | Best Use Case               |
 |-------------------|-----------|----------------|---------------|-----------------------------|
@@ -3741,7 +3743,7 @@ it fits your "Release Train" story perfectly.
 
 ## Q - Explain the deployment process you use in the previous project
 
-### The Interview Answer: "The Release Train Strategy"
+<h3> The Interview Answer: "The Release Train Strategy" </h3>
 
 **The Hook:**
 
@@ -3751,7 +3753,7 @@ of a mismatched library—we moved away from ad-hoc deployments to a **Centraliz
 
 ---
 
-### 1. The Architecture Stack
+<h3> 1. The Architecture Stack </h3>
 
 "We designed a cloud-native CI/CD ecosystem to support this:"
 
@@ -3764,12 +3766,12 @@ of a mismatched library—we moved away from ad-hoc deployments to a **Centraliz
 * **Deployment:** **AWS EKS** (Kubernetes) managed via **Helm Charts**.
 
 
-### 2. The Logic: "The Three-Phase Build"
+<h3> 2. The Logic: "The Three-Phase Build" </h3>
 
 "The core of our strategy was a Master Pipeline (internal nickname: *'Bob the Builder'*) that
 orchestrated the release in distinct phases to handle shared dependencies and deployment."
 
-#### Phase 1: The Foundation (Sequential & Parallel)
+<h4> Phase 1: The Foundation (Sequential & Parallel) </h4>
 
 "We had **multiple shared libraries** (`common-dto`, `common-security`, `common-utils`) that
 contained our core logic. All other services depended on these."
@@ -3785,7 +3787,7 @@ contained our core logic. All other services depended on these."
 
 ---
 
-#### Phase 2: The Fan-Out (Parallel)
+<h4> Phase 2: The Fan-Out (Parallel) </h4>
 
 "Once the foundation was solid, we triggered the microservices."
 
@@ -3800,7 +3802,7 @@ contained our core logic. All other services depended on these."
 
 ---
 
-#### Phase 3: The Deployment (Kubernetes & Helm)
+<h4> Phase 3: The Deployment (Kubernetes & Helm) </h4>
 
 "This is where we moved from 'Building' to 'Running'. We treated our Kubernetes manifests as code."
 
@@ -3815,7 +3817,7 @@ contained our core logic. All other services depended on these."
 
 ---
 
-### 3. Why we chose AWS CodeArtifact over Nexus
+<h3> 3. Why we chose AWS CodeArtifact over Nexus </h3>
 
 "We specifically chose **AWS CodeArtifact** instead of a self-hosted Nexus because
 we wanted a serverless solution. It integrated seamlessly with our IAM roles, meaning
@@ -3824,7 +3826,7 @@ profile to pull/push artifacts."
 
 ---
 
-### 4. Summary Checklist (For the Interviewer)
+<h3> 4. Summary Checklist (For the Interviewer) </h3>
 
 If they ask for a summary, give them these 5 bullet points:
 
@@ -3848,7 +3850,7 @@ of CI/CD pipelines (Jenkins) versus **GitOps**.
 Here is the answer: **"Yes, that creates Configuration Drift, and
 Jenkins cannot fix it until the next deployment."**
 
-### The Problem: The "Push" Model (Jenkins)
+<h3> The Problem: The "Push" Model (Jenkins) </h3>
 
 In the architecture we just designed, Jenkins **pushes** changes to Kubernetes using `helm upgrade`.
 
@@ -3861,7 +3863,7 @@ In the architecture we just designed, Jenkins **pushes** changes to Kubernetes u
 
 ---
 
-### The Solution: The "Pull" Model (GitOps with ArgoCD)
+<h3> The Solution: The "Pull" Model (GitOps with ArgoCD) </h3>
 
 To solve this permanently, modern architectures use **ArgoCD** (or Flux).
 
@@ -3878,9 +3880,9 @@ To solve this permanently, modern architectures use **ArgoCD** (or Flux).
 
 ## Q - Explain the architecture of your previous project
 
-### The Professional Walkthrough: "The Life of a Loan Request"
+<h3> The Professional Walkthrough: "The Life of a Loan Request" </h3>
 
-### Step 1: The Gateway & Reliable Ingestion
+<h3> Step 1: The Gateway & Reliable Ingestion </h3>
 
 "The journey starts when the user submits their data on the mobile app.
 To ensure we never lose a lead, my API uses the **Transactional Outbox Pattern**. I save
@@ -3888,7 +3890,7 @@ the user's data and a 'message intent' into a local database in one atomic trans
 A background **Outbox Poller** then pushes that intent to **Kafka**. This guarantees
 that even if Kafka is briefly down, our customer data is safe."
 
-### 2. The Async Handshake (The Integration Layer)
+<h3> 2. The Async Handshake (The Integration Layer) </h3>
 
 "The **Credit Engine Consumer** picks up the message from Kafka.
 Since CIBIL is a third-party API and can be slow, I don't want to
@@ -3897,7 +3899,7 @@ save a record in my `credit_requests` table with a status of `PENDING`.
 I then hit the CIBIL API, passing that UUID and a **Webhook Callback URL**, and
 immediately release the thread."
 
-### 3. The Webhook & Data Persistence
+<h3> 3. The Webhook & Data Persistence </h3>
 
 "When CIBIL finishes, they hit our **Webhook Controller**. I use the returned
 UUID to find the original request. I then perform two critical actions: I update
@@ -3905,13 +3907,13 @@ the request status to `COMPLETED` and I store the **raw XML response** in a
 separate `credit_responses` table. Storing the raw XML is vital for audit compliance
 and allows us to re-run rules later without paying for another API call."
 
-### 4. The Decision Engine (The Command Pattern)
+<h3> 4. The Decision Engine (The Command Pattern) </h3>
 
 "This is where the logic happens. Based on the `bank_id` from the request, I
 fetch a **JSON configuration** from the DB. Because different banks have wildly
 different logic—like **ICICI’s nested conditions**—I use a **Recursive Command Factory**."
 
-### 5. The Recursive Execution
+<h3> 5. The Recursive Execution </h3>
 
 "The Factory transforms that JSON into a tree of **Command Objects**. For example, it
 might build an `AndComposite` that contains a `ScoreCheck` and a `ConditionalRule`.
@@ -3952,7 +3954,7 @@ The bank specific rules looks like this:
 
 ---
 
-### The "Mic Drop" Summary (Closing the Walkthrough)
+<h3> The "Mic Drop" Summary (Closing the Walkthrough) </h3>
 
 Finish with this specific sentence to show your architectural maturity:
 
@@ -3970,7 +3972,7 @@ Finish with this specific sentence to show your architectural maturity:
 
 ## Q - Difference between Coupling and Cohesion?
 
-### COHESION
+<h3> COHESION </h3>
 
 **What it means:**
 
@@ -4014,7 +4016,7 @@ class Utils {
 
 This class does too many unrelated things.
 
-### COUPLING
+<h3> COUPLING </h3>
 
 **What it means:**
 
@@ -4071,7 +4073,7 @@ Here is the golden rule of software design: **You want Low Coupling and High Coh
 
 Here is the **SOLID** breakdown with "Bad" vs. "Good" Java examples.
 
-### S - Single Responsibility Principle (SRP)
+<h3> S - Single Responsibility Principle (SRP) </h3>
 
 **Definition:** A class should have **one, and only one, reason to change.**
 
@@ -4113,7 +4115,7 @@ class InvoicePrinter {
 ----------------
 
 
-### O - Open/Closed Principle (OCP)
+<h3> O - Open/Closed Principle (OCP) </h3>
 
 **Definition:** Software entities should be **Open for Extension, but Closed for Modification.**
 
@@ -4159,7 +4161,7 @@ class PaymentProcessor {
 
 ---
 
-### L - Liskov Substitution Principle (LSP)
+<h3> L - Liskov Substitution Principle (LSP) </h3>
 
 **Definition:** Subtypes must be **substitutable** for their base types without breaking the program.
 
@@ -4267,7 +4269,7 @@ immediately: *"Error: ReadOnlyDocument is not Savable."*
 
 ---
 
-### I - Interface Segregation Principle (ISP)
+<h3> I - Interface Segregation Principle (ISP) </h3>
 
 **Definition:** Clients should not be forced to depend on methods they do not use.
 
@@ -4312,7 +4314,7 @@ class Human implements Workable, Eatable {
 
 ---
 
-### D - Dependency Inversion Principle (DIP)
+<h3> D - Dependency Inversion Principle (DIP) </h3>
 
 **Definition:** High-level modules should not depend on low-level modules.
 Both should depend on **Abstractions**.
@@ -4321,7 +4323,7 @@ Both should depend on **Abstractions**.
 
 Conside the following analogy:
 
-#### Without Dependency Inversion
+<h4> Without Dependency Inversion </h4>
 
 The **high-level module** (Restaurant) depends directly on a **low-level implementation** (John).
 
@@ -4342,7 +4344,7 @@ Problem:
 
 > If John leaves, the Restaurant has to change because it depends specifically on John.
 
-#### With Dependency Inversion
+<h4> With Dependency Inversion </h4>
 
 The Restaurant depends on an **abstraction** (`Cook`), not on a specific person.
 
@@ -4404,7 +4406,7 @@ class Store {
 
 ---
 
-### Summary Cheat Sheet
+<h3> Summary Cheat Sheet </h3>
 
 | Principle | Meaning               | The Fix                                                           |
 |-----------|-----------------------|-------------------------------------------------------------------|
@@ -4420,7 +4422,7 @@ class Store {
 
 ## Q - When should I use an interface vs an abstract class while designing a file uploader with multiple implementations (e.g., S3, GCP)?
 
-### Use an INTERFACE when the goal is “capability” or “contract”
+<h3> Use an INTERFACE when the goal is “capability” or “contract” </h3>
 
 In your case:
 
@@ -4460,7 +4462,7 @@ This gives you:
 
 This is exactly what interfaces are for.
 
-### When to use ABSTRACT CLASS instead
+<h3> When to use ABSTRACT CLASS instead </h3>
 
 Use an abstract class only if you want to share code, state, or behavior among implementations.
 
@@ -4508,3 +4510,208 @@ then introduce an Abstract Class in the middle.
 
 
 -----------------
+
+
+## Q - What are the different types of Row Level locks (in postgres)
+
+
+-----------------
+
+
+## Q - What is SELECT ... FOR UPDATE lock?
+
+In standard SQL, a regular `SELECT` query only reads data—it places no lock on the row.
+
+`SELECT ... FOR UPDATE` tells PostgreSQL:
+
+> "I am reading this row right now, and I plan to modify it before my transaction ends. 
+> Lock this specific row so no other transaction can modify it or lock it until I finish."
+>
+
+
+Without `FOR UPDATE`, concurrent requests reading the same row will read stale data 
+and overwrite each other's changes.
+
+Let's look at a classic bank balance deduction problem.
+
+Imagine an `accounts` table:
+
+```sql
+CREATE TABLE accounts (
+    id INT PRIMARY KEY,
+    balance INT
+);
+
+INSERT INTO accounts VALUES (1, 100); -- Balance is $100
+```
+
+Suppose two ATM requests (Transaction A and Transaction B) try to withdraw $80 at the exact same millisecond.
+
+```text
+Time   Transaction A ($80 withdrawal)          Transaction B ($80 withdrawal)
+----------------------------------------------------------------------------------
+T1     BEGIN;                                  BEGIN;
+T2     SELECT balance FROM accounts            SELECT balance FROM accounts
+       WHERE id = 1;                           WHERE id = 1;
+       --> Returns 100                         --> Returns 100
+
+T3     App checks: 100 >= 80 (OK!)             App checks: 100 >= 80 (OK!)
+       Calculates new balance: 100 - 80 = 20   Calculates new balance: 100 - 80 = 20
+
+T4     UPDATE accounts                         
+       SET balance = 20 WHERE id = 1;          
+       COMMIT;                                 
+
+T5                                             UPDATE accounts 
+                                               SET balance = 20 WHERE id = 1;
+                                               COMMIT;
+
+```
+
+**Note:** Assume that isolation level is `READ COMMITED`
+
+**The Disaster:**
+
+* Both users withdrew $80 (Total withdrawn = $160).
+* The final database balance is $20, instead of going into overdraft or rejecting the second transaction.
+* **Why did this happen?** Transaction B read the balance before Transaction A committed its update.
+
+---
+
+Now, both transactions use pessimistic locking with `FOR UPDATE`:
+
+```text
+Time   Transaction A ($80 withdrawal)          Transaction B ($80 withdrawal)
+----------------------------------------------------------------------------------
+T1     BEGIN;                                  BEGIN;
+
+T2     SELECT balance FROM accounts            
+       WHERE id = 1 FOR UPDATE;                
+       --> Returns 100 (LOCK ACQUIRED!)        
+
+T3                                             SELECT balance FROM accounts 
+                                               WHERE id = 1 FOR UPDATE;
+                                               --> ⏳ BLOCKED! (Waits for Tx A)
+
+T4     App checks: 100 >= 80 (OK!)             
+       UPDATE accounts                         
+       SET balance = 20 WHERE id = 1;          
+       COMMIT; -- (LOCK RELEASED!)             
+
+T5                                             --> 🔓 UNBLOCKED! Reads row.
+                                               --> Returns 20 (Freshly committed data!)
+
+T6                                             App checks: 20 >= 80 (FALSE!)
+                                               ROLLBACK; (Insufficient Funds error)
+
+```
+
+**The Result:**
+
+* Transaction B is placed on pause until Transaction A finishes.
+* When Transaction B wakes up, it sees the updated balance ($20) and correctly rejects the withdrawal.
+
+
+Imagine an event ticketing system where only 1 seat remains.
+
+```sql
+BEGIN;
+
+-- 1. Lock the inventory row immediately
+SELECT available_seats 
+FROM events 
+WHERE id = 42 
+FOR UPDATE;
+
+-- 2. Verify seats in application logic
+-- If available_seats > 0:
+UPDATE events 
+SET available_seats = available_seats - 1 
+WHERE id = 42;
+
+-- 3. Insert user reservation
+INSERT INTO bookings (event_id, user_id) VALUES (42, 999);
+
+COMMIT;
+```
+
+If 100 users try to claim that single seat at the same time:
+
+* User 1 gets the lock, decreases the seat count to 0, and commits.
+* Users 2 through 100 queue up and execute sequentially. When they wake up, they 
+    see `available_seats = 0` and are told "Sold out".
+
+---
+
+* **Requires a Transaction:** `FOR UPDATE` only holds the lock while inside 
+    a transaction (`BEGIN ... COMMIT/ROLLBACK`). If executed with auto-commit enabled, the lock is 
+    released instantly after the query finishes.
+* **Non-blocking Reads Still Work:** Normal `SELECT` queries (without `FOR UPDATE`) do not get 
+    blocked by `FOR UPDATE`. They can still read the row without waiting.
+* **`FOR UPDATE NOWAIT`**: If the row is locked by another transaction, fail immediately instead of waiting:
+
+    ```sql
+    SELECT * FROM accounts WHERE id = 1 FOR UPDATE NOWAIT;
+    -- Throws error if already locked: ERROR: could not obtain lock on row in relation "accounts"
+    ```
+
+
+* **`FOR UPDATE SKIP LOCKED`**: Skips rows currently locked by other workers (the standard pattern for 
+    building message queues / job tables in PostgreSQL):
+
+    ```sql
+    -- Pick 1 unprocessed job without colliding with other background workers
+    SELECT * FROM job_queue 
+    WHERE status = 'PENDING' 
+    LIMIT 1 
+    FOR UPDATE SKIP LOCKED;
+    
+    ```
+
+<h3> Direct Atomic UPDATE vs. SELECT ... FOR UPDATE </h3>
+
+If your application doesn't need to read or use the row's data before 
+writing, skip `SELECT ... FOR UPDATE` entirely - a direct `UPDATE` with a `WHERE` condition validates and 
+locks the row in a single database round-trip.
+
+
+
+You can push the validation directly into the SQL engine using a `WHERE` clause check and the `RETURNING` clause:
+
+```sql
+BEGIN;
+
+-- Atomically decrement ONLY IF a seat is available
+UPDATE events
+SET available_seats = available_seats - 1
+WHERE id = 42
+  AND available_seats > 0;
+
+-- Application checks: Did the UPDATE modify 1 row or 0 rows?
+-- If 1 row modified -> Insert booking
+INSERT INTO bookings (event_id, user_id) VALUES (42, 999);
+
+COMMIT;
+```
+
+<h4> How PostgreSQL Handles This Under the Hood </h4>
+
+1. **Automatic Row Lock:** PostgreSQL automatically acquires a row-level `EXCLUSIVE` lock during an `UPDATE`.
+2. **Queued Execution:** If 100 concurrent requests try to run this `UPDATE` simultaneously:
+
+    * The first transaction locks the row and decrements `available_seats` from `1` to `0`.
+    * The next 99 transactions wait for the lock.
+    * When they unblock, PostgreSQL re-evaluates the `WHERE` condition (`available_seats > 0`) against the 
+       newly committed value (`0`).
+    * The condition evaluates to `FALSE`, so 0 rows are updated, returning no rows to the application.
+    * The application checks `rows_affected == 0` and knows the seat is sold out without running the `INSERT`.
+
+
+
+<h4> Comparison: Atomic `UPDATE` vs. `SELECT ... FOR UPDATE` </h4>
+
+| Scenario                                                                                                                     | Best Approach                           | Why                                                                                                                           |
+|------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| **Simple decrement / increment** (e.g., ticket booking, simple counters)                                                     | **Direct `UPDATE ... WHERE ... > 0**`   | Single round-trip to the DB; fully atomic; minimal lock duration.                                                             |
+| **Complex App Logic Before Write** (e.g., user tiered discounts, calling Stripe/payment gateway, checking multi-table rules) | **`SELECT ... FOR UPDATE`**             | You need to hold and lock the row's state in memory while running application-level validation before deciding what to write. |
+| **Batch Worker / Queue Fetching**                                                                                            | **`SELECT ... FOR UPDATE SKIP LOCKED`** | Allows multiple workers to pop different available jobs without blocking each other.                                          |
