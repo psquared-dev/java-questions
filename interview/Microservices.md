@@ -45,7 +45,8 @@
   * [Q - What are the different types of Row Level locks (in postgres)](#q---what-are-the-different-types-of-row-level-locks-in-postgres)
   * [Q - What is `SELECT ... FOR UPDATE` lock?](#q---what-is-select--for-update-lock)
   * [Q - What is `SELECT ... FOR NO KEY UPDATE` lock?](#q---what-is-select--for-no-key-update-lock)
-  * [Q - What is `SELECT ... FOR SHARE`?](#q---what-is-select--for-share)
+  * [Q - What is `SELECT ... FOR SHARE` lock?](#q---what-is-select--for-share-lock)
+  * [Q - What is `SELECT ... FOR KEY SHARE` lock?](#q---what-is-select--for-key-share-lock)
 <!-- TOC -->
 
 ---
@@ -4677,8 +4678,7 @@ writing, skip `SELECT ... FOR UPDATE` entirely - a direct `UPDATE` with a `WHERE
 locks the row in a single database round-trip.
 
 
-
-You can push the validation directly into the SQL engine using a `WHERE` clause check and the `RETURNING` clause:
+You can push the validation directly into the SQL engine using a `WHERE` clause:
 
 ```sql
 BEGIN;
@@ -4863,7 +4863,7 @@ T5                                                 COMMIT;
 -----------------
 
 
-## Q - What is `SELECT ... FOR SHARE`?
+## Q - What is `SELECT ... FOR SHARE` lock?
 
 `SELECT ... FOR SHARE` acquires a **shared read lock** on the selected rows.
 
@@ -4950,4 +4950,88 @@ If Worker 1 used a plain `SELECT`:
 
 
 ------------------
+
+
+## Q - What is `SELECT ... FOR KEY SHARE` lock?
+
+`SELECT ... FOR KEY SHARE` is the weakest explicit row lock in PostgreSQL.
+
+It tells PostgreSQL:
+
+> *"I am reading this row, and I only care that 
+> its **Primary Key / Unique Key values do not change or get deleted**. Any transaction is 
+> welcome to update other columns (like name, balance, or status) on this row concurrently."*
+
+Whenever you insert a child record, PostgreSQL must internally verify the foreign key reference in the parent table.
+
+Under the hood, PostgreSQL executes a `SELECT ... FOR KEY SHARE` on the parent row to ensure that:
+
+* The parent row **cannot be deleted**.
+* The parent's **primary key cannot be modified**.
+* **Regular updates to the parent row can still proceed without waiting.**
+
+
+```sql
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    name TEXT,
+    bio TEXT
+);
+
+CREATE TABLE orders (
+    id INT PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    total NUMERIC
+);
+
+INSERT INTO users VALUES (1, 'Alice', 'Software Engineer');
+
+```
+
+Suppose **Transaction A** is placing a new order for Alice, while **Transaction B** is updating Alice's bio.
+
+```text
+Time   Transaction A (Create Order)                Transaction B (Update User Bio)
+---------------------------------------------------------------------------------------------------------
+T1     BEGIN;                                      BEGIN;
+
+T2     -- Automatic under the hood:
+       SELECT id FROM users 
+       WHERE id = 1 FOR KEY SHARE;
+       --> Key-Share lock acquired!
+
+T3                                                 UPDATE users 
+                                                   SET bio = 'Lead Architect' 
+                                                   WHERE id = 1;
+                                                   --> ✅ SUCCEEDS IMMEDIATELY! 
+                                                   (Bio update does not touch the key)
+
+T4     INSERT INTO orders (id, user_id, total)     COMMIT;
+       VALUES (101, 1, 99.00);
+
+T5     COMMIT;
+
+```
+
+* **Allowed to run concurrently:**
+* Plain `SELECT` queries (reads).
+* `SELECT ... FOR SHARE` and `SELECT ... FOR KEY SHARE`.
+* `UPDATE` statements that modify **non-key columns** (e.g., `SET bio = ...`).
+* `SELECT ... FOR NO KEY UPDATE`.
+
+
+* **Blocked until KEY SHARE commits:**
+* `DELETE FROM users WHERE id = 1;` $\rightarrow$ ⏳ **Blocked** (cannot delete the parent while child references it).
+* `UPDATE users SET id = 99 WHERE id = 1;` $\rightarrow$ ⏳ **Blocked** (cannot change the primary key
+    while child references it).
+* `SELECT ... FOR UPDATE` $\rightarrow$ ⏳ **Blocked**.
+
+
+
+| Lock Mode               | Strength  | Conflicts With                                                  | Acquired Automatically By              |
+|-------------------------|-----------|-----------------------------------------------------------------|----------------------------------------|
+| **`FOR UPDATE`**        | Strongest | `FOR KEY SHARE`, `FOR SHARE`, `FOR NO KEY UPDATE`, `FOR UPDATE` | `DELETE`, `UPDATE` (key columns)       |
+| **`FOR NO KEY UPDATE`** | Strong    | `FOR SHARE`, `FOR NO KEY UPDATE`, `FOR UPDATE`                  | `UPDATE` (non-key columns)             |
+| **`FOR SHARE`**         | Weak      | `FOR NO KEY UPDATE`, `FOR UPDATE`                               | Explicit `FOR SHARE`                   |
+| **`FOR KEY SHARE`**     | Weakest   | `FOR UPDATE`                                                    | Foreign Key validation on parent table |
 
