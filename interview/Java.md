@@ -3613,7 +3613,7 @@ though the class was present and available during compile time.
 Because it is an `Error`, it indicates a serious infrastructure or environment issue rather 
 than an `Exception` you should catch.
 
-<h4> Scenario 1: The Class File Disappeared at Runtime </h4>/
+<h4> Scenario 1: The Class File Disappeared at Runtime </h4>
 
 This occurs when code compiles with a dependent `.class` file or JAR, but the dependency is 
 missing from the classpath when the JVM runs.
@@ -3761,7 +3761,7 @@ Exception in thread "main" java.lang.NoClassDefFoundError: Could not initialize 
 
 
 * **Failure in Static Initializers:** Look earlier in your application log for
-   an `ExceptionInInitializerError`. Fix the root exception (missing configuration, invalid  
+   an `ExceptionInInitializerError`. Fix the root exception (missing configuration, invalid 
    environment variable, or NPE in a static block).
 
 
