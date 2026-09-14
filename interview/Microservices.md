@@ -3678,45 +3678,88 @@ the catch-all for "Client Error," specific scenarios often demand more precise c
 
 <h3> 2. Canary Deployment (The "Risk Averse") </h3>
 
-**Concept:** Like a "canary in a coal mine." You expose the new version to a small subset of users to test safety.
-
-1. Deploy V2 to a small % of traffic (e.g., **5%**).
-2. **Monitor:** Check logs/metrics. Are error rates rising?
-3. **Ramp Up:** If safe, increase to 10%  25%  50%  100%.
-4. **Rollback:** If errors spike at 5%, you kill V2 immediately, affecting only a few users.
-
-
-* **Pros:** Lowest risk of breaking the system for everyone. Cheaper than Blue-Green.
-* **Cons:** Complex to set up (needs advanced Load Balancer like Istio/Linkerd).
+* **Concept:** Like a "canary in a coal mine." You expose the new version to a small subset of users to test safety. You
+  do this by spinning up a small number of **brand new instances** (e.g., 1 new V2 pod) inside your existing environment
+  while simultaneously scaling down the original V1 instances (e.g., from 5 pods down to 4). This effectively swaps out
+  a small percentage of your existing compute instances so your overall total capacity stays exactly the same. Because
+  they share the exact same load balancer, a small percentage of live traffic naturally flows to the new version.
+* **Deploy:** Swap in the new V2 pods to capture a small percentage of traffic (e.g., 5% or 1 V2 pod alongside 4 V1
+  pods).
+* **Monitor:** Check logs/metrics. Are error rates rising?
+* **Ramp Up:** If safe, incrementally spin up more V2 pods while terminating the remaining V1 pods to maintain the
+  target total capacity (e.g., 10% → 25% → 50% → 100%).
+* **Rollback:** If errors spike at the 5% mark, you instantly kill the V2 pod and spin up a replacement V1 pod to
+  restore the original count, affecting only a fraction of users.
+* **Pros:** Lowest risk of breaking the system for everyone. Cheaper and more resource-efficient than Blue-Green since
+  it requires zero extra compute capacity—your total pod count remains constant during the rollout.
+* **Cons:** Complex to set up routing (often needs an advanced Load Balancer or service mesh like Istio/Linkerd) and
+  requires strict backward compatibility since both versions read and write to the same database simultaneously.
 * **Best For:** High-traffic B2C apps (Facebook, Netflix).
 
 ---
 
 <h3> 3. Rolling Deployment (The "K8s Default") </h3>
 
-**Concept:** You replace instances (Pods) one by one.
+* **Concept:** Incrementally replaces instances of the old version (V1) with the new version (V2) one batch at a time,
+  ensuring zero downtime. Unlike Canary, which explicitly pauses to evaluate business metrics and error rates on a small
+  subset, a Rolling update automatically marches forward to 100% as long as the new pods pass their basic startup health
+  checks (readiness probes).
+* **Deploy:** Spin up a small batch of new V2 pods (e.g., 1 pod) and terminate a matching batch of V1 pods, keeping the
+  total target capacity constant.
+* **Monitor & Ramp Up:** As soon as the newly created V2 pod reports that it is healthy and ready to accept traffic, the
+  deployment controller immediately moves to the next batch. It automatically repeats this process (e.g., 1 pod at a
+  time) until all V1 pods are replaced by V2 pods.
+* **Rollback:** If a V2 pod crashes on startup, the rollout halts. However, if V2 starts up fine but introduces a silent
+  logical bug, the system will continue rolling it out to 100%. Rolling back usually requires manually triggering a
+  reverse deployment.
+* **Pros:** Zero downtime and zero extra infrastructure costs (total pod count stays exactly the same). It is faster and
+  requires less manual oversight than a Canary release.
+* **Cons:** During the rollout, both V1 and V2 are running simultaneously. If a user makes multiple API requests, the
+  load balancer might route their first request to V1 and their second request to V2, requiring strict backward
+  compatibility.
+* **Best For:** Standard backend microservices, stateless APIs, and routine updates where the risk of catastrophic
+  failure is low.
 
-1. You have 3 Pods running V1.
-2. K8s starts **one** Pod of V2.
-3. Once V2 is "Ready", K8s kills **one** Pod of V1.
-4. Repeat until all are V2.
-
-
-* **Pros:** **Zero downtime**, no extra infrastructure cost (cheap).
-* **Cons:** **Slow Rollback.** If V2 has a bug, it takes time to redeploy V1. During the deployment, some users see V1 and some see V2 (inconsistency).
-* **Best For:** Standard microservices where instant rollback isn't critical. **(This is likely what your previous project used if you just ran `helm upgrade`).**
+*(For a deeper dive into how users bouncing between V1 and V2 impacts stateful data, or how gracefully terminating V1
+pods disrupts live WebSocket connections during the rollout, refer to the Interview file.)*
 
 ---
 
 <h3> 4. Feature Toggles (The "Senior Dev" Strategy) </h3>
 
-**Concept:** You deploy the code, but you hide it behind a standard `if/else` block.
+Feature Toggles (or Feature Flags) are simple `if/else` switches in your code that let you turn features on or off
+without deploying new code or restarting servers. They decouple deploying code from releasing a feature to users.
 
-* **Code:** `if (featureFlags.isOn("new-ui")) { return newUI(); } else { return oldUI(); }`
-* **Strategy:** You deploy V2 to **100% of servers**, but the feature is "Off" in the database.
-* **Release:** You log into a dashboard (e.g., LaunchDarkly) and turn the flag "On" for specific users or everyone.
-* **Pros:** Decouples **Deployment** (moving code) from **Release** (showing features).
-* **Cons:** Technical debt (you have to go back and remove the `if/else` later).
+**How It Works**
+Your application checks a configuration before running new logic:
+
+```javascript
+if (toggle.isEnabled("new_chat_UI", user.id)) {
+  showNewUI();
+} else {
+  showOldUI();
+}
+
+```
+
+If the `new_chat_UI` breaks, a product manager can flip the toggle off in a dashboard, and the application instantly
+reverts to the old UI.
+
+**Types of Toggles**
+
+* **Release Toggles:** Hide unfinished or risky code in production. They are temporary and must be deleted once the
+  feature is fully launched.
+* **Experiment Toggles:** Route a small percentage of users to a new feature for A/B testing to measure metrics like
+  user engagement.
+* **Ops Toggles (Kill Switches):** Instantly disable non-critical, heavy features (like search autocomplete) if the
+  servers are overwhelmed during a traffic spike.
+* **Permission Toggles:** Gate features based on user accounts, such as locking advanced tools behind a premium
+  subscription tier.
+
+**The Trade-off: Toggle Rot**
+Every active toggle creates multiple code paths that must be tested. If teams forget to delete temporary Release or
+Experiment toggles after a launch, the codebase becomes cluttered with dead `if/else` statements, making the system
+harder to maintain and increasing the risk of bugs.
 
 ---
 
