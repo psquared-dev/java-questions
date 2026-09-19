@@ -42,6 +42,7 @@
 10. [Reverse String](https://leetcode.com/problems/reverse-string/)
 11. [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
 12. [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
+    * https://www.youtube.com/watch?v=jSto0O4AJbM
 13. [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
 14. [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
 15. [Count and Say](https://leetcode.com/problems/count-and-say/)
