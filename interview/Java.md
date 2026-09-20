@@ -8995,6 +8995,9 @@ public void process() {
 -----------------------------
 
 
+
+# Module 9: Garbage Collection & Performance Tuning
+
 ## Q - Explain WeakHashMap
 
 This is a great specific question. `WeakHashMap` is the "magic self-cleaning map."
@@ -9158,9 +9161,6 @@ public Image getImage(String key) {
 
 -----------------------------
 
-
-
-# Module 9: Garbage Collection & Performance Tuning
 
 
 ## Q - How to manually trigger the garbage collection process?
