@@ -8434,6 +8434,28 @@ the running program didn't modify often.
   too many huge static maps, you would crash with the infamous `java.lang.OutOfMemoryError: PermGen space`.
   Tuning this size (`-XX:MaxPermSize`) was a headache for developers.
 
+```text
+=========================================================
+                  JVM MEMORY SPACE
+=========================================================
+
++-------------------------------------------------------+
+|                       JAVA HEAP                       |
+|   +-----------------------+-----------------------+   |
+|   |   Young Generation    |     Old Generation    |   |
+|   +-----------------------+-----------------------+   |
++-------------------------------------------------------+
+
++-------------------------------------------------------+
+|                    PERMGEN (Fixed Size)               |
+|   +-----------------------------------------------+   |
+|   | • Class Metadata (Bytecode, Methods, etc.)    |   |
+|   | • Static Variables                            |   |
+|   | • String Constant Pool                        |   |
+|   +-----------------------------------------------+   |
++-------------------------------------------------------+
+```
+
 <h3> 2. The New World: Metaspace (Java 8+) </h3>
 
 In Java 8, Oracle completely removed PermGen. It was replaced by a new memory area called **Metaspace**.
@@ -8444,6 +8466,33 @@ In Java 8, Oracle completely removed PermGen. It was replaced by a new memory ar
 * **Metaspace** lives in **Native Memory** (OS Memory). This means it is **not** part of the
   Java Heap. It is allocated directly from the RAM available on the server, outside the
   JVM's specific constraints.
+
+```text
+=========================================================
+                  JVM & OS MEMORY SPACE
+=========================================================
+
++-------------------------------------------------------+
+|                       JAVA HEAP                       |
+|   +-----------------------+-----------------------+   |
+|   |   Young Generation    |     Old Generation    |   |
+|   +-----------------------+-----------------------+   |
+|   | • Static Variables (stored inside Class objs) |   |
+|   | • String Constant Pool                        |   |
++-------------------------------------------------------+
+
+=========================================================
+                 OS NATIVE MEMORY
+=========================================================
+
++-------------------------------------------------------+
+|                       METASPACE                       |
+|   +-----------------------------------------------+   |
+|   | • Class Metadata (Bytecode, Methods, etc.)    |   |
+|   |   (Grows dynamically using available OS RAM)  |   |
+|   +-----------------------------------------------+   |
++-------------------------------------------------------+
+```
 
 <h3> 3. Answering Your Specific Questions </h3>
 
