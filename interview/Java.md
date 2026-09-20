@@ -8444,14 +8444,12 @@ the running program didn't modify often.
 |   +-----------------------+-----------------------+   |
 |   |   Young Generation    |     Old Generation    |   |
 |   +-----------------------+-----------------------+   |
-+-------------------------------------------------------+
-
-+-------------------------------------------------------+
-|                    PERMGEN (Fixed Size)               |
+|                                                       |
 |   +-----------------------------------------------+   |
-|   | • Class Metadata (Bytecode, Methods, etc.)    |   |
-|   | • Static Variables                            |   |
-|   | • String Constant Pool                        |   |
+|   |             PERMGEN (Fixed Size)              |   |
+|   |   • Class Metadata (Bytecode, Methods, etc.)  |   |
+|   |   • Static Variables                          |   |
+|   |   • String Constant Pool                      |   |
 |   +-----------------------------------------------+   |
 +-------------------------------------------------------+
 ```
