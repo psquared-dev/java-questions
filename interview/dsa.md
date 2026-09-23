@@ -10,7 +10,7 @@
 6. [Two Sum](https://leetcode.com/problems/two-sum/)
 7. [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 8. [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
-9. [Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
+9. [Tricky - Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
     * https://www.youtube.com/watch?v=WpHt8KW02jg
     * https://www.youtube.com/watch?v=YxRmeRyVQm4
 10. [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
@@ -42,7 +42,7 @@
 9. [Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
 10. [Reverse String](https://leetcode.com/problems/reverse-string/)
 11. [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
-12. [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
+12. [Tricky - Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
     * https://www.youtube.com/watch?v=jSto0O4AJbM
 13. [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
 14. [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
