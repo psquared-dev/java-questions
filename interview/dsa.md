@@ -38,6 +38,7 @@
 6. [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
 7. [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)
 8. [String to Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/)
+    * https://www.youtube.com/watch?v=Tz7z0JOLCHs
 9. [Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
 10. [Reverse String](https://leetcode.com/problems/reverse-string/)
 11. [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
@@ -50,6 +51,7 @@
 17. [Roman to Integer](https://leetcode.com/problems/roman-to-integer/)
 18. [Multiply Strings](https://leetcode.com/problems/multiply-strings/)
 19. [Word Pattern](https://leetcode.com/problems/word-pattern/)
+    * https://www.youtube.com/watch?v=W_akoecmCbM
 20. [Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/)
 
 ## 3. Two Pointers & Sliding Window
