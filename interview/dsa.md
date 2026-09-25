@@ -23,7 +23,7 @@
 16. [3Sum](https://leetcode.com/problems/3sum/)
 17. [Sort Colors](https://leetcode.com/problems/sort-colors/)
 18. [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
-19. [Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/)
+19. [Tricky - Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/)
     * https://uplevel.interviewkickstart.com/resource/rc-video-375287-894956-253-1605-4752507
     * https://www.youtube.com/watch?v=wjYnzkAhcNk
 20. [First Missing Positive](https://leetcode.com/problems/first-missing-positive/)
@@ -58,7 +58,9 @@
 
 1. [Two Sum II - Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 2. [3Sum Closest](https://leetcode.com/problems/3sum-closest/)
+    * https://www.youtube.com/watch?v=oTxo_XgIGuU
 3. [4Sum](https://leetcode.com/problems/4sum/)
+    * https://www.youtube.com/watch?v=EYeR-_1NRlQ
 4. [Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)
 5. [Minimum Size Subarray Sum](https://leetcode.com/problems/minimum-size-subarray-sum/)
 6. [Permutation in String](https://leetcode.com/problems/permutation-in-string/)
