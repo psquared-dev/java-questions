@@ -162,7 +162,8 @@ JDK (Java Development Kit) is a software development environment used to develop
 
 * JVM (Java Virtual Machine): The engine that actually runs the code.
 * JRE = JVM + Library Classes (`java.lang`, `java.util`, etc.)
-* JDK = JRE + Development Tools (compilers like `javac`, `javap`, debuggers, documentation generator etc.)
+* JDK = JRE + Development Tools like compiler (`javac`), disassembler (`javap`), 
+    debugger (`jdb`), documentation generator (`javadoc`) etc.)
 
 -----------------------------
 
