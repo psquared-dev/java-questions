@@ -30,29 +30,61 @@
 
 ## 2. Strings
 
+### Easy
+
 1. [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 2. [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
-3. [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
-4. [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
-5. [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
-6. [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
-7. [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)
-8. [String to Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/)
-    * https://www.youtube.com/watch?v=Tz7z0JOLCHs
-9. [Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
-10. [Reverse String](https://leetcode.com/problems/reverse-string/)
-11. [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
-12. [Tricky - Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
-    * https://www.youtube.com/watch?v=jSto0O4AJbM
-13. [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
-14. [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
-15. [Count and Say](https://leetcode.com/problems/count-and-say/)
-16. [Integer to Roman](https://leetcode.com/problems/integer-to-roman/)
-17. [Roman to Integer](https://leetcode.com/problems/roman-to-integer/)
-18. [Multiply Strings](https://leetcode.com/problems/multiply-strings/)
-19. [Word Pattern](https://leetcode.com/problems/word-pattern/)
+3. [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)
+4. [Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+5. [Reverse String](https://leetcode.com/problems/reverse-string/)
+6. [Roman to Integer](https://leetcode.com/problems/roman-to-integer/)
+7. [Word Pattern](https://leetcode.com/problems/word-pattern/)
     * https://www.youtube.com/watch?v=W_akoecmCbM
-20. [Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/)
+8. [Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/)
+9. [Valid Palindrome II](https://leetcode.com/problems/valid-palindrome-ii/)
+10. [Longest Palindrome](https://leetcode.com/problems/longest-palindrome/)
+11. [First Unique Character in a String](https://leetcode.com/problems/first-unique-character-in-a-string/)
+12. [Ransom Note](https://leetcode.com/problems/ransom-note/)
+13. [Add Strings](https://leetcode.com/problems/add-strings/)
+14. [Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/)
+15. [Excel Sheet Column Number](https://leetcode.com/problems/excel-sheet-column-number/)
+16. [Backspace String Compare](https://leetcode.com/problems/backspace-string-compare/)
+17. [Remove All Adjacent Duplicates In String](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/)
+
+### Medium
+
+1. [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
+2. [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
+3. [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
+4. [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
+5. [String to Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/)
+    * https://www.youtube.com/watch?v=Tz7z0JOLCHs
+6. [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
+7. [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
+8. [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
+9. [Count and Say](https://leetcode.com/problems/count-and-say/)
+10. [Integer to Roman](https://leetcode.com/problems/integer-to-roman/)
+11. [Multiply Strings](https://leetcode.com/problems/multiply-strings/)
+12. [Minimum Remove to Make Valid Parentheses](https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/)
+13. [Compare Version Numbers](https://leetcode.com/problems/compare-version-numbers/)
+14. [Custom Sort String](https://leetcode.com/problems/custom-sort-string/)
+15. [String Compression](https://leetcode.com/problems/string-compression/)
+16. [Encode and Decode Strings](https://leetcode.com/problems/encode-and-decode-strings/)
+17. [Group Shifted Strings](https://leetcode.com/problems/group-shifted-strings/)
+18. [Interleaving String](https://leetcode.com/problems/interleaving-string/)
+19. [Repeated DNA Sequences](https://leetcode.com/problems/repeated-dna-sequences/)
+
+### Hard
+
+1. [Tricky - Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
+    * https://www.youtube.com/watch?v=jSto0O4AJbM
+2. [Text Justification](https://leetcode.com/problems/text-justification/)
+3. [Shortest Palindrome](https://leetcode.com/problems/shortest-palindrome/)
+4. [Valid Number](https://leetcode.com/problems/valid-number/)
+5. [Integer to English Words](https://leetcode.com/problems/integer-to-english-words/)
+6. [Wildcard Matching](https://leetcode.com/problems/wildcard-matching/)
+7. [Distinct Subsequences](https://leetcode.com/problems/distinct-subsequences/)
+8. [Palindrome Pairs](https://leetcode.com/problems/palindrome-pairs/)
 
 ## 3. Two Pointers & Sliding Window
 
