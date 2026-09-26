@@ -28,7 +28,7 @@
     * https://www.youtube.com/watch?v=wjYnzkAhcNk
 20. [First Missing Positive](https://leetcode.com/problems/first-missing-positive/)
 
-## 2. Strings
+## 2. Strings (44)
 
 ### Easy
 
