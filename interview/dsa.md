@@ -1,32 +1,63 @@
 # DSA Problems by Pattern
 
-## 1. Arrays
+## 1. Arrays (43)
+
+### Easy
+
+1. [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
+2. [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
+3. [Two Sum](https://leetcode.com/problems/two-sum/)
+4. [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
+5. [Find Pivot Index](https://leetcode.com/problems/find-pivot-index/)
+    * https://www.youtube.com/watch?v=u89i60lYx8U
+6. [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
+7. [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
+8. [Majority Element](https://leetcode.com/problems/majority-element/)
+9. [Plus One](https://leetcode.com/problems/plus-one/)
+10. [Pascal's Triangle](https://leetcode.com/problems/pascals-triangle/)
+11. [Squares of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/)
+12. [Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)
+13. [Single Number](https://leetcode.com/problems/single-number/)
+
+### Medium
 
 1. [Rotate Array](https://leetcode.com/problems/rotate-array/)
-2. [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
-3. [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
-4. [Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
-5. [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
-6. [Two Sum](https://leetcode.com/problems/two-sum/)
-7. [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
-8. [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
-9. [Tricky - Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
+2. [Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
+3. [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
+4. [Tricky - Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
     * https://www.youtube.com/watch?v=WpHt8KW02jg
     * https://www.youtube.com/watch?v=YxRmeRyVQm4
-10. [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
-11. [Find Pivot Index](https://leetcode.com/problems/find-pivot-index/)
-    * https://www.youtube.com/watch?v=u89i60lYx8U
-12. [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
-13. [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
-14. [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
-15. [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
-16. [3Sum](https://leetcode.com/problems/3sum/)
-17. [Sort Colors](https://leetcode.com/problems/sort-colors/)
-18. [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
-19. [Tricky - Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/)
+5. [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
+6. [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
+7. [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
+8. [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+9. [3Sum](https://leetcode.com/problems/3sum/)
+10. [Sort Colors](https://leetcode.com/problems/sort-colors/)
+11. [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
+12. [Tricky - Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/)
     * https://uplevel.interviewkickstart.com/resource/rc-video-375287-894956-253-1605-4752507
     * https://www.youtube.com/watch?v=wjYnzkAhcNk
-20. [First Missing Positive](https://leetcode.com/problems/first-missing-positive/)
+13. [Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)
+14. [Insert Interval](https://leetcode.com/problems/insert-interval/)
+15. [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
+16. [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
+17. [Rotate Image](https://leetcode.com/problems/rotate-image/)
+18. [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
+19. [Next Permutation](https://leetcode.com/problems/next-permutation/)
+20. [Find All Duplicates in an Array](https://leetcode.com/problems/find-all-duplicates-in-an-array/)
+21. [Gas Station](https://leetcode.com/problems/gas-station/)
+22. [Increasing Triplet Subsequence](https://leetcode.com/problems/increasing-triplet-subsequence/)
+23. [Subarray Sums Divisible by K](https://leetcode.com/problems/subarray-sums-divisible-by-k/)
+24. [H-Index](https://leetcode.com/problems/h-index/)
+25. [Game of Life](https://leetcode.com/problems/game-of-life/)
+
+### Hard
+
+1. [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
+2. [First Missing Positive](https://leetcode.com/problems/first-missing-positive/)
+3. [Candy](https://leetcode.com/problems/candy/)
+4. [Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
+5. [Maximum Gap](https://leetcode.com/problems/maximum-gap/)
 
 ## 2. Strings (44)
 
