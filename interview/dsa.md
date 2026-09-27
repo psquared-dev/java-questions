@@ -47,6 +47,7 @@
 12. [Ransom Note](https://leetcode.com/problems/ransom-note/)
 13. [Add Strings](https://leetcode.com/problems/add-strings/)
 14. [Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/)
+    * https://www.youtube.com/watch?v=7J8x0XudV0Y
 15. [Excel Sheet Column Number](https://leetcode.com/problems/excel-sheet-column-number/)
 16. [Backspace String Compare](https://leetcode.com/problems/backspace-string-compare/)
 17. [Remove All Adjacent Duplicates In String](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/)
