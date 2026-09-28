@@ -4,7 +4,8 @@
 
 ### Easy
 
-1. [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
+1. [Tricky - Move Zeroes](https://leetcode.com/problems/move-zeroes/)
+    * https://www.youtube.com/watch?v=aayNRwUN3Do
 2. [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
 3. [Two Sum](https://leetcode.com/problems/two-sum/)
 4. [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
