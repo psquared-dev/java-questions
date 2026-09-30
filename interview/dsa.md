@@ -17,8 +17,11 @@
 9. [Plus One](https://leetcode.com/problems/plus-one/)
 10. [Pascal's Triangle](https://leetcode.com/problems/pascals-triangle/)
 11. [Squares of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/)
+    * https://www.youtube.com/watch?v=FPCZsG_AkUg
 12. [Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)
+    * https://www.youtube.com/watch?v=8i-f24YFWC4
 13. [Single Number](https://leetcode.com/problems/single-number/)
+    * https://www.youtube.com/watch?v=qMPX1AOa83k
 
 ### Medium
 
