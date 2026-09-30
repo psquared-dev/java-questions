@@ -2713,7 +2713,10 @@ To remember the core principles of Object-Oriented Programming (OOP), you can us
 
 Let's start with Polymorphism:
 
-Doing the same thing in different ways is called polymorhphism. There are two types of polymorhphism:
+An object can behave differently based on its actual object type in memory (at runtime) or 
+the specific parameters passed to it (at compile time). This is called polymorhphism. 
+
+There are two types of polymorhphism:
 
 1. Runtime polymorphism
 1. Compile time polymorphism
