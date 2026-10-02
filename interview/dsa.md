@@ -77,7 +77,8 @@
     * https://www.youtube.com/watch?v=W_akoecmCbM
 8. [Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/)
 9. [Valid Palindrome II](https://leetcode.com/problems/valid-palindrome-ii/)
-10. [Longest Palindrome](https://leetcode.com/problems/longest-palindrome/)
+10. [Tricky - Longest Palindrome](https://leetcode.com/problems/longest-palindrome/)
+    * https://www.youtube.com/watch?v=tEbOmwxmuls
 11. [First Unique Character in a String](https://leetcode.com/problems/first-unique-character-in-a-string/)
 12. [Ransom Note](https://leetcode.com/problems/ransom-note/)
 13. [Add Strings](https://leetcode.com/problems/add-strings/)
