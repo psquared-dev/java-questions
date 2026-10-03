@@ -106,9 +106,11 @@
 13. [Compare Version Numbers](https://leetcode.com/problems/compare-version-numbers/)
 14. [Custom Sort String](https://leetcode.com/problems/custom-sort-string/)
 15. [String Compression](https://leetcode.com/problems/string-compression/)
-16. [Encode and Decode Strings](https://leetcode.com/problems/encode-and-decode-strings/)
+    * https://www.youtube.com/watch?v=I7drewKcN1Y
+16. [Encode and Decode Strings](https://www.lintcode.com/problem/659/description)
 17. [Group Shifted Strings](https://leetcode.com/problems/group-shifted-strings/)
 18. [Interleaving String](https://leetcode.com/problems/interleaving-string/)
+    * https://www.youtube.com/watch?v=CfzP4oXxZTI
 19. [Repeated DNA Sequences](https://leetcode.com/problems/repeated-dna-sequences/)
 
 ### Hard
