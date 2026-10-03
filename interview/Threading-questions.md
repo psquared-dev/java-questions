@@ -4,6 +4,7 @@
     * [sleep()](#sleep)
     * [Quick state summary (very useful)](#quick-state-summary-very-useful)
 * [Q - What happens if notify() is called before wait()? Does the waiting thread get notified later? Why or why not?](#q---what-happens-if-notify-is-called-before-wait-does-the-waiting-thread-get-notified-later-why-or-why-not)
+    * [Step-by-Step Verification](#step-by-step-verification)
 * [Q - Why should wait() always be called inside a while loop and not an if statement?](#q---why-should-wait-always-be-called-inside-a-while-loop-and-not-an-if-statement)
     * [Why re-checking is necessary](#why-re-checking-is-necessary)
     * [What while guarantees](#what-while-guarantees)
@@ -13,7 +14,7 @@
     * [notifyAll()](#notifyall)
     * [Why notify() is dangerous](#why-notify-is-dangerous)
     * [Why notifyAll() is safer](#why-notifyall-is-safer)
-* [Q5-Why does a thread wake up from wait() and still not run immediately? What happens after it is notified?](#q5-why-does-a-thread-wake-up-from-wait-and-still-not-run-immediately-what-happens-after-it-is-notified)
+* [Q - Why does a thread wake up from wait() and still not run immediately? What happens after it is notified?](#q---why-does-a-thread-wake-up-from-wait-and-still-not-run-immediately-what-happens-after-it-is-notified)
     * [Full lifecycle (clean mental model)](#full-lifecycle-clean-mental-model)
 * [Q - What is the difference between BLOCKED and WAITING thread states?](#q---what-is-the-difference-between-blocked-and-waiting-thread-states)
     * [WAITING state](#waiting-state)
@@ -301,11 +302,34 @@ wait()   → WAITING → BLOCKED → RUNNABLE
 sleep()  → TIMED_WAITING → RUNNABLE
 ```
 
+
+----------------------
+
+
 # Q - What happens if notify() is called before wait()? Does the waiting thread get notified later? Why or why not?
 
-If `notify()` is called before a thread calls `wait()`, the notification is lost. 
-Java does not queue notifications, so a thread that starts waiting later will wait indefinitely 
-unless another notification occurs.
+No. If `notify()` is called before wait(), the notification is completely lost, and a thread 
+that calls `wait()` later will not receive it. It will block indefinitely unless another notification 
+occurs later.
+
+
+### Step-by-Step Verification
+
+1. **How `wait()` behaves:** A thread is **only** added to the Monitor's Wait Set at the exact 
+   moment it executes `wait()`. Prior to calling `wait()`, the thread is not in the Wait Set at all.
+2. **How `notify()` behaves:** Calling `notify()` inspects the Wait Set *at that exact instant*. 
+   It attempts to wake up one thread currently sitting in that set. If the Wait Set is 
+   empty when `notify()` is called, **the notification does nothing and disappears forever**. 
+   Java keeps no memory, flag, or "counter" of past `notify()` calls.
+3. **The Sequence:** If `notify()` executes first, it finds an empty Wait Set and exits. 
+   When `wait()` executes later, the thread enters the Wait Set and goes to sleep, waiting for a signal 
+   that has already passed. It will remain stuck in `WAITING` indefinitely unless another thread 
+   calls `notify()` in the future.
+
+
+----------------------
+
+
 
 # Q - Why should wait() always be called inside a while loop and not an if statement?
 
@@ -412,7 +436,7 @@ This avoids:
 * Missed signals
 * Deadlocks caused by wrong thread selection
 
-# Q5-Why does a thread wake up from wait() and still not run immediately? What happens after it is notified?
+# Q - Why does a thread wake up from wait() and still not run immediately? What happens after it is notified?
 
 A notified thread does not run immediately. It first moves to the `BLOCKED` state and must re-acquire 
 the monitor lock before continuing execution.
