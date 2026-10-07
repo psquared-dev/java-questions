@@ -97,7 +97,8 @@
 5. [String to Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/)
     * https://www.youtube.com/watch?v=Tz7z0JOLCHs
 6. [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
-7. [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
+7. [Tricky - Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
+    * https://www.youtube.com/watch?v=gqXU1UyA8pk
 8. [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
 9. [Count and Say](https://leetcode.com/problems/count-and-say/)
 10. [Integer to Roman](https://leetcode.com/problems/integer-to-roman/)
