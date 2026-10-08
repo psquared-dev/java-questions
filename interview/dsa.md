@@ -101,9 +101,10 @@
     * https://www.youtube.com/watch?v=gqXU1UyA8pk
 8. [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
 9. [Count and Say](https://leetcode.com/problems/count-and-say/)
-10. [Integer to Roman](https://leetcode.com/problems/integer-to-roman/)
+10. [Tricky - Integer to Roman](https://leetcode.com/problems/integer-to-roman/)
 11. [Multiply Strings](https://leetcode.com/problems/multiply-strings/)
 12. [Minimum Remove to Make Valid Parentheses](https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/)
+    * https://www.youtube.com/watch?v=NNxaYz0nrk0
 13. [Compare Version Numbers](https://leetcode.com/problems/compare-version-numbers/)
 14. [Custom Sort String](https://leetcode.com/problems/custom-sort-string/)
 15. [String Compression](https://leetcode.com/problems/string-compression/)
