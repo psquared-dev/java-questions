@@ -2635,8 +2635,8 @@ To remember the core principles of Object-Oriented Programming (OOP), you can us
 
 Let's start with Polymorphism:
 
-An object can behave differently based on its actual object type in memory (at runtime) or 
-the specific parameters passed to it (at compile time). This is called polymorhphism. 
+Behavior varies at runtime based on the actual concrete implementation 
+behind a shared interface or superclass reference. This is called polymorhphism. 
 
 There are two types of polymorhphism:
 
