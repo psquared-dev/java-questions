@@ -4725,6 +4725,25 @@ Fail-fast iterators immediately throw a `ConcurrentModificationException` if the
 underlying collection is structurally modified during iteration(except through the
 iterator's own `remove()` method).
 
+```java
+ArrayList<String> list = new ArrayList<>(List.of("aa", "bb", "cc"));
+
+for (String s : list) {
+    if (s.equals("aa")) {
+        list.remove("aa");
+    }
+}
+```
+
+Output:
+
+```text
+Exception in thread "main" java.util.ConcurrentModificationException
+	at java.base/java.util.ArrayList$Itr.checkForComodification(ArrayList.java:1095)
+	at java.base/java.util.ArrayList$Itr.next(ArrayList.java:1049)
+	at practice.Tmp.main(Tmp.java:134)
+```
+
 Examples:
 
 * `ArrayList`
