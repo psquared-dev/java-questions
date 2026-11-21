@@ -2753,6 +2753,19 @@ class Team {
 }
 ```
 
+```mermaid
+classDiagram
+class Team {
+-List~Player~ players
+}
+
+    class Player {
+        -String name
+    }
+
+    Team "1" o-- "*" Player : has
+```
+
 Why is this aggregation, not composition?
 
 1. **The Team does NOT own the lifecycle of the Player**. Players already exist before being added to the team.
@@ -2787,6 +2800,21 @@ class Order {
         items.add(item);
     }
 }
+```
+
+```mermaid
+classDiagram
+    class Order {
+        -List~OrderItem~ items
+        +addItem(OrderItem item) void
+    }
+
+    class OrderItem {
+        -String productId
+        -int quantity
+    }
+
+    Order "1" *-- "*" OrderItem : contains
 ```
 
 Why is this composition?
