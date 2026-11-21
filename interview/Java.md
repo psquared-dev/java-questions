@@ -32,9 +32,7 @@
   * [Q - Which class is thread-safe: StringBuilder or StringBuffer?](#q---which-class-is-thread-safe-stringbuilder-or-stringbuffer)
   * [Q - How many times is the finalize() method called in Java?](#q---how-many-times-is-the-finalize-method-called-in-java)
   * [Q - What is Serializable interface? List some real-world use-cases for it.](#q---what-is-serializable-interface-list-some-real-world-use-cases-for-it)
-  * [Q - What are some use cases of reflection](#q---what-are-some-use-cases-of-reflection)
   * [Q - How many methods are there compare strings in Java?](#q---how-many-methods-are-there-compare-strings-in-java)
-  * [Q - Will the following statement adds string to the string pool?](#q---will-the-following-statement-adds-string-to-the-string-pool)
   * [Q - What happens when we concatenate string with different type?](#q---what-happens-when-we-concatenate-string-with-different-type)
   * [Q - What is the difference b/w `equals()` and `equalsIgnoreCase()` method?](#q---what-is-the-difference-bw-equals-and-equalsignorecase-method)
   * [Q - What is the difference b/w `isEmpty()` and `isBlank()` method of String object?](#q---what-is-the-difference-bw-isempty-and-isblank-method-of-string-object)
@@ -1763,31 +1761,6 @@ for (Field f : fields) {
 -----------------------------
 
 
-## Q - What are some use cases of reflection
-
-1. **Dependency Injection Frameworks (Spring Context)**
-    * **How:** When you use `@Autowired`, Spring scans your classes, finds the dependencies, and
-     injects them into private fields. It does this entirely via Reflection (because it can access
-     private members).
-
-2. **Testing Tools (JUnit / Mockito)**
-    * **How:** JUnit uses reflection to find all methods annotated with `@Test` and run them.
-     Mockito uses it to create "fake" proxy objects that look like your real classes.
-
-3. **Serialization / Deserialization (Jackson / Gson)**
-    * **How:** Converting JSON `{"name": "John"}` into a Java object `User`.
-     The library inspects the class to match keys to field names.
-
-4. **ORM (Hibernate / JPA)**
-    * **How:** Mapping database columns to entity fields and generating SQL queries dynamically based on class definitions.
-
-5. **IDEs and Debuggers (IntelliJ / Eclipse)**
-    * **How:** When you type `myObject`. and see a dropdown list of methods (Auto-complete),
-     the IDE is using reflection to inspect that object's class to see what methods exist.
-
-
------------------------------
-
 
 ## Q - How many methods are there compare strings in Java?
 
@@ -1814,46 +1787,6 @@ There are 5 main ways to compare Strings, depending on your goal:
 5. `Objects.equals(s1, s2)`: Null-safe version of `.equals()`.
     * **Use case:** Best practice when you are not sure if `s1` or `s2` is `null`. It avoids `NullPointerException`.
 
-
------------------------------
-
-
-## Q - Will the following statement adds string to the string pool?
-
-```java
-String s1 = "hello";
-String s2 = s1 + " world";   // this adds the string to the string pool?
-```
-
-The Explanation:
-
-1. **Compile-Time (String Pool):** If you write `"hello" + " world"`, the Java compiler sees that
-   both are literals (constants). It combines them into `"hello world"` during compilation and
-   places that single string in the pool.
-
-2. **Run-Time (Heap):** In your code, `s1` is a variable. The compiler cannot know for
-   sure what `s1` will contain at runtime (technically it can here, but the rule is strict
-   for non-final variables). Therefore, JVM executes this as:
-
-    ```java
-    new StringBuilder().append(s1).append(" world").toString()
-    ```
-   **This creates a new object on the Heap**, not the Pool.
-
-<h3> The Nuance: The final Keyword </h3>
-
-Follow-up question: "How can you force `s2` into the pool without using `.intern()`?"
-
-Answer: Make `s1` final.
-
-```java
-final String s1 = "hello";  // Now it is a Constant
-String s2 = s1 + " world";  // Compiler treats s1 as "hello"
-```
-
-* Because `s1` is `final`, the compiler treats it as a constant value.
-* The expression becomes `"hello" + " world"`.
-* The result `"hello world"` is placed in the String Pool.
 
 
 -----------------------------
@@ -1942,22 +1875,11 @@ No `NullPointerException`
 
 ## Q - What is the difference b/w `equals()` and `equalsIgnoreCase()` method?
 
-The primary difference is case sensitivity.
-
-1. Case Sensitivity:
-
-    * `equals()`: Is case-sensitive. It returns `true` only if the characters
-     match exactly, including casing (e.g., `"Java".equals("java")` returns `false`).
-    * `equalsIgnoreCase()`: Is case-insensitive. It returns `true` if the characters match regardless
-      of casing (e.g., `"Java".equalsIgnoreCase("java")` returns `true`).
-
-2. Parameter Type:
-
-    * `equals(Object anObject)`: Accepts an argument of type `Object`. (It overrides the method
-     from the `Object` class).
-    * `equalsIgnoreCase(String anotherString)`: Accepts an argument of type `String`. (It is a method
-      specific to the `String` class).
-
+1. `equals()` is declared in `Object`; `equalsIgnoreCase()` is declared in String.
+2. `equals()` accepts an `Object`; `equalsIgnoreCase()` accepts a String.
+3. `equals()` is case-sensitive; `equalsIgnoreCase()` is case-insensitive.
+4. `equals()` is overridable by any class to define its own equality logic. `equalsIgnoreCase()` is 
+      specifically a `String` method
 
 -----------------------------
 
