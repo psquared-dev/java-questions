@@ -1873,6 +1873,20 @@ You want to print every Author's name and the title of their first book.
 You write this simple Java code:
 
 ```java
+@Entity
+public class Author {
+
+  @Id
+  private Long id;
+
+  private String name;
+
+  @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+  private List<Book> books = new ArrayList<>();
+
+  // getters / setters
+}
+
 // 1. Fetch ALL authors (SELECT * FROM Author)
 List<Author> authors = authorRepository.findAll();
 
@@ -1890,10 +1904,10 @@ Here is what happens in the database logs:
 
 1. **Query 1:** Hibernate runs `SELECT * FROM Author`. (Returns 100 authors).
 2. **The Loop:**
-  * **Iteration 1:** You call `.getBooks()`. Hibernate runs `SELECT * FROM Book WHERE author_id = 1`.
-  * **Iteration 2:** You call `.getBooks()`. Hibernate runs `SELECT * FROM Book WHERE author_id = 2`.
-  * ...
-  * **Iteration 100:** You call `.getBooks()`. Hibernate runs `SELECT * FROM Book WHERE author_id = 100`.
+    * **Iteration 1:** You call `.getBooks()`. Hibernate runs `SELECT * FROM Book WHERE author_id = 1`.
+    * **Iteration 2:** You call `.getBooks()`. Hibernate runs `SELECT * FROM Book WHERE author_id = 2`.
+    * ...
+    * **Iteration 100:** You call `.getBooks()`. Hibernate runs `SELECT * FROM Book WHERE author_id = 100`.
 
 
 **Total Queries:**
@@ -1904,7 +1918,7 @@ Here is what happens in the database logs:
 
 If you have 1,000 authors, you just ran **1,001 database queries** for a single screen. This kills performance.
 
-<h3> 4. The Solution: "JOIN FETCH" </h3>
+<h3> 4. 1st Solution: "JOIN FETCH" </h3>
 
 You need to tell Hibernate: *"When you get the Authors, get their Books at the same time."*
 
@@ -1920,6 +1934,45 @@ List<Author> findAllWithBooks();
 Hibernate runs **1 single query**:
 `SELECT * FROM Author a INNER JOIN Book b ON a.id = b.author_id`
 
+
+Note that we are able to write `"SELECT a FROM Author a JOIN FETCH a.books"` becauase we have
+a `books` association field on the `Author` entity.
+
+Warning: Use `JOIN FETCH` only when the child collection (e.g., books) is relatively
+small—otherwise, it loads every child row into memory at once.
+
+
+<h3> 5. 2nd Solution: @BatchSize </h3>
+
+```java
+@Entity
+public class Author {
+    @Id
+    private Long id;
+    private String name;
+
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
+    private List<Book> books = new ArrayList<>();
+}
+
+// 1. Fetch only the first 10 authors
+Page<Author> authorPage = authorRepository.findAll(PageRequest.of(0, 10, Sort.by("id").ascending()));
+List<Author> top10Authors = authorPage.getContent();
+
+// 2. For each author, access books (batched in one IN query) and take only the first 5
+for (Author author : top10Authors) {
+        System.out.println("Author: " + author.getName());
+
+    List<Book> first5Books = author.getBooks().stream()
+        .limit(5)
+        .toList();
+
+    for (Book book : first5Books) {
+        System.out.println("  - " + book.getTitle());
+        }
+}
+```
 
 ----------------
 
