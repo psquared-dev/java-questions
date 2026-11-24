@@ -1,281 +1,61 @@
 <!-- TOC -->
 * [Q - What is the difference between wait() and sleep() in Java?](#q---what-is-the-difference-between-wait-and-sleep-in-java)
-    * [wait()](#wait)
-    * [sleep()](#sleep)
-    * [Quick state summary (very useful)](#quick-state-summary-very-useful)
 * [Q - What happens if notify() is called before wait()? Does the waiting thread get notified later? Why or why not?](#q---what-happens-if-notify-is-called-before-wait-does-the-waiting-thread-get-notified-later-why-or-why-not)
-    * [Step-by-Step Verification](#step-by-step-verification)
 * [Q - Why should wait() always be called inside a while loop and not an if statement?](#q---why-should-wait-always-be-called-inside-a-while-loop-and-not-an-if-statement)
-    * [Why re-checking is necessary](#why-re-checking-is-necessary)
-    * [What while guarantees](#what-while-guarantees)
-    * [Why if is dangerous](#why-if-is-dangerous)
 * [Q - Difference between notify() and notifyAll()](#q---difference-between-notify-and-notifyall)
-    * [notify()](#notify)
-    * [notifyAll()](#notifyall)
-    * [Why notify() is dangerous](#why-notify-is-dangerous)
-    * [Why notifyAll() is safer](#why-notifyall-is-safer)
 * [Q - Why does a thread wake up from wait() and still not run immediately? What happens after it is notified?](#q---why-does-a-thread-wake-up-from-wait-and-still-not-run-immediately-what-happens-after-it-is-notified)
-    * [Full lifecycle (clean mental model)](#full-lifecycle-clean-mental-model)
 * [Q - What is the difference between BLOCKED and WAITING thread states?](#q---what-is-the-difference-between-blocked-and-waiting-thread-states)
-    * [WAITING state](#waiting-state)
-    * [BLOCKED state](#blocked-state)
 * [Q - Why does wait() release the lock but sleep() does not?](#q---why-does-wait-release-the-lock-but-sleep-does-not)
-    * [Why wait() releases the lock but sleep() does not](#why-wait-releases-the-lock-but-sleep-does-not)
-    * [wait() — coordination mechanism](#wait--coordination-mechanism)
-    * [sleep() — time-based pause](#sleep--time-based-pause)
 * [Q - What problem does volatile solve, and what problem does it NOT solve?](#q---what-problem-does-volatile-solve-and-what-problem-does-it-not-solve)
-    * [Memory visibility](#memory-visibility)
-    * [Correct ordering of instructions across threads](#correct-ordering-of-instructions-across-threads)
-    * [The One Rule to Remember (Perfect)](#the-one-rule-to-remember-perfect)
-    * [What volatile does NOT solve](#what-volatile-does-not-solve)
 * [Q - Why is volatile sufficient for a stop flag but not for a counter?](#q---why-is-volatile-sufficient-for-a-stop-flag-but-not-for-a-counter)
-    * [Why this distinction matters](#why-this-distinction-matters)
-* [Q -  What is a deadlock? Can you name the four necessary conditions for deadlock?](#q---what-is-a-deadlock-can-you-name-the-four-necessary-conditions-for-deadlock)
-    * [The 4 Necessary Conditions (Coffman Conditions)](#the-4-necessary-conditions-coffman-conditions)
-    * [Example of Deadlock](#example-of-deadlock)
-    * [Mapping the Code to the 4 Conditions](#mapping-the-code-to-the-4-conditions)
-    * [How to prevent the deadlock?](#how-to-prevent-the-deadlock)
+* [Q - What is a deadlock? Can you name the four necessary conditions for deadlock?](#q---what-is-a-deadlock-can-you-name-the-four-necessary-conditions-for-deadlock)
 * [Q - Why Thread.stop() is not recommended to stop the thread?](#q---why-threadstop-is-not-recommended-to-stop-the-thread)
-    * [Example](#example)
-* [Q -: What is the correct way to stop a thread in Java?](#q---what-is-the-correct-way-to-stop-a-thread-in-java)
-    * [The Code Example:](#the-code-example)
+* [Q - What is the correct way to stop a thread in Java?](#q---what-is-the-correct-way-to-stop-a-thread-in-java)
 * [Q - How does the `Thread.interrupt()` mechanism work conceptually?](#q---how-does-the-threadinterrupt-mechanism-work-conceptually)
 * [Q - How do you handle interruption if the thread is actively working (Awake)?](#q---how-do-you-handle-interruption-if-the-thread-is-actively-working-awake)
-    * [The Code Example:](#the-code-example-1)
 * [Q - How do you handle interruption if the thread is Sleeping or Waiting?](#q---how-do-you-handle-interruption-if-the-thread-is-sleeping-or-waiting)
-    * [The Code Example:](#the-code-example-2)
 * [Q - What is the "Flag Clearing" trap when InterruptedException is thrown?](#q---what-is-the-flag-clearing-trap-when-interruptedexception-is-thrown)
-    * [The Code Example (The "Zombie" Thread Bug):](#the-code-example-the-zombie-thread-bug)
 * [Q - Does interrupt() wake up a thread waiting for a Lock (BLOCKED)?](#q---does-interrupt-wake-up-a-thread-waiting-for-a-lock-blocked)
-    * [The Code Example:](#the-code-example-3)
 * [Q - What is ReentrantLock?](#q---what-is-reentrantlock)
-  * [Why does it exist when we already have synchronized?](#why-does-it-exist-when-we-already-have-synchronized)
-  * [First: What does "Reentrant" mean?](#first-what-does-reentrant-mean)
-  * [Basic usage of ReentrantLock](#basic-usage-of-reentrantlock)
-  * [Key capabilities of ReentrantLock (with examples)](#key-capabilities-of-reentrantlock-with-examples)
-    * [Explicit lock control (manual)](#explicit-lock-control-manual)
-    * [Try acquiring a lock (non-blocking)](#try-acquiring-a-lock-non-blocking)
-    * [Interruptible lock acquisition](#interruptible-lock-acquisition)
-    * [Fairness (very important interview point)](#fairness-very-important-interview-point)
-    * [Condition variables (replacement for wait/notify)](#condition-variables-replacement-for-waitnotify)
-  * [Why ReentrantLock is NOT a replacement for synchronized](#why-reentrantlock-is-not-a-replacement-for-synchronized)
-  * [When SHOULD you use ReentrantLock?](#when-should-you-use-reentrantlock)
-  * [When should you NOT use it?](#when-should-you-not-use-it)
 * [Q - What is a race condition?](#q---what-is-a-race-condition)
 * [Q - What is atomicity, and how is it different from visibility?](#q---what-is-atomicity-and-how-is-it-different-from-visibility)
-  * [Atomicity](#atomicity)
-  * [Visibility](#visibility)
 * [Q - Why was ExecutorService introduced? What problem does it solve compared to creating threads manually?](#q---why-was-executorservice-introduced-what-problem-does-it-solve-compared-to-creating-threads-manually)
-  * [Problems with creating threads manually](#problems-with-creating-threads-manually)
-    * [1 - Thread creation is expensive](#1---thread-creation-is-expensive)
-    * [2 - No control over number of threads](#2---no-control-over-number-of-threads)
-    * [3 - No lifecycle management](#3---no-lifecycle-management)
-    * [4 - No result handling](#4---no-result-handling)
 * [Q - What is an Executor interface?](#q---what-is-an-executor-interface)
-  * [1. Why the Executor interface exists](#1-why-the-executor-interface-exists)
-  * [2. What exactly is Executor?](#2-what-exactly-is-executor)
-    * [3. Conceptual model](#3-conceptual-model)
-    * [4. Where real power comes from (Executor implementations)](#4-where-real-power-comes-from-executor-implementations)
-    * [Error handling behavior](#error-handling-behavior)
-  * [One-line summary](#one-line-summary)
 * [Q - What is ExecutorService interface?](#q---what-is-executorservice-interface)
-  * [Step 1 — Where ExecutorService sits in the story](#step-1--where-executorservice-sits-in-the-story)
-  * [Step 2 — What ExecutorService actually is](#step-2--what-executorservice-actually-is)
-  * [Step 3 — The core responsibility of ExecutorService](#step-3--the-core-responsibility-of-executorservice)
-  * [Step 4 — Submitting work (execute vs submit)](#step-4--submitting-work-execute-vs-submit)
-  * [Step 5 — Why submit() exists at all](#step-5--why-submit-exists-at-all)
-  * [Step 6 — Understanding Future](#step-6--understanding-future)
-  * [Step 7 — Callable vs Runnable (why both exist)](#step-7--callable-vs-runnable-why-both-exist)
-  * [Step 8 — Managing executor lifecycle (very important)](#step-8--managing-executor-lifecycle-very-important)
-  * [Step 9 — Waiting for termination](#step-9--waiting-for-termination)
-  * [Step 10 — What ExecutorService deliberately does NOT decide](#step-10--what-executorservice-deliberately-does-not-decide)
 * [Q - What is ThreadPoolExecutor?](#q---what-is-threadpoolexecutor)
-  * [ThreadPoolExecutor Constructor Parameters](#threadpoolexecutor-constructor-parameters)
-  * [The Lifecycle of a Task](#the-lifecycle-of-a-task)
-  * [A Common Trait That Surprises People](#a-common-trait-that-surprises-people)
-  * [Types of queues](#types-of-queues)
-    * [1. Bounded Queues (`ArrayBlockingQueue`)](#1-bounded-queues-arrayblockingqueue)
-    * [2. Unbounded Queues (`LinkedBlockingQueue`, `PriorityBlockingQueue`)](#2-unbounded-queues-linkedblockingqueue-priorityblockingqueue)
-    * [3. Direct Hand-off Queues (`SynchronousQueue`)](#3-direct-hand-off-queues-synchronousqueue)
-    * [Master Cheat Sheet](#master-cheat-sheet)
-  * [Under the Hood: Locking Architecture and GC Performance](#under-the-hood-locking-architecture-and-gc-performance)
-    * [1. The Two-Lock Optimization (Linked vs. Array)](#1-the-two-lock-optimization-linked-vs-array)
-      * [Bounded Queues (`ArrayBlockingQueue`)](#bounded-queues-arrayblockingqueue)
-      * [Unbounded Queues (`LinkedBlockingQueue`)](#unbounded-queues-linkedblockingqueue)
-    * [2. Memory Allocation & Garbage Collection (GC) Pressure](#2-memory-allocation--garbage-collection-gc-pressure)
-      * [Bounded Queues (`ArrayBlockingQueue`) — Allocated Upfront](#bounded-queues-arrayblockingqueue--allocated-upfront)
-      * [Unbounded Queues (`LinkedBlockingQueue`) — Swift Memory Spikes & GC Stress](#unbounded-queues-linkedblockingqueue--swift-memory-spikes--gc-stress)
-    * [Updated Cheat Sheet Comparison](#updated-cheat-sheet-comparison)
 * [Q - Explain some types of ExecutorService?](#q---explain-some-types-of-executorservice)
-  * [SingleThreadExecutor](#singlethreadexecutor)
-  * [FixedThreadPool](#fixedthreadpool)
-  * [CachedThreadPool](#cachedthreadpool)
-  * [ScheduledThreadPoolExecutor](#scheduledthreadpoolexecutor)
-  * [WorkStealingPool (ForkJoinPool)](#workstealingpool-forkjoinpool)
 * [Q - Explain ForkJoinPool with an example](#q---explain-forkjoinpool-with-an-example)
-  * [Rules of engagement](#rules-of-engagement)
-  * [Problem](#problem)
-  * [GLOBAL VIEW 1 — Task tree (structure only)](#global-view-1--task-tree-structure-only)
-  * [GLOBAL VIEW 2 — Initial state](#global-view-2--initial-state)
-  * [STEP 1 — Root starts on W1](#step-1--root-starts-on-w1)
-  * [STEP 2 — Stealing happens](#step-2--stealing-happens)
-  * [STEP 3 — W1 splits (5..8)](#step-3--w1-splits-58)
-  * [STEP 4 — W2 splits (1..4)](#step-4--w2-splits-14)
-  * [STEP 5 — More stealing (4 workers active)](#step-5--more-stealing-4-workers-active)
-  * [STEP 6 — Leaf computations (base case)](#step-6--leaf-computations-base-case)
-  * [STEP 7 — join() points (waiting is visible)](#step-7--join-points-waiting-is-visible)
-  * [STEP 8 — Result build-up (bottom → top)](#step-8--result-build-up-bottom--top)
-  * [STEP 9 — Final join at root](#step-9--final-join-at-root)
-  * [FINAL GLOBAL VIEW — Everything together](#final-global-view--everything-together)
 * [Q - What's the differences b/w ForkJoinPool and ThreadPoolExecutor?](#q---whats-the-differences-bw-forkjoinpool-and-threadpoolexecutor)
 * [Q - How ForkJoinPool() is different from Executors.newWorkStealingPool()](#q---how-forkjoinpool-is-different-from-executorsnewworkstealingpool)
-  * [1. The Return Type (API vs Implementation)](#1-the-return-type-api-vs-implementation)
-  * [2. The Hidden Difference: "Async Mode"](#2-the-hidden-difference-async-mode)
 * [Q - What is CompletableFuture?](#q---what-is-completablefuture)
-  * [The Core Drawbacks of Traditional `Future`](#the-core-drawbacks-of-traditional-future)
-    * [1. The Blocking Trap (`.get()`)](#1-the-blocking-trap-get)
-    * [2. No Native Callback Support (Polling with `.isDone()`)](#2-no-native-callback-support-polling-with-isdone)
-    * [3. The "Async Pipeline" Nightmare (Nested `.get()` Dependencies)](#3-the-async-pipeline-nightmare-nested-get-dependencies)
-    * [4. Brittle Exception Handling](#4-brittle-exception-handling)
-  * [The Resolution](#the-resolution)
-  * [🏗️ Group 1: Initiating Asynchronous Tasks](#-group-1-initiating-asynchronous-tasks)
-    * [1. `supplyAsync()`](#1-supplyasync)
-    * [2. `runAsync()`](#2-runasync)
-  * [⚡ Group 2: Transforming & Chaining (Single Pipeline)](#-group-2-transforming--chaining-single-pipeline)
-    * [3. `thenApply()`](#3-thenapply)
-    * [4. `thenCompose()`](#4-thencompose)
-    * [5. `thenAccept()`](#5-thenaccept)
-  * [🔀 Group 3: Combining Multiple Futures](#-group-3-combining-multiple-futures)
-    * [6. `thenCombine()`](#6-thencombine)
-    * [7. `allOf()`](#7-allof)
-    * [8. `anyOf()`](#8-anyof)
-  * [🚨 Group 4: Exception Handling & Recovery](#-group-4-exception-handling--recovery)
-    * [9. `exceptionally()`](#9-exceptionally)
-    * [10. `handle()`](#10-handle)
 * [Q - What is Virtual Thread?](#q---what-is-virtual-thread)
-  * [The Class Hierarchy Under the Hood](#the-class-hierarchy-under-the-hood)
-  * [How You Create Them in Code](#how-you-create-them-in-code)
-  * [How to Check at Runtime](#how-to-check-at-runtime)
-  * [Example of Virtual Thread](#example-of-virtual-thread)
 * [Q - What is Thread Local?](#q---what-is-thread-local)
-    * [1. The Core Architecture (The Inverted Model)](#1-the-core-architecture-the-inverted-model)
-    * [2. What Happens Step-by-Step in Memory](#2-what-happens-step-by-step-in-memory)
-      * [When **Thread A** calls `context.set(userA)`:](#when-thread-a-calls-contextsetusera)
-      * [When **Thread B** calls `context.set(userB)`:](#when-thread-b-calls-contextsetuserb)
-      * [When **Thread A** calls `context.get()`:](#when-thread-a-calls-contextget)
-    * [3. Visual Layout of Memory](#3-visual-layout-of-memory)
-    * [4. Why Is It Designed This Way?](#4-why-is-it-designed-this-way)
-  * [Code Example: The "Context Holder" Pattern](#code-example-the-context-holder-pattern)
-  * [The Danger: Memory Leaks (The "Dirty Thread" Problem)](#the-danger-memory-leaks-the-dirty-thread-problem)
 * [Q - What is CountDownLatch](#q---what-is-countdownlatch)
-  * [The Problem](#the-problem)
-  * [Before `CountDownLatch`](#before-countdownlatch)
-  * [The Idea Behind `CountDownLatch`](#the-idea-behind-countdownlatch)
-  * [How It Works](#how-it-works)
-  * [Example](#example-1)
-  * [Why Was It Introduced?](#why-was-it-introduced)
-  * [Another Common Use Case](#another-common-use-case)
-  * [One-Time Synchronization](#one-time-synchronization)
 * [Q - What is CyclicBarrier?](#q---what-is-cyclicbarrier)
-  * [What happens?](#what-happens)
-    * [Initially](#initially)
-  * [Round 1](#round-1)
-  * [The same thing happens again](#the-same-thing-happens-again)
-  * [Possible Output](#possible-output)
-    * [The key idea](#the-key-idea)
 * [Q - What is Semaphore?](#q---what-is-semaphore)
-  * [The Problem](#the-problem-1)
-  * [Before Semaphore](#before-semaphore)
-  * [The Idea Behind Semaphore](#the-idea-behind-semaphore)
-  * [Analogy: Parking Lot](#analogy-parking-lot)
-  * [How It Works](#how-it-works-1)
-  * [Example](#example-2)
-  * [Why Was It Introduced?](#why-was-it-introduced-1)
-  * [Difference from a Lock](#difference-from-a-lock)
 * [Q - BlockingQueue (why introduced)](#q---blockingqueue-why-introduced)
 * [Q - ConcurrentHashMap (how it avoids full locking)](#q---concurrenthashmap-how-it-avoids-full-locking)
 * [Q - What is ReentrantReadWriteLock?](#q---what-is-reentrantreadwritelock)
-  * [The Purpose: Performance](#the-purpose-performance)
-  * [Code Example: A Thread-Safe Cache](#code-example-a-thread-safe-cache)
-    * [Visualizing the difference](#visualizing-the-difference)
-  * [Critical "Senior Dev" Warning](#critical-senior-dev-warning)
 * [Q - What is Monitor object?](#q---what-is-monitor-object)
-  * [The Mental Model: "The Secure Room"](#the-mental-model-the-secure-room)
-  * [How it maps to Code](#how-it-maps-to-code)
-    * [Example 1: The Simplest Example (Mutual Exclusion)](#example-1-the-simplest-example-mutual-exclusion)
-    * [Example 2: The Classic "Wait/Notify" Example (Coordination)](#example-2-the-classic-waitnotify-example-coordination)
-    * [Example 3: The "Modern" Explicit Monitor (ReentrantLock)](#example-3-the-modern-explicit-monitor-reentrantlock)
 * [Q - Which object shouldn't be used as a Monitor object?](#q---which-object-shouldnt-be-used-as-a-monitor-object)
-  * [What SHOULD be used instead](#what-should-be-used-instead)
 * [Q - Is it valid to use a synchronized block inside a Lambda expression?](#q---is-it-valid-to-use-a-synchronized-block-inside-a-lambda-expression)
-  * [The Code Example](#the-code-example-4)
-  * [The "Gotcha" (Scope of this)](#the-gotcha-scope-of-this)
 * [Q - Does thread release the lock after OS preemption?](#q---does-thread-release-the-lock-after-os-preemption)
 * [Q - What is the as-if-serial rule in Java, and what does it allow the JVM to do?](#q---what-is-the-as-if-serial-rule-in-java-and-what-does-it-allow-the-jvm-to-do)
-  * [What "do not alter the observable behavior" really means](#what-do-not-alter-the-observable-behavior-really-means)
-  * [Example 1:](#example-1)
-    * [Allowed reordering (no observable effect)](#allowed-reordering-no-observable-effect)
-    * [Not allowed (observable difference)](#not-allowed-observable-difference)
-  * [Important clarification (very important)](#important-clarification-very-important)
 * [Q - Is it possible for JVM to re-order statements inside a synchronized block?](#q---is-it-possible-for-jvm-to-re-order-statements-inside-a-synchronized-block)
-  * [1. The "As-If-Serial" Rule](#1-the-as-if-serial-rule)
-  * [2. Why doesn't this break the program?](#2-why-doesnt-this-break-the-program)
 * [Q - What is AtomicReference?](#q---what-is-atomicreference)
-  * [Traditional solution: synchronized](#traditional-solution-synchronized)
-  * [What AtomicReference changes](#what-atomicreference-changes)
-  * [The key operation: Compare-And-Set (CAS)](#the-key-operation-compare-and-set-cas)
-  * [Why this avoids locking](#why-this-avoids-locking)
-  * [Example pattern:](#example-pattern)
-  * [Conceptual difference from synchronized](#conceptual-difference-from-synchronized)
-  * [When `AtomicReference` makes sense conceptually](#when-atomicreference-makes-sense-conceptually)
-  * [When it does NOT make sense](#when-it-does-not-make-sense)
-  * [One core mental model (this is the key)](#one-core-mental-model-this-is-the-key)
-  * [Example: Lock Free Stack](#example-lock-free-stack)
-  * [The Trade-off](#the-trade-off-)
 * [Q - When would you use AtomicReference instead of synchronized?](#q---when-would-you-use-atomicreference-instead-of-synchronized)
 * [Q - What is Cache-Coherence?](#q---what-is-cache-coherence)
-  * [Step 1: Start with a simple machine (no problem yet)](#step-1-start-with-a-simple-machine-no-problem-yet)
-  * [Step 2: Now add a second CPU core](#step-2-now-add-a-second-cpu-core)
-  * [Step 3: Core 1 reads `x`](#step-3-core-1-reads-x)
-  * [Step 4: Core 2 also reads `x`](#step-4-core-2-also-reads-x)
-  * [Step 5: Core 1 updates `x`](#step-5-core-1-updates-x)
-  * [Step 6: What cache coherence does](#step-6-what-cache-coherence-does)
-  * [Step 7: What this guarantees (important)](#step-7-what-this-guarantees-important)
-  * [Step 8: Why this alone is not enough (Java example)](#step-8-why-this-alone-is-not-enough-java-example)
 * [Q - What is False Sharing?](#q---what-is-false-sharing)
-  * [What is a Cache Line?](#what-is-a-cache-line)
-  * [The Visualization: The "Ping-Pong" Problem (False Sharing)](#the-visualization-the-ping-pong-problem-false-sharing)
-  * [1. Initial State (Shared)](#1-initial-state-shared)
-  * [2. Core 1 Modifies ValueA](#2-core-1-modifies-valuea)
-  * [3. Core 2 Tries to Modify ValueB](#3-core-2-tries-to-modify-valueb)
-  * [The Result: "Thrashing the L3"](#the-result-thrashing-the-l3)
 * [Q - What is Cache Affinity?](#q---what-is-cache-affinity)
-  * [The "Why": Warm vs. Cold Cache](#the-why-warm-vs-cold-cache)
-  * [Types of Affinity](#types-of-affinity)
-    * [1. Soft Affinity (Natural)](#1-soft-affinity-natural)
-    * [2. Hard Affinity (Pinned)](#2-hard-affinity-pinned)
-  * [Hard Affinity in Java](#hard-affinity-in-java)
 * [Q - Why False Sharing is more likely happen with ExecutorService?](#q---why-false-sharing-is-more-likely-happen-with-executorservice)
-  * [Case 1: NO ExecutorService (single-threaded)](#case-1-no-executorservice-single-threaded)
-  * [Case 2: ExecutorService (THIS is the difference)](#case-2-executorservice-this-is-the-difference)
-  * [Why ExecutorService keeps coming up](#why-executorservice-keeps-coming-up)
 * [Q - How to provide initial value when using ThreadLocal?](#q---how-to-provide-initial-value-when-using-threadlocal)
-  * [1. Override initialValue() (Legacy / Pre-Java 8 style)](#1-override-initialvalue-legacy--pre-java-8-style)
-    * [Behavior](#behavior)
-    * [When to mention this](#when-to-mention-this)
-  * [2. Use ThreadLocal.withInitial() (Recommended, Java 8+)](#2-use-threadlocalwithinitial-recommended-java-8)
-    * [Behavior](#behavior-1)
-    * [Advantages](#advantages)
-  * [Key Rules (Very Important for Interviews)](#key-rules-very-important-for-interviews)
-  * [Lifecycle Summary](#lifecycle-summary)
-  * [Common Interview Trap Question](#common-interview-trap-question)
 * [Q - What is InheritableThreadLocal?](#q---what-is-inheritablethreadlocal)
 * [Q - What is ThreadLocalMap?](#q---what-is-threadlocalmap)
 <!-- TOC -->
 
 # Q - What is the difference between wait() and sleep() in Java?
 
-### wait()
+<h3> wait() </h3>
 
 * Puts the thread into `WAITING` (or `TIMED_WAITING`) state
 * Releases the lock immediately
@@ -286,7 +66,7 @@
 * Belongs to: `Object` class
 * Used for: inter-thread communication
 
-### sleep()
+<h3> sleep() </h3>
 
 * Puts the thread into `TIMED_WAITING`
 * Does NOT release the lock
@@ -295,7 +75,7 @@
 * Belongs to: `Thread` class
 * Used for: pausing execution
 
-### Quick state summary (very useful)
+<h3> Quick state summary (very useful) </h3>
 
 ```text
 wait()   → WAITING → BLOCKED → RUNNABLE
@@ -313,7 +93,7 @@ that calls `wait()` later will not receive it. It will block indefinitely unless
 occurs later.
 
 
-### Step-by-Step Verification
+<h3> Step-by-Step Verification </h3>
 
 1. **How `wait()` behaves:** A thread is **only** added to the Monitor's Wait Set at the exact 
    moment it executes `wait()`. Prior to calling `wait()`, the thread is not in the Wait Set at all.
@@ -336,7 +116,7 @@ occurs later.
 `while` loop is used so the condition is re-checked every time the thread wakes up, because waking up 
 does not guarantee the condition is `true`.
 
-### Why re-checking is necessary
+<h3> Why re-checking is necessary </h3>
 
 A thread can wake up when:
 
@@ -350,7 +130,7 @@ So waking up only means:
 Not:
 > You can proceed safely
 
-### What while guarantees
+<h3> What while guarantees </h3>
 
 ```java
 while (!condition) {
@@ -368,7 +148,7 @@ This guarantees:
     * Lost notifications
 
 
-### Why if is dangerous
+<h3> Why if is dangerous </h3>
 
 ```java
 if (!condition) {
@@ -389,7 +169,7 @@ This checks the condition only once. If the condition changes again before the t
 * Why `notifyAll()` is safer.
 
 
-### notify()
+<h3> notify() </h3>
 
 * Wakes one arbitrary thread waiting on the same object's monitor
 * JVM chooses which thread
@@ -398,7 +178,7 @@ This checks the condition only once. If the condition changes again before the t
     * Competes to re-acquire the lock
 
 
-### notifyAll()
+<h3> notifyAll() </h3>
 
 * Wakes all threads waiting on the same object's monitor
 * All woken threads:
@@ -406,7 +186,7 @@ This checks the condition only once. If the condition changes again before the t
     * Compete for the lock
     * Re-check the condition in a while loop
 
-### Why notify() is dangerous
+<h3> Why notify() is dangerous </h3>
 
 **Problem scenario**
 
@@ -424,7 +204,7 @@ This checks the condition only once. If the condition changes again before the t
 * Another consumer needed the signal
 * System stalls
 
-### Why notifyAll() is safer
+<h3> Why notifyAll() is safer </h3>
 
 * Wakes everyone
 * Each thread re-checks its condition
@@ -441,7 +221,7 @@ This avoids:
 A notified thread does not run immediately. It first moves to the `BLOCKED` state and must re-acquire 
 the monitor lock before continuing execution.
 
-### Full lifecycle (clean mental model)
+<h3> Full lifecycle (clean mental model) </h3>
 
 When a thread is notified:
 
@@ -467,7 +247,7 @@ This is why:
 
 # Q - What is the difference between BLOCKED and WAITING thread states?
 
-### WAITING state
+<h3> WAITING state </h3>
 
 A thread is in `WAITING` when:
 
@@ -485,7 +265,7 @@ How it exits:
 * `notify()` / `notifyAll()`
 * Target thread finishes (for `join()`)
 
-### BLOCKED state
+<h3> BLOCKED state </h3>
 
 A thread is in `BLOCKED` when:
 
@@ -503,11 +283,11 @@ How it exits:
 `wait()` releases the lock because it is used for inter-thread coordination and allows other 
 threads to modify shared state, whereas `sleep()` is only a time delay and therefore does not release any locks.
 
-### Why wait() releases the lock but sleep() does not
+<h3> Why wait() releases the lock but sleep() does not </h3>
 
 Because `wait()` is designed for coordination between threads, while `sleep()` is only for pausing execution.
 
-### wait() — coordination mechanism
+<h3> wait() — coordination mechanism </h3>
 
 * Used for inter-thread communication
 * The thread is saying:
@@ -526,7 +306,7 @@ So:
 wait() → releases lock → allows other threads to run
 ```
 
-### sleep() — time-based pause
+<h3> sleep() — time-based pause </h3>
 
 * Used only to pause execution
 * Thread does NOT depend on any shared condition
@@ -560,7 +340,7 @@ This gives two guarantees:
 * Correct ordering of instructions across threads
 
 
-### Memory visibility
+<h3> Memory visibility </h3>
 
 Changes made by one thread are immediately visible to other threads.
 
@@ -580,7 +360,7 @@ if (ready) {    // volatile read
 
 Because of volatile, Thread B cannot see stale values.
 
-### Correct ordering of instructions across threads
+<h3> Correct ordering of instructions across threads </h3>
 
 This is where the two important statements apply:
 
@@ -619,7 +399,7 @@ if (ready) {   // volatile read
 
 It is guaranteed to see everything published before that volatile write.
 
-### The One Rule to Remember (Perfect)
+<h3> The One Rule to Remember (Perfect) </h3>
 
 > If Thread A writes to a volatile variable, and Thread B later reads that same variable, then 
 > everything Thread A did before the write is visible to Thread B after the read.
@@ -630,7 +410,7 @@ It is guaranteed to see everything published before that volatile write.
 * Correct instruction ordering across threads
 * The meaning of happens-before
 
-### What volatile does NOT solve
+<h3> What volatile does NOT solve </h3>
 
 ❌ Mutual exclusion (atomicity)
 
@@ -669,7 +449,7 @@ To solve this, you need:
 threads immediately see the change. However, it is not sufficient for a counter because incrementing a counter 
 is not an atomic operation and requires mutual exclusion, which `volatile` does not provide.
 
-### Why this distinction matters
+<h3> Why this distinction matters </h3>
 
 ✅ Stop flag — works with `volatile`
 
@@ -702,7 +482,7 @@ Result → **lost updates**
 
 
 
-# Q -  What is a deadlock? Can you name the four necessary conditions for deadlock?
+# Q - What is a deadlock? Can you name the four necessary conditions for deadlock?
 
 A deadlock is a situation in concurrent programming where two or more threads are blocked forever, waiting for 
 each other to release a resource.
@@ -715,7 +495,7 @@ The "Two-Key" Analogy: Imagine two people, Alice and Bob, and two locked doors, 
 * Result: They both stand there forever.
 
 
-### The 4 Necessary Conditions (Coffman Conditions)
+<h3> The 4 Necessary Conditions (Coffman Conditions) </h3>
 
 For a deadlock to occur, ALL FOUR of these conditions must be true at the same time. 
 If you break even one of them, the deadlock is impossible.
@@ -736,7 +516,7 @@ holding it. (e.g., You can't just steal the lock from a running thread).
     * A closed chain of threads exists, where each thread holds a resource needed by the next thread in the chain.
     * Thread A waits for Thread B -> Thread B waits for Thread A.
 
-### Example of Deadlock
+<h3> Example of Deadlock </h3>
 
 Here is the classic "Bank Transfer" deadlock scenario.
 
@@ -796,7 +576,7 @@ Thread 2: Waiting for Alice...
 Thread 1: Waiting for Bob...
 ```
 
-### Mapping the Code to the 4 Conditions
+<h3> Mapping the Code to the 4 Conditions </h3>
 
 | Condition               | Where it is in the code                                                                                                                     |
 |:------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------|
@@ -806,7 +586,7 @@ Thread 1: Waiting for Bob...
 | **4. Circular Wait**    | Thread 1 waits for Bob. Thread 2 waits for Alice. It is a perfect circle.                                                                   |
 
 
-### How to prevent the deadlock?
+<h3> How to prevent the deadlock? </h3>
 
 The easiest way to fix a deadlock is to destroy the Circular Wait condition.
 
@@ -832,7 +612,7 @@ It forces a thread to release its locks immediately, even if it was in the middl
 
 Here is exactly how `Thread.stop()` breaks your specific code example.
 
-### Example
+<h3> Example </h3>
 
 You have a critical section that does two things. They must happen together (Atomicity).
 
@@ -869,12 +649,12 @@ Because the lock was released, Thread B assumes everything is fine and proceeds 
 on top of this broken data, making the problem impossible to trace.
 
 
-# Q -: What is the correct way to stop a thread in Java?
+# Q - What is the correct way to stop a thread in Java?
 
 You should never force a thread to stop (e.g., `stop()`) because it can leave shared data in a broken state. 
 Instead, you "ask" the thread to stop using `interrupt()`, and the thread must voluntarily agree to shut down.
 
-### The Code Example:
+<h3> The Code Example: </h3>
 
 ```java
 public class CorrectStopDemo {
@@ -937,7 +717,7 @@ public class IgnorantThread {
 If the thread is CPU-busy (calculating, processing), it acts as a "Gatekeeper". It must explicitly check 
 the flag using `isInterrupted()` before starting the next chunk of work.
 
-### The Code Example:
+<h3> The Code Example: </h3>
 
 ```java
 public class AwakeInterruption {
@@ -966,7 +746,7 @@ public class AwakeInterruption {
 If the thread is paused (sleeping), it cannot check the while loop. The JVM handles this by waking 
 the thread up and throwing an `InterruptedException`. This is the "Emergency Alarm."
 
-### The Code Example:
+<h3> The Code Example: </h3>
 
 ```java
 public class SleepInterruption {
@@ -1001,7 +781,7 @@ When `InterruptedException` is thrown, the JVM clears the `interrupt` flag (rese
 and keep running.
 * **The Fix:** Call `Thread.currentThread().interrupt()` inside the catch block to put the flag back to `true`.
 
-### The Code Example (The "Zombie" Thread Bug):
+<h3> The Code Example (The "Zombie" Thread Bug): </h3>
 
 ```java
 public class FlagClearingTrap {
@@ -1047,7 +827,7 @@ public class FlagClearingTrap {
 No. A thread waiting for a lock is `BLOCKED`, not `WAITING`. `interrupt()` has no effect on it. 
 It will sit there frozen until it gets the lock.
 
-### The Code Example:
+<h3> The Code Example: </h3>
 
 ```java
 public class BlockedInterruption {
@@ -1106,7 +886,7 @@ It is an **explicit locking mechanism**, meaning:
 * You **manually release** the lock
 * You get **more control** than `synchronized`
 
-## Why does it exist when we already have synchronized?
+<h2> Why does it exist when we already have synchronized? </h2>
 
 `synchronized` is:
 
@@ -1122,7 +902,7 @@ But it is also:
 
 `ReentrantLock` was introduced to solve **real-world concurrency limitations** of `synchronized`.
 
-## First: What does "Reentrant" mean?
+<h2> First: What does "Reentrant" mean? </h2>
 
 Reentrant = same thread can acquire the same lock multiple times
 
@@ -1151,7 +931,7 @@ If locks were not reentrant → this would deadlock.
 
 So the name `ReentrantLock` emphasizes this behavior explicitly.
 
-## Basic usage of ReentrantLock
+<h2> Basic usage of ReentrantLock </h2>
 
 **Simple example**
 
@@ -1171,11 +951,11 @@ try {
 
 This is why `synchronized` is safer for simple cases.
 
-## Key capabilities of ReentrantLock (with examples)
+<h2> Key capabilities of ReentrantLock (with examples) </h2>
 
 Now let’s build intuition feature by feature.
 
-### Explicit lock control (manual)
+<h3> Explicit lock control (manual) </h3>
 
 **synchronized**
 
@@ -1199,7 +979,7 @@ try {
 
 👉 More control, but more responsibility.
 
-### Try acquiring a lock (non-blocking)
+<h3> Try acquiring a lock (non-blocking) </h3>
 
 ❌ Not possible with synchronized
 
@@ -1225,7 +1005,7 @@ Use case:
 * Avoid blocking UI thread
 * Skip optional work if resource is busy
 
-### Interruptible lock acquisition
+<h3> Interruptible lock acquisition </h3>
 
 ❌ synchronized
 
@@ -1243,7 +1023,7 @@ Now:
 * Thread can be interrupted
 * Useful during shutdown or cancellation
 
-### Fairness (very important interview point)
+<h3> Fairness (very important interview point) </h3>
 
 **synchronized**
 
@@ -1264,7 +1044,7 @@ Tradeoff:
 * Fair → lower throughput
 * Unfair (default) → faster
 
-### Condition variables (replacement for wait/notify)
+<h3> Condition variables (replacement for wait/notify) </h3>
 
 With `synchronized`:
 
@@ -1299,7 +1079,7 @@ try {
 
 This solves many classic `notify()` bugs.
 
-## Why ReentrantLock is NOT a replacement for synchronized
+<h2> Why ReentrantLock is NOT a replacement for synchronized </h2>
 
 Important interview nuance:
 > `ReentrantLock` is not better, it is more powerful.
@@ -1309,7 +1089,7 @@ Use:
 * `synchronized` → simple, safe, low-risk
 * `ReentrantLock` → complex, performance-sensitive, advanced control
 
-## When SHOULD you use ReentrantLock?
+<h2> When SHOULD you use ReentrantLock? </h2>
 
 * ✔️ You need `tryLock()`
 * ✔️ You need interruptible locking
@@ -1317,7 +1097,7 @@ Use:
 * ✔️ You need multiple condition queues
 * ✔️ You’re building concurrency primitives or frameworks
 
-## When should you NOT use it?
+<h2> When should you NOT use it? </h2>
 
 * ❌ Simple synchronization
 * ❌ Low contention
@@ -1332,12 +1112,12 @@ shared mutable state, and the final result is unpredictable and depends on the o
 
 # Q - What is atomicity, and how is it different from visibility?
 
-## Atomicity
+<h2> Atomicity </h2>
 
 Atomicity means an operation is indivisible — it either happens completely or not at all, 
 and no other thread can observe it in an intermediate state.
 
-## Visibility
+<h2> Visibility </h2>
 
 Visibility ensures that when one thread updates a variable, other threads see the updated value 
 instead of a stale cached value.
@@ -1349,48 +1129,25 @@ instead of a stale cached value.
 Before `ExecutorService`, developers created threads manually using the `Thread` class. 
 This approach worked for small programs but caused serious problems in real-world applications.
 
-## Problems with creating threads manually
+<h2> Problems with creating threads manually </h2>
 
-### 1 - Thread creation is expensive
+**`ExecutorService`** decouples **task submission** 
+from **thread execution, pooling, and lifecycle management**, replacing 
+manual `new Thread(...).start()` calls with a managed pool of worker threads.
 
-* Creating a new thread allocates stack memory and OS resources
-* Frequent thread creation leads to performance overhead
+* **High creation cost:** Spawning OS/JVM threads repeatedly wastes CPU and 
+    stack memory (`new Thread(task).start()`).
+* **Unbounded thread count:** Spawning threads per task (e.g., inside a `10,000`-item loop) 
+    can exhaust CPU, heap/stack memory, and crash the JVM.
+* **Weak lifecycle control:** No built-in way to reuse idle threads, shut down 
+    gracefully (`shutdown` / `awaitTermination`), or track completion cleanly.
+* **Clunky result/error handling:** `Runnable` returns nothing, forcing shared mutable state 
+    or manual coordination instead of `Future` / `Callable`.
 
-```java
-new Thread(task).start();  // expensive if done repeatedly
-```
-
-### 2 - No control over number of threads
-
-* Unbounded thread creation can:
-    * Exhaust CPU
-    * Exhaust memory
-    * Crash the application
-
-Example:
-
-```java
-for (int i = 0; i < 10000; i++) {
-    new Thread(task).start(); // dangerous
-}
-```
-
-### 3 - No lifecycle management
-
-* No standard way to:
-    * Reuse threads
-    * Shut them down gracefully
-    * Wait for all tasks to finish
-
-
-### 4 - No result handling
-
-* Threads cannot return values
-* Handling results required shared mutable state
 
 # Q - What is an Executor interface?
 
-## 1. Why the Executor interface exists
+<h2> 1. Why the Executor interface exists </h2>
 
 Before Java 5, concurrency typically looked like this:
 
@@ -1413,7 +1170,7 @@ Java introduced `Executor` to separate concerns:
 > What to execute vs How to execute
 
 
-## 2. What exactly is Executor?
+<h2> 2. What exactly is Executor? </h2>
 
 ```java
 public interface Executor {
@@ -1431,7 +1188,7 @@ That is the entire interface.
     * Does not return results
 * It is a **task execution abstraction**, nothing more.
 
-### 3. Conceptual model
+<h3> 3. Conceptual model </h3>
 
 Think of Executor as a **task sink**.
 
@@ -1441,7 +1198,7 @@ You submit work; something else decides:
 * When it runs
 * Whether it runs immediately, later, or never
 
-### 4. Where real power comes from (Executor implementations)
+<h3> 4. Where real power comes from (Executor implementations) </h3>
 
 Executor is a **foundation interface**.
 
@@ -1462,7 +1219,7 @@ Executor alone:
 * No cancellation
 * No lifecycle control
 
-### Error handling behavior
+<h3> Error handling behavior </h3>
 
 If a `Runnable` throws an exception:
 
@@ -1478,14 +1235,14 @@ executor.execute(() -> {
 
 This is a major reason why higher-level interfaces exist.
 
-## One-line summary
+<h2> One-line summary </h2>
 
 The `Executor` interface is used to submit tasks, but it is the concrete 
 implementation (like `ThreadPoolExecutor` or `ForkJoinPool`) that decides how to execute them.
 
 # Q - What is ExecutorService interface?
 
-## Step 1 — Where ExecutorService sits in the story
+<h2> Step 1 — Where ExecutorService sits in the story </h2>
 
 Before `ExecutorService`, we already have:
 
@@ -1507,7 +1264,7 @@ Real systems cannot live with that uncertainty.
 
 This is why `ExecutorService` exists.
 
-## Step 2 — What ExecutorService actually is
+<h2> Step 2 — What ExecutorService actually is </h2>
 
 Formally:
 
@@ -1524,7 +1281,7 @@ Think of it as:
 > Executor + lifecycle + results + control
 
 
-## Step 3 — The core responsibility of ExecutorService
+<h2> Step 3 — The core responsibility of ExecutorService </h2>
 
 `ExecutorService` answers five critical questions that `Executor` cannot:
 
@@ -1536,7 +1293,7 @@ Think of it as:
 
 Everything in `ExecutorService` exists to answer one of these.
 
-## Step 4 — Submitting work (execute vs submit)
+<h2> Step 4 — Submitting work (execute vs submit) </h2>
 
 **execute(Runnable)** 
 
@@ -1574,7 +1331,7 @@ Key difference:
 
 This is extremely important.
 
-## Step 5 — Why submit() exists at all
+<h2> Step 5 — Why submit() exists at all </h2>
 
 Real applications often need:
 
@@ -1586,7 +1343,7 @@ Real applications often need:
 
 That handle is `Future`.
 
-## Step 6 — Understanding Future
+<h2> Step 6 — Understanding Future </h2>
 
 A `Future` represents the lifecycle of a task.
 
@@ -1612,7 +1369,7 @@ Why this matters:
 
 This is a major reason `ExecutorService` exists.
 
-## Step 7 — Callable vs Runnable (why both exist)
+<h2> Step 7 — Callable vs Runnable (why both exist) </h2>
 
 **Runnable**
 
@@ -1640,7 +1397,7 @@ Callable<Integer> c = () -> 42;
 
 This is another layer of realism added by `ExecutorService`.
 
-## Step 8 — Managing executor lifecycle (very important)
+<h2> Step 8 — Managing executor lifecycle (very important) </h2>
 
 Threads are resources. Resources must be released.
 
@@ -1673,7 +1430,7 @@ What it means:
 This is best-effort, not guaranteed.
 
 
-## Step 9 — Waiting for termination
+<h2> Step 9 — Waiting for termination </h2>
 
 Sometimes you need to wait:
 
@@ -1693,7 +1450,7 @@ This is essential for:
 * Batch jobs
 * Graceful redeployments
 
-## Step 10 — What ExecutorService deliberately does NOT decide
+<h2> Step 10 — What ExecutorService deliberately does NOT decide </h2>
 
 Notice what `ExecutorService` does not specify:
 
@@ -1723,7 +1480,7 @@ to better performance and resource utilization.
 
 ---
 
-## ThreadPoolExecutor Constructor Parameters
+<h2> ThreadPoolExecutor Constructor Parameters </h2>
 
 ```java
 ThreadPoolExecutor(
@@ -1752,7 +1509,7 @@ thread reuse strategy, and rejection policy of the executor.
 
 ---
 
-## The Lifecycle of a Task
+<h2> The Lifecycle of a Task </h2>
 
 When a task is submitted, the executor decides what to do in this strict order:
 
@@ -1766,7 +1523,7 @@ When a task is submitted, the executor decides what to do in this strict order:
 
 ---
 
-## A Common Trait That Surprises People
+<h2> A Common Trait That Surprises People </h2>
 
 Because of that golden rule, look at this incredibly common mistake:
 
@@ -1788,7 +1545,7 @@ default `LinkedBlockingQueue` is unbounded—it can hold an infinite number of t
 queue can never fill up, the executor will never trigger step 3 to hire your "on-call" threads. 
 Your `maximumPoolSize` of 10 is completely useless here.
 
-## Types of queues
+<h2> Types of queues </h2>
 
 When you configure a `ThreadPoolExecutor`, you have to choose a **`BlockingQueue`**. 
 This queue acts as the temporary warehouse where tasks sit when your worker threads are too 
@@ -1800,7 +1557,7 @@ preserves (or destroys) order.
 
 ---
 
-### 1. Bounded Queues (`ArrayBlockingQueue`)
+<h3> 1. Bounded Queues (`ArrayBlockingQueue`) </h3>
 
 A bounded queue has a **strict, fixed capacity limit** (a hard ceiling) that you must 
 define upfront when you build it.
@@ -1819,7 +1576,7 @@ define upfront when you build it.
 
 ---
 
-### 2. Unbounded Queues (`LinkedBlockingQueue`, `PriorityBlockingQueue`)
+<h3> 2. Unbounded Queues (`LinkedBlockingQueue`, `PriorityBlockingQueue`) </h3>
 
 An unbounded queue has a **practically infinite capacity** (set by default to over 2 billion items). 
 It will grow seamlessly to accommodate whatever you throw at it.
@@ -1850,7 +1607,7 @@ It will grow seamlessly to accommodate whatever you throw at it.
 
 ---
 
-### 3. Direct Hand-off Queues (`SynchronousQueue`)
+<h3> 3. Direct Hand-off Queues (`SynchronousQueue`) </h3>
 
 This is the anomaly. A direct hand-off queue has a capacity of **exactly zero**. 
 It does not act like a bucket; it acts like a face-to-face hand-off between threads.
@@ -1877,7 +1634,7 @@ It does not act like a bucket; it acts like a face-to-face hand-off between thre
 
 ---
 
-### Master Cheat Sheet
+<h3> Master Cheat Sheet </h3>
 
 | Queue Type                  | Structural Storage            | Uses `maximumPoolSize`? | Primary Operational Threat             | Execution Sort Order     |
 |-----------------------------|-------------------------------|-------------------------|----------------------------------------|--------------------------|
@@ -1888,13 +1645,13 @@ It does not act like a bucket; it acts like a face-to-face hand-off between thre
 
 ---
 
-## Under the Hood: Locking Architecture and GC Performance
+<h2> Under the Hood: Locking Architecture and GC Performance </h2>
 
-### 1. The Two-Lock Optimization (Linked vs. Array)
+<h3> 1. The Two-Lock Optimization (Linked vs. Array) </h3>
 
 This is a massive structural difference in how these queues handle highly concurrent applications.
 
-#### Bounded Queues (`ArrayBlockingQueue`)
+<h4> Bounded Queues (`ArrayBlockingQueue`) </h4>
 
 An `ArrayBlockingQueue` uses **one single lock** for everything.
 
@@ -1904,7 +1661,7 @@ An `ArrayBlockingQueue` uses **one single lock** for everything.
   same microsecond a worker thread is trying to pull a task out, **they block each other**. 
   They cannot operate simultaneously.
 
-#### Unbounded Queues (`LinkedBlockingQueue`)
+<h4> Unbounded Queues (`LinkedBlockingQueue`) </h4>
 
 A `LinkedBlockingQueue` uses a brilliant **"Two-Lock Queue" algorithm** (originally designed 
 by researchers Michael Scott and John Mellor-Crummey). It splits the synchronization into two 
@@ -1926,18 +1683,18 @@ Because the head and the tail of a linked list are physically separate objects i
 
 ---
 
-### 2. Memory Allocation & Garbage Collection (GC) Pressure
+<h3> 2. Memory Allocation & Garbage Collection (GC) Pressure </h3>
 
 This is the hidden operational cost that bites teams when they scale up their applications.
 
-#### Bounded Queues (`ArrayBlockingQueue`) — Allocated Upfront
+<h4> Bounded Queues (`ArrayBlockingQueue`) — Allocated Upfront </h4>
 
 Because an `ArrayBlockingQueue` uses a fixed-size Java array under the hood (`Object[] items`), **all the memory for the queue slots is allocated at the exact moment you instantiate it.**
 
 * If you write `new ArrayBlockingQueue<>(100_000)`, Java immediately claims a contiguous block of memory big enough to hold 100,000 object references.
 * As tasks flow into and out of the array, the array indices simply change. No new internal wrapper objects are created or destroyed. Memory footprint is flat, predictable, and causes **virtually zero Garbage Collection pressure**.
 
-#### Unbounded Queues (`LinkedBlockingQueue`) — Swift Memory Spikes & GC Stress
+<h4> Unbounded Queues (`LinkedBlockingQueue`) — Swift Memory Spikes & GC Stress </h4>
 
 A `LinkedBlockingQueue` allocates memory **dynamically on demand**. Every single time your application submits a task, the queue has to use the `new` keyword to create a brand new internal `Node` object to wrap your task and link it to the chain.
 
@@ -1947,7 +1704,7 @@ A `LinkedBlockingQueue` allocates memory **dynamically on demand**. Every single
 
 ---
 
-### Updated Cheat Sheet Comparison
+<h3> Updated Cheat Sheet Comparison </h3>
 
 | Feature                | `ArrayBlockingQueue`                                     | `LinkedBlockingQueue`                                                |
 |------------------------|----------------------------------------------------------|----------------------------------------------------------------------|
@@ -1967,7 +1724,7 @@ Thank you for bringing those up—those two mechanics bridge the gap between how
 4. newScheduledThreadPool
 5. newWorkStealingPool (ForkJoinPool)
 
-## SingleThreadExecutor
+<h2> SingleThreadExecutor </h2>
 
 ```java
 ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -1992,7 +1749,7 @@ ExecutorService executor = Executors.newSingleThreadExecutor();
 * Guarantees order
 * Simplifies single-threaded background work
 
-## FixedThreadPool
+<h2> FixedThreadPool </h2>
 
 ```java
 ExecutorService executor = Executors.newFixedThreadPool(4);
@@ -2016,7 +1773,7 @@ ExecutorService executor = Executors.newFixedThreadPool(4);
 * Gives predictable resource usage
 
 
-## CachedThreadPool
+<h2> CachedThreadPool </h2>
 
 ```java
 ExecutorService executor = Executors.newCachedThreadPool();
@@ -2042,7 +1799,7 @@ ExecutorService executor = Executors.newCachedThreadPool();
 ⚠️ Danger: can create too many threads if tasks block
 
 
-## ScheduledThreadPoolExecutor
+<h2> ScheduledThreadPoolExecutor </h2>
 
 ```java
 ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
@@ -2068,7 +1825,7 @@ ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 * Handles exceptions properly
 
 
-## WorkStealingPool (ForkJoinPool)
+<h2> WorkStealingPool (ForkJoinPool) </h2>
 
 ```java
 ExecutorService executor = Executors.newWorkStealingPool();
@@ -2150,7 +1907,7 @@ public class WorkStealingDemo {
 }
 ```
 
-## Rules of engagement
+<h2> Rules of engagement </h2>
 
 **Deque orientation (horizontal)**
 
@@ -2170,7 +1927,7 @@ public class WorkStealingDemo {
   * if not → worker waits (may steal)
 
 
-## Problem
+<h2> Problem </h2>
 
 Compute:
 
@@ -2180,7 +1937,7 @@ Sum(1..8)
 
 Using 4 workers: `W1, W2, W3, W4`
 
-## GLOBAL VIEW 1 — Task tree (structure only)
+<h2> GLOBAL VIEW 1 — Task tree (structure only) </h2>
 
 This is the entire logical tree that will exist by the end.
 
@@ -2196,7 +1953,7 @@ Nothing here talks about **workers yet**.
 
 Now we will **attach workers + deques + waiting states**.
 
-## GLOBAL VIEW 2 — Initial state
+<h2> GLOBAL VIEW 2 — Initial state </h2>
 
 ```text
 Workers:
@@ -2209,7 +1966,7 @@ W3: [ FRONT |  | BOTTOM ]
 W4: [ FRONT |  | BOTTOM ]
 ```
 
-## STEP 1 — Root starts on W1
+<h2> STEP 1 — Root starts on W1 </h2>
 
 ```text
 W1 executes compute(1..8)
@@ -2237,7 +1994,7 @@ W3: [ FRONT |  | BOTTOM ]
 W4: [ FRONT |  | BOTTOM ]
 ```
 
-## STEP 2 — Stealing happens
+<h2> STEP 2 — Stealing happens </h2>
 
 W2 is idle → steals from **FRONT of W1**.
 
@@ -2260,7 +2017,7 @@ W3: [ FRONT |  | BOTTOM ]
 W4: [ FRONT |  | BOTTOM ]
 ```
 
-## STEP 3 — W1 splits (5..8)
+<h2> STEP 3 — W1 splits (5..8) </h2>
 
 ```java
 left.fork();      // (5..6)
@@ -2282,7 +2039,7 @@ W3: [ FRONT |  | BOTTOM ]
 W4: [ FRONT |  | BOTTOM ]
 ```
 
-## STEP 4 — W2 splits (1..4)
+<h2> STEP 4 — W2 splits (1..4) </h2>
 
 ```java
 left.fork();      // (1..2)
@@ -2304,7 +2061,7 @@ W3: [ FRONT |  | BOTTOM ]
 W4: [ FRONT |  | BOTTOM ]
 ```
 
-## STEP 5 — More stealing (4 workers active)
+<h2> STEP 5 — More stealing (4 workers active) </h2>
 
 * W3 steals from W1 → (5..6)
 * W4 steals from W2 → (1..2)
@@ -2324,7 +2081,7 @@ W3: [ FRONT |  | BOTTOM ]
 W4: [ FRONT |  | BOTTOM ]
 ```
 
-## STEP 6 — Leaf computations (base case)
+<h2> STEP 6 — Leaf computations (base case) </h2>
 
 All workers now compute actual values:
 
@@ -2335,7 +2092,7 @@ W3: (5..6) = 11
 W4: (1..2) = 3
 ```
 
-## STEP 7 — join() points (waiting is visible)
+<h2> STEP 7 — join() points (waiting is visible) </h2>
 
 **W1 reaches:**
 
@@ -2359,7 +2116,7 @@ But `(1..2)` already completed by W4.
 
 (This is important: join() is special, but does not always block.)
 
-## STEP 8 — Result build-up (bottom → top)
+<h2> STEP 8 — Result build-up (bottom → top) </h2>
 
 Now results combine **upward in the tree**.
 
@@ -2371,7 +2128,7 @@ W4 returns: (1..2) = 3
 W2 computes: (1..4) = 3 + 7 = 10
 ```
 
-## STEP 9 — Final join at root
+<h2> STEP 9 — Final join at root </h2>
 
 W1 now does:
 
@@ -2388,7 +2145,7 @@ Final result:
 (1..8) = 26 + 10 = 36    
 ```
 
-## FINAL GLOBAL VIEW — Everything together
+<h2> FINAL GLOBAL VIEW — Everything together </h2>
 
 ```text
                         (1..8) = 36 [W1]
@@ -2426,7 +2183,7 @@ This is a very common interview question. The key difference is **the execution 
 
 There are two key differences: one is about **Type** (what you get), and one is about **Algorithm** (how it works).
 
-## 1. The Return Type (API vs Implementation)
+<h2> 1. The Return Type (API vs Implementation) </h2>
 
 * `new ForkJoinPool()` returns the concrete `ForkJoinPool` class.
     * You get full access to specific methods like `.invoke()`, `.fork()`, `.join()`, and `.getStealCount()`.
@@ -2435,7 +2192,7 @@ There are two key differences: one is about **Type** (what you get), and one is 
     * It hides the implementation. You only get standard methods like `.submit()` and `.shutdown()`. 
   You cannot call specific ForkJoin methods without casting.
 
-## 2. The Hidden Difference: "Async Mode"
+<h2> 2. The Hidden Difference: "Async Mode" </h2>
 
 This is the critical performance difference.
 
@@ -2464,9 +2221,9 @@ traditional `Future` interface, paired directly with clear, interview-ready code
 
 ---
 
-## The Core Drawbacks of Traditional `Future`
+<h2> The Core Drawbacks of Traditional `Future` </h2>
 
-### 1. The Blocking Trap (`.get()`)
+<h3> 1. The Blocking Trap (`.get()`) </h3>
 
 * **The Issue:** Traditional `Future` lacks a non-blocking method to fetch results. 
   Calling `.get()` entirely stalls the calling thread until the asynchronous worker thread 
@@ -2491,7 +2248,7 @@ executor.shutdown();
 
 ---
 
-### 2. No Native Callback Support (Polling with `.isDone()`)
+<h3> 2. No Native Callback Support (Polling with `.isDone()`) </h3>
 
 * **The Issue:** You cannot register a listener or callback function to automatically trigger 
   the moment a task finishes. Instead, you are forced to write a "busy-wait" loop to repeatedly 
@@ -2518,7 +2275,7 @@ executor.shutdown();
 
 ---
 
-### 3. The "Async Pipeline" Nightmare (Nested `.get()` Dependencies)
+<h3> 3. The "Async Pipeline" Nightmare (Nested `.get()` Dependencies) </h3>
 
 * **The Issue:** Traditional `Future` objects cannot be chained or composed together fluidly. 
   If Task B depends on the output of Task A, and Task C depends on Task B, the only way to link
@@ -2550,7 +2307,7 @@ executor.shutdown();
 
 ---
 
-### 4. Brittle Exception Handling
+<h3> 4. Brittle Exception Handling </h3>
 
 * **The Issue:** If a background worker thread crashes, the exception is swallowed and 
   wrapped in a generic `ExecutionException`. This exception can only be caught at the 
@@ -2581,7 +2338,7 @@ try {
 
 ---
 
-##  The Resolution
+<h2>  The Resolution </h2>
 
 `CompletableFuture` provides a rich API that allows you to start, transform, and combine 
 asynchronous operations without nesting or blocking.
@@ -2592,9 +2349,9 @@ core `CompletableFuture` methods:
 
 ---
 
-## 🏗️ Group 1: Initiating Asynchronous Tasks
+<h2> 🏗️ Group 1: Initiating Asynchronous Tasks </h2>
 
-### 1. `supplyAsync()`
+<h3> 1. `supplyAsync()` </h3>
 
 * 📌 **Role & Signature:** Static factory method used to start an asynchronous 
 computation that **computes and returns a result**.
@@ -2618,7 +2375,7 @@ or fetches data that downstream steps in your pipeline depend on."*
 
 ---
 
-### 2. `runAsync()`
+<h3> 2. `runAsync()` </h3>
 
 * 📌 **Role & Signature:** Static factory method used to start an asynchronous task that runs 
 purely for its **side effects and returns no value** (`void`).
@@ -2641,9 +2398,9 @@ sending emails, logging metrics, or clearing caches where no data payload flows 
 
 ---
 
-## ⚡ Group 2: Transforming & Chaining (Single Pipeline)
+<h2> ⚡ Group 2: Transforming & Chaining (Single Pipeline) </h2>
 
-### 3. `thenApply()`
+<h3> 3. `thenApply()` </h3>
 
 * 📌 **Role & Signature:** Performs an **in-memory, synchronous transformation** on the result of the 
   previous stage. Acts as the **`map()`** operator for futures.
@@ -2664,7 +2421,7 @@ transformations (formatting strings, calculating mathematical totals, or mapping
 
 ---
 
-### 4. `thenCompose()`
+<h3> 4. `thenCompose()` </h3>
 
 * 📌 **Role & Signature:** Chains two **dependent asynchronous tasks** sequentially where the second 
 task uses the first task's result to launch another `CompletableFuture`. Acts as the **`flatMap()`** operator, preventing 
@@ -2688,7 +2445,7 @@ asynchronous call (like firing a second DB or HTTP request) to flatten the pipel
 
 ---
 
-### 5. `thenAccept()`
+<h3> 5. `thenAccept()` </h3>
 
 * 📌 **Role & Signature:** Consumes the final output of an upstream stage without returning any result. 
 Serves as a **terminal consumer** at the end of a transformation chain.
@@ -2710,9 +2467,9 @@ to consume the pipeline's result (e.g., render UI, write to HTTP response) witho
 
 ---
 
-## 🔀 Group 3: Combining Multiple Futures
+<h2> 🔀 Group 3: Combining Multiple Futures </h2>
 
-### 6. `thenCombine()`
+<h3> 6. `thenCombine()` </h3>
 
 * 📌 **Role & Signature:** Executes two **independent futures concurrently** in parallel and merges their 
 results using a `BiFunction` once **BOTH** finish.
@@ -2747,7 +2504,7 @@ tasks, optimizing overall response time to `max(timeA, timeB)` rather than seque
 
 ---
 
-### 7. `allOf()`
+<h3> 7. `allOf()` </h3>
 
 * 📌 **Role & Signature:** Static combinator method that acts as a **synchronization barrier** for a batch of
 futures. Completes only when **EVERY** input future completes.
@@ -2787,7 +2544,7 @@ a `.thenApply()` block using `.join()` to extract all completed payload values i
 
 ---
 
-### 8. `anyOf()`
+<h3> 8. `anyOf()` </h3>
 
 * 📌 **Role & Signature:** Static combinator method that implements a **"fastest-wins" race condition**. Completes 
 as soon as **ANY ONE** of the input futures completes.
@@ -2824,9 +2581,9 @@ fastest server mirror. It returns `CompletableFuture<Object>` because Java resol
 
 ---
 
-## 🚨 Group 4: Exception Handling & Recovery
+<h2> 🚨 Group 4: Exception Handling & Recovery </h2>
 
-### 9. `exceptionally()`
+<h3> 9. `exceptionally()` </h3>
 
 * 📌 **Role & Signature:** Acts as an **asynchronous `catch` block** in the reactive pipeline. Intercepts any 
 exception thrown upstream and returns a safe fallback value.
@@ -2861,7 +2618,7 @@ data without crashing the execution chain or blocking threads in `try-catch` blo
 
 ---
 
-### 10. `handle()`
+<h3> 10. `handle()` </h3>
 
 * 📌 **Role & Signature:** Acts as a **`catch-finally` hybrid stage**. **Always executes**, regardless of whether 
 upstream succeeded or failed.
@@ -2912,7 +2669,7 @@ they kept `java.lang.Thread` as the unifying abstraction.
 
 ---
 
-## The Class Hierarchy Under the Hood
+<h2> The Class Hierarchy Under the Hood </h2>
 
 In Java 21+, `java.lang.Thread` is the common parent/class for both thread types:
 
@@ -2935,7 +2692,7 @@ with Virtual Threads** without needing API redesigns.
 
 ---
 
-## How You Create Them in Code
+<h2> How You Create Them in Code </h2>
 
 Java 21 updated the `Thread` API with builder patterns so you can explicitly
 choose which type of `java.lang.Thread` instance to create:
@@ -2959,7 +2716,7 @@ Thread quickVirtualThread = Thread.startVirtualThread(() -> {
 
 ---
 
-## How to Check at Runtime
+<h2> How to Check at Runtime </h2>
 
 Since both are instances of `java.lang.Thread`, how do you tell them apart programmatically?
 Java added a dedicated method to `java.lang.Thread`:
@@ -2976,7 +2733,7 @@ if (current.isVirtual()) {
 
 ---
 
-## Example of Virtual Thread
+<h2> Example of Virtual Thread </h2>
 
 Here is an example of Virtual Thread:
 
@@ -3024,7 +2781,7 @@ Here is a clear, concrete breakdown of how `ThreadLocal` works under the hood.
 
 ---
 
-### 1. The Core Architecture (The Inverted Model)
+<h3> 1. The Core Architecture (The Inverted Model) </h3>
 
 The most important concept to grasp is **who owns what**:
 
@@ -3040,7 +2797,7 @@ The most important concept to grasp is **who owns what**:
 
 ---
 
-### 2. What Happens Step-by-Step in Memory
+<h3> 2. What Happens Step-by-Step in Memory </h3>
 
 Imagine you declare a single static `ThreadLocal` variable in your code:
 
@@ -3049,7 +2806,7 @@ public static ThreadLocal<UserContext> context = new ThreadLocal<>();
 
 ```
 
-#### When **Thread A** calls `context.set(userA)`:
+<h4> When **Thread A** calls `context.set(userA)`: </h4>
 
 1. Java fetches the currently running thread: `Thread current = Thread.currentThread()` (Thread A).
 2. Java opens **Thread A's own private map** (`current.threadLocals`).
@@ -3058,7 +2815,7 @@ public static ThreadLocal<UserContext> context = new ThreadLocal<>();
    * **Value:** `userA`.
 
 
-#### When **Thread B** calls `context.set(userB)`:
+<h4> When **Thread B** calls `context.set(userB)`: </h4>
 
 1. Java fetches the currently running thread: `Thread B`.
 2. Java opens **Thread B's own private map** (`current.threadLocals`).
@@ -3067,7 +2824,7 @@ public static ThreadLocal<UserContext> context = new ThreadLocal<>();
    * **Value:** `userB`.
 
 
-#### When **Thread A** calls `context.get()`:
+<h4> When **Thread A** calls `context.get()`: </h4>
 
 1. Java gets `Thread.currentThread()` (Thread A).
 2. Java looks up Thread A's internal `threadLocals` map.
@@ -3076,7 +2833,7 @@ public static ThreadLocal<UserContext> context = new ThreadLocal<>();
 
 ---
 
-### 3. Visual Layout of Memory
+<h3> 3. Visual Layout of Memory </h3>
 
 ```text
 Thread A Instance
@@ -3094,7 +2851,7 @@ Thread B Instance
 
 ---
 
-### 4. Why Is It Designed This Way?
+<h3> 4. Why Is It Designed This Way? </h3>
 
 If `ThreadLocal` were a central map (like `ConcurrentHashMap<Thread, Value>`), every thread 
 in the application would hit the **same map simultaneously**, causing heavy lock contention 
@@ -3107,7 +2864,7 @@ By placing the map **inside each individual `Thread` instance**:
 * **Result:** Zero shared memory across threads, zero synchronization, zero locks, and maximum speed.
 
 
-## Code Example: The "Context Holder" Pattern
+<h2> Code Example: The "Context Holder" Pattern </h2>
 
 This is the most common pattern you will see in Enterprise Java (Spring, Hibernate, etc.).
 
@@ -3159,7 +2916,7 @@ Thread-2 is processing TX-456
 
 Thread 1 never sees "TX-456", and Thread 2 never sees "TX-123".
 
-## The Danger: Memory Leaks (The "Dirty Thread" Problem)
+<h2> The Danger: Memory Leaks (The "Dirty Thread" Problem) </h2>
 
 This is a favorite interview topic for Senior Engineers.
 
@@ -3195,7 +2952,7 @@ try {
 
 # Q - What is CountDownLatch
 
-## The Problem
+<h2> The Problem </h2>
 
 Suppose you have three worker threads.
 
@@ -3234,7 +2991,7 @@ The main thread has no idea when the workers are actually finished.
 
 ---
 
-## Before `CountDownLatch`
+<h2> Before `CountDownLatch` </h2>
 
 People solved this by calling `join()`.
 
@@ -3262,7 +3019,7 @@ If tomorrow there are:
 
 ---
 
-## The Idea Behind `CountDownLatch`
+<h2> The Idea Behind `CountDownLatch` </h2>
 
 Instead of waiting for **threads**, wait for **events**.
 
@@ -3286,7 +3043,7 @@ That's exactly what `CountDownLatch` does.
 
 ---
 
-## How It Works
+<h2> How It Works </h2>
 
 Suppose there are three workers.
 
@@ -3346,7 +3103,7 @@ is immediately released.
 
 ---
 
-## Example
+<h2> Example </h2>
 
 ```java
 CountDownLatch latch = new CountDownLatch(3);
@@ -3386,7 +3143,7 @@ The main thread proceeds only after the counter reaches zero.
 
 ---
 
-## Why Was It Introduced?
+<h2> Why Was It Introduced? </h2>
 
 It solves a problem that `join()` doesn't solve elegantly.
 
@@ -3424,7 +3181,7 @@ This works regardless of which thread executed the task.
 
 ---
 
-## Another Common Use Case
+<h2> Another Common Use Case </h2>
 
 Suppose a server cannot start until three components are initialized.
 
@@ -3456,7 +3213,7 @@ Only after all components are ready does the server begin accepting requests.
 
 ---
 
-## One-Time Synchronization
+<h2> One-Time Synchronization </h2>
 
 A `CountDownLatch` is **one-shot**.
 
@@ -3578,9 +3335,9 @@ public class CyclicBarrierDemo {
 
 ---
 
-## What happens?
+<h2> What happens? </h2>
 
-### Initially
+<h3> Initially </h3>
 
 Main thread creates
 
@@ -3627,7 +3384,7 @@ Notice something important.
 
 Each thread receives **the same barrier object**.
 
-## Round 1
+<h2> Round 1 </h2>
 
 Suppose execution happens like this:
 
@@ -3721,7 +3478,7 @@ Player 4 starts Round 2
 
 ---
 
-## The same thing happens again
+<h2> The same thing happens again </h2>
 
 Round 2
 
@@ -3743,7 +3500,7 @@ Finished
 
 ---
 
-## Possible Output
+<h2> Possible Output </h2>
 
 Your output will vary because of the random delays, but it might look like:
 
@@ -3768,7 +3525,7 @@ Player 4 starts Round 2
 
 ---
 
-### The key idea
+<h3> The key idea </h3>
 
 There are **four independent threads** all running the same `player()` method concurrently.
 
@@ -3789,7 +3546,7 @@ progress through each round together.
 
 # Q - What is Semaphore?
 
-## The Problem
+<h2> The Problem </h2>
 
 Suppose your application has a database connection pool with **10 connections**.
 
@@ -3815,7 +3572,7 @@ How do we enforce this limit?
 
 ---
 
-## Before Semaphore
+<h2> Before Semaphore </h2>
 
 One naive approach is to write your own logic.
 
@@ -3863,7 +3620,7 @@ This becomes surprisingly difficult to implement correctly.
 
 ---
 
-## The Idea Behind Semaphore
+<h2> The Idea Behind Semaphore </h2>
 
 Instead of protecting **one resource**, imagine you have **N identical resources**.
 
@@ -3883,7 +3640,7 @@ Every thread that wants the resource must first obtain a permit.
 
 ---
 
-## Analogy: Parking Lot
+<h2> Analogy: Parking Lot </h2>
 
 Imagine a parking lot with **5 parking spaces**.
 
@@ -3943,7 +3700,7 @@ The parking spaces are the **permits**.
 
 ---
 
-## How It Works
+<h2> How It Works </h2>
 
 Suppose there are three permits.
 
@@ -4027,7 +3784,7 @@ Available:
 
 ---
 
-## Example
+<h2> Example </h2>
 
 Imagine only two printers.
 
@@ -4068,7 +3825,7 @@ another waiting thread starts printing.
 
 ---
 
-## Why Was It Introduced?
+<h2> Why Was It Introduced? </h2>
 
 Many real-world resources are **limited**.
 
@@ -4094,7 +3851,7 @@ That's exactly what a semaphore solves.
 ---
 
 
-## Difference from a Lock
+<h2> Difference from a Lock </h2>
 
 Suppose there is one bathroom.
 
@@ -4140,7 +3897,7 @@ A `ReentrantReadWriteLock` is a more advanced lock that separates access into tw
 Unlike a standard `ReentrantLock` (or `synchronized`) which is **Exclusive** (only one thread enters, period),
 a `ReadWriteLock` **allows multiple threads** to read data simultaneously, as long as no one is writing.
 
-## The Purpose: Performance
+<h2> The Purpose: Performance </h2>
 
 The main purpose is to boost concurrency in scenarios where you have many readers 
 but few writers (e.g., a Cache, a Configuration map, or a Product Catalog).
@@ -4157,7 +3914,7 @@ The "Write Lock" is only needed when data changes.
 | **Writer**     | ❌ Blocked          | ❌ Blocked                                       |
 
 
-## Code Example: A Thread-Safe Cache
+<h2> Code Example: A Thread-Safe Cache </h2>
 
 Here is a cache where `get()` is fast and parallel, but `put()` is exclusive and safe.
 
@@ -4203,7 +3960,7 @@ public class ReadWriteCache<K, V> {
 }
 ```
 
-### Visualizing the difference
+<h3> Visualizing the difference </h3>
 
 If you run get() from 5 threads:
 * With ReentrantLock:
@@ -4214,7 +3971,7 @@ If you run get() from 5 threads:
     * Thread 1, 2, 3, 4, 5 enter simultaneously.
     * (Parallel execution)
 
-## Critical "Senior Dev" Warning
+<h2> Critical "Senior Dev" Warning </h2>
 
 Don't blindly use this everywhere. `ReentrantReadWriteLock` has overhead.
 
@@ -4233,7 +3990,7 @@ It is the theoretical concept behind the `synchronized` keyword and `wait()`/`no
 Every object in Java is associated with a Monitor. You don't see it explicitly in code, but the JVM creates 
 it when you use synchronization.
 
-## The Mental Model: "The Secure Room"
+<h2> The Mental Model: "The Secure Room" </h2>
 
 Imagine the Monitor as a special building with three distinct areas:
 
@@ -4246,7 +4003,7 @@ They are fighting to get in.
 (`via wait()`) because they are waiting for a condition to change.
 
 
-## How it maps to Code
+<h2> How it maps to Code </h2>
 
 1\. Entering (`synchronized`):
 
@@ -4273,7 +4030,7 @@ releases the lock, then it fights to acquire the lock again.
 
 Here are some examples of monitor object.
 
-### Example 1: The Simplest Example (Mutual Exclusion)
+<h3> Example 1: The Simplest Example (Mutual Exclusion) </h3>
 
 This uses the Monitor solely for its Mutex (Locking) capability. 
 This is the most common use case: **protecting shared state**.
@@ -4298,7 +4055,7 @@ public class SharedCounter {
 * **The Action:** Threads fight for the lock in the "Entry Set." No coordination (`wait`/`notify`) is needed here, 
 just exclusion.
 
-### Example 2: The Classic "Wait/Notify" Example (Coordination)
+<h3> Example 2: The Classic "Wait/Notify" Example (Coordination) </h3>
 
 This utilizes the full power of the Monitor: **Mutex + Wait Set**. 
 This is the textbook definition of a Monitor (handling condition variables).
@@ -4351,7 +4108,7 @@ public class SimpleBlockingQueue<T> {
 }
 ```
 
-### Example 3: The "Modern" Explicit Monitor (ReentrantLock)
+<h3> Example 3: The "Modern" Explicit Monitor (ReentrantLock) </h3>
 
 In modern Java (JDK 5+), we often implement the Monitor pattern explicitly using `ReentrantLock` and `Condition`. 
 This is functionally identical but offers more control (e.g., multiple wait sets).
@@ -4436,7 +4193,7 @@ synchronized (this) { }
 lock = new Object(); // breaks synchronization
 ```
 
-## What SHOULD be used instead
+<h2> What SHOULD be used instead </h2>
 
 ✔ A private, final lock object
 
@@ -4463,7 +4220,7 @@ You can write any valid Java code inside the curly braces `{ ... }`, including a
 
 However, there is a **critical scope rule** you must know.
 
-## The Code Example
+<h2> The Code Example </h2>
 
 ```java
 public class LambdaSync {
@@ -4484,7 +4241,7 @@ public class LambdaSync {
 }
 ```
 
-## The "Gotcha" (Scope of this)
+<h2> The "Gotcha" (Scope of this) </h2>
 
 If you write `synchronized(this)` inside an anonymous inner class vs. a lambda, the meaning of `this` changes.
 
@@ -4532,7 +4289,7 @@ waiting for a time slice from the Operating System.
 The **as-if-serial** rule allows the JVM to reorder, optimize, or eliminate statements as long as these 
 changes do not alter the observable behavior of a single-threaded program.
 
-## What "do not alter the observable behavior" really means
+<h2> What "do not alter the observable behavior" really means </h2>
 
 It means you cannot observe any difference in:
 
@@ -4543,9 +4300,9 @@ It means you cannot observe any difference in:
 
 If the result looks the same, the JVM is free to optimize.
 
-## Example 1:
+<h2> Example 1: </h2>
 
-### Allowed reordering (no observable effect)
+<h3> Allowed reordering (no observable effect) </h3>
 
 ```java
 int a = 1;
@@ -4559,7 +4316,7 @@ JVM may swap these internally because:
 
 ✅ Allowed.
 
-### Not allowed (observable difference)
+<h3> Not allowed (observable difference) </h3>
 
 ```java
 int a = 1;
@@ -4570,7 +4327,7 @@ JVM cannot print before assigning `a`.
 
 ❌ Not allowed.
 
-## Important clarification (very important)
+<h2> Important clarification (very important) </h2>
 
 * As-if-serial applies to a single thread
 * It says nothing about correctness across threads
@@ -4583,7 +4340,7 @@ to the **"As-If-Serial"** semantics.
 
 Here is the detailed breakdown for your interview answer.
 
-## 1. The "As-If-Serial" Rule
+<h2> 1. The "As-If-Serial" Rule </h2>
 
 This rule basically tells the compiler: "You can change the order of execution however you want to optimize 
 performance (e.g., for CPU pipelining), provided that the final result remains exactly the same for the thread 
@@ -4604,7 +4361,7 @@ synchronized (this) {
 To the thread executing this code, it makes no difference whether `a` or `b` is assigned first. 
 The result is the same. Therefore, the "As-If-Serial" rule allows this swap.
 
-## 2. Why doesn't this break the program?
+<h2> 2. Why doesn't this break the program? </h2>
 
 You might ask: "If the JVM swaps `a` and `b`, won't another thread see `b=2` while a is still `0`?"
 
@@ -4639,7 +4396,7 @@ Note that normal assignment is atomic and just overwrites a value without checki
 but `AtomicReference`lets you check and update in one single step so other threads can't 
 sneak in and mess things up.
 
-## Traditional solution: synchronized
+<h2> Traditional solution: synchronized </h2>
 
 ```java
 synchronized (lock) {
@@ -4661,7 +4418,7 @@ But blocking has downsides:
 * Contention
 * Reduced scalability
 
-## What AtomicReference changes
+<h2> What AtomicReference changes </h2>
 
 `AtomicReference` lets you say:
 > "Update the reference **only if** it hasn’t changed since I last looked at it."
@@ -4669,7 +4426,7 @@ But blocking has downsides:
 
 That is the core idea.
 
-## The key operation: Compare-And-Set (CAS)
+<h2> The key operation: Compare-And-Set (CAS) </h2>
 
 ```java
 ref.compareAndSet(expected, newValue)
@@ -4687,7 +4444,7 @@ This check-and-update happens:
 
 No one can slip in between.
 
-## Why this avoids locking
+<h2> Why this avoids locking </h2>
 
 With CAS:
 
@@ -4695,7 +4452,7 @@ With CAS:
 * Threads may retry instead
 * Only the thread that "wins" updates the reference
 
-## Example pattern:
+<h2> Example pattern: </h2>
 
 ```java
 while (true) {
@@ -4711,13 +4468,13 @@ while (true) {
 
 This is called **optimistic concurrency**.
 
-## Conceptual difference from synchronized
+<h2> Conceptual difference from synchronized </h2>
 
 * `synchronized` protects a block of code
 * `AtomicReference` protects a single decision
 
 
-## When `AtomicReference` makes sense conceptually
+<h2> When `AtomicReference` makes sense conceptually </h2>
 
 Use it when:
 
@@ -4726,7 +4483,7 @@ Use it when:
 * Retrying is acceptable
 * You don't need waiting or coordination
 
-## When it does NOT make sense
+<h2> When it does NOT make sense </h2>
 
 Do not use it when:
 
@@ -4735,14 +4492,14 @@ Do not use it when:
 * You need fairness or ordering
 * You are mutating shared objects
 
-## One core mental model (this is the key)
+<h2> One core mental model (this is the key) </h2>
 
 > `AtomicReference` is for atomically replacing state, not for guarding code.
 >
 
 The following is a realistic example of `AtomicReference`
 
-## Example: Lock Free Stack
+<h2> Example: Lock Free Stack </h2>
 
 The following code implements a thread-safe Stack (LIFO) without using `synchronized`. Using a lock would be a 
 bottleneck if 10 threads are pushing/popping simultaneously.
@@ -4801,7 +4558,7 @@ The "critical section" is extremely small (just pointer swapping). Blocking thre
 CPU time on context switching than doing the actual work.
 
 
-## The Trade-off 
+<h2> The Trade-off  </h2>
 
 While `AtomicReference` avoids "Context Switching" and It's generally fast, but there is one catch:
 
@@ -4825,7 +4582,7 @@ the right choice for protecting multi-step operations and invariants.
 
 # Q - What is Cache-Coherence?
 
-## Step 1: Start with a simple machine (no problem yet)
+<h2> Step 1: Start with a simple machine (no problem yet) </h2>
 
 Imagine one CPU core.
 
@@ -4843,7 +4600,7 @@ Everything is simple. The core writes `1`, reads `1`.
 
 No confusion. No cache coherence problem.
 
-## Step 2: Now add a second CPU core
+<h2> Step 2: Now add a second CPU core </h2>
 
 Now imagine two CPU cores:
 
@@ -4861,7 +4618,7 @@ Core 1 Cache: empty
 Core 2 Cache: empty
 ```
 
-## Step 3: Core 1 reads `x`
+<h2> Step 3: Core 1 reads `x` </h2>
 
 Core 1 executes:
 
@@ -4878,7 +4635,7 @@ Core 1 Cache: x = 0
 Core 2 Cache: empty
 ```
 
-## Step 4: Core 2 also reads `x`
+<h2> Step 4: Core 2 also reads `x` </h2>
 
 Core 2 executes:
 
@@ -4896,7 +4653,7 @@ Core 2 Cache: x = 0
 
 Both cores now have **their own copy** of `x`. So far, still fine.
 
-## Step 5: Core 1 updates `x`
+<h2> Step 5: Core 1 updates `x` </h2>
 
 Core 1 executes:
 
@@ -4923,7 +4680,7 @@ Now the system is **broken**:
 
 This is the **cache coherence problem**.
 
-## Step 6: What cache coherence does
+<h2> Step 6: What cache coherence does </h2>
 
 Cache coherence is the rule system that says:
 
@@ -4948,7 +4705,7 @@ Now if Core 2 reads `x` again:
 * It must reload from memory
 * It will see `1`
 
-## Step 7: What this guarantees (important)
+<h2> Step 7: What this guarantees (important) </h2>
 
 Cache coherence guarantees:
 > All cores will eventually agree on the value of x.
@@ -4962,7 +4719,7 @@ It does not guarantee:
 
 Just value agreement.
 
-## Step 8: Why this alone is not enough (Java example)
+<h2> Step 8: Why this alone is not enough (Java example) </h2>
 
 ```java
 // Thread 1 (Core 1)
@@ -5002,7 +4759,7 @@ core are made visible to the others in a consistent way.
 
 # Q - What is False Sharing?
 
-## What is a Cache Line?
+<h2> What is a Cache Line? </h2>
 
 Processors do not read memory one byte at a time; that would be too slow. Instead, they fetch memory in 
 chunks called **Cache Lines**.
@@ -5014,7 +4771,7 @@ its **L1 (Private Cache)**.
 * **The Logic:** The CPU assumes that if you need one variable, you will likely need its 
 neighbors soon (**Spatial Locality**).
 
-## The Visualization: The "Ping-Pong" Problem (False Sharing)
+<h2> The Visualization: The "Ping-Pong" Problem (False Sharing) </h2>
 
 Imagine two threads running on two different CPU cores. They are working on an array of `long` values.
 
@@ -5032,7 +4789,7 @@ The Scenario
 
 Here is what happens inside the hardware hierarchy:
 
-## 1. Initial State (Shared)
+<h2> 1. Initial State (Shared) </h2>
 
 Both cores read the data.
 
@@ -5040,7 +4797,7 @@ Both cores read the data.
 * The same 64-byte Cache Line is loaded into Core 2's L1 Cache.
 * Status: The line is marked as Shared in both L1 caches
 
-## 2. Core 1 Modifies ValueA
+<h2> 2. Core 1 Modifies ValueA </h2>
 
 Thread 1 updates `ValueA`.
 
@@ -5048,7 +4805,7 @@ Thread 1 updates `ValueA`.
 * **The Coherence Protocol (MESI):** To maintain consistency, the hardware must invalidate any other copies of this line.
 * **Core 2:** Its copy of the line in **L1 Cache** is instantly marked `Invalid` (effectively deleted).
 
-## 3. Core 2 Tries to Modify ValueB
+<h2> 3. Core 2 Tries to Modify ValueB </h2>
 
 Thread 2 tries to update `ValueB`.
 
@@ -5058,7 +4815,7 @@ Thread 2 tries to update `ValueB`.
 * **The Write:** Now Core 2 finally updates `ValueB` and marks the line `Modified`.
 * **The Cost:** This operation invalidates the line in **Core 1**, restarting the cycle.
 
-## The Result: "Thrashing the L3"
+<h2> The Result: "Thrashing the L3" </h2>
 
 Even though the threads are touching different variables, the CPU cores are fighting over the **same Cache Line**. 
 Instead of working purely in their fast **L1 Caches** (1-2 ns latency), they are constantly pausing to push/pull data 
@@ -5074,7 +4831,7 @@ Cache Affinity (also known as CPU Affinity) is essentially **"Thread Loyalty" to
 It is the strategy used by the Operating System scheduler to keep a specific thread running on the **same CPU core** 
 as long as possible, rather than moving it around to different cores.
 
-## The "Why": Warm vs. Cold Cache
+<h2> The "Why": Warm vs. Cold Cache </h2>
 
 This concept is directly related to the **Cache Lines** we just discussed.
 
@@ -5088,22 +4845,22 @@ The thread resumes immediately at top speed.
 * It also effectively "pollutes" Core 2's cache, potentially evicting useful data needed by whatever 
 was running there before.
 
-## Types of Affinity
+<h2> Types of Affinity </h2>
 
-### 1. Soft Affinity (Natural)
+<h3> 1. Soft Affinity (Natural) </h3>
 
 * **What it is:** The OS scheduler tries to keep a thread on the same core, but it doesn't promise anything. 
 If the original core is busy and another is free, the OS will migrate the thread to keep the system load balanced.
 * **Java context:** This is the default behavior for all standard Java threads. The Linux scheduler (CFS) is 
 generally good at this naturally.
 
-### 2. Hard Affinity (Pinned)
+<h3> 2. Hard Affinity (Pinned) </h3>
 
 * **What it is:** You explicitly command the OS: _"This thread MUST run on Core 3 and NOWHERE else."_
 * **Pros:** Guaranteed cache locality; zero context switch overhead from migration.
 * **Cons:** If Core 3 is busy, the thread waits, even if Core 4 is completely idle.
 
-## Hard Affinity in Java
+<h2> Hard Affinity in Java </h2>
 
 Standard Java (`java.lang.Thread`) does not have an API for Hard Affinity. Java is designed to 
 be "Write Once, Run Anywhere," and CPU topology is too hardware-specific.
@@ -5125,7 +4882,7 @@ Assume (this is realistic):
 a and b are on the SAME cache line
 ```
 
-## Case 1: NO ExecutorService (single-threaded)
+<h2> Case 1: NO ExecutorService (single-threaded) </h2>
 
 ```java
 public static void main(String[] args) {
@@ -5158,7 +4915,7 @@ Core 1: -------- --------
 👉 False sharing is impossible here
 
 
-## Case 2: ExecutorService (THIS is the difference)
+<h2> Case 2: ExecutorService (THIS is the difference) </h2>
 
 ```java
 ExecutorService pool = Executors.newFixedThreadPool(2);
@@ -5192,7 +4949,7 @@ Core 1: BBBBBBBB BBBBBBBB
 * Cache line keeps moving between cores
 👉 False sharing happens
 
-## Why ExecutorService keeps coming up
+<h2> Why ExecutorService keeps coming up </h2>
 
 Because `ExecutorService`:
 
@@ -5216,7 +4973,7 @@ different cores, which is required for cache-line ping-pong to happen.
 
 In Java, there are two correct and interview-relevant ways to provide an initial value for a `ThreadLocal` variable.
 
-## 1. Override initialValue() (Legacy / Pre-Java 8 style)
+<h2> 1. Override initialValue() (Legacy / Pre-Java 8 style) </h2>
 
 You can create an anonymous subclass of `ThreadLocal` and override the `initialValue()` method.
 
@@ -5231,19 +4988,19 @@ ThreadLocal<Integer> counter = new ThreadLocal<>() {
 };
 ```
 
-### Behavior
+<h3> Behavior </h3>
 
 * `initialValue()` is invoked once per thread
 * It is called lazily, i.e., the first time `get()` is invoked in that thread
 * Each thread gets its own independent copy
 
-### When to mention this
+<h3> When to mention this </h3>
 
 * Important for interviews involving older Java versions
 * Demonstrates understanding of `ThreadLocal` internals
 
 
-## 2. Use ThreadLocal.withInitial() (Recommended, Java 8+)
+<h2> 2. Use ThreadLocal.withInitial() (Recommended, Java 8+) </h2>
 
 Java 8 introduced a factory method that accepts a `Supplier`.
 
@@ -5253,19 +5010,19 @@ Java 8 introduced a factory method that accepts a `Supplier`.
 ThreadLocal<Integer> counter = ThreadLocal.withInitial(() -> 0);
 ```
 
-### Behavior
+<h3> Behavior </h3>
 
 * Functionally identical to `initialValue()`
 * Cleaner, functional style
 * Still lazy and per-thread
 
-### Advantages
+<h3> Advantages </h3>
 
 * More readable
 * Encourages immutable or well-scoped initialization
 * Standard approach in modern codebases
 
-## Key Rules (Very Important for Interviews)
+<h2> Key Rules (Very Important for Interviews) </h2>
 
 ❌ Constructor does NOT set per-thread value
 
@@ -5275,7 +5032,7 @@ new ThreadLocal<>(0); // ❌ INVALID — no such constructor
 
 `ThreadLocal` does not store a value itself. It stores values inside each Thread's `ThreadLocalMap`.
 
-## Lifecycle Summary
+<h2> Lifecycle Summary </h2>
 
 | Event                  | What Happens                     |
 |------------------------|----------------------------------|
@@ -5285,7 +5042,7 @@ new ThreadLocal<>(0); // ❌ INVALID — no such constructor
 | `threadLocal.remove()` | Deletes value for current thread |
 
 
-## Common Interview Trap Question
+<h2> Common Interview Trap Question </h2>
 
 Q: When is `initialValue()` executed?
 
